@@ -4971,6 +4971,16 @@ CREATE TABLE `formBCHP` (
   `formCreated` date DEFAULT NULL,
   `formEdited` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   `c_lastVisited` char(3) DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+--
+-- Separated tables for formBCHP pages
+--
+
+
+CREATE TABLE `formBCHP_pg1` (
+  `ID` INT NOT NULL,
   `pg1_formDate` date DEFAULT NULL,
   `pg1_patientName` varchar(40) DEFAULT NULL,
   `pg1_phn` varchar(20) DEFAULT NULL,
@@ -5113,6 +5123,17 @@ CREATE TABLE `formBCHP` (
   `pg1_otherDate5` date DEFAULT NULL,
   `pg1_otherDate6` date DEFAULT NULL,
   `pg1_otherDate7` date DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formBCHP_pg1_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formBCHP` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
+
+CREATE TABLE `formBCHP_pg2` (
+  `ID` INT NOT NULL,
   `pg2_date1` date DEFAULT NULL,
   `pg2_medName1` varchar(30) DEFAULT NULL,
   `pg2_dose1` varchar(10) DEFAULT NULL,
@@ -5230,8 +5251,13 @@ CREATE TABLE `formBCHP` (
   `pg2_other5Date5` date DEFAULT NULL,
   `pg2_other5Date6` date DEFAULT NULL,
   `pg2_other5Date7` date DEFAULT NULL,
-  PRIMARY KEY (`ID`)
-);
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formBCHP_pg2_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formBCHP` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
 
 --
 -- Table structure for table `form_boolean_value`
