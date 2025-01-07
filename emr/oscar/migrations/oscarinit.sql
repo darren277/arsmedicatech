@@ -1465,10 +1465,10 @@ CREATE TABLE `RemoteDataLog` (
 CREATE TABLE `RemoteIntegratedDataCopy` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `demographic_no` int(10) DEFAULT NULL,
-  `datatype` text DEFAULT NULL,
+  `datatype` varchar(165) DEFAULT NULL,
   `data` longtext,
   `lastUpdateDate` datetime DEFAULT NULL,
-  `signature` text DEFAULT NULL,
+  `signature` varchar(165) DEFAULT NULL,
   `facilityId` int(11) DEFAULT NULL,
   `provider_no` varchar(6) DEFAULT NULL,
   `archived` tinyint(1) DEFAULT NULL,
@@ -3396,7 +3396,7 @@ CREATE TABLE `encounter` (
 
 CREATE TABLE `encounterForm` (
   `form_name` varchar(30) NOT NULL DEFAULT '',
-  `form_value` text NOT NULL DEFAULT '',
+  `form_value` varchar(255) NOT NULL DEFAULT '',
   `form_table` varchar(50) NOT NULL DEFAULT '',
   `hidden` int(5) NOT NULL DEFAULT '0',
   PRIMARY KEY (`form_value`)
