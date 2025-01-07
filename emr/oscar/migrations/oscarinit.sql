@@ -3705,6 +3705,34 @@ CREATE TABLE `formAR` (
   `c_lastVisited` char(3) DEFAULT NULL,
   `c_pName` varchar(60) DEFAULT NULL,
   `c_address` varchar(80) DEFAULT NULL,
+  `c_ba` varchar(25) DEFAULT NULL,
+  `c_nc` varchar(25) DEFAULT NULL,
+  `c_allergies` text,
+  `c_meds` text,
+  `c_finalEDB` date DEFAULT NULL,
+  `c_gravida` varchar(5) DEFAULT NULL,
+  `c_term` varchar(5) DEFAULT NULL,
+  `c_prem` varchar(5) DEFAULT NULL,
+  `c_living` varchar(10) DEFAULT NULL,
+  `c_riskFactors` text,
+  `c_ppWt` varchar(6) DEFAULT NULL,
+  `pg1_signature` varchar(50) DEFAULT NULL,
+  `pg2_signature` varchar(50) DEFAULT NULL,
+  `pg3_signature` varchar(50) DEFAULT NULL,
+  `pg1_formDate` date DEFAULT NULL,
+  `pg2_formDate` date DEFAULT NULL,
+  `pg3_formDate` date DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB
+  ROW_FORMAT=DYNAMIC;
+
+
+--
+-- Separated form section tables
+--
+
+CREATE TABLE `formAR_pg1` (
+  `ID` INT NOT NULL,
   `pg1_dateOfBirth` date DEFAULT NULL,
   `pg1_age` char(2) DEFAULT NULL,
   `pg1_msSingle` tinyint(1) DEFAULT NULL,
@@ -3721,17 +3749,13 @@ CREATE TABLE `formAR` (
   `pg1_baObs` tinyint(1) DEFAULT NULL,
   `pg1_baFP` tinyint(1) DEFAULT NULL,
   `pg1_baMidwife` tinyint(1) DEFAULT NULL,
-  `c_ba` varchar(25) DEFAULT NULL,
   `pg1_famPhys` varchar(100) DEFAULT NULL,
   `pg1_ncPed` tinyint(1) DEFAULT NULL,
   `pg1_ncFP` tinyint(1) DEFAULT NULL,
   `pg1_ncMidwife` tinyint(1) DEFAULT NULL,
-  `c_nc` varchar(25) DEFAULT NULL,
   `pg1_ethnicBg` varchar(100) DEFAULT NULL,
   `pg1_vbac` tinyint(1) DEFAULT NULL,
   `pg1_repeatCS` tinyint(1) DEFAULT NULL,
-  `c_allergies` text,
-  `c_meds` text,
   `pg1_menLMP` varchar(10) DEFAULT NULL,
   `pg1_menCycle` varchar(7) DEFAULT NULL,
   `pg1_menReg` tinyint(1) DEFAULT NULL,
@@ -3742,10 +3766,6 @@ CREATE TABLE `formAR` (
   `pg1_otherAR1` tinyint(1) DEFAULT NULL,
   `pg1_otherAR1Name` varchar(25) DEFAULT NULL,
   `pg1_lastUsed` varchar(10) DEFAULT NULL,
-  `c_finalEDB` date DEFAULT NULL,
-  `c_gravida` varchar(5) DEFAULT NULL,
-  `c_term` varchar(5) DEFAULT NULL,
-  `c_prem` varchar(5) DEFAULT NULL,
   `pg1_ectopic` tinyint(1) DEFAULT NULL,
   `pg1_ectopicBox` char(2) DEFAULT NULL,
   `pg1_termination` tinyint(1) DEFAULT NULL,
@@ -3754,7 +3774,6 @@ CREATE TABLE `formAR` (
   `pg1_spontaneousBox` char(2) DEFAULT NULL,
   `pg1_stillborn` tinyint(1) DEFAULT NULL,
   `pg1_stillbornBox` char(2) DEFAULT NULL,
-  `c_living` varchar(10) DEFAULT NULL,
   `pg1_multi` varchar(10) DEFAULT NULL,
   `pg1_year1` varchar(10) DEFAULT NULL,
   `pg1_sex1` char(1) DEFAULT NULL,
@@ -3904,10 +3923,8 @@ CREATE TABLE `formAR` (
   `pg1_pdt46` tinyint(1) DEFAULT NULL,
   `pg1_pdt47` tinyint(1) DEFAULT NULL,
   `pg1_pdt48` tinyint(1) DEFAULT NULL,
-  `c_riskFactors` text,
   `pg1_ht` varchar(6) DEFAULT NULL,
   `pg1_wt` varchar(6) DEFAULT NULL,
-  `c_ppWt` varchar(6) DEFAULT NULL,
   `pg1_BP` varchar(10) DEFAULT NULL,
   `pg1_head` tinyint(1) DEFAULT NULL,
   `pg1_thyroid` tinyint(1) DEFAULT NULL,
@@ -3924,17 +3941,16 @@ CREATE TABLE `formAR` (
   `pg1_uterusBox` char(3) DEFAULT NULL,
   `pg1_adnexa` tinyint(1) DEFAULT NULL,
   `pg1_commentsAR1` text,
-  `ar2_etss` varchar(10) DEFAULT NULL,
-  `ar2_hb` varchar(10) DEFAULT NULL,
-  `ar2_mcv` varchar(10) DEFAULT NULL,
-  `ar2_mss` varchar(10) DEFAULT NULL,
-  `ar2_rubella` varchar(5) DEFAULT NULL,
-  `ar2_hbs` varchar(6) DEFAULT NULL,
-  `ar2_vdrl` varchar(6) DEFAULT NULL,
-  `ar2_bloodGroup` varchar(6) DEFAULT NULL,
-  `ar2_rh` varchar(6) DEFAULT NULL,
-  `ar2_antibodies` varchar(6) DEFAULT NULL,
-  `ar2_rhIG` varchar(6) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formAR_pg1_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formAR` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE `formAR_pg2` (
+  `ID` INT NOT NULL,
   `pg2_date1` date DEFAULT NULL,
   `pg2_gest1` varchar(6) DEFAULT NULL,
   `pg2_ht1` varchar(6) DEFAULT NULL,
@@ -4122,6 +4138,16 @@ CREATE TABLE `formAR` (
   `pg2_BP17` varchar(8) DEFAULT NULL,
   `pg2_comments17` text DEFAULT NULL,
   `pg2_cig17` char(3) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formAR_pg2_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formAR` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE `formAR_pg3` (
+  `ID` INT NOT NULL,
   `pg3_date18` date DEFAULT NULL,
   `pg3_gest18` varchar(6) DEFAULT NULL,
   `pg3_ht18` varchar(6) DEFAULT NULL,
@@ -4309,6 +4335,27 @@ CREATE TABLE `formAR` (
   `pg3_BP34` varchar(8) DEFAULT NULL,
   `pg3_comments34` text DEFAULT NULL,
   `pg3_cig34` char(3) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formAR_pg3_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formAR` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE `formAR_ar2` (
+  `ID` INT NOT NULL,
+  `ar2_etss` varchar(10) DEFAULT NULL,
+  `ar2_hb` varchar(10) DEFAULT NULL,
+  `ar2_mcv` varchar(10) DEFAULT NULL,
+  `ar2_mss` varchar(10) DEFAULT NULL,
+  `ar2_rubella` varchar(5) DEFAULT NULL,
+  `ar2_hbs` varchar(6) DEFAULT NULL,
+  `ar2_vdrl` varchar(6) DEFAULT NULL,
+  `ar2_bloodGroup` varchar(6) DEFAULT NULL,
+  `ar2_rh` varchar(6) DEFAULT NULL,
+  `ar2_antibodies` varchar(6) DEFAULT NULL,
+  `ar2_rhIG` varchar(6) DEFAULT NULL,
   `ar2_obstetrician` tinyint(1) DEFAULT NULL,
   `ar2_pediatrician` tinyint(1) DEFAULT NULL,
   `ar2_anesthesiologist` tinyint(1) DEFAULT NULL,
@@ -4364,15 +4411,13 @@ CREATE TABLE `formAR` (
   `ar2_otherAR2Name` varchar(20) DEFAULT NULL,
   `ar2_otherResult` varchar(10) DEFAULT NULL,
   `ar2_psych` varchar(25) DEFAULT NULL,
-  `pg1_signature` varchar(50) DEFAULT NULL,
-  `pg2_signature` varchar(50) DEFAULT NULL,
-  `pg3_signature` varchar(50) DEFAULT NULL,
-  `pg1_formDate` date DEFAULT NULL,
-  `pg2_formDate` date DEFAULT NULL,
-  `pg3_formDate` date DEFAULT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB
-  ROW_FORMAT=DYNAMIC;
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formAR_ar2_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formAR` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
 
 --
 -- Table structure for table `formAdf`
