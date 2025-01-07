@@ -4371,7 +4371,8 @@ CREATE TABLE `formAR` (
   `pg2_formDate` date DEFAULT NULL,
   `pg3_formDate` date DEFAULT NULL,
   PRIMARY KEY (`ID`)
-);
+) ENGINE=InnoDB
+  ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `formAdf`
@@ -8461,7 +8462,9 @@ CREATE TABLE `formPalliativeCare` (
   `signature3` varchar(50) DEFAULT NULL,
   `signature4` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-);
+) ENGINE=InnoDB
+  ROW_FORMAT=DYNAMIC;
+
 
 --
 -- Table structure for table `formPeriMenopausal`
@@ -8776,7 +8779,8 @@ CREATE TABLE `formRhImmuneGlobulin` (
   `famPhyPhone` varchar(20) DEFAULT NULL,
   `famPhyFax` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-);
+) ENGINE=InnoDB
+  ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `formRourke`
