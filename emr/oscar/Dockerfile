@@ -43,6 +43,7 @@ RUN echo "db_uri = jdbc:mysql://db:3306/" >> "$OSCAR_PROPS"
 
 #COPY oscar.properties /usr/local/tomcat/conf/oscar.properties
 
+COPY ./conf/context.xml /usr/local/tomcat/conf/context.xml
 
 # Copy entrypoint script into container
 COPY entrypoint.sh /entrypoint.sh
