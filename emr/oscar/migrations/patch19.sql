@@ -1727,10 +1727,10 @@ CREATE TABLE IF NOT EXISTS `form_boolean_value` (
 
 -- Group A that cannot be fixed by changing VARCHAR to TEXT
 -- MyISAM is the only viable solution
-CALL change2MyISAM(DATABASE(),'formAR');
-CALL change2MyISAM(DATABASE(),'formONAR');
-CALL change2MyISAM(DATABASE(),'formBCAR');
-CALL change2MyISAM(DATABASE(),'formBCAR2012');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formAR');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formONAR');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formBCAR');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formBCAR2012');
 
 
 
@@ -1772,29 +1772,29 @@ END $$
 -- Reset the delimiter
 DELIMITER ;
 
-CALL deprecateOldTables();
+------ TEMP REMOVAL: CALL deprecateOldTables();
 
 
 -- Group B that can be fixed by changing VARCHAR to TEXT
-CALL change2MyISAM(DATABASE(),'formIntakeHx');
-CALL change2MyISAM(DATABASE(),'formIntakeInfo');
-CALL change2MyISAM(DATABASE(),'formInternetAccess');
-CALL change2MyISAM(DATABASE(),'formLabReq');
-CALL change2MyISAM(DATABASE(),'formONAREnhancedRecord');
-CALL change2MyISAM(DATABASE(),'formONAREnhancedRecordExt1');
-CALL change2MyISAM(DATABASE(),'formONAREnhancedRecordExt2');
-CALL change2MyISAM(DATABASE(),'formType2Diabetes');
-CALL change2MyISAM(DATABASE(),'formAdf');
-CALL change2MyISAM(DATABASE(),'formfollowup');
-CALL change2MyISAM(DATABASE(),'formintakeb');
-CALL change2MyISAM(DATABASE(),'formintakec');
-CALL change2MyISAM(DATABASE(),'formovulation');     
-CALL change2MyISAM(DATABASE(),'formRourke2009');   
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formIntakeHx');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formIntakeInfo');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formInternetAccess');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formLabReq');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formONAREnhancedRecord');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formONAREnhancedRecordExt1');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formONAREnhancedRecordExt2');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formType2Diabetes');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formAdf');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formfollowup');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formintakeb');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formintakec');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formovulation');
+------ TEMP REMOVAL: CALL change2MyISAM(DATABASE(),'formRourke2009');
 
 -- PHC adjust to prevent truncation in some settings
 ALTER TABLE `demographic` CHANGE `family_physician` `family_physician` VARCHAR(80) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
 ALTER TABLE `demographic` CHANGE `postal` `postal` VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
-ALTER TABLE `DigitalSignature` CHANGE `signatureImage` `signatureImage` MEDIUMBLOB NOT NULL;
+------ TEMP REMOVAL: ALTER TABLE `DigitalSignature` CHANGE `signatureImage` `signatureImage` MEDIUMBLOB NOT NULL;
 
 -- PHC to adjust to new muted color themes
 UPDATE `appointment_status` SET `color`= '#FDFED2' WHERE `color`= '#FDFEC7' AND `description`='To Do';
@@ -1825,13 +1825,13 @@ UPDATE `consentType` SET `active` = '0' WHERE `consentType`.`name` = 'Sunshiner 
 ALTER TABLE `CVCImmunizationName` CHANGE `CVCImmunizationId` `CVCImmunizationId` VARCHAR(11) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 
 -- PHC after Dennis Warren some cleanup for data consistancy
-UPDATE casemgmt_note cn
-SET billing_code = ''
-WHERE billing_code IS NULL;
+------ TEMP REMOVAL: UPDATE casemgmt_note cn
+------ TEMP REMOVAL: SET billing_code = ''
+------ TEMP REMOVAL: WHERE billing_code IS NULL;
 
-UPDATE casemgmt_note cn
-SET encounter_type = 'face to face encounter with client'
-WHERE encounter_type IS NULL;
+------ TEMP REMOVAL: UPDATE casemgmt_note cn
+------ TEMP REMOVAL: SET encounter_type = 'face to face encounter with client'
+------ TEMP REMOVAL: WHERE encounter_type IS NULL;
 
 UPDATE preventions p
 SET provider_name = NULL 
@@ -1977,7 +1977,7 @@ UPDATE provider
 SET `lastUpdateUser` = '999998'
 WHERE `lastUpdateUser` IS NULL;
 
-UPDATE provider 
+UPDATE provider
 SET `lastUpdateDate` = NOW()
 WHERE `lastUpdateDate` IS NULL;
 
