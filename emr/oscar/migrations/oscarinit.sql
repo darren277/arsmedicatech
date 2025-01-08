@@ -13299,7 +13299,6 @@ CREATE TABLE `formONAR2017` (
   `provider_no` int(10),
   `formCreated` date,
   `formEdited` timestamp,
-  `pg1_lockPage` tinyint(1),
   `c_ln` varchar(100),
   `c_fn` varchar(100),
   `c_addr` varchar(80),
@@ -13311,32 +13310,54 @@ CREATE TABLE `formONAR2017` (
   `c_pln` varchar(80),
   `c_pfn` varchar(80),
   `c_cpr` varchar(50),
-  `pg1_lmsgY` tinyint(1),
-  `pg1_lmsgN` tinyint(1),
   `c_calt` varchar(50),
-  `pg1_pocc` varchar(60),
-  `pg1_pedl` varchar(60),
   `c_pAge` varchar(6),
   `c_dob` date,
-  `pg1_ageb` varchar(6),
   `c_lang` varchar(50),
-  `pg1_irY` tinyint(1),
-  `pg1_irN` tinyint(1),
-  `pg1_occ` varchar(32),
-  `pg1_edl` varchar(32),
-  `pg1_mars` varchar(10),
-  `pg1_sexo` varchar(25),
   `c_ohip` varchar(50),
   `c_chrt` varchar(50),
-  `pg1_dsraY` tinyint(1),
-  `pg1_dsraN` tinyint(1),
-  `pg1_plPOB` varchar(75),
   `c_pba` varchar(75),
   `c_nbcph` varchar(64),
   `c_nbcpc` varchar(64),
   `c_fph` varchar(120),
   `c_alrg` varchar(140),
   `c_medc` varchar(140),
+  `c_fedb` varchar(12),
+  `c_g` varchar(25),
+  `c_t` varchar(25),
+  `c_p` varchar(25),
+  `c_a` varchar(25),
+  `c_l` varchar(25),
+  `c_s` varchar(25),
+  `c_ppht` varchar(25),
+  `c_ppwt` varchar(25),
+  `c_ppbmi` varchar(25)
+);  
+
+
+--
+-- Child tables for pages of `formONAR2017`
+--
+
+
+
+CREATE TABLE `formONAR2017_pg1` (
+  `ID` INT NOT NULL,
+  `pg1_lockPage` tinyint(1),
+  `pg1_lmsgY` tinyint(1),
+  `pg1_lmsgN` tinyint(1),
+  `pg1_pocc` varchar(60),
+  `pg1_pedl` varchar(60),
+  `pg1_ageb` varchar(6),
+  `pg1_irY` tinyint(1),
+  `pg1_irN` tinyint(1),
+  `pg1_occ` varchar(32),
+  `pg1_edl` varchar(32),
+  `pg1_mars` varchar(10),
+  `pg1_sexo` varchar(25),
+  `pg1_dsraY` tinyint(1),
+  `pg1_dsraN` tinyint(1),
+  `pg1_plPOB` varchar(75),
   `pg1_lmp` varchar(12),
   `pg1_cycleQ` varchar(25),
   `pg1_crtY` tinyint(1),
@@ -13351,7 +13372,6 @@ CREATE TABLE `formONAR2017` (
   `pg1_cptaN` tinyint(1),
   `pg1_det` varchar(80),
   `pg1_edbLm` varchar(12),
-  `c_fedb` varchar(12),
   `pg1_t1Us` tinyint(1),
   `pg1_t2Us` tinyint(1),
   `pg1_datL` tinyint(1),
@@ -13567,17 +13587,20 @@ CREATE TABLE `formONAR2017` (
   `pg1_rb` varchar(110),
   `pg1_date` varchar(12),
   `pg1_mrpd` varchar(12),
-  `c_g` varchar(25),
-  `c_t` varchar(25),
-  `c_p` varchar(25),
-  `c_a` varchar(25),
-  `c_l` varchar(25),
-  `c_s` varchar(25),
   `pg1_neon` varchar(25),
-  `c_ppht` varchar(25),
-  `c_ppwt` varchar(25),
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formONAR2017_pg1_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formONAR2017` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
+
+CREATE TABLE `formONAR2017_pg2` (
+  `ID` INT NOT NULL,
   `pg2_bp` varchar(25),
-  `c_ppbmi` varchar(25),
   `pg2_hn` varchar(25),
   `pg2_msk` varchar(25),
   `pg2_bnp` varchar(25),
@@ -13706,6 +13729,18 @@ CREATE TABLE `formONAR2017` (
   `pg2_ud13` varchar(12),
   `pg2_ug13` varchar(50),
   `pg2_ur13` varchar(85),
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formONAR2017_pg2_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formONAR2017` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB
+  ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE `formONAR2017_pg3` (
+  `ID` INT NOT NULL,
   `pg3_iss1` varchar(50),
   `pg3_pl1` varchar(80),
   `pg3_iss2` varchar(50),
@@ -13971,5 +14006,12 @@ CREATE TABLE `formONAR2017` (
   `pg3_ni2` varchar(50),
   `pg3_ni3` varchar(50),
   `pg3_ni4` varchar(50),
-  `pg3_ni5` varchar(50)
-);  
+  `pg3_ni5` varchar(50),
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formONAR2017_pg3_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formONAR2017` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB
+  ROW_FORMAT=DYNAMIC;
