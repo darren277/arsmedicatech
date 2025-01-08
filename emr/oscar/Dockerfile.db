@@ -1,0 +1,13 @@
+FROM mariadb:10.6
+
+COPY my.cnf /etc/mysql/conf.d/my.cnf
+
+RUN chmod 644 /etc/mysql/conf.d/my.cnf
+
+COPY migrations/oscarinit.sql /oscarinit.sql
+COPY migrations/oscardata.sql /oscardata.sql
+
+COPY migrations/initcaisi.sql /initcaisi.sql
+COPY migrations/initcaisi_data.sql /initcaisi_data.sql
+
+COPY migrations/patch19.sql /patch19.sql
