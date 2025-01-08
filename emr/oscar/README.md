@@ -3,7 +3,7 @@
 2. Start everything: `docker-compose up`.
 3. Check logs: `docker-compose logs -f`.
 
-Go to: http://localhost:8085/oscar
+Go to: http://localhost:8201/oscar
 
 To SSH into the container: `docker exec -it oscar bash`.
 

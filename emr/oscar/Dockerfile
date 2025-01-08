@@ -50,6 +50,7 @@ RUN chmod +x /entrypoint.sh
 
 # Expose Tomcat HTTP on 8080 (and optionally 8443 for HTTPS if you want to self-sign)
 EXPOSE 8080
+EXPOSE 8201
 EXPOSE 8443
 
 # Use the entrypoint script
