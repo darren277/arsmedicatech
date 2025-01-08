@@ -9,6 +9,12 @@ To SSH into the container: `docker exec -it oscar bash`.
 
 `docker-compose logs db`
 
+## First Sign In
+
+1. Username: `oscardoc`.
+2. Password: `mac2002`.
+3. PIN: `1117`.
+
 ## Migrations
 
 #Warning: World-writable config file '/etc/mysql/conf.d/my.cnf' is ignored
