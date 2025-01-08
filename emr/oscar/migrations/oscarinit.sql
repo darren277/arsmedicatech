@@ -11750,6 +11750,14 @@ CREATE TABLE `program` (
   CONSTRAINT `program_ibfk_1` FOREIGN KEY (`facilityId`) REFERENCES `Facility` (`id`)
 );
 
+ALTER TABLE program
+  MODIFY lastUpdateDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- Field 'enableOCAN' doesn't have a default value
+
+ALTER TABLE program
+  MODIFY enableOCAN tinyint(1) NOT NULL DEFAULT '0';
+
 --
 -- Table structure for table `property`
 --
