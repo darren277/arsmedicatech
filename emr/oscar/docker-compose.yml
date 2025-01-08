@@ -43,7 +43,7 @@ services:
       TZ: America/Toronto
     # If you want HTTPS, you can map 8443:8443 (and configure Tomcat SSL).
     ports:
-      - "8085:8080"
+      - "8201:8080"
       - "8443:8443"
     volumes:
       # If you have a folder for the OscarDocument or logs, mount them here:
