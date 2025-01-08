@@ -12332,7 +12332,7 @@ CREATE TABLE `scheduledate` (
   `available` char(1) NOT NULL DEFAULT '',
   `priority` char(1) DEFAULT NULL,
   `reason` text DEFAULT NULL,
-  `hour` text DEFAULT NULL,
+  `hour` varchar(20) DEFAULT NULL,
   `creator` varchar(50) DEFAULT NULL,
   `status` char(1) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
