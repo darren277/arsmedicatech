@@ -7885,6 +7885,15 @@ CREATE TABLE `formRourke` (
   `c_headCirc` varchar(6) DEFAULT NULL,
   `c_birthWeight` varchar(7) DEFAULT NULL,
   `c_dischargeWeight` varchar(7) DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+--
+-- Child tables for pages of table `formRourke`
+--
+
+CREATE TABLE `formRourke_p1` (
+  `ID` INT NOT NULL,
   `p1_date1w` date DEFAULT NULL,
   `p1_date2w` date DEFAULT NULL,
   `p1_date1m` date DEFAULT NULL,
@@ -8033,6 +8042,16 @@ CREATE TABLE `formRourke` (
   `p1_signature2w` varchar(250) DEFAULT NULL,
   `p1_signature1m` varchar(250) DEFAULT NULL,
   `p1_signature2m` varchar(250) DEFAULT NULL,
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formRourke_p1_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formRourke` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `formRourke_p2` (
+  `ID` INT NOT NULL,
   `p2_date4m` date DEFAULT NULL,
   `p2_date6m` date DEFAULT NULL,
   `p2_date9m` date DEFAULT NULL,
@@ -8181,6 +8200,17 @@ CREATE TABLE `formRourke` (
   `p2_signature6m` varchar(250) DEFAULT NULL,
   `p2_signature9m` varchar(250) DEFAULT NULL,
   `p2_signature12m` varchar(250) DEFAULT NULL,
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formRourke_p2_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formRourke` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE `formRourke_p3` (
+  `ID` INT NOT NULL,
   `p3_date18m` date DEFAULT NULL,
   `p3_date2y` date DEFAULT NULL,
   `p3_date4y` date DEFAULT NULL,
@@ -8296,8 +8326,14 @@ CREATE TABLE `formRourke` (
   `p3_signature18m` varchar(250) DEFAULT NULL,
   `p3_signature2y` varchar(50) DEFAULT NULL,
   `p3_signature4y` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`ID`)
-);
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formRourke_p3_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formRourke` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
 
 --
 -- Table structure for table `formRourke2006`
