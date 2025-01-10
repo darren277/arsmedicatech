@@ -818,6 +818,7 @@ CREATE TABLE `formBCAR2012_pg2` (
 
 
 CREATE TABLE `formBCAR2012_pg3` (
+  `ID` INT NOT NULL,
   pg3_probComment text,
   pg3_investigation text,
   pg3_doula varchar(100),
