@@ -1055,6 +1055,130 @@ CREATE TABLE formBCAR(
   formEdited timestamp   ,
   c_lastVisited char(3)   ,
   c_hospital text,
+  c_surname varchar(30),
+  c_givenName varchar(30),
+  c_address text,
+  c_city text,
+  c_province varchar(50),
+  c_postal varchar(8),
+  c_phone text,
+  c_phn varchar(20),
+  c_phyMid text,
+  c_ppWt varchar(5),
+  c_ppHt varchar(5),
+  c_ppBMI varchar(5),
+  c_EDD date,
+
+  PRIMARY KEY (ID)
+);
+
+
+--
+-- Child tables for pages of `formBCAR`
+--
+
+
+CREATE TABLE `formBCAR_ar2` (
+  `ID` INT NOT NULL,
+
+  ar2_riskNeonDeath tinyint(1),
+  ar2_riskStillbirth tinyint(1),
+  ar2_riskAbortion tinyint(1),
+  ar2_riskHabitAbort tinyint(1),
+  ar2_riskPriPretBirth33 tinyint(1),
+  ar2_riskPriPretBirth20 tinyint(1),
+  ar2_riskPriCesBirth tinyint(1),
+  ar2_riskPriIUGR tinyint(1),
+  ar2_riskPriMacr tinyint(1),
+  ar2_riskRhImmu tinyint(1),
+  ar2_riskPriRhNB tinyint(1),
+  ar2_riskMajCongAnom tinyint(1),
+  ar2_riskPPHemo tinyint(1),
+  ar2_riskConDiet tinyint(1),
+  ar2_riskDietMacFetus tinyint(1),
+  ar2_riskInsDepend tinyint(1),
+  ar2_riskRetDoc tinyint(1),
+  ar2_riskAsymt tinyint(1),
+  ar2_riskSymt tinyint(1),
+  ar2_risk14090 tinyint(1),
+  ar2_riskHyperDrug tinyint(1),
+  ar2_riskChroRenalDisease tinyint(1),
+  ar2_riskUnder18 tinyint(1),
+  ar2_riskOver35 tinyint(1),
+  ar2_riskObesity tinyint(1),
+  ar2_riskH157 tinyint(1),
+  ar2_riskH152 tinyint(1),
+  ar2_riskDepre tinyint(1),
+  ar2_riskAlcoDrug tinyint(1),
+  ar2_riskSmoking tinyint(1),
+  ar2_riskOtherMedical tinyint(1),
+  ar2_riskDiagLarge tinyint(1),
+  ar2_riskDiagSmall tinyint(1),
+  ar2_riskPolyhyd tinyint(1),
+  ar2_riskMulPreg tinyint(1),
+  ar2_riskMalpres tinyint(1),
+  ar2_riskMemRupt37 tinyint(1),
+  ar2_riskBleeding tinyint(1),
+  ar2_riskPregIndHypert tinyint(1),
+  ar2_riskProte1 tinyint(1),
+  ar2_riskGesDiabete tinyint(1),
+  ar2_riskBloodAnti tinyint(1),
+  ar2_riskAnemia tinyint(1),
+  ar2_riskAdmPreterm tinyint(1),
+  ar2_riskPreg42W tinyint(1),
+  ar2_riskWtLoss tinyint(1),
+  ar2_inBirthPlace text,
+  ar2_labBlood varchar(12),
+  ar2_labRh varchar(12),
+  ar2_labRubella varchar(12),
+  ar2_labHBsAg varchar(12),
+  ar2_labHem1st varchar(12),
+  ar2_labHem3rd varchar(12),
+  ar2_labRATDate1 date,
+  ar2_labRATRes1 varchar(10),
+  ar2_labRATDate2 date,
+  ar2_labRATRes2 varchar(10),
+  ar2_labRATDate3 date,
+  ar2_labRATRes3 varchar(10),
+  ar2_labRhIgG date,
+  ar2_labRhIgG2 date,
+  ar2_labAfpTS varchar(10),
+  ar2_labSTS varchar(10),
+  ar2_labHivTestN tinyint(1),
+  ar2_labHivTestY tinyint(1),
+  ar2_labHIV varchar(10),
+  ar2_labOtherTest varchar(200),
+  ar2_labGWeek varchar(5),
+  ar2_labDiabDate date,
+  ar2_labDiabRes varchar(10),
+  ar2_labGBSTestN tinyint(1),
+  ar2_labGBSTestY tinyint(1),
+  ar2_labGBSRes varchar(10),
+  ar2_proPreg varchar(50),
+  ar2_proLabour varchar(50),
+  ar2_proPostPartum varchar(50),
+  ar2_proNewBorn varchar(50),
+  ar2_age varchar(5),
+  ar2_lmpDate date,
+  ar2_1USoundDate date,
+  ar2_gestAgeUs varchar(10),
+  ar2_probComment text,
+  ar2_investigation text,
+  ar2_doula varchar(100),
+  ar2_doulaNo varchar(30),
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formBCAR_ar2_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formBCAR` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
+
+CREATE TABLE `formBCAR_pg1` (
+  `ID` INT NOT NULL,
+
   pg1_priCare text,
   pg1_famPhy text,
   pg1_moName text,
@@ -1067,15 +1191,6 @@ CREATE TABLE formBCAR(
   pg1_partnerAge varchar(2),
   pg1_faEthOrig varchar(50),
   pg1_formDate date,
-  c_surname varchar(30),
-  c_givenName varchar(30),
-  c_address text,
-  c_city text,
-  c_province varchar(50),
-  c_postal varchar(8),
-  c_phone text,
-  c_phn varchar(20),
-  c_phyMid text,
   pg1_moSign text,
   pg1_witness text,
   pg1_signDate date,
@@ -1270,90 +1385,21 @@ CREATE TABLE formBCAR(
   pg1_sumSerumScr tinyint(1),
   pg1_summary text,
   pg1_signature text,
-  ar2_riskNeonDeath tinyint(1),
-  ar2_riskStillbirth tinyint(1),
-  ar2_riskAbortion tinyint(1),
-  ar2_riskHabitAbort tinyint(1),
-  ar2_riskPriPretBirth33 tinyint(1),
-  ar2_riskPriPretBirth20 tinyint(1),
-  ar2_riskPriCesBirth tinyint(1),
-  ar2_riskPriIUGR tinyint(1),
-  ar2_riskPriMacr tinyint(1),
-  ar2_riskRhImmu tinyint(1),
-  ar2_riskPriRhNB tinyint(1),
-  ar2_riskMajCongAnom tinyint(1),
-  ar2_riskPPHemo tinyint(1),
-  ar2_riskConDiet tinyint(1),
-  ar2_riskDietMacFetus tinyint(1),
-  ar2_riskInsDepend tinyint(1),
-  ar2_riskRetDoc tinyint(1),
-  ar2_riskAsymt tinyint(1),
-  ar2_riskSymt tinyint(1),
-  ar2_risk14090 tinyint(1),
-  ar2_riskHyperDrug tinyint(1),
-  ar2_riskChroRenalDisease tinyint(1),
-  ar2_riskUnder18 tinyint(1),
-  ar2_riskOver35 tinyint(1),
-  ar2_riskObesity tinyint(1),
-  ar2_riskH157 tinyint(1),
-  ar2_riskH152 tinyint(1),
-  ar2_riskDepre tinyint(1),
-  ar2_riskAlcoDrug tinyint(1),
-  ar2_riskSmoking tinyint(1),
-  ar2_riskOtherMedical tinyint(1),
-  ar2_riskDiagLarge tinyint(1),
-  ar2_riskDiagSmall tinyint(1),
-  ar2_riskPolyhyd tinyint(1),
-  ar2_riskMulPreg tinyint(1),
-  ar2_riskMalpres tinyint(1),
-  ar2_riskMemRupt37 tinyint(1),
-  ar2_riskBleeding tinyint(1),
-  ar2_riskPregIndHypert tinyint(1),
-  ar2_riskProte1 tinyint(1),
-  ar2_riskGesDiabete tinyint(1),
-  ar2_riskBloodAnti tinyint(1),
-  ar2_riskAnemia tinyint(1),
-  ar2_riskAdmPreterm tinyint(1),
-  ar2_riskPreg42W tinyint(1),
-  ar2_riskWtLoss tinyint(1),
-  ar2_inBirthPlace text,
-  ar2_labBlood varchar(12),
-  ar2_labRh varchar(12),
-  ar2_labRubella varchar(12),
-  ar2_labHBsAg varchar(12),
-  ar2_labHem1st varchar(12),
-  ar2_labHem3rd varchar(12),
-  ar2_labRATDate1 date,
-  ar2_labRATRes1 varchar(10),
-  ar2_labRATDate2 date,
-  ar2_labRATRes2 varchar(10),
-  ar2_labRATDate3 date,
-  ar2_labRATRes3 varchar(10),
-  ar2_labRhIgG date,
-  ar2_labRhIgG2 date,
-  ar2_labAfpTS varchar(10),
-  ar2_labSTS varchar(10),
-  ar2_labHivTestN tinyint(1),
-  ar2_labHivTestY tinyint(1),
-  ar2_labHIV varchar(10),
-  ar2_labOtherTest varchar(200),
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formBCAR_pg1_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formBCAR` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
+
+
+CREATE TABLE `formBCAR_pg2` (
+  `ID` INT NOT NULL,
+
   pg2_formDate date,
-  ar2_labGWeek varchar(5),
-  ar2_labDiabDate date,
-  ar2_labDiabRes varchar(10),
-  ar2_labGBSTestN tinyint(1),
-  ar2_labGBSTestY tinyint(1),
-  ar2_labGBSRes varchar(10),
-  ar2_proPreg varchar(50),
-  ar2_proLabour varchar(50),
-  ar2_proPostPartum varchar(50),
-  ar2_proNewBorn varchar(50),
-  ar2_age varchar(5),
-  c_ppWt varchar(5),
-  c_ppHt varchar(5),
-  c_ppBMI varchar(5),
-  ar2_lmpDate date,
-  c_EDD date,
   pg2_date1 date,
   pg2_wt1 varchar(5),
   pg2_bp1 varchar(8),
@@ -1543,14 +1589,24 @@ CREATE TABLE formBCAR(
   pg2_pos17 varchar(8),
   pg2_comment17 text,
   pg2_retIn17 varchar(8),
-  ar2_1USoundDate date,
-  ar2_gestAgeUs varchar(10),
-  ar2_probComment text,
-  ar2_investigation text,
-  ar2_doula varchar(100),
-  ar2_doulaNo varchar(30),
   pg2_consultName text,
   pg2_signature text,
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formBCAR_pg2_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formBCAR` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
+
+
+
+
+CREATE TABLE `formBCAR_pg3` (
+  `ID` INT NOT NULL,
+
   pg3_formDate date,
   pg3_date1 date,
   pg3_wt1 varchar(5),
@@ -1743,8 +1799,15 @@ CREATE TABLE formBCAR(
   pg3_retIn17 varchar(8),
   pg3_consultName text,
   pg3_signature text,
-  PRIMARY KEY (ID)
-);
+
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_formBCAR_pg3_ID`
+    FOREIGN KEY (`ID`)
+    REFERENCES `formBCAR` (`ID`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+
 
 --
 -- Table structure for table 'formBCAR2007'
