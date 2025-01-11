@@ -14,3 +14,5 @@ COPY migrations/patch19.sql /patch19.sql
 
 COPY migrations/oscarinit_bc.sql /oscarinit_bc.sql
 COPY migrations/oscardata_bc.sql /oscardata_bc.sql
+
+EXPOSE 3316
