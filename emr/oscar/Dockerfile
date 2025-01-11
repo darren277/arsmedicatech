@@ -32,6 +32,10 @@ RUN sed -i "s|^db_username\s*=.*|db_username = $DB_USER|" "$OSCAR_PROPS"
 RUN sed -i "s|^db_password\s*=.*|db_password = $DB_PASSWORD|" "$OSCAR_PROPS"
 RUN sed -i "s|^db_uri\s*=.*|db_uri = jdbc:mysql://db:3306/|" "$OSCAR_PROPS"
 
+# billregion=ON => billregion=BC
+RUN sed -i "s|^billregion=ON|billregion=BC|" "$OSCAR_PROPS"
+
+
 #RUN echo "db_host = $DB_HOST" >> "$OSCAR_PROPS"
 #RUN echo "db_port = $DB_PORT" >> "$OSCAR_PROPS"
 RUN echo "\n\ndb_name = $DB_NAME" >> "$OSCAR_PROPS"
@@ -40,6 +44,9 @@ RUN echo "db_password = $DB_PASSWORD" >> "$OSCAR_PROPS"
 #RUN echo "db_uri = jdbc:mysql://$DB_HOST:$DB_PORT/" >> "$OSCAR_PROPS"
 #jdbc:mysql://db:3306/
 RUN echo "db_uri = jdbc:mysql://db:3306/" >> "$OSCAR_PROPS"
+
+# billregion=ON => billregion=BC
+RUN echo "billregion=BC" >> "$OSCAR_PROPS"
 
 #COPY oscar.properties /usr/local/tomcat/conf/oscar.properties
 
