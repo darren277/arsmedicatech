@@ -11,3 +11,6 @@ COPY migrations/initcaisi.sql /initcaisi.sql
 COPY migrations/initcaisi_data.sql /initcaisi_data.sql
 
 COPY migrations/patch19.sql /patch19.sql
+
+COPY migrations/oscarinit_bc.sql /oscarinit_bc.sql
+COPY migrations/oscardata_bc.sql /oscardata_bc.sql
