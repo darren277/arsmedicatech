@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    # Equivalent to --pull always
+    # (depending on your Docker Compose version, you could also use `pull_policy: always`)
+    # Some older Compose versions just pull the image if not present
+    container_name: surrealdb
+    command: >
+      start --log debug rocksdb:/mydata/mydatabase.db
+    ports:
+      # Host port -> Container port
+      - "${SURREALDB_PORT:-8000}:8000"
+    volumes:
+      # Host volume -> Container path
+      # Adjust "./data" to your preferred local directory
+      - "./data:/mydata"
+    # Remove container on stop (similar to --rm)
+    # Docker Compose doesn't have a direct equivalent for --rm,
+    # but you can simply do `docker-compose down` to remove the container and network.
+    environment:
+      SURREAL_USER: ${SURREALDB_USER:-root}
+      SURREAL_PASS: ${SURREALDB_PASS:-root}
+    # (Add environment variables if needed)
