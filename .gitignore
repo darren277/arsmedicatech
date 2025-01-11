@@ -3,3 +3,5 @@ node_modules/
 .idea/
 
 PERSONAL_NOTES.md
+
+.env

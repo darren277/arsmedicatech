@@ -1,8 +1,10 @@
 """"""
-import os
 import time
 from flask import Flask, jsonify
 from flask_cors import CORS
+
+from lib.db.surreal import DbController
+from settings import PORT, DEBUG, HOST, logger
 
 app = Flask(__name__)
 CORS(app)
@@ -49,5 +51,16 @@ def get_patient(patient_id):
         return jsonify({"result": "Patient not found."})
 
 
+@app.route('/test_surrealdb', methods=['GET'])
+def test_surrealdb():
+    db = DbController()
+    db.connect()
+
+    results = db.select_many('Patient')
+    logger.info("RESULTS: " + str(results))
+    return jsonify({"message": "Test completed."})
+
+
 if __name__ == '__main__':
-    app.run(port=os.environ.get('PORT', 5000), debug=os.environ.get('DEBUG', True), host=os.environ.get('HOST', '0.0.0.0'))
+    app.run(port=PORT, debug=DEBUG, host=HOST)
+
