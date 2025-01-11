@@ -37,9 +37,28 @@ mysql -u oscar -p'oscarpw' oscar < /initcaisi.sql
 mysql -u oscar -p'oscarpw' oscar < /initcaisi_data.sql
 mysql -u oscar -p'oscarpw' oscar < /patch19.sql
 
+# If in BC:
+mysql -u oscar -p'oscarpw' oscar < /oscarinit_bc.sql
+mysql -u oscar -p'oscarpw' oscar < /oscardata_bc.sql
+
 # Or just the following for any arbitrary SQL commands:
 mysql -u oscar -p'oscarpw' oscar
 ```
 
 
 # conf/context.xml
+
+
+## FAQ
+
+### Billing Related Error
+
+```shell
+Received the exception:
+org.apache.jasper.JasperException: An exception occurred processing [/appointment/editappointment.jsp] at line [162] 159: 160: List cheader1s = null; 161: if("ON".equals(OscarProperties.getInstance().getProperty("billregion", "ON"))) { 162: cheader1s = cheader1Dao.getBillCheader1ByDemographicNo(Integer.parseInt(demographic_nox)); 163: } 164: 165: BillingONExtDao billingOnExtDao = (BillingONExtDao)SpringUtils.getBean(BillingONExtDao.class); Stacktrace:
+An exception occurred processing [/appointment/editappointment.jsp] at line [162] 159: 160: List cheader1s = null; 161: if("ON".equals(OscarProperties.getInstance().getProperty("billregion", "ON"))) { 162: cheader1s = cheader1Dao.getBillCheader1ByDemographicNo(Integer.parseInt(demographic_nox)); 163: } 164: 165: BillingONExtDao billingOnExtDao = (BillingONExtDao)SpringUtils.getBean(BillingONExtDao.class); Stacktrace: 
+```
+
+You have to be sure to do both of the following:
+1. Set `billregion=BC` (or `ON`, or other I suppose... I'm only testing on `BC` at the moment) in `oscar_mcmaster.properties`.
+2. Perform the location specific migrations (i.e. for `BC`, it's `oscarinit_bc.sql` and `oscardata_bc.sql`).

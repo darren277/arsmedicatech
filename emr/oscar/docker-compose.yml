@@ -18,6 +18,8 @@ services:
       - oscar-db-data:/var/lib/mysql
     networks:
       - oscar-net
+    ports:
+      - "3316:3306"
 
   oscar:
     build:
