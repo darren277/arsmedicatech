@@ -91,7 +91,8 @@ const router = createBrowserRouter([
             { path: "contact", element: <Contact /> },
             { path: "patients", element: <PatientList /> },
             { path: "patients/:id", element: <Patient /> },
-            { path: "schedule", element :<Schedule /> }
+            { path: "schedule", element :<Schedule /> },
+            { path: "messages", element :<Messages /> }
         ],
         errorElement: <ErrorPage />,
     },
