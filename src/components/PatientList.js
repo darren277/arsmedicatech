@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import api from '../services/api';
 
+import API_URL from '../env_vars'
+
 const PatientList = () => {
     const [patients, setPatients] = useState([]);
 
     useEffect(() => {
         //api.get('/patients')
-        api.get('http://127.0.0.1:5000/patients')
+        api.get(`${API_URL}/patients`)
             .then(response => {
                 console.log(response.data)
                 setPatients(response.data)

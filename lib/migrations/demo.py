@@ -31,7 +31,41 @@ def create_n_patients(n):
 
 
 
-create_schema()
-create_n_patients(5)
+#create_schema()
+#create_n_patients(5)
+
+
+def create_forms():
+    # document store for forms of arbitrary structure...
+    db = DbController(namespace='arsmedicatech', database='patients')
+    db.connect()
+
+    patient_registration_form_structure = {
+        "form_name": "Patient Registration",
+        "form_fields": [
+            {"field_id": "first_name", "field_name": "First Name", "field_type": "text", "required": True},
+            {"field_id": "last_name", "field_name": "Last Name", "field_type": "text", "required": True},
+            {"field_id": "date_of_birth", "field_name": "Date of Birth", "field_type": "date", "required": True},
+            {"field_id": "phone", "field_name": "Phone", "field_type": "phone", "required": True},
+        ]
+    }
+
+    patient_registration_form = {
+        "form_name": "patient_registration",
+        "form_data": {
+            "first_name": "Richard",
+            "last_name": "Roe",
+            "date_of_birth": "1980-01-01",
+            "phone": "123-456-7890"
+        }
+    }
+
+    result = db.create('forms', patient_registration_form)
+    print(result)
+
+
+
+
+create_forms()
 
 

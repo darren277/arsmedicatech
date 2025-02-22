@@ -1,0 +1,136 @@
+.messages-container {
+  display: flex;
+  height: calc(100vh - 60px); /* If you have a topbar of 60px, adjust as needed */
+  overflow: hidden; /* Prevent the page from scrolling horizontally */
+}
+
+/* --- Conversations List (Left) --- */
+.conversations-list {
+  width: 300px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+.conversation-list-title {
+  margin: 0;
+  padding: 20px;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.conversations-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.conversation {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.conversation:hover {
+  background-color: #f9f9f9;
+}
+
+.conversation.active {
+  background-color: #e9effd; /* A highlight color for selected conversation */
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.conversation-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.conversation-name {
+  font-weight: 600;
+  margin: 0;
+}
+
+.conversation-last {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+}
+
+/* --- Chat Window (Right) --- */
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #f2f5f9;
+}
+
+.chat-header {
+  padding: 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.messages-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.message {
+  max-width: 60%;
+  margin-bottom: 15px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  background-color: #fff;
+  position: relative;
+}
+
+.message.me {
+  margin-left: auto;
+  background-color: #dff1ff;
+}
+
+.message-sender {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.message-text {
+  white-space: pre-line;
+}
+
+.message-input-container {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background-color: #fff;
+}
+
+.message-input-container input {
+  flex: 1;
+  padding: 10px;
+  margin-right: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.message-input-container button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.message-input-container button:hover {
+  background-color: #0056b3;
+}
