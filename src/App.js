@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link } from "react-router-dom";
+import Joyride from 'react-joyride';
+import { tourSteps } from './onboarding/tourSteps';
 import './App.css';
 import Calendar from 'react-calendar';
 import PatientList from './components/PatientList';
@@ -43,6 +45,8 @@ function Home() {
 
     const [currentTime, setCurrentTime] = useState(0);
 
+    const [runTour, setRunTour] = useState(true);
+
     useEffect(() => {
         fetch(`${API_URL}/time`, {headers: {
             'Access-Control-Allow-Origin': 'http://127.0.0.1:3010',
@@ -62,12 +66,30 @@ function Home() {
                 <p><Link to="patients">Patients</Link></p>
                 <p><Link to="about">About</Link></p>
                 <p><Link to="contact">Contact</Link></p>
+                <button className="sidebar-toggle-button">Toggle Sidebar</button>
+                <button className="profile-button">Profile</button>
             </header>
             <Calendar onChange={onCalendarChange} value={calendarValue} tileContent={tileContent} tileClassName={tileClassName} />
             <main>
                 {/* This is where the nested routes will render */}
                 <Outlet />
             </main>
+            <button className="create-new-button">Create New</button>
+            <Joyride
+                steps={tourSteps}
+                continuous={true}      // let the user move from step to step seamlessly
+                scrollToFirstStep={true}
+                showProgress={true}   // display step count
+                showSkipButton={true} // allow skipping
+                run={runTour}         // start or stop the tour
+                callback={(data) => {
+                    const { status } = data;
+                    if (status === 'finished' || status === 'skipped') {setRunTour(false);}
+                }}
+                styles={{
+                    options: {zIndex: 10000}
+                }}
+            />
         </div>
     );
 }
