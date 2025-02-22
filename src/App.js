@@ -12,8 +12,6 @@ import API_URL from './env_vars'
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 
-import BarChart from './components/BarChart';
-
 import Dashboard from './pages/Dashboard';
 import Messages from './pages/Messages';
 import Schedule from './pages/Schedule';
@@ -72,7 +70,7 @@ function Home() {
         <div className="App">
             <Topbar />
             <Sidebar />
-            <BarChart />
+            <Dashboard />
             <header className="App-header">
                 ... no changes in this part ...
                 <p>The current time is {currentTime}.</p>
