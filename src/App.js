@@ -1,38 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link } from "react-router-dom";
+import Joyride from 'react-joyride';
+import { tourSteps } from './onboarding/tourSteps';
 import './App.css';
 import PatientList from './components/PatientList';
 import Patient from './components/Patient';
 
+import API_URL from './env_vars'
+
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+
+import Dashboard from './pages/Dashboard';
+import Messages from './pages/Messages';
+import Schedule from './pages/Schedule';
+
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 function Home() {
-    const [currentTime, setCurrentTime] = useState(0);
-
-    useEffect(() => {
-        fetch('http://127.0.0.1:5000/time', {headers: {
-            'Access-Control-Allow-Origin': 'http://127.0.0.1:3010',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-    }).then(res => res.json()).then(data => {
-            setCurrentTime(data.time);
-        });
-    }, []);
+    const [runTour, setRunTour] = useState(true);
 
     return (
-        <div className="App">
-            <header className="App-header">
-                ... no changes in this part ...
-                <p>The current time is {currentTime}.</p>
-                <p><Link to="patients">Patients</Link></p>
-                <p><Link to="about">About</Link></p>
-                <p><Link to="contact">Contact</Link></p>
-            </header>
-            <main>
-                {/* This is where the nested routes will render */}
-                <Outlet />
-            </main>
+        <div className="App app-container">
+            <Sidebar />
+            <div className="main-container">
+                <Topbar />
+
+                <div className="main-content">
+                    <main>
+                        {/* This is where the nested routes will render */}
+                        <Outlet />
+                    </main>
+                    <button className="create-new-button">Create New</button>
+                    <Joyride
+                        steps={tourSteps}
+                        continuous={true}      // let the user move from step to step seamlessly
+                        scrollToFirstStep={true}
+                        showProgress={true}   // display step count
+                        showSkipButton={true} // allow skipping
+                        run={runTour}         // start or stop the tour
+                        callback={(data) => {
+                            const { status } = data;
+                            if (status === 'finished' || status === 'skipped') {setRunTour(false);}
+                        }}
+                        styles={{
+                            options: {zIndex: 10000}
+                        }}
+                    />
+                </div>
+            </div>
         </div>
     );
 }
@@ -69,10 +86,13 @@ const router = createBrowserRouter([
         path: "/",
         element: <Home />,
         children: [
+            { path: '/', element: <Dashboard /> },
             { path: "about", element: <About /> },
             { path: "contact", element: <Contact /> },
             { path: "patients", element: <PatientList /> },
             { path: "patients/:id", element: <Patient /> },
+            { path: "schedule", element :<Schedule /> },
+            { path: "messages", element :<Messages /> }
         ],
         errorElement: <ErrorPage />,
     },
