@@ -27,9 +27,10 @@ module.exports = {
   // output: {path: path.resolve(__dirname, "./dist"), filename: "bundle.js",  publicPath: '/'},
   plugins: [new webpack.HotModuleReplacementPlugin(), new HtmlWebpackPlugin({template: './src/index.html'})],
   devServer: {
+    allowedHosts: 'all',
     static: path.resolve(__dirname, "./public"),
     hot: true,
-    port: 3010
+    port: 3010,
     // port: 5010
   },
 };
