@@ -70,8 +70,8 @@ function Home() {
 
     return (
         <div className="App">
-            <Sidebar />
             <Topbar />
+            <Sidebar />
             <BarChart />
             <header className="App-header">
                 ... no changes in this part ...
