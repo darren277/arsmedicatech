@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import API_URL from './env_vars'
+import API_URL from '../env_vars'
 
 const api = axios.create({
     //baseURL: 'http://127.0.0.1:5000',
