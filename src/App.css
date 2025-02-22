@@ -191,7 +191,9 @@
 
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    /* grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); */
+    /* make them at least twice as wide... */
+    grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
     grid-gap: 20px;
     margin-top: 20px;
 }
@@ -202,4 +204,9 @@
     min-height: 120px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     padding: 20px;
+}
+
+
+.bar {
+    fill: blue;
 }

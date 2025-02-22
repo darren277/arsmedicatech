@@ -40,8 +40,7 @@ const Dashboard = () => {
         <div className="card">
             <Panel1 />
         </div>
-        <BarChart />
-        <div className="card">Panel 2</div>
+        <div className="card"><BarChart /></div>
         <div className="card">Panel 3</div>
         <div className="card">Panel 4</div>
       </div>
