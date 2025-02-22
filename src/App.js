@@ -9,6 +9,10 @@ import Patient from './components/Patient';
 
 import API_URL from './env_vars'
 
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+
+
 function isSameDay (date1, date2) {
     return date1.getDate() === date2.getDate() && date1.getMonth() === date2.getMonth() && date1.getFullYear() === date2.getFullYear();
 }
@@ -60,6 +64,8 @@ function Home() {
 
     return (
         <div className="App">
+            <Sidebar />
+            <Topbar />
             <header className="App-header">
                 ... no changes in this part ...
                 <p>The current time is {currentTime}.</p>
