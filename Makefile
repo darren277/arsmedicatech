@@ -19,5 +19,6 @@ run-react-dev:
 
 
 run-react-prod:
+	npm install
 	npm run build
 	npx http-server ./dist -p $(REACT_PORT)
