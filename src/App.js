@@ -67,40 +67,45 @@ function Home() {
     }, []);
 
     return (
-        <div className="App">
-            <Topbar />
+        <div className="App app-container">
             <Sidebar />
-            <Dashboard />
-            <header className="App-header">
-                ... no changes in this part ...
-                <p>The current time is {currentTime}.</p>
-                <p><Link to="patients">Patients</Link></p>
-                <p><Link to="about">About</Link></p>
-                <p><Link to="contact">Contact</Link></p>
-                <button className="sidebar-toggle-button">Toggle Sidebar</button>
-                <button className="profile-button">Profile</button>
-            </header>
-            <Calendar onChange={onCalendarChange} value={calendarValue} tileContent={tileContent} tileClassName={tileClassName} />
-            <main>
-                {/* This is where the nested routes will render */}
-                <Outlet />
-            </main>
-            <button className="create-new-button">Create New</button>
-            <Joyride
-                steps={tourSteps}
-                continuous={true}      // let the user move from step to step seamlessly
-                scrollToFirstStep={true}
-                showProgress={true}   // display step count
-                showSkipButton={true} // allow skipping
-                run={runTour}         // start or stop the tour
-                callback={(data) => {
-                    const { status } = data;
-                    if (status === 'finished' || status === 'skipped') {setRunTour(false);}
-                }}
-                styles={{
-                    options: {zIndex: 10000}
-                }}
-            />
+            <div className="main-container">
+                <Topbar />
+
+                <div className="main-content">
+                    <Dashboard />
+                    <header className="App-header">
+                        ... no changes in this part ...
+                        <p>The current time is {currentTime}.</p>
+                        <p><Link to="patients">Patients</Link></p>
+                        <p><Link to="about">About</Link></p>
+                        <p><Link to="contact">Contact</Link></p>
+                        <button className="sidebar-toggle-button">Toggle Sidebar</button>
+                        <button className="profile-button">Profile</button>
+                    </header>
+                    <Calendar onChange={onCalendarChange} value={calendarValue} tileContent={tileContent} tileClassName={tileClassName} />
+                    <main>
+                        {/* This is where the nested routes will render */}
+                        <Outlet />
+                    </main>
+                    <button className="create-new-button">Create New</button>
+                    <Joyride
+                        steps={tourSteps}
+                        continuous={true}      // let the user move from step to step seamlessly
+                        scrollToFirstStep={true}
+                        showProgress={true}   // display step count
+                        showSkipButton={true} // allow skipping
+                        run={runTour}         // start or stop the tour
+                        callback={(data) => {
+                            const { status } = data;
+                            if (status === 'finished' || status === 'skipped') {setRunTour(false);}
+                        }}
+                        styles={{
+                            options: {zIndex: 10000}
+                        }}
+                    />
+                </div>
+            </div>
         </div>
     );
 }
