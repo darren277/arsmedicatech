@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../services/api';
 
+import API_URL from '../env_vars'
+
 const Patient = () => {
     const { id } = useParams();
     const [patient, setPatient] = useState({ history: [] });
 
-    console.log("HELLO!", patient);
-
     useEffect(() => {
         //api.get('/patients')
-        api.get(`http://127.0.0.1:5000/patients/${id}`)
+        api.get(`${API_URL}/patients/${id}`)
             .then(response => {
                 console.log('PATIENT DATA:', response.data)
                 setPatient(response.data)
