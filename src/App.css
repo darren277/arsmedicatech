@@ -36,3 +36,20 @@
         transform: rotate(360deg);
     }
 }
+
+/* add styles for `myClassName`... */
+.myClassName {
+    background-color: red;
+}
+
+/* make it not look like a button even though it is in fact a button component... */
+.react-calendar__tile {
+    background: none;
+    border: none;
+}
+
+.react-calendar__tile {
+    height: 200px;
+    border: 1px solid #e1e1e1;
+}
+
