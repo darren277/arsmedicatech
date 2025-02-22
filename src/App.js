@@ -51,20 +51,7 @@ function Home() {
     const [calendarValue, setCalendarValue] = useState(new Date());
     function onCalendarChange(nextValue) {setCalendarValue(nextValue);}
 
-    const [currentTime, setCurrentTime] = useState(0);
-
     const [runTour, setRunTour] = useState(true);
-
-    useEffect(() => {
-        fetch(`${API_URL}/time`, {headers: {
-            'Access-Control-Allow-Origin': 'http://127.0.0.1:3010',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-    }).then(res => res.json()).then(data => {
-            setCurrentTime(data.time);
-        });
-    }, []);
 
     return (
         <div className="App app-container">
@@ -74,15 +61,6 @@ function Home() {
 
                 <div className="main-content">
                     <Dashboard />
-                    <header className="App-header">
-                        ... no changes in this part ...
-                        <p>The current time is {currentTime}.</p>
-                        <p><Link to="patients">Patients</Link></p>
-                        <p><Link to="about">About</Link></p>
-                        <p><Link to="contact">Contact</Link></p>
-                        <button className="sidebar-toggle-button">Toggle Sidebar</button>
-                        <button className="profile-button">Profile</button>
-                    </header>
                     <Calendar onChange={onCalendarChange} value={calendarValue} tileContent={tileContent} tileClassName={tileClassName} />
                     <main>
                         {/* This is where the nested routes will render */}
