@@ -4,13 +4,15 @@ import './App.css';
 import PatientList from './components/PatientList';
 import Patient from './components/Patient';
 
+import API_URL from './env_vars'
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 function Home() {
     const [currentTime, setCurrentTime] = useState(0);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:5000/time', {headers: {
+        fetch(`${API_URL}/time`, {headers: {
             'Access-Control-Allow-Origin': 'http://127.0.0.1:3010',
             'Content-Type': 'application/json',
             'Accept': 'application/json'
