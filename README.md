@@ -2,7 +2,7 @@
 
 ## About
 
-TBD...
+This is a broad purpose web application for various kinds of clinical use cases. It has a Flask server, a React front end, SurrealDB for a multimodel database, LLM integration, OSCAR EMR integration, and much, much more.
 
 ## How to Use
 
