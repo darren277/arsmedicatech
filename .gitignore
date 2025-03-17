@@ -8,3 +8,9 @@ PERSONAL_NOTES.md
 
 data/mydatabase.db
 __pycache__/
+
+hs_err_pid*.log
+oscar_mcmaster.properties
+
+*.lock
+*-lock.json
