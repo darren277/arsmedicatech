@@ -5,3 +5,12 @@ node_modules/
 PERSONAL_NOTES.md
 
 .env
+
+data/mydatabase.db
+__pycache__/
+
+hs_err_pid*.log
+oscar_mcmaster.properties
+
+*.lock
+*-lock.json
