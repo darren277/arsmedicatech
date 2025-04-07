@@ -67,18 +67,30 @@ class GraphController:
         """
         if edge_table:
             if direction == "out":
-                query = f"SELECT ->({edge_table})->[*] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT ->({edge_table})->[] AS connected FROM {record_id} LIMIT {limit}"
             elif direction == "in":
-                query = f"SELECT <-({edge_table})<-[*] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT <-({edge_table})<-[] AS connected FROM {record_id} LIMIT {limit}"
             else:  # both
-                query = f"SELECT ->{edge_table}->* as outgoing, <-{edge_table}<-* as incoming FROM {record_id} LIMIT {limit}"
+                query = f"""
+                SELECT 
+                    ->({edge_table})->[] as outgoing, 
+                    <-({edge_table})<-[] as incoming 
+                FROM {record_id} 
+                LIMIT {limit}
+                """
         else:
             if direction == "out":
-                query = f"SELECT ->*->* AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT ->->[] AS connected FROM {record_id} LIMIT {limit}"
             elif direction == "in":
-                query = f"SELECT <-*<-* AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT <-<-[] AS connected FROM {record_id} LIMIT {limit}"
             else:  # both
-                query = f"SELECT ->*->* as outgoing, <-*<-* as incoming FROM {record_id} LIMIT {limit}"
+                query = f"""
+                SELECT 
+                    ->->[] as outgoing, 
+                    <-<-[] as incoming 
+                FROM {record_id} 
+                LIMIT {limit}
+                """
 
         return self._execute(self.db.query, query)
 
@@ -93,10 +105,10 @@ class GraphController:
         """
         query = f"""
         SELECT 
-            path.segments AS segments,
-            array::len(path.segments) AS length 
+            array::len(path) AS length,
+            path
         FROM 
-            (SELECT * FROM graph::path({from_record}, {to_record}, {max_depth}))
+            (SELECT path FROM {from_record} TO {to_record} LIMIT BY {max_depth})
         ORDER BY length
         """
         return self._execute(self.db.query, query)
@@ -259,18 +271,30 @@ class AsyncGraphController:
         """
         if edge_table:
             if direction == "out":
-                query = f"SELECT ->({edge_table})->[*] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT ->({edge_table})->[] AS connected FROM {record_id} LIMIT {limit}"
             elif direction == "in":
-                query = f"SELECT <-({edge_table})<-[*] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT <-({edge_table})<-[] AS connected FROM {record_id} LIMIT {limit}"
             else:  # both
-                query = f"SELECT ->{edge_table}->* as outgoing, <-{edge_table}<-* as incoming FROM {record_id} LIMIT {limit}"
+                query = f"""
+                SELECT 
+                    ->({edge_table})->[] as outgoing, 
+                    <-({edge_table})<-[] as incoming 
+                FROM {record_id} 
+                LIMIT {limit}
+                """
         else:
             if direction == "out":
-                query = f"SELECT ->*->* AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT ->->[] AS connected FROM {record_id} LIMIT {limit}"
             elif direction == "in":
-                query = f"SELECT <-*<-* AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT <-<-[] AS connected FROM {record_id} LIMIT {limit}"
             else:  # both
-                query = f"SELECT ->*->* as outgoing, <-*<-* as incoming FROM {record_id} LIMIT {limit}"
+                query = f"""
+                SELECT 
+                    ->->[] as outgoing, 
+                    <-<-[] as incoming 
+                FROM {record_id} 
+                LIMIT {limit}
+                """
 
         return await self.db.query(query)
 
@@ -285,10 +309,10 @@ class AsyncGraphController:
         """
         query = f"""
         SELECT 
-            path.segments AS segments,
-            array::len(path.segments) AS length 
+            array::len(path) AS length,
+            path
         FROM 
-            (SELECT * FROM graph::path({from_record}, {to_record}, {max_depth}))
+            (SELECT path FROM {from_record} TO {to_record} LIMIT BY {max_depth})
         ORDER BY length
         """
         return await self.db.query(query)
