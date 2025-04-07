@@ -14,3 +14,7 @@ oscar_mcmaster.properties
 
 *.lock
 *-lock.json
+
+
+# special folder for sorting assorted incoming files:
+stuff/
