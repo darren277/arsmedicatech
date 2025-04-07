@@ -38,6 +38,9 @@ graph_db = GraphController(db)
 def create_node(node_type: str, node_id: str, node_name: str, **fields):
     db.create(f'{node_type}:{node_id}', dict(name=node_name, **fields))
 
+def query_node(node_type: str, node_id: str):
+    return db.query(f"SELECT * FROM {node_type}:{node_id}")
+
 
 
 
@@ -65,6 +68,15 @@ create_node('diagnosis', 'flu', 'Influenza (Flu)')
 create_node('medication', 'prozac', 'Prozac')
 create_node('medication', 'ibuprofen', 'Ibuprofen')
 create_node('medication', 'warfarin', 'Warfarin')
+
+
+
+# Query a single node (just to verify that it exists - or to get its attributes)
+
+# SELECT * FROM symptom:loss_of_appetite
+symptom = query_node('symptom', 'loss_of_appetite')
+print(symptom)
+
 
 
 
@@ -107,4 +119,16 @@ print(symptoms)
 # SELECT <-HAS_SYMPTOM-<diagnosis FROM symptom:loss_of_appetite
 diagnoses = graph_db.get_relations('symptom:loss_of_appetite', 'HAS_SYMPTOM', 'diagnosis', direction='<-')
 print(diagnoses)
+
+
+# Query a single edge (just to verify that it exists - or to get its attributes)
+
+# SELECT * FROM ->HAS_SYMPTOM->symptom:loss_of_appetite
+def query_edges(from_node: str, from_id: str, edge_name: str):
+    return db.query(f'SELECT ->{edge_name}.* FROM {from_node}:{from_id}')[0]
+
+edge = query_edges('diagnosis', 'depression', 'HAS_SYMPTOM')
+
+
+
 
