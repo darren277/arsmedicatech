@@ -45,9 +45,7 @@ class DbController:
         # Authenticate and set namespace/database
         signin_result = self.db.signin({
             "username": self.user,
-            "password": self.password,
-            "namespace": self.namespace,
-            "database": self.database
+            "password": self.password
         })
 
         # Use namespace and database
@@ -195,11 +193,9 @@ class AsyncDbController:
         self.db = AsyncSurreal(self.url)
 
         # Authenticate and set namespace/database
-        signin_result = await self.db.signin({
+        signin_result = self.db.signin({
             "username": self.user,
-            "password": self.password,
-            "namespace": self.namespace,
-            "database": self.database
+            "password": self.password
         })
 
         # Use namespace and database
