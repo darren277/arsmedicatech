@@ -72,12 +72,30 @@ create_node('medication', 'warfarin', 'Warfarin')
 
 # RELATE <record> -> <edge_name> -> <record> SET <fields>;
 
+
+''' A. Diagnosis -> HAS_SYMPTOM -> Symptom '''
+
 graph_db.relate(
     'diagnosis:depression',
     'HAS_SYMPTOM',
     'symptom:loss_of_appetite',
     dict(note='Common symptom in depression')
 )
+
+graph_db.relate(
+    'diagnosis:depression',
+    'HAS_SYMPTOM',
+    'symptom:fatigue',
+    dict(note='Patients often report feeling very tired')
+)
+
+graph_db.relate(
+    'diagnosis:flu',
+    'HAS_SYMPTOM',
+    'symptom:fatigue',
+    dict(note='Fatigue is frequently reported in flu')
+)
+
 
 # Get outgoing connections (symptoms of depression)
 # SELECT ->HAS_SYMPTOM->symptom FROM diagnosis:depression
