@@ -131,4 +131,49 @@ edge = query_edges('diagnosis', 'depression', 'HAS_SYMPTOM')
 
 
 
+''' B. Medication -> TREATS -> Diagnosis '''
+
+graph_db.relate(
+    'medication:prozac',
+    'TREATS',
+    'diagnosis:depression',
+    dict(note='Used for major depressive disorder')
+)
+
+graph_db.relate(
+    'medication:ibuprofen',
+    'TREATS',
+    'diagnosis:flu',
+    dict(note='Helps reduce fever and pain')
+)
+
+
+
+''' C. Symptom -> CONTRAINDICATED_FOR -> Medication '''
+
+graph_db.relate(
+    'symptom:fatigue',
+    'CONTRAINDICATED_FOR',
+    'medication:prozac',
+    dict(reason='Prozac can worsen sedation in some patients (example)')
+)
+
+graph_db.relate(
+    'symptom:fatigue',
+    'CONTRAINDICATED_FOR',
+    'medication:warfarin',
+    dict(reason='Increases risk of bleeding when taken concurrently.')
+)
+
+
+
+''' D. Medication -> CONTRAINDICATED_FOR -> Medication '''
+
+graph_db.relate(
+    'medication:warfarin',
+    'CONTRAINDICATED_FOR',
+    'medication:ibuprofen',
+    dict(reason='Increases risk of bleeding when taken concurrently.')
+)
+
 
