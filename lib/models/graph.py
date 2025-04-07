@@ -1,5 +1,6 @@
 """"""
 from lib.db.surreal import DbController
+from lib.db.surreal_graph import GraphController
 from settings import SURREALDB_URL, SURREALDB_NAMESPACE, SURREALDB_USER, SURREALDB_PASS
 
 '''
@@ -28,9 +29,11 @@ db = DbController(url=SURREALDB_URL, namespace=SURREALDB_NAMESPACE, database='gr
 db.connect()
 
 
+graph_db = GraphController(db)
 
 
 
+""" NODES """
 
 def create_node(node_type: str, node_id: str, node_name: str, **fields):
     db.create(f'{node_type}:{node_id}', dict(name=node_name, **fields))
@@ -62,3 +65,28 @@ create_node('diagnosis', 'flu', 'Influenza (Flu)')
 create_node('medication', 'prozac', 'Prozac')
 create_node('medication', 'ibuprofen', 'Ibuprofen')
 create_node('medication', 'warfarin', 'Warfarin')
+
+
+
+""" EDGES """
+
+# RELATE <record> -> <edge_name> -> <record> SET <fields>;
+
+graph_db.relate(
+    'diagnosis:depression',
+    'HAS_SYMPTOM',
+    'symptom:loss_of_appetite',
+    dict(note='Common symptom in depression')
+)
+
+# Get outgoing connections (symptoms of depression)
+# SELECT ->HAS_SYMPTOM->symptom FROM diagnosis:depression
+symptoms = graph_db.get_relations('diagnosis:depression', 'HAS_SYMPTOM', 'symptom')
+print(symptoms)
+
+
+# Get incoming connections (diagnoses that have loss of appetite)
+# SELECT <-HAS_SYMPTOM-<diagnosis FROM symptom:loss_of_appetite
+diagnoses = graph_db.get_relations('symptom:loss_of_appetite', 'HAS_SYMPTOM', 'diagnosis', direction='<-')
+print(diagnoses)
+
