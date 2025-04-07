@@ -176,4 +176,62 @@ graph_db.relate(
     dict(reason='Increases risk of bleeding when taken concurrently.')
 )
 
+graph_db.relate(
+    'medication:warfarin',
+    'CONTRAINDICATED_FOR',
+    'medication:prozac',
+    dict(reason='Increases risk of bleeding when taken concurrently.')
+)
+
+
+
+
+# -- List all diagnoses and see their edges:
+# SELECT * FROM diagnosis;
+
+diagnoses = db.query('SELECT * FROM diagnosis')
+
+for diagnosis in diagnoses:
+    print(diagnosis)
+    # Get outgoing connections (symptoms of depression)
+    symptoms = graph_db.get_relations(diagnosis['id'], 'HAS_SYMPTOM', 'symptom')
+    print(symptoms)
+
+
+# -- For a specific diagnosis, find its related symptoms:
+# SELECT ->HAS_SYMPTOM.* FROM diagnosis:depression;
+
+depression_symptoms_result = db.query('SELECT ->HAS_SYMPTOM.* FROM diagnosis:depression')
+depression_symptoms = depression_symptoms_result[0]['->HAS_SYMPTOM']
+print(depression_symptoms)
+
+for symptom in depression_symptoms:
+    # symptom: dict_keys(['id', 'in', 'note', 'out'])
+    print(f"Symptom: {symptom['id']}. Note: {symptom['note']}. In: {symptom['in']}. Out: {symptom['out']}")
+
+
+# -- For a medication, see which diagnoses it treats and what it might be contraindicated for:
+# SELECT ->TREATS.* FROM medication:prozac;
+# SELECT ->CONTRAINDICATED_FOR.* FROM medication:warfarin;
+
+prozac_diagnoses = db.query('SELECT ->TREATS.* FROM medication:prozac')
+prozac_diagnoses = prozac_diagnoses[0]['->TREATS']
+print(prozac_diagnoses)
+
+
+for diagnosis in prozac_diagnoses:
+    # Get incoming connections (medications that are contraindicated for Prozac)
+
+    direction = '<-'
+    medications = graph_db.get_relations('medication:prozac', 'CONTRAINDICATED_FOR', 'medication', direction=direction)
+    medications = medications[0]['<-CONTRAINDICATED_FOR']['<-medication']
+    for medication in medications:
+        print(medication)
+
+    direction = '->'
+    medications = graph_db.get_relations('medication:prozac', 'CONTRAINDICATED_FOR', 'medication', direction=direction)
+    medications = medications[0]['->CONTRAINDICATED_FOR']['->medication']
+    for medication in medications:
+        print(medication)
+
 
