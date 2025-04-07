@@ -67,27 +67,27 @@ class GraphController:
         """
         if edge_table:
             if direction == "out":
-                query = f"SELECT ->({edge_table})->[] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT ->{edge_table}->id AS connected FROM {record_id} LIMIT {limit}"
             elif direction == "in":
-                query = f"SELECT <-({edge_table})<-[] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT <-{edge_table}<-id AS connected FROM {record_id} LIMIT {limit}"
             else:  # both
                 query = f"""
                 SELECT 
-                    ->({edge_table})->[] as outgoing, 
-                    <-({edge_table})<-[] as incoming 
+                    ->{edge_table}->id as outgoing, 
+                    <-{edge_table}<-id as incoming 
                 FROM {record_id} 
                 LIMIT {limit}
                 """
         else:
             if direction == "out":
-                query = f"SELECT ->->[] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT ->->id AS connected FROM {record_id} LIMIT {limit}"
             elif direction == "in":
-                query = f"SELECT <-<-[] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT <-<-id AS connected FROM {record_id} LIMIT {limit}"
             else:  # both
                 query = f"""
                 SELECT 
-                    ->->[] as outgoing, 
-                    <-<-[] as incoming 
+                    ->->id as outgoing, 
+                    <-<-id as incoming 
                 FROM {record_id} 
                 LIMIT {limit}
                 """
@@ -271,27 +271,27 @@ class AsyncGraphController:
         """
         if edge_table:
             if direction == "out":
-                query = f"SELECT ->({edge_table})->[] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT ->{edge_table}->id AS connected FROM {record_id} LIMIT {limit}"
             elif direction == "in":
-                query = f"SELECT <-({edge_table})<-[] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT <-{edge_table}<-id AS connected FROM {record_id} LIMIT {limit}"
             else:  # both
                 query = f"""
                 SELECT 
-                    ->({edge_table})->[] as outgoing, 
-                    <-({edge_table})<-[] as incoming 
+                    ->{edge_table}->id as outgoing, 
+                    <-{edge_table}<-id as incoming 
                 FROM {record_id} 
                 LIMIT {limit}
                 """
         else:
             if direction == "out":
-                query = f"SELECT ->->[] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT ->->id AS connected FROM {record_id} LIMIT {limit}"
             elif direction == "in":
-                query = f"SELECT <-<-[] AS connected FROM {record_id} LIMIT {limit}"
+                query = f"SELECT <-<-id AS connected FROM {record_id} LIMIT {limit}"
             else:  # both
                 query = f"""
                 SELECT 
-                    ->->[] as outgoing, 
-                    <-<-[] as incoming 
+                    ->->id as outgoing, 
+                    <-<-id as incoming 
                 FROM {record_id} 
                 LIMIT {limit}
                 """
