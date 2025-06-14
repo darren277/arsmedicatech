@@ -11,7 +11,8 @@ spec:
         - name: ecr-secret
       containers:
         - name: api
-          image: {{ .Values.flaskImage }}
+          image: "{{ .Values.flask.image.repository }}:{{ .Values.flask.image.tag }}"
+          imagePullPolicy: "{{ .Values.flask.image.pullPolicy }}"
           env:
             - name: DATABASE_URL
               value: http://surrealdb:8000

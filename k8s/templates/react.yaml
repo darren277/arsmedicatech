@@ -11,7 +11,8 @@ spec:
         - name: ecr-secret
       containers:
         - name: web
-          image: {{ .Values.reactImage }}
+          image: "{{ .Values.react.image.repository }}:{{ .Values.react.image.tag }}"
+          imagePullPolicy: "{{ .Values.react.image.pullPolicy }}"
           ports: [ { containerPort: 80 } ]
 ---
 apiVersion: v1
