@@ -2,6 +2,7 @@
 import time
 from flask import Flask, jsonify
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.db.surreal import DbController
 from settings import PORT, DEBUG, HOST, logger
@@ -9,14 +10,16 @@ from settings import PORT, DEBUG, HOST, logger
 app = Flask(__name__)
 CORS(app)
 
+metrics = PrometheusMetrics(app)
+
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-@app.route('/', methods=['GET'])
+@app.route('/api/', methods=['GET'])
 def hello_world():
     return jsonify({"data": "Hello World"})
 
 
-@app.route('/time')
+@app.route('/api/time')
 #@cross_origin()
 def get_current_time():
     response = jsonify({'time': time.time()})
@@ -34,13 +37,13 @@ jane_doe_history = [
     {"date": "2021-01-03", "note": "Patient has a headache."}
 ]
 
-@app.route('/patients', methods=['GET'])
+@app.route('/api/patients', methods=['GET'])
 def get_patients():
     # fetch from db...
     patients = [{"id": 1, "first_name": "John", "last_name": "Doe", "age": 45}, {"id": 2, "first_name": "Jane", "last_name": "Doe", "age": 35}]
     return jsonify(patients)
 
-@app.route('/patients/<patient_id>', methods=['GET'])
+@app.route('/api/patients/<patient_id>', methods=['GET'])
 def get_patient(patient_id):
     print("Patient ID:", patient_id)
     if patient_id == '1':
@@ -51,7 +54,7 @@ def get_patient(patient_id):
         return jsonify({"result": "Patient not found."})
 
 
-@app.route('/test_surrealdb', methods=['GET'])
+@app.route('/api/test_surrealdb', methods=['GET'])
 def test_surrealdb():
     db = DbController()
     db.connect()

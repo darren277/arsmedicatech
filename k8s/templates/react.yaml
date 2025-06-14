@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: react-frontend, namespace: {{ .Values.namespace }} }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: react-frontend } }
+  template:
+    metadata: { labels: { app: react-frontend } }
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: web
+          image: "{{ .Values.react.image.repository }}:{{ .Values.react.image.tag }}"
+          imagePullPolicy: "{{ .Values.react.image.pullPolicy }}"
+          ports: [ { containerPort: 80 } ]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: react-frontend, namespace: {{ .Values.namespace }} }
+spec:
+  selector: { app: react-frontend }
+  ports: [ { port: 80, targetPort: 80 } ]
