@@ -5,7 +5,13 @@ spec:
   replicas: 2
   selector: { matchLabels: { app: flask-api } }
   template:
-    metadata: { labels: { app: flask-api } }
+    metadata:
+      labels:
+        app: flask-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "5000"
     spec:
       imagePullSecrets:
         - name: ecr-secret
