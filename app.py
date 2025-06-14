@@ -2,12 +2,15 @@
 import time
 from flask import Flask, jsonify
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.db.surreal import DbController
 from settings import PORT, DEBUG, HOST, logger
 
 app = Flask(__name__)
 CORS(app)
+
+metrics = PrometheusMetrics(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
