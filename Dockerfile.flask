@@ -35,5 +35,9 @@ COPY ./app.py .
 # Expose the port Flask will run on
 EXPOSE 5000
 
+# Error: failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: exec: "gunicorn": executable file not found in $PATH: unknown
+# Install Gunicorn
+RUN pip install gunicorn
+
 # Command to run the Flask application
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
