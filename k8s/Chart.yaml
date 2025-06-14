@@ -2,5 +2,5 @@ apiVersion: v2
 name: ArsMedicaTech
 description: A Helm chart for demo.arsmedicatech.com
 type: application
-version: 0.1.0            # This is the chart version
-appVersion: "1.0.0"       # This is your app version (optional, for tracking)
+version: 0.1.0
+appVersion: "1.0.0"
