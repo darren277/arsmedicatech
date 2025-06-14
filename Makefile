@@ -50,7 +50,7 @@ k8s-auth:
 
 k8s-deploy:
 	kubectl create namespace $(NAMESPACE) || true
-	helm upgrade --install $(NAMESPACE) ./k8s --namespace $(NAMESPACE) -f ./k8s/values.yaml
+	helm upgrade --install $(NAMESPACE) ./k8s --namespace $(NAMESPACE) --set surrealdb.secret.user=$(SURREALDB_USER) --set surrealdb.secret.pass=$(SURREALDB_PASS) -f ./k8s/values.yaml
 
 k8s-debug:
 	kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
