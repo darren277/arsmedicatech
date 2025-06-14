@@ -2,6 +2,8 @@ const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const PORT = process.env.PORT || 80;
+
 module.exports = {
   entry: path.resolve(__dirname, "./src/index.js"),
   module: {
@@ -30,7 +32,6 @@ module.exports = {
     allowedHosts: 'all',
     static: path.resolve(__dirname, "./public"),
     hot: true,
-    port: 3010,
-    // port: 5010
+    port: PORT,
   },
 };
