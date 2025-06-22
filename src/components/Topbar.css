@@ -1,0 +1,122 @@
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: sans-serif;
+}
+
+.search-container {
+    position: relative;
+    width: 40%;
+    max-width: 500px;
+}
+
+.search-input-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input-wrapper:focus-within {
+     border-color: #4a90e2;
+     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.search-icon {
+    color: #a0aec0;
+    margin-right: 0.5rem;
+}
+
+.search-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 1rem;
+}
+
+.search-results-dropdown {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.search-result-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+ .search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.patient-name {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.result-snippet {
+    font-size: 0.875rem;
+    color: #718096;
+    margin-top: 0.25rem;
+}
+
+.result-snippet b {
+    color: #1a202c;
+    font-weight: bold;
+}
+
+ .loading-message, .no-results-message {
+    padding: 1rem;
+    text-align: center;
+    color: #a0aec0;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.customize-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4a5568;
+    cursor: pointer;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #cbd5e0;
+    background-image: url('https://placehold.co/40x40/E2E8F0/4A5568?text=DC');
+}
