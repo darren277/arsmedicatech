@@ -7,6 +7,8 @@ run-flask:
 	set FLASK_APP=.\app.py
 	flask run --host=$(HOST) --port=$(PORT)
 
+# Or, if that doesn't work: python app.py --host=0.0.0.0 --port=3123
+
 # TODO: Doesn't work for some reason. Currently have to run each command manually.
 run-flask-linux:
 	. .venv/bin/activate
