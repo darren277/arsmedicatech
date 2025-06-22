@@ -26,12 +26,17 @@ module.exports = {
   resolve: {
     extensions: ["*", ".js", ".jsx", ".css"],
   },
-  // output: {path: path.resolve(__dirname, "./dist"), filename: "bundle.js",  publicPath: '/'},
+  output: {
+    path: path.resolve(__dirname, "./dist"),
+    filename: "bundle.js",
+    publicPath: '/'
+  },
   plugins: [new webpack.HotModuleReplacementPlugin(), new HtmlWebpackPlugin({template: './src/index.html'})],
   devServer: {
     allowedHosts: 'all',
     static: path.resolve(__dirname, "./public"),
     hot: true,
     port: PORT,
+    historyApiFallback: true,
   },
 };
