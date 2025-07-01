@@ -20,3 +20,5 @@ oscar_mcmaster.properties
 stuff/
 
 k8s/values.yaml
+
+dist/

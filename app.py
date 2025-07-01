@@ -1,10 +1,12 @@
 """"""
 import time
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.db.surreal import DbController
+from lib.models.patient import search_patient_history, create_schema, add_some_placeholder_encounters, \
+    add_some_placeholder_patients
 from settings import PORT, DEBUG, HOST, logger
 
 app = Flask(__name__)
@@ -39,9 +41,31 @@ jane_doe_history = [
 
 @app.route('/api/patients', methods=['GET'])
 def get_patients():
-    # fetch from db...
-    patients = [{"id": 1, "first_name": "John", "last_name": "Doe", "age": 45}, {"id": 2, "first_name": "Jane", "last_name": "Doe", "age": 35}]
-    return jsonify(patients)
+    # This is your existing endpoint, using the mock DB controller.
+    db = DbController()
+    db.connect()
+    results = db.select_many('Patient')
+    db.close()
+    if results and isinstance(results, list) and len(results) > 0:
+        return jsonify(results[0].get('result', []))
+    return jsonify([])
+
+
+@app.route('/api/patients/search', methods=['GET'])
+def search_patients():
+    """
+    API endpoint to search patient histories via FTS.
+    Accepts a 'q' query parameter.
+    e.g., /api/patients/search?q=headache
+    """
+    search_term = request.args.get('q', '')
+    if not search_term or len(search_term) < 2:
+        return jsonify({"message": "Please provide a search term with at least 2 characters."}), 400
+
+    results = search_patient_history(search_term)
+    return jsonify(results)
+
+
 
 @app.route('/api/patients/<patient_id>', methods=['GET'])
 def get_patient(patient_id):
@@ -58,6 +82,10 @@ def get_patient(patient_id):
 def test_surrealdb():
     db = DbController()
     db.connect()
+
+    #create_schema()
+
+    add_some_placeholder_patients(db)
 
     results = db.select_many('Patient')
     logger.info("RESULTS: " + str(results))

@@ -58,6 +58,15 @@ class Encounter:
 
     def schema(self):
         statements = []
+
+        # Define a standard analyzer for medical text.
+        # It splits text into words and converts them to a common format (lowercase, basic characters).
+        statements.append("""
+            DEFINE ANALYZER medical_text_analyzer 
+            TOKENIZERS class 
+            FILTERS lowercase, ascii;
+        """)
+
         statements.append('DEFINE TABLE encounter SCHEMAFULL;')
         statements.append('DEFINE FIELD note_id ON encounter TYPE string ASSERT $value != none;')
         statements.append('DEFINE FIELD date_created ON encounter TYPE string;')
@@ -66,6 +75,14 @@ class Encounter:
         statements.append('DEFINE FIELD diagnostic_codes ON encounter TYPE array;')
 
         statements.append('DEFINE FIELD patient ON encounter TYPE record<patient> ASSERT $value != none;')
+
+        # This index is specifically for full-text search on the 'note_text' field.
+        # It uses our custom analyzer and enables relevance scoring (BM25) and highlighting.
+        statements.append("""
+            DEFINE INDEX idx_encounter_notes ON TABLE encounter 
+            FIELDS note_text 
+            SEARCH ANALYZER medical_text_analyzer BM25 HIGHLIGHTS;
+        """)
 
         statements.append('DEFINE INDEX idx_encounter_note_id ON encounter FIELDS note_id UNIQUE;')
 
@@ -113,6 +130,9 @@ def store_patient(db, patient: Patient):
     # For simplicity, we’ll just CREATE each time:
     db.connect()
     result = db.query(query, params)
+
+    print('resulttttsasfsdgsd', result)
+
     return result
 
 def store_encounter(db, encounter: Encounter, patient_id: str):
@@ -144,4 +164,130 @@ def store_encounter(db, encounter: Encounter, patient_id: str):
     query += set_query
     result = db.query(query, params)
 
+    print('resultttt', result)
+
     return result
+
+
+def add_some_placeholder_encounters(db, patient_id: str):
+    """
+    Adds some placeholder encounters for testing purposes.
+    """
+    from datetime import datetime, timedelta
+    import random
+
+    # Generate 5 random encounters
+    for i in range(5):
+        note_id = random.randint(100, 999)
+        date_created = datetime.now() - timedelta(days=random.randint(1, 30))
+        provider_id = f"provider-{random.randint(1, 10)}"
+        note_text = f"This is a placeholder note text for encounter {i+1}."
+        diagnostic_codes = [f"code-{random.randint(100, 999)}"]
+
+        encounter = Encounter(note_id, date_created.isoformat(), provider_id, note_text, diagnostic_codes)
+        store_encounter(db, encounter, patient_id)
+
+
+def add_some_placeholder_patients(db):
+    """
+    Adds some placeholder patients for testing purposes.
+    :param db:
+    :return:
+    """
+    from datetime import datetime
+    import random
+
+    # Generate 5 random patients
+    for i in range(5):
+        demographic_no = random.randint(100, 999)
+        first_name = f"FirstName{i+1}"
+        last_name = f"LastName{i+1}"
+        date_of_birth = datetime.now().replace(year=datetime.now().year - random.randint(20, 60)).isoformat()
+        location = (f"City{i+1}", f"State{i+1}", f"Country{i+1}", f"ZipCode{i+1}")
+        sex = 'r' if random.choice([True, False]) else 'm'  # Randomly assign 'r' or 'm'
+        phone = f"555-01{i+1:02d}{random.randint(1000, 9999)}"
+        email = "patient1@gmail.com"
+
+        patient = Patient(
+            demographic_no=demographic_no,
+            first_name=first_name,
+            last_name=last_name,
+            date_of_birth=date_of_birth,
+            location=location,
+            sex=sex,
+            phone=phone,
+            email=email
+        )
+
+        # Store the patient in the database
+        store_patient(db, patient)
+
+        add_some_placeholder_encounters(db, f"patient:{demographic_no}")
+
+
+def serialize_patient(patient):
+    from surrealdb import RecordID
+    # convert patient['id'] to string...
+    for key in patient:
+        print('key', key, patient[key])
+        if type(patient[key]) == RecordID:
+            patient[key] = str(patient[key])
+        elif isinstance(patient[key], list):
+            patient[key] = [str(item) if isinstance(item, int) else item for item in patient[key]]
+        elif isinstance(patient[key], int):
+            patient[key] = str(patient[key])
+    return patient
+
+def serialize_encounter(encounter):
+    from surrealdb import RecordID
+    # convert patient['id'] to string...
+    for key in encounter:
+        print('key [encounter]', key, encounter[key])
+        if type(encounter[key]) == RecordID:
+            encounter[key] = str(encounter[key])
+        elif isinstance(encounter[key], list):
+            encounter[key] = [str(item) if isinstance(item, int) else item for item in encounter[key]]
+        elif isinstance(encounter[key], int):
+            encounter[key] = str(encounter[key])
+        if 'patient' in encounter:
+            encounter['patient'] = serialize_patient(encounter['patient'])
+    return encounter
+
+def search_patient_history(search_term: str):
+    """Performs a full-text search across all encounter notes."""
+    db = DbController()
+    db.connect()
+
+    print("ATTEMPTING SEARCH", search_term)
+
+    # This query searches the 'note_text' field.
+    # @0@ is a predicate that links to search::score(0) and search::highlight(0).
+    # We fetch the score, the highlighted note text, and the associated patient record.
+    query = """
+        SELECT
+            search::score(0) AS score,
+            search::highlight('<b>', '</b>', 0) AS highlighted_note,
+            patient.*,
+            *
+        FROM encounter
+        WHERE note_text @0@ $query
+        ORDER BY score DESC
+        LIMIT 15;
+    """
+    params = {"query": search_term}
+
+    try:
+        results = db.query(query, params)
+        # Assuming the first result list from the multi-statement response is what we need.
+        if results and isinstance(results, list) and len(results) > 0:
+            print("SEARCH RESULTS", results)
+            return [serialize_encounter(e) for e in results]
+        return []
+    except Exception as e:
+        logger.error(f"Error during search: {e}")
+        return []
+    finally:
+        db.close()
+
+
+#create_schema()

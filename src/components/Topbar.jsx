@@ -1,29 +1,26 @@
-import React from 'react';
-// import { FiSearch, FiChevronDown } from 'react-icons/fi';
-// {/* Some placeholder icons */}
-// <div className="icon">🔔</div>
-// <div className="icon">⚙️</div>
-// <div className="icon">👤</div>
+import React, { useState, useEffect, useRef } from 'react';
+import SearchBox      from "./SearchBox";
+import { ProfilePanel }   from "./ProfilePanel";
 
-const Topbar = () => {
+
+/*
+interface Props {
+    query: string;
+    onQueryChange(q: string): void;
+    results: any[];
+    loading: boolean;
+}
+*/
+
+//export default function Topbar(props: Props) {
+export default function Topbar(props) {
     return (
         <header className="topbar">
             <div className="search-container">
-                {/* <FiSearch className="search-icon" /> */}
-                <input type="text" placeholder="Search..." className="search-input" />
+                <SearchBox value={props.query} onChange={props.onQueryChange} loading={props.loading} />
             </div>
-            <div className="profile-section">
-                <div className="customize-profile">
-                    <span>Customize Profile</span>
-                    {/* <FiChevronDown /> */}
-                </div>
-                <div className="user-profile">
-                    <span>Hello<br/><b>Dr. Carvolth</b></span>
-                    <div className="user-avatar"></div>
-                </div>
-            </div>
+
+            <ProfilePanel />
         </header>
     );
-};
-
-export default Topbar;
+}

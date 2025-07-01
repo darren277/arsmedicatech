@@ -7,7 +7,7 @@ const Sidebar = () => {
     return (
         <aside className="sidebar">
             <div className="logo-container">
-                Medicare
+                ArsMedicaTech
             </div>
             <nav>
                 <ul>
