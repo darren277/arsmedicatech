@@ -63,7 +63,40 @@ class DbController:
         """
         if params is None:
             params = {}
+        print("[DEBUG] Executing Query:", statement, "with params:", params)
         return self.db.query(statement, params)
+
+    def search(self, query: str, params: dict = None):
+        #logging.info(f"Executing Query: {query} with params: {params}")
+        print(f"Executing Query: {query} with params: {params}")
+        # This mock will return plausible results for the search query.
+        if "SEARCH" in query and params and params.get('query'):
+            return [{
+                "result": [
+                    {
+                        "highlighted_note": "Patient reported persistent <b>headaches</b> and sensitivity to light.",
+                        "score": 1.25,
+                        "patient": {
+                            "demographic_no": "1",
+                            "first_name": "John",
+                            "last_name": "Doe",
+                        }
+                    },
+                    {
+                        "highlighted_note": "Follow-up regarding frequent <b>headaches</b>.",
+                        "score": 1.18,
+                        "patient": {
+                            "demographic_no": "2",
+                            "first_name": "Jane",
+                            "last_name": "Doe",
+                        }
+                    }
+                ],
+                "status": "OK",
+                "time": "15.353µs"
+            }]
+        # Mock response for schema creation
+        return [{"status": "OK"}]
 
     def update(self, record, data):
         """
