@@ -1,31 +1,32 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
+// It is recommended to use an icon library like react-icons
+// import { FiGrid, FiUsers, FiMessageSquare, FiCalendar } from 'react-icons/fi';
 
 const Sidebar = () => {
-  return (
-    <div className="sidebar">
-      <div className="sidebar-top-section">
-        {/* Silhouette or placeholder for the doctor icon */}
-        <div className="doctor-icon"></div>
-
-        <div className="sidebar-greeting">
-          <p>Hello</p>
-          <h3>Dr. Carvolth</h3>
-          <p>You Have 4 Remaining<br/>Appointments Scheduled Today</p>
-        </div>
-      </div>
-
-      {/* Nav links */}
-      <nav>
-        <ul>
-          <li><Link to="/">Dashboard</Link></li>
-          <li><Link to="/patients">Patients</Link></li>
-          <li><Link to="/messages">Messages</Link></li>
-          <li><Link to="/schedule">Schedule</Link></li>
-        </ul>
-      </nav>
-    </div>
-  );
+    return (
+        <aside className="sidebar">
+            <div className="logo-container">
+                ArsMedicaTech
+            </div>
+            <nav>
+                <ul>
+                    {/* Add the `active` class to the active route... */}
+                    <li><NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>Dashboard</NavLink></li>
+                    <li><NavLink to="/patients" className={({ isActive }) => isActive ? "active" : ""}>Patients</NavLink></li>
+                    <li><NavLink to="/messages" className={({ isActive }) => isActive ? "active" : ""}>Messages</NavLink></li>
+                    <li><NavLink to="/schedule" className={({ isActive }) => isActive ? "active" : ""}>Schedule</NavLink></li>
+                </ul>
+            </nav>
+            <div className="sidebar-footer">
+                <div className="doctor-avatar"></div>
+                <div className="doctor-info">
+                    <h4>Hello Dr. Carvolth</h4>
+                    <p>You have 4 remaining appointments scheduled today</p>
+                </div>
+            </div>
+        </aside>
+    );
 };
 
 export default Sidebar;

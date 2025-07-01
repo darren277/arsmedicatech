@@ -1,21 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import SearchBox      from "./SearchBox";
+import { ProfilePanel }   from "./ProfilePanel";
 
-const Topbar = () => {
-  return (
-    <div className="topbar">
-      <div className="logo">MedicCare</div>
-      <input type="text" className="search-bar" placeholder="Search..." />
 
-      <div className="topbar-right">
-        <button className="customize-profile-btn">Customize Profile</button>
+/*
+interface Props {
+    query: string;
+    onQueryChange(q: string): void;
+    results: any[];
+    loading: boolean;
+}
+*/
 
-        {/* Some placeholder icons */}
-        <div className="icon">🔔</div>
-        <div className="icon">⚙️</div>
-        <div className="icon">👤</div>
-      </div>
-    </div>
-  );
-};
+//export default function Topbar(props: Props) {
+export default function Topbar(props) {
+    return (
+        <header className="topbar">
+            <div className="search-container">
+                <SearchBox value={props.query} onChange={props.onQueryChange} loading={props.loading} />
+            </div>
 
-export default Topbar;
+            <ProfilePanel />
+        </header>
+    );
+}

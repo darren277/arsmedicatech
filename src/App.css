@@ -57,155 +57,202 @@
 
 /* DASHBOARD */
 
-/* Global App container */
+/* Import a Google Font for a cleaner look */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* Reset and Global Styles */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #F7F8FA;
+    color: #333;
+}
+
 .app-container {
     display: flex;
     min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background-color: #f2f5f9; /* Light background for main area */
 }
 
 /* --- Sidebar --- */
 .sidebar {
-    width: 250px;
+    width: 280px;
     background-color: #fff;
-    border-right: 1px solid #ddd;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 30px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
-/* Top section of sidebar */
-.sidebar-top-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 40px;
+.logo-container {
+    padding: 0 20px 30px 20px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #4A90E2; /* Blue from image */
 }
 
-.doctor-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background-color: #ccc;
-    margin-bottom: 10px;
-}
-
-.sidebar-greeting {
-    text-align: center;
-}
-
-.sidebar-greeting p {
-    margin: 5px 0;
-    color: #666;
-}
-
-.sidebar-greeting h3 {
-    margin: 0;
-    font-weight: 600;
-    color: #333;
-}
-
-/* Navigation in sidebar */
 .sidebar nav ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.sidebar nav ul li {
-    margin: 15px 0;
-}
-
 .sidebar nav ul li a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    margin: 10px 0;
     text-decoration: none;
-    color: #333;
+    color: #8A92A6;
+    border-radius: 8px;
     font-weight: 500;
+    transition: all 0.3s ease;
 }
 
-.sidebar nav ul li a:hover {
-    color: #007bff;
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a.active {
+    background-color: #4A90E2;
+    color: #fff;
 }
 
-/* --- Main Container (top bar + dynamic page content) --- */
+.sidebar-footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.doctor-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    margin: 0 auto 15px;
+}
+
+.doctor-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.doctor-info p {
+    margin: 5px 0 0;
+    color: #8A92A6;
+    font-size: 0.9rem;
+}
+
+/* --- Main Container --- */
 .main-container {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    flex: 1;
 }
 
 /* --- Topbar --- */
 .topbar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     background-color: #fff;
-    height: 60px;
-    padding: 0 20px;
-    border-bottom: 1px solid #ddd;
+    height: 80px;
+    padding: 0 40px;
+    border-bottom: 1px solid #EAEAEA;
 }
 
-.logo {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #333;
+.search-container {
+    position: relative;
+    width: 300px;
 }
 
-.search-bar {
-    flex: 1;
-    margin: 0 20px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.search-input {
+    width: 100%;
+    padding: 12px 20px 12px 40px;
+    border: 1px solid #EAEAEA;
+    border-radius: 20px;
+    background-color: #F7F8FA;
+    font-size: 0.9rem;
 }
 
-.topbar-right {
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8A92A6;
+}
+
+.profile-section {
     display: flex;
     align-items: center;
 }
 
-.customize-profile-btn {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 4px;
-    margin-right: 20px;
+.customize-profile {
+    display: flex;
+    align-items: center;
     cursor: pointer;
+    margin-right: 25px;
 }
 
-.customize-profile-btn:hover {
-    background-color: #0056b3;
+.customize-profile span {
+    font-weight: 500;
+    margin-right: 8px;
 }
 
-.icon {
-    margin-right: 10px;
-    font-size: 1.2rem;
-    cursor: pointer;
+.user-profile {
+    display: flex;
+    align-items: center;
 }
 
-/* --- Dashboard Content --- */
-.dashboard {
-    padding: 20px;
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ccc;
+    margin-left: 15px;
 }
 
-.cards-grid {
+/* --- Main Content --- */
+.main-content {
+    padding: 30px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.dashboard-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 30px;
+}
+
+.dashboard-grid {
     display: grid;
-    /* grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); */
-    /* make them at least twice as wide... */
-    grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
-    grid-gap: 20px;
-    margin-top: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
 }
 
 .card {
     background-color: #fff;
-    border-radius: 8px;
-    min-height: 120px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    padding: 20px;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 20px;
+}
+
+/* Example of how specific cards could be styled */
+.appointments-card .appointment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #EAEAEA;
+}
+.appointments-card .appointment-item:last-child {
+    border-bottom: none;
+}
 
 .bar {
     fill: blue;

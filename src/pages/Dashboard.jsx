@@ -32,7 +32,7 @@ const Panel1 = () => {
     )
 }
 
-const Dashboard = () => {
+const DashboardOld = () => {
   return (
     <div className="dashboard">
       <h2>Dashboard</h2>
@@ -46,6 +46,55 @@ const Dashboard = () => {
       </div>
     </div>
   );
+};
+
+const dashboardData = {
+    totalPatients: '1,083',
+    totalIncome: '723.43',
+    appointments: '324',
+    reports: '1,083'
+};
+
+const Dashboard = () => {
+    return (
+        <div className="dashboard">
+            <div className="dashboard-header">
+                <h1>Dashboard</h1>
+            </div>
+            <div className="dashboard-grid">
+                <div className="card stats-card">
+                    <div className="card-title">Total Patients</div>
+                    <h2>{dashboardData.totalPatients}</h2>
+                    <p>+2.7%</p>
+                </div>
+                <div className="card stats-card">
+                    <div className="card-title">Total Income</div>
+                    <h2>${dashboardData.totalIncome}</h2>
+                    <p>+2.7%</p>
+                </div>
+                <div className="card stats-card">
+                    <div className="card-title">Appointments</div>
+                    <h2>{dashboardData.appointments}</h2>
+                    <p>+2.7%</p>
+                </div>
+                <div className="card stats-card">
+                    <div className="card-title">Reports</div>
+                    <h2>{dashboardData.reports}</h2>
+                    <p>+2.7%</p>
+                </div>
+
+                <div className="card appointments-card">
+                    <div className="card-title">Appointments</div>
+                    {/* This would be a list rendered from data */}
+                </div>
+
+                <div className="card activity-card">
+                    <div className="card-title">Recent Activity</div>
+                    {/* This would be a list rendered from data */}
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default Dashboard;
