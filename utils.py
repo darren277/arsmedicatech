@@ -1,6 +1,60 @@
 """"""
 
 
+import ssl
+import socket
+from pprint import pprint
+from datetime import datetime
+
+def fetch_cert(hostname, port=443):
+    context = ssl.create_default_context()
+
+    with socket.create_connection((hostname, port), timeout=5) as sock:
+        try:
+            with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+                cert = ssock.getpeercert()
+                return cert
+        except ssl.SSLError as e:
+            print(f"SSL error: {e}")
+            return None
+
+def parse_cert(cert):
+    if not cert:
+        print("❌ No certificate found or unable to fetch.")
+        return
+
+    print("\n📄 Subject:")
+    pprint(cert.get('subject'))
+
+    print("\n🏢 Issuer:")
+    pprint(cert.get('issuer'))
+
+    print("\n📅 Validity Period:")
+    print(f"  Not Before: {cert.get('notBefore')}")
+    print(f"  Not After : {cert.get('notAfter')}")
+
+    print("\n🌐 Subject Alt Names:")
+    pprint(cert.get('subjectAltName'))
+
+    # Expiry check
+    not_after = datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z')
+    days_left = (not_after - datetime.utcnow()).days
+    print(f"\n✅ Expires in: {days_left} days")
+
+    if days_left < 0:
+        print("❌ Certificate has expired!")
+    elif days_left < 10:
+        print("⚠️ Certificate is about to expire!")
+
+if __name__ == "__main__":
+    domain = "demo.arsmedicatech.com"
+    cert = fetch_cert(domain)
+    parse_cert(cert)
+
+
+quit(45)
+
+
 sql_query = """
 CREATE TABLE `formAR` (
   `ID` int(10) NOT NULL AUTO_INCREMENT,

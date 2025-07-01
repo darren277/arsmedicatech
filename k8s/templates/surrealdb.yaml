@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: { name: surrealdb, namespace: {{ .Values.namespace }} }
+spec:
+  serviceName: surrealdb
+  replicas: 1
+  selector: { matchLabels: { app: surrealdb } }
+  template:
+    metadata: { labels: { app: surrealdb } }
+    spec:
+      containers:
+        - name: surrealdb
+          image: surrealdb/surrealdb:latest
+          args: [ "start", "--log", "info", "rocksdb:/mydata/mydatabase.db" ]
+          env:
+            - { name: SURREAL_USER, valueFrom: { secretKeyRef: { name: surreal-secret, key: user } } }
+            - { name: SURREAL_PASS, valueFrom: { secretKeyRef: { name: surreal-secret, key: pass } } }
+          ports: [ { containerPort: 8000 } ]
+          volumeMounts:
+            - { name: data, mountPath: /mydata }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ ReadWriteOnce ]
+        resources: { requests: { storage: 5Gi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: surrealdb, namespace: {{ .Values.namespace }} }
+spec:
+  ports: [ { port: 8000 } ]
+  selector: { app: surrealdb }

@@ -18,3 +18,7 @@ oscar_mcmaster.properties
 
 # special folder for sorting assorted incoming files:
 stuff/
+
+k8s/values.yaml
+
+dist/

@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.ingressName }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-{{ .Values.namespace }}
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [ {{ .Values.ingressName }}.{{ .Values.namespace }}.com ]
+      secretName: tls-{{ .Values.ingressName }}-{{ .Values.namespace }}
+  rules:
+    - host: {{ .Values.ingressName }}.{{ .Values.namespace }}.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: flask-api
+                port: { number: 80 }
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: react-frontend
+                port: { number: 80 }

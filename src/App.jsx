@@ -5,6 +5,8 @@ import { tourSteps } from './onboarding/tourSteps';
 import './App.css';
 import PatientList from './components/PatientList';
 import Patient from './components/Patient';
+import { usePatientSearch } from "./hooks/usePatientSearch";
+import { PatientTable } from "./components/PatientTable";
 
 import API_URL from './env_vars'
 
@@ -15,17 +17,27 @@ import Dashboard from './pages/Dashboard';
 import Messages from './pages/Messages';
 import Schedule from './pages/Schedule';
 
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 function Home() {
+    console.log("Home component rendered");
+
     const [runTour, setRunTour] = useState(true);
+
+    const { query, setQuery, results, loading } = usePatientSearch();
 
     return (
         <div className="App app-container">
             <Sidebar />
             <div className="main-container">
-                <Topbar />
+                <Topbar
+                    query={query}
+                    onQueryChange={setQuery}
+                    results={results}
+                    loading={loading}
+                />
+
+                <PatientTable rows={results} />
 
                 <div className="main-content">
                     <main>
@@ -86,7 +98,7 @@ const router = createBrowserRouter([
         path: "/",
         element: <Home />,
         children: [
-            { path: '/', element: <Dashboard /> },
+            { index: true, element: <Dashboard /> },
             { path: "about", element: <About /> },
             { path: "contact", element: <Contact /> },
             { path: "patients", element: <PatientList /> },
