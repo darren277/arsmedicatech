@@ -152,7 +152,6 @@ export default function Topbar(props) {
         <header className="topbar">
             <div className="search-container">
                 <SearchBox value={props.query} onChange={props.onQueryChange} loading={props.loading} />
-                <SearchDropdown show={props.query.length > 1} loading={props.loading} results={props.results} />
             </div>
 
             <ProfilePanel />
