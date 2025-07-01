@@ -15,17 +15,27 @@ import Dashboard from './pages/Dashboard';
 import Messages from './pages/Messages';
 import Schedule from './pages/Schedule';
 
+import { usePatientSearch } from "./hooks/usePatientSearch";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 function Home() {
     const [runTour, setRunTour] = useState(true);
 
+    const { query, setQuery, results, loading } = usePatientSearch();
+
     return (
         <div className="App app-container">
             <Sidebar />
             <div className="main-container">
-                <Topbar />
+                <Topbar
+                    query={query}
+                    onQueryChange={setQuery}
+                    results={results}
+                    loading={loading}
+                />
+
+                <PatientTable rows={results} />
 
                 <div className="main-content">
                     <main>
