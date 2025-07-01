@@ -58,6 +58,15 @@ class Encounter:
 
     def schema(self):
         statements = []
+
+        # Define a standard analyzer for medical text.
+        # It splits text into words and converts them to a common format (lowercase, basic characters).
+        statements.append("""
+            DEFINE ANALYZER medical_text_analyzer 
+            TOKENIZERS class 
+            FILTERS lowercase, ascii;
+        """)
+
         statements.append('DEFINE TABLE encounter SCHEMAFULL;')
         statements.append('DEFINE FIELD note_id ON encounter TYPE string ASSERT $value != none;')
         statements.append('DEFINE FIELD date_created ON encounter TYPE string;')
@@ -66,6 +75,14 @@ class Encounter:
         statements.append('DEFINE FIELD diagnostic_codes ON encounter TYPE array;')
 
         statements.append('DEFINE FIELD patient ON encounter TYPE record<patient> ASSERT $value != none;')
+
+        # This index is specifically for full-text search on the 'note_text' field.
+        # It uses our custom analyzer and enables relevance scoring (BM25) and highlighting.
+        statements.append("""
+            DEFINE INDEX idx_encounter_notes ON TABLE encounter 
+            FIELDS note_text 
+            SEARCH ANALYZER medical_text_analyzer BM25 HIGHLIGHTS;
+        """)
 
         statements.append('DEFINE INDEX idx_encounter_note_id ON encounter FIELDS note_id UNIQUE;')
 
