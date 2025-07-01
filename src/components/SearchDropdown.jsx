@@ -10,8 +10,10 @@ export default function SearchDropdown({
     useEffect(() => setOpen(show), [show]);
 
     useEffect(() => {
-        function handleOutside(e: MouseEvent) {
-            if (ref.current && !ref.current.contains(e.target as Node)) {
+        // e: MouseEvent
+        function handleOutside(e) {
+            // e.target as Node
+            if (ref.current && !ref.current.contains(e.target)) {
                 setOpen(false);
             }
         }
