@@ -1,3 +1,6 @@
+import React from 'react';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
+
 export const ProfilePanel = ({ user, onLogout }) => {
     return (
         <div className="profile-section">

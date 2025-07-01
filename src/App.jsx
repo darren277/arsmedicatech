@@ -5,6 +5,8 @@ import { tourSteps } from './onboarding/tourSteps';
 import './App.css';
 import PatientList from './components/PatientList';
 import Patient from './components/Patient';
+import { usePatientSearch } from "./hooks/usePatientSearch";
+import { PatientTable } from "./components/PatientTable";
 
 import API_URL from './env_vars'
 
@@ -15,11 +17,11 @@ import Dashboard from './pages/Dashboard';
 import Messages from './pages/Messages';
 import Schedule from './pages/Schedule';
 
-import { usePatientSearch } from "./hooks/usePatientSearch";
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 function Home() {
+    console.log("Home component rendered");
+
     const [runTour, setRunTour] = useState(true);
 
     const { query, setQuery, results, loading } = usePatientSearch();

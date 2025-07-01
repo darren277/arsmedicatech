@@ -1,3 +1,8 @@
+import React from 'react';
+import { MagnifyingGlassCircleIcon } from '@heroicons/react/24/outline';
+import Spinner from 'react-bootstrap/Spinner';
+
+
 export default function SearchBox({
     value,
     onChange,
@@ -5,7 +10,7 @@ export default function SearchBox({
 }) {
     return (
         <div className="search-input-wrapper">
-            <div className="search-icon"><SearchIcon /></div>
+            <div className="search-icon"><MagnifyingGlassCircleIcon /></div>
             <input
                 type="text"
                 placeholder="Search patient histories..."

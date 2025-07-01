@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SearchBox      from "./SearchBox";
-import SearchDropdown from "./SearchDropdown";
+// import SearchDropdown from "./SearchDropdown";
 import { ProfilePanel }   from "./ProfilePanel";
 // import { FiSearch, FiChevronDown } from 'react-icons/fi';
 // {/* Some placeholder icons */}
