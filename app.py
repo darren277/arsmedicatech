@@ -5,6 +5,8 @@ from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.db.surreal import DbController
+from lib.models.patient import search_patient_history, create_schema, add_some_placeholder_encounters, \
+    add_some_placeholder_patients
 from settings import PORT, DEBUG, HOST, logger
 
 app = Flask(__name__)
@@ -58,6 +60,10 @@ def get_patient(patient_id):
 def test_surrealdb():
     db = DbController()
     db.connect()
+
+    #create_schema()
+
+    add_some_placeholder_patients(db)
 
     results = db.select_many('Patient')
     logger.info("RESULTS: " + str(results))
