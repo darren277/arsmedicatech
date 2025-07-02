@@ -40,3 +40,8 @@ HOST = os.environ.get('HOST', '0.0.0.0')
 print("PORT:", PORT)
 print("DEBUG:", DEBUG)
 print("HOST:", HOST)
+
+
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', 'sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+
+FLASK_SECRET_KEY = 'secret key'

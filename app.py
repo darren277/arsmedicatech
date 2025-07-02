@@ -1,25 +1,141 @@
 """"""
 import time
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.db.surreal import DbController
+from lib.llm.agent import LLMAgent
+from lib.llm.trees import blood_pressure_decision_tree_lookup, tool_definition_bp
 from lib.models.patient import search_patient_history, create_schema, add_some_placeholder_encounters, \
     add_some_placeholder_patients
-from settings import PORT, DEBUG, HOST, logger
+from settings import PORT, DEBUG, HOST, logger, OPENAI_API_KEY, FLASK_SECRET_KEY
 
 app = Flask(__name__)
 CORS(app)
+
+app.secret_key = FLASK_SECRET_KEY
 
 metrics = PrometheusMetrics(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+# Global tool registry - these don't need to be in session
+GLOBAL_TOOL_DEFINITIONS = []
+GLOBAL_TOOL_FUNC_DICT = {}
+
+def register_tools():
+    """Register tools globally - only needs to be done once"""
+    global GLOBAL_TOOL_DEFINITIONS, GLOBAL_TOOL_FUNC_DICT
+    
+    # Create a temporary agent to get the tool definitions
+    temp_agent = LLMAgent(api_key=OPENAI_API_KEY)
+    temp_agent.add_tool(blood_pressure_decision_tree_lookup, tool_definition_bp)
+    
+    GLOBAL_TOOL_DEFINITIONS = temp_agent.tool_definitions
+    GLOBAL_TOOL_FUNC_DICT = temp_agent.tool_func_dict
+
+# Register tools on startup
+register_tools()
+
 @app.route('/api/', methods=['GET'])
 def hello_world():
     return jsonify({"data": "Hello World"})
 
+id, name, lastMessage, avatar, messages, sender, text = 'id', 'name', 'lastMessage', 'avatar', 'messages', 'sender', 'text'
+
+DUMMY_CONVERSATIONS = [
+  {
+    "id": 1,
+    "name": "Jane Smith",
+    "lastMessage": "Sounds good!",
+    "avatar": "https://via.placeholder.com/40",
+    "messages": [
+      { "sender": "Jane Smith", "text": "Hi Dr. Carvolth, can we schedule an appointment?" },
+      { "sender": "Me", "text": "Sure, does tomorrow at 3pm work?" },
+      { "sender": "Jane Smith", "text": "Sounds good!" },
+    ],
+  },
+  {
+    "id": 2,
+    "name": "John Doe",
+    "lastMessage": "Alright, thank you so much!",
+    "avatar": "https://via.placeholder.com/40",
+    "messages": [
+      { "sender": "John Doe", "text": "Hello Dr. Carvolth, I have a question about my medication." },
+      { "sender": "Me", "text": "Sure, what's on your mind?" },
+      { "sender": "John Doe", "text": "Should I continue at the same dose?" },
+      { "sender": "Me", "text": "Yes, please stay on the same dose until our next check-up." },
+      { "sender": "John Doe", "text": "Alright, thank you so much!" },
+    ],
+  },
+  {
+    "id": 3,
+    "name": "Emily Johnson",
+    "lastMessage": "Will do, thanks!",
+    "avatar": "https://via.placeholder.com/40",
+    "messages": [
+      { "sender": "Emily Johnson", "text": "Dr. Carvolth, when is my next appointment?" },
+      { "sender": "Me", "text": "Next Tuesday at 2 PM, does that still work?" },
+      { "sender": "Emily Johnson", "text": "Yes, that's perfect! Thank you!" },
+      { "sender": "Me", "text": "Great, see you then." },
+      { "sender": "Emily Johnson", "text": "Will do, thanks!" },
+    ],
+  }
+]
+
+@app.route('/api/chat', methods=['GET', 'POST'])
+def chat_endpoint():
+    if request.method == 'GET':
+        return jsonify(DUMMY_CONVERSATIONS)
+    elif request.method == 'POST':
+        data = request.json
+        # In a real app, you'd save this to a database
+        # For now, we'll just return success
+        return jsonify({"message": "Conversations saved successfully"})
+
+@app.route('/api/llm_chat', methods=['GET', 'POST'])
+def llm_agent_endpoint():
+    if request.method == 'GET':
+        #conversation_history = session.get('conversation_history', [])
+        conversation_history = DUMMY_CONVERSATIONS
+        return jsonify(conversation_history)
+    data = request.json
+
+    print("Received data:", data)
+
+    prompt = data.get('prompt')
+    
+    # Get or create agent from session
+    agent_data = session.get('agent_data')
+    
+    if agent_data:
+        # Recreate agent from session data
+        agent = LLMAgent.from_dict(
+            agent_data, 
+            api_key=OPENAI_API_KEY,
+            tool_definitions=GLOBAL_TOOL_DEFINITIONS,
+            tool_func_dict=GLOBAL_TOOL_FUNC_DICT
+        )
+    else:
+        # Create new agent
+        agent = LLMAgent(api_key=OPENAI_API_KEY)
+        agent.tool_definitions = GLOBAL_TOOL_DEFINITIONS
+        agent.tool_func_dict = GLOBAL_TOOL_FUNC_DICT
+
+    # Process the prompt
+    response = agent.complete(prompt)
+    
+    # Save updated agent state to session
+    session['agent_data'] = agent.to_dict()
+
+    return jsonify(response)
+
+@app.route('/api/llm_chat/reset', methods=['POST'])
+def reset_llm_chat():
+    """Reset the LLM chat session"""
+    session.pop('agent_data', None)
+    return jsonify({"message": "Chat session reset successfully"})
 
 @app.route('/api/time')
 #@cross_origin()
