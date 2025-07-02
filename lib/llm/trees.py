@@ -253,3 +253,53 @@ assert result['decision'] == "Approved"
 assert result['reason'] == "Domestic study"
 assert "<Purpose.EDUCATION: 'education'> == <Purpose.EDUCATION: 'education'>" in result['path_taken'][0]
 assert "'US' in frozenset" in result['path_taken'][1]
+
+
+
+# ---------------
+# Medical example
+# ---------------
+
+# ───────────────────────────────────────────────────────────
+#  Proof‑of‑concept decision tree: Blood‑pressure categories
+#  (adapted from ACC/AHA 2017 guideline levels)
+# ───────────────────────────────────────────────────────────
+BP_DECISION_TREE = {
+    "question": "What is your diastolic blood pressure?",
+    "branches": {
+        # Hypertensive crisis if DBP ≥120 mm Hg regardless of SBP
+        ('>=', 120): "Hypertensive crisis - Seek emergency care immediately",
+        # Otherwise we still need SBP to finish the classification
+        ('<', 120): {
+            "question": "What is your systolic blood pressure?",
+            "branches": {
+                # Crisis if SBP ≥180 mm Hg (even though DBP <120)
+                ('>=', 180): "Hypertensive crisis - Seek emergency care immediately",
+
+                # Hypertension Stage 2
+                ('>=', 140): "Hypertension Stage 2 - Discuss medication and lifestyle changes with a clinician",
+
+                # Hypertension Stage 1
+                ('in', range(130, 140)): "Hypertension Stage 1 - Lifestyle changes and possible medication (clinician‑guided)",
+
+                # Elevated BP (SBP 120‑129 *and* DBP < 80, which we already know here)
+                ('in', range(120, 130)): "Elevated blood pressure - Adopt heart‑healthy lifestyle",
+
+                # Normal BP (SBP < 120 and DBP < 80)
+                ('<', 120): "Normal blood pressure - Maintain current healthy habits"
+            }
+        }
+    }
+}
+
+result = decision_tree_lookup(
+    BP_DECISION_TREE,
+    systolic_blood_pressure=128,
+    diastolic_blood_pressure=78
+)
+print(result)
+
+assert result['decision'] == "Elevated blood pressure"
+assert result['reason'] == "Adopt heart‑healthy lifestyle"
+assert "Checked diastolic blood pressure: 78 < 120" in result['path_taken'][0]
+assert "Checked systolic blood pressure: 128 in range(120, 130)" in result['path_taken'][1]
