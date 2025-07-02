@@ -41,71 +41,133 @@ const DUMMY_CONVERSATIONS = [
   },
 ];
 
-const CHAT_ENDPOINT = '/api/chat';
-const LLM_CHAT_ENDPOINT = API_URL + '/llm_chat';
+const CHAT_ENDPOINT = API_URL + '/api/chat';
+const LLM_CHAT_ENDPOINT = API_URL + '/api/llm_chat';
 
 function useChat(isLLM = false) {
     const [conversations, setConversations] = useState(DUMMY_CONVERSATIONS);
-    const [selectedConversationId, setSelectedConversationId] = useState(conversations[0].id);
+    const [selectedConversationId, setSelectedConversationId] = useState(conversations[0]?.id || 1);
     const [newMessage, setNewMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    // Fetch conversations from the server (if applicable)
+    // Fetch conversations from the server
     useEffect(() => {
         const fetchConversations = async () => {
             try {
-                const response = await fetch(isLLM ? LLM_CHAT_ENDPOINT : CHAT_ENDPOINT);
+                const endpoint = isLLM ? LLM_CHAT_ENDPOINT : CHAT_ENDPOINT;
+                const response = await fetch(endpoint);
                 if (!response.ok) throw new Error('Failed to fetch conversations');
                 const data = await response.json();
-                console.log('data', data);
+                console.log('Fetched conversations:', data);
                 setConversations(data);
+                if (data.length > 0 && !selectedConversationId) {
+                    setSelectedConversationId(data[0].id);
+                }
             } catch (error) {
                 console.error('Error fetching conversations:', error);
+                // Fallback to dummy data if fetch fails
+                setConversations(DUMMY_CONVERSATIONS);
             }
         }
 
         fetchConversations();
-    }, []);
-
-    // Save to server
-    useEffect(() => {
-        const saveConversations = async () => {
-            try {
-                const response = await fetch(CHAT_ENDPOINT, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(conversations),
-                });
-                if (!response.ok) throw new Error('Failed to save conversations');
-            } catch (error) {
-                console.error('Error saving conversations:', error);
-            }
-        };
-
-        saveConversations();
-    }, [conversations]);
+    }, [isLLM]);
 
     const selectedConversation = conversations.find((conv) => conv.id === selectedConversationId);
 
     const handleSelectConversation = (id) => {
         setSelectedConversationId(id);
-        setNewMessage(''); // Clear out the message box
+        setNewMessage('');
     };
 
-    const handleSend = () => {
-        if (!newMessage.trim()) return; // do nothing if empty
+    const handleSend = async () => {
+        if (!newMessage.trim()) return;
 
-        const updatedConversations = conversations.map((conv) => {
-            if (conv.id === selectedConversationId) {
-                return {...conv, messages: [...conv.messages, { sender: 'Me', text: newMessage }], lastMessage: newMessage};
+        setIsLoading(true);
+
+        try {
+            if (isLLM) {
+                // For LLM chat, send the message to the LLM endpoint
+                const response = await fetch(LLM_CHAT_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: newMessage }),
+                });
+
+                if (!response.ok) throw new Error('Failed to get LLM response');
+                
+                const llmResponse = await response.json();
+                console.log('LLM Response:', llmResponse);
+
+                // Add both user message and LLM response to the conversation
+                const updatedConversations = conversations.map((conv) => {
+                    if (conv.id === selectedConversationId) {
+                        return {
+                            ...conv,
+                            messages: [
+                                ...conv.messages,
+                                { sender: 'Me', text: newMessage },
+                                { sender: 'AI Assistant', text: llmResponse.response || llmResponse.message || 'I received your message.' }
+                            ],
+                            lastMessage: newMessage
+                        };
+                    }
+                    return conv;
+                });
+
+                setConversations(updatedConversations);
+            } else {
+                // For regular chat, just add the message locally
+                const updatedConversations = conversations.map((conv) => {
+                    if (conv.id === selectedConversationId) {
+                        return {
+                            ...conv,
+                            messages: [...conv.messages, { sender: 'Me', text: newMessage }],
+                            lastMessage: newMessage
+                        };
+                    }
+                    return conv;
+                });
+
+                setConversations(updatedConversations);
+
+                // Save to server
+                await fetch(CHAT_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedConversations),
+                });
             }
-            return conv;
-        });
-
-        setConversations(updatedConversations);
-        setNewMessage(''); // Clear the input field
+        } catch (error) {
+            console.error('Error sending message:', error);
+            // Still add the message locally even if server call fails
+            const updatedConversations = conversations.map((conv) => {
+                if (conv.id === selectedConversationId) {
+                    return {
+                        ...conv,
+                        messages: [...conv.messages, { sender: 'Me', text: newMessage }],
+                        lastMessage: newMessage
+                    };
+                }
+                return conv;
+            });
+            setConversations(updatedConversations);
+        } finally {
+            setIsLoading(false);
+            setNewMessage('');
+        }
     };
 
-    return {conversations, selectedConversation, selectedConversationId, newMessage, setNewMessage, handleSelectConversation, handleSend};
+    return {
+        conversations,
+        selectedConversation,
+        selectedConversationId,
+        newMessage,
+        setNewMessage,
+        handleSelectConversation,
+        handleSend,
+        isLoading
+    };
 }
 
 export { useChat };
