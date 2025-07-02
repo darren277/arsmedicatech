@@ -20,7 +20,7 @@ const DUMMY_CONVERSATIONS = [
     avatar: 'https://via.placeholder.com/40',
     messages: [
       { sender: 'John Doe', text: 'Hello Dr. Carvolth, I have a question about my medication.' },
-      { sender: 'Me', text: 'Sure, what’s on your mind?' },
+      { sender: 'Me', text: 'Sure, what\'s on your mind?' },
       { sender: 'John Doe', text: 'Should I continue at the same dose?' },
       { sender: 'Me', text: 'Yes, please stay on the same dose until our next check-up.' },
       { sender: 'John Doe', text: 'Alright, thank you so much!' },
@@ -34,7 +34,7 @@ const DUMMY_CONVERSATIONS = [
     messages: [
       { sender: 'Emily Johnson', text: 'Dr. Carvolth, when is my next appointment?' },
       { sender: 'Me', text: 'Next Tuesday at 2 PM, does that still work?' },
-      { sender: 'Emily Johnson', text: 'Yes, that’s perfect! Thank you!' },
+      { sender: 'Emily Johnson', text: 'Yes, that\'s perfect! Thank you!' },
       { sender: 'Me', text: 'Great, see you then.' },
       { sender: 'Emily Johnson', text: 'Will do, thanks!' },
     ],
