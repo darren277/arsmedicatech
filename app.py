@@ -20,6 +20,24 @@ metrics = PrometheusMetrics(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+# Global tool registry - these don't need to be in session
+GLOBAL_TOOL_DEFINITIONS = []
+GLOBAL_TOOL_FUNC_DICT = {}
+
+def register_tools():
+    """Register tools globally - only needs to be done once"""
+    global GLOBAL_TOOL_DEFINITIONS, GLOBAL_TOOL_FUNC_DICT
+    
+    # Create a temporary agent to get the tool definitions
+    temp_agent = LLMAgent(api_key=OPENAI_API_KEY)
+    temp_agent.add_tool(blood_pressure_decision_tree_lookup, tool_definition_bp)
+    
+    GLOBAL_TOOL_DEFINITIONS = temp_agent.tool_definitions
+    GLOBAL_TOOL_FUNC_DICT = temp_agent.tool_func_dict
+
+# Register tools on startup
+register_tools()
+
 @app.route('/api/', methods=['GET'])
 def hello_world():
     return jsonify({"data": "Hello World"})
@@ -87,17 +105,37 @@ def llm_agent_endpoint():
     print("Received data:", data)
 
     prompt = data.get('prompt')
-    agent = session.get('agent')
-
-    if not agent:
+    
+    # Get or create agent from session
+    agent_data = session.get('agent_data')
+    
+    if agent_data:
+        # Recreate agent from session data
+        agent = LLMAgent.from_dict(
+            agent_data, 
+            api_key=OPENAI_API_KEY,
+            tool_definitions=GLOBAL_TOOL_DEFINITIONS,
+            tool_func_dict=GLOBAL_TOOL_FUNC_DICT
+        )
+    else:
+        # Create new agent
         agent = LLMAgent(api_key=OPENAI_API_KEY)
-        agent.add_tool(blood_pressure_decision_tree_lookup, tool_definition_bp)
-        session['agent'] = agent
+        agent.tool_definitions = GLOBAL_TOOL_DEFINITIONS
+        agent.tool_func_dict = GLOBAL_TOOL_FUNC_DICT
 
+    # Process the prompt
     response = agent.complete(prompt)
+    
+    # Save updated agent state to session
+    session['agent_data'] = agent.to_dict()
 
     return jsonify(response)
 
+@app.route('/api/llm_chat/reset', methods=['POST'])
+def reset_llm_chat():
+    """Reset the LLM chat session"""
+    session.pop('agent_data', None)
+    return jsonify({"message": "Chat session reset successfully"})
 
 @app.route('/api/time')
 #@cross_origin()

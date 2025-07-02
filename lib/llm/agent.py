@@ -63,6 +63,39 @@ class LLMAgent:
         # TODO.
         return [{"role": "system", "content": "You are a helpful assistant."}]
 
+    def to_dict(self):
+        """Serialize the agent state to a dictionary for Flask session storage."""
+        return {
+            'message_history': self.message_history,
+            'model': self.model.value,
+            'system_prompt': self.system_prompt,
+            'params': self.params
+        }
+
+    def reset_conversation(self):
+        """Reset the conversation history while keeping system prompt."""
+        self.message_history = [{"role": "system", "content": self.system_prompt}]
+
+    @classmethod
+    def from_dict(cls, data, api_key, tool_definitions=None, tool_func_dict=None):
+        """Create an agent instance from serialized data."""
+        agent = cls(
+            model=LLMModel(data.get('model', 'gpt-4.1-nano')),
+            api_key=api_key,
+            system_prompt=data.get('system_prompt', DEFAULT_SYSTEM_PROMPT),
+            **data.get('params', {})
+        )
+        
+        # Restore message history
+        agent.message_history = data.get('message_history', [{"role": "system", "content": "You are a helpful assistant."}])
+        
+        # Restore tools if provided
+        if tool_definitions and tool_func_dict:
+            agent.tool_definitions = tool_definitions
+            agent.tool_func_dict = tool_func_dict
+        
+        return agent
+
     def complete(self, prompt: str or None, **kwargs):
         if prompt:
             self.message_history.append({"role": "user", "content": prompt})
