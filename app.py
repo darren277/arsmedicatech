@@ -9,10 +9,12 @@ from lib.llm.agent import LLMAgent
 from lib.llm.trees import blood_pressure_decision_tree_lookup, tool_definition_bp
 from lib.models.patient import search_patient_history, create_schema, add_some_placeholder_encounters, \
     add_some_placeholder_patients
-from settings import PORT, DEBUG, HOST, logger, OPENAI_API_KEY
+from settings import PORT, DEBUG, HOST, logger, OPENAI_API_KEY, FLASK_SECRET_KEY
 
 app = Flask(__name__)
 CORS(app)
+
+app.secret_key = FLASK_SECRET_KEY
 
 metrics = PrometheusMetrics(app)
 
