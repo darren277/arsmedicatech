@@ -45,8 +45,14 @@ const DUMMY_CONVERSATIONS = [
 const Messages = () => {
     const isLLM = true;
     const {
-        conversations, selectedConversation, selectedConversationId, setSelectedConversationId, handleSelectConversation,
-        newMessage, setNewMessage, handleSend
+        conversations, 
+        selectedConversation, 
+        selectedConversationId, 
+        handleSelectConversation,
+        newMessage, 
+        setNewMessage, 
+        handleSend,
+        isLoading
     } = useChat(isLLM);
 
   return (
@@ -94,6 +100,14 @@ const Messages = () => {
                   <div className="message-text">{msg.text}</div>
                 </div>
               ))}
+              {isLoading && (
+                <div className="message">
+                  <div className="message-sender">AI Assistant</div>
+                  <div className="message-text">
+                    <div className="loading-indicator">Thinking...</div>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="message-input-container">
               <input
@@ -101,8 +115,19 @@ const Messages = () => {
                 placeholder="Type a message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !isLoading) {
+                    handleSend();
+                  }
+                }}
+                disabled={isLoading}
               />
-              <button onClick={handleSend}>Send</button>
+              <button 
+                onClick={handleSend} 
+                disabled={isLoading || !newMessage.trim()}
+              >
+                {isLoading ? 'Sending...' : 'Send'}
+              </button>
             </div>
           </>
         )}
