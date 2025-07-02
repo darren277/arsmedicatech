@@ -54,3 +54,70 @@ def decision_tree_lookup(tree, **kwargs) -> dict:
     }
 
 
+
+## EXAMPLE WITH INTEGER COMPARISONS ##
+
+LOAN_DECISION_TREE = {
+    'question': 'What is your credit score?',
+    'branches': {
+        ('<', 640): 'Declined - Credit score too low',
+        ('>=', 640): {
+            'question': 'What is your annual income?',
+            'branches': {
+                ('<', 50000): {
+                    'question': 'What is the requested loan amount?',
+                    'branches': {
+                        ('<=', 10000): 'Approved - Small loan with moderate income',
+                        ('>', 10000): 'Declined - Loan amount too high for income'
+                    }
+                },
+                ('>=', 50000): 'Approved - Strong income and credit score'
+            }
+        }
+    }
+}
+
+def loan_decision_tree_lookup(credit_score: int, income: int, requested_amount: int) -> dict:
+    """
+    Looks up a loan decision from a deterministic decision tree.
+
+    Args:
+        credit_score: The applicant's credit score.
+        income: The applicant's annual income.
+        requested_amount: The amount of the loan being requested.
+
+    Returns:
+        A dictionary containing the final decision and the logical path taken.
+    """
+    return decision_tree_lookup(
+        LOAN_DECISION_TREE,
+        credit_score=credit_score,
+        income=income,
+        requested_amount=requested_amount
+    )
+
+tool_definition = {
+    "type": "function",
+    "function": {
+        "name": "decision_tree_lookup",
+        "description": "Determines loan eligibility and outcome by checking against a set of financial rules.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "credit_score": {
+                    "type": "integer",
+                    "description": "The applicant's credit score, e.g., 720"
+                },
+                "income": {
+                    "type": "integer",
+                    "description": "The applicant's total annual income, e.g., 65000"
+                },
+                "requested_amount": {
+                    "type": "integer",
+                    "description": "The total amount of the loan requested by the applicant"
+                }
+            },
+            "required": ["credit_score", "income", "requested_amount"]
+        }
+    }
+}
