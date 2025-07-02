@@ -75,7 +75,7 @@ class LLMAgent:
         top_choice = completion.choices[0].message
 
         # process tool calls if any...
-        tool_calls = top_choice.message.tool_calls
+        tool_calls = top_choice.tool_calls
         print(top_choice)
 
         if tool_calls:
