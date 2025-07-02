@@ -64,7 +64,17 @@ DUMMY_CONVERSATIONS = [
   }
 ]
 
-@app.route('/llm_chat', methods=['GET', 'POST'])
+@app.route('/api/chat', methods=['GET', 'POST'])
+def chat_endpoint():
+    if request.method == 'GET':
+        return jsonify(DUMMY_CONVERSATIONS)
+    elif request.method == 'POST':
+        data = request.json
+        # In a real app, you'd save this to a database
+        # For now, we'll just return success
+        return jsonify({"message": "Conversations saved successfully"})
+
+@app.route('/api/llm_chat', methods=['GET', 'POST'])
 def llm_agent_endpoint():
     if request.method == 'GET':
         #conversation_history = session.get('conversation_history', [])
