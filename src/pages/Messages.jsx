@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Messages.css';
+import { useChat } from '../hooks/useChat';
 
 const DUMMY_CONVERSATIONS = [
   {
@@ -42,39 +43,11 @@ const DUMMY_CONVERSATIONS = [
 ];
 
 const Messages = () => {
-  const [conversations, setConversations] = useState(DUMMY_CONVERSATIONS);
-  const [selectedConversationId, setSelectedConversationId] = useState(conversations[0].id);
-  const [newMessage, setNewMessage] = useState('');
-
-  const selectedConversation = conversations.find(
-    (conv) => conv.id === selectedConversationId
-  );
-
-  const handleSelectConversation = (id) => {
-    setSelectedConversationId(id);
-    setNewMessage(''); // Clear out the message box
-  };
-
-  const handleSend = () => {
-    if (!newMessage.trim()) return; // do nothing if empty
-
-    const updatedConversations = conversations.map((conv) => {
-      if (conv.id === selectedConversationId) {
-        return {
-          ...conv,
-          messages: [
-            ...conv.messages,
-            { sender: 'Me', text: newMessage.trim() },
-          ],
-          lastMessage: newMessage.trim(),
-        };
-      }
-      return conv;
-    });
-
-    setConversations(updatedConversations);
-    setNewMessage('');
-  };
+    const isLLM = true;
+    const {
+        conversations, selectedConversation, selectedConversationId, setSelectedConversationId, handleSelectConversation,
+        newMessage, setNewMessage, handleSend
+    } = useChat(isLLM);
 
   return (
     <div className="messages-container">
