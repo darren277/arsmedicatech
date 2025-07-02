@@ -1,13 +1,15 @@
 """"""
 import time
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.db.surreal import DbController
+from lib.llm.agent import LLMAgent
+from lib.llm.trees import blood_pressure_decision_tree_lookup, tool_definition_bp
 from lib.models.patient import search_patient_history, create_schema, add_some_placeholder_encounters, \
     add_some_placeholder_patients
-from settings import PORT, DEBUG, HOST, logger
+from settings import PORT, DEBUG, HOST, logger, OPENAI_API_KEY
 
 app = Flask(__name__)
 CORS(app)
@@ -19,6 +21,70 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @app.route('/api/', methods=['GET'])
 def hello_world():
     return jsonify({"data": "Hello World"})
+
+id, name, lastMessage, avatar, messages, sender, text = 'id', 'name', 'lastMessage', 'avatar', 'messages', 'sender', 'text'
+
+DUMMY_CONVERSATIONS = [
+  {
+    id: 1,
+    name: 'Jane Smith',
+    lastMessage: 'Sounds good!',
+    avatar: 'https://via.placeholder.com/40',
+    messages: [
+      { sender: 'Jane Smith', text: 'Hi Dr. Carvolth, can we schedule an appointment?' },
+      { sender: 'Me', text: 'Sure, does tomorrow at 3pm work?' },
+      { sender: 'Jane Smith', text: 'Sounds good!' },
+    ],
+  },
+  {
+    id: 2,
+    name: 'John Doe',
+    lastMessage: 'Alright, thank you so much!',
+    avatar: 'https://via.placeholder.com/40',
+    messages: [
+      { sender: 'John Doe', text: 'Hello Dr. Carvolth, I have a question about my medication.' },
+      { sender: 'Me', text: 'Sure, what’s on your mind?' },
+      { sender: 'John Doe', text: 'Should I continue at the same dose?' },
+      { sender: 'Me', text: 'Yes, please stay on the same dose until our next check-up.' },
+      { sender: 'John Doe', text: 'Alright, thank you so much!' },
+    ],
+  },
+  {
+    id: 3,
+    name: 'Emily Johnson',
+    lastMessage: 'Will do, thanks!',
+    avatar: 'https://via.placeholder.com/40',
+    messages: [
+      { sender: 'Emily Johnson', text: 'Dr. Carvolth, when is my next appointment?' },
+      { sender: 'Me', text: 'Next Tuesday at 2 PM, does that still work?' },
+      { sender: 'Emily Johnson', text: 'Yes, that’s perfect! Thank you!' },
+      { sender: 'Me', text: 'Great, see you then.' },
+      { sender: 'Emily Johnson', text: 'Will do, thanks!' },
+    ],
+  }
+]
+
+@app.route('/llm_chat', methods=['GET', 'POST'])
+def llm_agent_endpoint():
+    if request.method == 'GET':
+        #conversation_history = session.get('conversation_history', [])
+        conversation_history = DUMMY_CONVERSATIONS
+        return jsonify(conversation_history)
+    data = request.json
+
+    print("Received data:", data)
+
+    prompt = data.get('prompt')
+    agent = session.get('agent')
+
+    if not agent:
+        agent = LLMAgent(api_key=OPENAI_API_KEY)
+        agent.add_tool(blood_pressure_decision_tree_lookup, tool_definition_bp)
+        session['agent'] = agent
+
+    response = agent.complete(prompt)
+
+    return jsonify(response)
 
 
 @app.route('/api/time')
