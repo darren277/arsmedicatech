@@ -292,6 +292,45 @@ BP_DECISION_TREE = {
     }
 }
 
+def blood_pressure_decision_tree_lookup(systolic_blood_pressure: int, diastolic_blood_pressure: int) -> dict:
+    """
+    Looks up a blood pressure classification from a decision tree.
+
+    Args:
+        systolic_blood_pressure: The patient's systolic blood pressure.
+        diastolic_blood_pressure: The patient's diastolic blood pressure.
+
+    Returns:
+        A dictionary containing the final classification and the logical path taken.
+    """
+    return decision_tree_lookup(
+        BP_DECISION_TREE,
+        systolic_blood_pressure=systolic_blood_pressure,
+        diastolic_blood_pressure=diastolic_blood_pressure
+    )
+
+tool_definition_bp = {
+    "type": "function",
+    "function": {
+        "name": "blood_pressure_decision_tree_lookup",
+        "description": "Classifies blood pressure levels and provides recommendations based on systolic and diastolic values.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "systolic_blood_pressure": {
+                    "type": "integer",
+                    "description": "The patient's systolic blood pressure, e.g., 128"
+                },
+                "diastolic_blood_pressure": {
+                    "type": "integer",
+                    "description": "The patient's diastolic blood pressure, e.g., 78"
+                }
+            },
+            "required": ["systolic_blood_pressure", "diastolic_blood_pressure"]
+        }
+    }
+}
+
 result = decision_tree_lookup(
     BP_DECISION_TREE,
     systolic_blood_pressure=128,
