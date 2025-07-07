@@ -17,12 +17,12 @@ run-flask-linux:
 
 
 run-react-dev:
-	npm start
+	API_URL=$(API_URL) npm start
 
 
 run-react-prod:
 	npm install
-	npm run build
+	API_URL=$(API_URL) npm run build
 	npx http-server ./dist -p $(REACT_PORT)
 
 
@@ -39,7 +39,7 @@ docker-flask:
 	docker push $(DOCKER_REGISTRY)/$(FLASK_IMAGE):$(FLASK_VERSION)
 
 docker-react:
-	docker build --build-arg PORT=$(REACT_PORT) -t $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION) -f Dockerfile.react .
+	docker build --build-arg PORT=$(REACT_PORT) --build-arg API_URL=$(API_URL) -t $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION) -f Dockerfile.react .
 	docker push $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION)
 
 
