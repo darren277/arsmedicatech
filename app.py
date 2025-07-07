@@ -311,6 +311,7 @@ DUMMY_CONVERSATIONS = [
 ]
 
 @app.route('/api/chat', methods=['GET', 'POST'])
+@optional_auth
 def chat_endpoint():
     if request.method == 'GET':
         return jsonify(DUMMY_CONVERSATIONS)
@@ -321,6 +322,7 @@ def chat_endpoint():
         return jsonify({"message": "Conversations saved successfully"})
 
 @app.route('/api/llm_chat', methods=['GET', 'POST'])
+@optional_auth
 def llm_agent_endpoint():
     if request.method == 'GET':
         #conversation_history = session.get('conversation_history', [])
@@ -358,6 +360,7 @@ def llm_agent_endpoint():
     return jsonify(response)
 
 @app.route('/api/llm_chat/reset', methods=['POST'])
+@optional_auth
 def reset_llm_chat():
     """Reset the LLM chat session"""
     session.pop('agent_data', None)
@@ -382,6 +385,7 @@ jane_doe_history = [
 ]
 
 @app.route('/api/patients', methods=['GET'])
+@require_auth
 def get_patients():
     # This is your existing endpoint, using the mock DB controller.
     db = DbController()
@@ -394,6 +398,7 @@ def get_patients():
 
 
 @app.route('/api/patients/search', methods=['GET'])
+@require_auth
 def search_patients():
     """
     API endpoint to search patient histories via FTS.
@@ -410,6 +415,7 @@ def search_patients():
 
 
 @app.route('/api/patients/<patient_id>', methods=['GET'])
+@require_auth
 def get_patient(patient_id):
     print("Patient ID:", patient_id)
     if patient_id == '1':
@@ -421,6 +427,7 @@ def get_patient(patient_id):
 
 
 @app.route('/api/test_surrealdb', methods=['GET'])
+@require_admin
 def test_surrealdb():
     db = DbController()
     db.connect()
