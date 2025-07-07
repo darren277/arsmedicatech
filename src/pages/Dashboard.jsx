@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import BarChart from '../components/BarChart';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
+import SignupPopup from '../components/SignupPopup';
 import authService from '../services/auth';
+import { useSignupPopup } from '../hooks/useSignupPopup';
 import { Link } from "react-router-dom";
 import API_URL from '../env_vars';
 
@@ -107,11 +109,73 @@ const AuthenticatedDashboard = ({ user, onLogout }) => {
     );
 };
 
+const PublicDashboard = ({ showSignupPopup }) => {
+    return (
+        <div className="dashboard">
+            <div className="dashboard-header">
+                <div className="dashboard-title">
+                    <h1>Dashboard</h1>
+                    <p>Welcome to ArsMedicaTech - Your Healthcare Management Solution</p>
+                </div>
+                <div className="user-info">
+                    <span className="user-role">Guest</span>
+                    <button onClick={showSignupPopup} className="signup-button">
+                        Sign Up
+                    </button>
+                </div>
+            </div>
+            <div className="dashboard-grid">
+                <div className="card stats-card">
+                    <div className="card-title">Total Patients</div>
+                    <h2>{dashboardData.totalPatients}</h2>
+                    <p>+2.7%</p>
+                </div>
+                <div className="card stats-card">
+                    <div className="card-title">Total Income</div>
+                    <h2>${dashboardData.totalIncome}</h2>
+                    <p>+2.7%</p>
+                </div>
+                <div className="card stats-card">
+                    <div className="card-title">Appointments</div>
+                    <h2>{dashboardData.appointments}</h2>
+                    <p>+2.7%</p>
+                </div>
+                <div className="card stats-card">
+                    <div className="card-title">Reports</div>
+                    <h2>{dashboardData.reports}</h2>
+                    <p>+2.7%</p>
+                </div>
+
+                <div className="card appointments-card">
+                    <div className="card-title">Appointments</div>
+                    <div className="guest-notice">
+                        <p>Sign up to view and manage appointments</p>
+                        <button onClick={showSignupPopup} className="guest-action-button">
+                            Get Started
+                        </button>
+                    </div>
+                </div>
+
+                <div className="card activity-card">
+                    <div className="card-title">Recent Activity</div>
+                    <div className="guest-notice">
+                        <p>Sign up to view recent activity</p>
+                        <button onClick={showSignupPopup} className="guest-action-button">
+                            Get Started
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Dashboard = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
     const [showLogin, setShowLogin] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
+    const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
 
     useEffect(() => {
         // Check if user is already authenticated
@@ -164,33 +228,54 @@ const Dashboard = () => {
     }
 
     if (isAuthenticated && user) {
-        return <AuthenticatedDashboard user={user} onLogout={handleLogout} />;
+        return (
+            <>
+                <AuthenticatedDashboard user={user} onLogout={handleLogout} />
+                <SignupPopup 
+                    isOpen={isPopupOpen} 
+                    onClose={hideSignupPopup}
+                />
+            </>
+        );
     }
 
     return (
-        <div className="auth-container">
-            {showLogin ? (
-                <LoginForm 
-                    onLogin={handleLogin} 
-                    onSwitchToRegister={() => setShowLogin(false)} 
-                />
-            ) : (
-                <RegisterForm 
-                    onRegister={handleRegister} 
-                    onSwitchToLogin={() => setShowLogin(true)} 
-                />
-            )}
+        <>
+            <PublicDashboard showSignupPopup={showSignupPopup} />
+            <SignupPopup 
+                isOpen={isPopupOpen} 
+                onClose={hideSignupPopup}
+            />
             
-            {/* Admin setup button - only show if no users exist */}
-            <div className="admin-setup">
-                <button onClick={handleSetupAdmin} className="setup-admin-button">
-                    Setup Default Admin
-                </button>
-                <p className="setup-note">
-                    Use this to create the first admin user if no users exist in the system.
-                </p>
-            </div>
-        </div>
+            {/* Show auth forms when popup is triggered */}
+            {isPopupOpen && (
+                <div className="auth-overlay">
+                    <div className="auth-container">
+                        {showLogin ? (
+                            <LoginForm 
+                                onLogin={handleLogin} 
+                                onSwitchToRegister={() => setShowLogin(false)} 
+                            />
+                        ) : (
+                            <RegisterForm 
+                                onRegister={handleRegister} 
+                                onSwitchToLogin={() => setShowLogin(true)} 
+                            />
+                        )}
+                        
+                        {/* Admin setup button - only show if no users exist */}
+                        <div className="admin-setup">
+                            <button onClick={handleSetupAdmin} className="setup-admin-button">
+                                Setup Default Admin
+                            </button>
+                            <p className="setup-note">
+                                Use this to create the first admin user if no users exist in the system.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 

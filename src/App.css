@@ -377,6 +377,169 @@ body {
     background: #c0392b;
 }
 
+/* Guest user styles */
+.signup-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.signup-button:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.guest-notice {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.guest-notice p {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+}
+
+.guest-action-button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.guest-action-button:hover {
+    background: #5a67d8;
+}
+
+/* Patient list styles */
+.patient-list-container {
+    padding: 20px;
+}
+
+.patient-list-header {
+    margin-bottom: 20px;
+}
+
+.patient-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.patient-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+.patient-item:hover {
+    background-color: #f8f9fa;
+}
+
+.patient-link {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    display: block;
+}
+
+.patient-link:hover {
+    color: #667eea;
+}
+
+/* Schedule styles */
+.schedule-container {
+    padding: 20px;
+}
+
+.schedule-header {
+    margin-bottom: 20px;
+}
+
+.calendar-disabled {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Patient detail styles */
+.patient-detail-container {
+    padding: 20px;
+}
+
+.patient-detail-header {
+    margin-bottom: 30px;
+}
+
+.patient-history {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.patient-history h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 20px;
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.history-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    line-height: 1.5;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-date {
+    font-weight: 600;
+    color: #667eea;
+    margin-right: 8px;
+}
+
+/* Auth overlay styles */
+.auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    backdrop-filter: blur(4px);
+}
+
+.auth-container {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
 /* Responsive design for dashboard */
 @media (max-width: 768px) {
     .dashboard-header {
