@@ -31,7 +31,7 @@ export function usePatientSearch(initialQuery = "") {
         (async () => {
             setLoading(true);
             try {
-                const res  = await fetch(`${API_URL}/api/patients/search?q=${debouncedQuery}`);
+                const res  = await fetch(`${API_URL}/patients/search?q=${debouncedQuery}`);
                 const data = await res.json();
                 if (!cancelled) setResults(data);
             } finally {
