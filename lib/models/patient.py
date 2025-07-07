@@ -361,12 +361,14 @@ def delete_patient(patient_id: str):
 
 def create_patient(patient_data: dict):
     """Create a new patient record"""
+    print(f"[DEBUG] Creating patient with data: {patient_data}")
     db = DbController()
     db.connect()
     
     try:
         # Generate a new demographic_no if not provided
         if not patient_data.get("demographic_no"):
+            print("[DEBUG] No demographic_no provided, generating new one...")
             # Get the highest existing demographic_no and increment
             results = db.select_many('patient')
             if results and isinstance(results, list) and len(results) > 0:
@@ -375,6 +377,7 @@ def create_patient(patient_data: dict):
             else:
                 new_id = 1000
             patient_data["demographic_no"] = str(new_id)
+            print(f"[DEBUG] Generated demographic_no: {new_id}")
         
         # Create Patient object
         patient = Patient(
@@ -388,19 +391,25 @@ def create_patient(patient_data: dict):
             email=patient_data.get("email")
         )
         
+        print(f"[DEBUG] Created Patient object: {patient}")
         result = store_patient(db, patient)
+        print(f"[DEBUG] Store patient result: {result}")
         
         # Handle different result structures
         if result and isinstance(result, list) and len(result) > 0:
             if 'result' in result[0]:
-                return serialize_patient(result[0]['result'])
+                final_result = serialize_patient(result[0]['result'])
             else:
-                return serialize_patient(result[0])
+                final_result = serialize_patient(result[0])
         elif result and isinstance(result, dict):
-            return serialize_patient(result)
-        return None
+            final_result = serialize_patient(result)
+        else:
+            final_result = None
+        
+        print(f"[DEBUG] Final result: {final_result}")
+        return final_result
     except Exception as e:
-        print(f"Error creating patient: {e}")
+        print(f"[DEBUG] Error creating patient: {e}")
         return None
     finally:
         db.close()
@@ -412,7 +421,9 @@ def get_all_patients():
     db.connect()
     
     try:
+        print("[DEBUG] Getting all patients from database...")
         results = db.select_many('patient')
+        print(f"[DEBUG] Raw results: {results}")
         
         # Handle different result structures
         if results and isinstance(results, list) and len(results) > 0:
@@ -422,13 +433,20 @@ def get_all_patients():
             else:
                 patients = results
             
+            print(f"[DEBUG] Processed patients: {patients}")
+            
             if isinstance(patients, list):
-                return [serialize_patient(patient) for patient in patients]
+                serialized_patients = [serialize_patient(patient) for patient in patients]
+                print(f"[DEBUG] Serialized patients: {serialized_patients}")
+                return serialized_patients
             else:
+                print("[DEBUG] Patients is not a list")
                 return []
-        return []
+        else:
+            print("[DEBUG] No results or empty results")
+            return []
     except Exception as e:
-        print(f"Error getting all patients: {e}")
+        print(f"[DEBUG] Error getting all patients: {e}")
         return []
     finally:
         db.close()
