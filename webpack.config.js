@@ -31,7 +31,14 @@ module.exports = {
     filename: "bundle.js",
     publicPath: '/'
   },
-  plugins: [new webpack.HotModuleReplacementPlugin(), new HtmlWebpackPlugin({template: './src/index.html'})],
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(), 
+    new HtmlWebpackPlugin({template: './src/index.html'}),
+    new webpack.DefinePlugin({
+      'process.env.API_URL': JSON.stringify(process.env.API_URL || 'http://127.0.0.1:3123'),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+    })
+  ],
   devServer: {
     allowedHosts: 'all',
     static: path.resolve(__dirname, "./public"),
