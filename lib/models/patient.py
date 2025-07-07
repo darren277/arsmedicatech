@@ -290,4 +290,148 @@ def search_patient_history(search_term: str):
         db.close()
 
 
+def get_patient_by_id(patient_id: str):
+    """Get a patient by their demographic_no"""
+    db = DbController()
+    db.connect()
+    
+    try:
+        record_id = f"patient:{patient_id}"
+        result = db.select(record_id)
+        
+        if result:
+            return serialize_patient(result)
+        return None
+    except Exception as e:
+        print(f"Error getting patient: {e}")
+        return None
+    finally:
+        db.close()
+
+
+def update_patient(patient_id: str, patient_data: dict):
+    """Update a patient record"""
+    db = DbController()
+    db.connect()
+    
+    try:
+        record_id = f"patient:{patient_id}"
+        
+        # Prepare the data for update
+        update_data = {
+            "first_name": patient_data.get("first_name"),
+            "last_name": patient_data.get("last_name"),
+            "date_of_birth": patient_data.get("date_of_birth"),
+            "sex": patient_data.get("sex"),
+            "phone": patient_data.get("phone"),
+            "email": patient_data.get("email"),
+            "location": patient_data.get("location", [])
+        }
+        
+        # Remove None values
+        update_data = {k: v for k, v in update_data.items() if v is not None}
+        
+        result = db.update(record_id, update_data)
+        
+        if result:
+            return serialize_patient(result)
+        return None
+    except Exception as e:
+        print(f"Error updating patient: {e}")
+        return None
+    finally:
+        db.close()
+
+
+def delete_patient(patient_id: str):
+    """Delete a patient record"""
+    db = DbController()
+    db.connect()
+    
+    try:
+        record_id = f"patient:{patient_id}"
+        result = db.delete(record_id)
+        return result
+    except Exception as e:
+        print(f"Error deleting patient: {e}")
+        return None
+    finally:
+        db.close()
+
+
+def create_patient(patient_data: dict):
+    """Create a new patient record"""
+    db = DbController()
+    db.connect()
+    
+    try:
+        # Generate a new demographic_no if not provided
+        if not patient_data.get("demographic_no"):
+            # Get the highest existing demographic_no and increment
+            results = db.select_many('patient')
+            if results and isinstance(results, list) and len(results) > 0:
+                existing_ids = [int(p.get('demographic_no', 0)) for p in results if p.get('demographic_no')]
+                new_id = max(existing_ids) + 1 if existing_ids else 1000
+            else:
+                new_id = 1000
+            patient_data["demographic_no"] = str(new_id)
+        
+        # Create Patient object
+        patient = Patient(
+            demographic_no=patient_data["demographic_no"],
+            first_name=patient_data.get("first_name"),
+            last_name=patient_data.get("last_name"),
+            date_of_birth=patient_data.get("date_of_birth"),
+            location=tuple(patient_data.get("location", [])),
+            sex=patient_data.get("sex"),
+            phone=patient_data.get("phone"),
+            email=patient_data.get("email")
+        )
+        
+        result = store_patient(db, patient)
+        
+        # Handle different result structures
+        if result and isinstance(result, list) and len(result) > 0:
+            if 'result' in result[0]:
+                return serialize_patient(result[0]['result'])
+            else:
+                return serialize_patient(result[0])
+        elif result and isinstance(result, dict):
+            return serialize_patient(result)
+        return None
+    except Exception as e:
+        print(f"Error creating patient: {e}")
+        return None
+    finally:
+        db.close()
+
+
+def get_all_patients():
+    """Get all patients from the database"""
+    db = DbController()
+    db.connect()
+    
+    try:
+        results = db.select_many('patient')
+        
+        # Handle different result structures
+        if results and isinstance(results, list) and len(results) > 0:
+            # If the first result has a 'result' key, extract the actual data
+            if isinstance(results[0], dict) and 'result' in results[0]:
+                patients = results[0]['result']
+            else:
+                patients = results
+            
+            if isinstance(patients, list):
+                return [serialize_patient(patient) for patient in patients]
+            else:
+                return []
+        return []
+    except Exception as e:
+        print(f"Error getting all patients: {e}")
+        return []
+    finally:
+        db.close()
+
+
 #create_schema()
