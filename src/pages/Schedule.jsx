@@ -1,6 +1,9 @@
 import React from 'react';
 import {useState} from 'react';
 import Calendar from 'react-calendar';
+import authService from '../services/auth';
+import { useSignupPopup } from '../hooks/useSignupPopup';
+import SignupPopup from '../components/SignupPopup';
 
 
 function isSameDay (date1, date2) {
@@ -34,13 +37,44 @@ function tileClassName({ date, view }) {
 
 const Schedule = () => {
     const [calendarValue, setCalendarValue] = useState(new Date());
-    function onCalendarChange(nextValue) {setCalendarValue(nextValue);}
+    const isAuthenticated = authService.isAuthenticated();
+    const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
+    
+    function onCalendarChange(nextValue) {
+        if (!isAuthenticated) {
+            showSignupPopup();
+            return;
+        }
+        setCalendarValue(nextValue);
+    }
 
     return (
-        <div>
-            <h2>Schedule Page</h2>
-            <Calendar onChange={onCalendarChange} value={calendarValue} tileContent={tileContent} tileClassName={tileClassName} />
-        </div>
+        <>
+            <div className="schedule-container">
+                <div className="schedule-header">
+                    <h2>Schedule</h2>
+                    {!isAuthenticated && (
+                        <div className="guest-notice">
+                            <p>Sign up to create and manage appointments</p>
+                            <button onClick={showSignupPopup} className="guest-action-button">
+                                Get Started
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <Calendar 
+                    onChange={onCalendarChange} 
+                    value={calendarValue} 
+                    tileContent={tileContent} 
+                    tileClassName={tileClassName}
+                    className={!isAuthenticated ? 'calendar-disabled' : ''}
+                />
+            </div>
+            <SignupPopup 
+                isOpen={isPopupOpen} 
+                onClose={hideSignupPopup}
+            />
+        </>
     )
 };
 

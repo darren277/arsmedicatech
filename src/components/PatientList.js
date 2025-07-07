@@ -1,4 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import authService from '../services/auth';
+import { useSignupPopup } from '../hooks/useSignupPopup';
+import SignupPopup from './SignupPopup';
+
+import API_URL from '../env_vars'
 import { Link, useNavigate } from "react-router-dom";
 import { patientAPI } from '../services/api';
 
@@ -7,6 +12,8 @@ const PatientList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const isAuthenticated = authService.isAuthenticated();
+    const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
 
     useEffect(() => {
         loadPatients();
@@ -50,6 +57,35 @@ const PatientList = () => {
     }
 
     return (
+      <>
+        <>
+            <div className="patient-list-container">
+                <div className="patient-list-header">
+                    <h1>Patient List</h1>
+                    {!isAuthenticated && (
+                        <div className="guest-notice">
+                            <p>Sign up to create and manage patient records</p>
+                            <button onClick={showSignupPopup} className="guest-action-button">
+                                Get Started
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <ul className="patient-list">
+                    {patients && patients.map((patient, index) => (
+                        <li key={index} className="patient-item">
+                            <Link to={`/patients/${patient.id}`} className="patient-link">
+                                {patient.first_name} {patient.last_name}, {patient.age}
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <SignupPopup 
+                isOpen={isPopupOpen} 
+                onClose={hideSignupPopup}
+            />
+        </>
         <div className="max-w-6xl mx-auto p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Patient List</h1>
@@ -148,6 +184,7 @@ const PatientList = () => {
                 </div>
             )}
         </div>
+      </>
     );
 };
 
