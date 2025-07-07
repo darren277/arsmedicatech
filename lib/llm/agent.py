@@ -103,19 +103,27 @@ class LLMAgent:
         completion = self.client.chat.completions.create(
             model=self.model.value,
             messages=self.message_history,
+            tools=self.tool_definitions,
+            #tool_choice="auto",
+            #tool_choice='required',
         )
 
         top_choice = completion.choices[0].message
 
         # process tool calls if any...
         tool_calls = top_choice.tool_calls
-        print(top_choice)
+        print("Top choice:", top_choice)
 
         if tool_calls:
             self.process_tool_calls(tool_calls)
 
             # Recurse to handle tool calls
-            self.complete(None, **kwargs)
+            return self.complete(None, **kwargs)
+        else:
+            # Add assistant response to message history
+            self.message_history.append({"role": "assistant", "content": top_choice.content})
+
+        return {"response": top_choice.content}
 
     def process_tool_calls(self, tool_calls):
         for tool_call in tool_calls:
