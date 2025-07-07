@@ -60,8 +60,13 @@ class User:
             
             hash_obj = hashlib.sha256()
             hash_obj.update((password + salt).encode('utf-8'))
-            return hash_obj.hexdigest() == hash_value
-        except (ValueError, AttributeError):
+            computed_hash = hash_obj.hexdigest()
+            print(f"[DEBUG] Computed hash: {computed_hash}")
+            print(f"[DEBUG] Hash match: {computed_hash == hash_value}")
+            
+            return computed_hash == hash_value
+        except (ValueError, AttributeError) as e:
+            print(f"[DEBUG] Password verification error: {e}")
             return False
     
     def to_dict(self) -> Dict[str, Any]:
@@ -80,7 +85,12 @@ class User:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'User':
         """Create user from dictionary"""
-        return cls(
+        # Convert RecordID to string if it exists
+        user_id = data.get('id')
+        if hasattr(user_id, '__str__'):
+            user_id = str(user_id)
+        
+        user = cls(
             username=data.get('username'),
             email=data.get('email'),
             first_name=data.get('first_name'),
@@ -88,8 +98,12 @@ class User:
             role=data.get('role', 'user'),
             is_active=data.get('is_active', True),
             created_at=data.get('created_at'),
-            id=data.get('id')
+            id=user_id
         )
+        # Set password hash if it exists in the data
+        if 'password_hash' in data:
+            user.password_hash = data['password_hash']
+        return user
     
     @staticmethod
     def validate_username(username: str) -> tuple[bool, str]:
