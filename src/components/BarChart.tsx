@@ -49,7 +49,7 @@ const BarChart = () => {
       0,
       d3.max(data, function (d) {
         return d.value;
-      }),
+      }) ?? 0,
     ]);
 
     svg
@@ -59,7 +59,7 @@ const BarChart = () => {
       .append('rect')
       .attr('class', 'bar')
       .attr('x', function (d) {
-        return x(d.name);
+        return x(d.name) ?? 0;
       })
       .attr('width', x.bandwidth())
       .attr('y', function (d) {

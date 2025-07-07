@@ -29,7 +29,7 @@ const PatientForm = () => {
   const loadPatient = async () => {
     try {
       setLoading(true);
-      const response = await patientAPI.getById(id);
+      const response = await patientAPI.getById(id as string);
       const patient = response.data;
 
       setFormData({
@@ -49,7 +49,9 @@ const PatientForm = () => {
     }
   };
 
-  const handleInputChange = e => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ): void => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -57,14 +59,16 @@ const PatientForm = () => {
     }));
   };
 
-  const handleLocationChange = (index, value) => {
+  const handleLocationChange = (index: number, value: string): void => {
     setFormData(prev => ({
       ...prev,
       location: prev.location.map((item, i) => (i === index ? value : item)),
     }));
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -77,7 +81,16 @@ const PatientForm = () => {
       }
       navigate('/patients');
     } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred');
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as any).response === 'object'
+      ) {
+        setError((err as any).response?.data?.error || 'An error occurred');
+      } else {
+        setError('An error occurred');
+      }
       console.error(err);
     } finally {
       setLoading(false);

@@ -1,6 +1,11 @@
 // tourSteps.js
+import { Placement } from 'react-joyride';
 
-export const tourSteps = [
+export const tourSteps: {
+  target: string;
+  content: string;
+  placement?: Placement | 'auto' | 'center';
+}[] = [
   {
     target: '.sidebar-toggle-button',
     content: 'Click here to open the sidebar where you can see more options.',

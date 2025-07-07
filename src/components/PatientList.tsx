@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import authService from '../services/auth';
+import { PatientType } from '../types';
 import SignupPopup from './SignupPopup';
 
 import { Link, useNavigate } from 'react-router-dom';
 import { patientAPI } from '../services/api';
 
 const PatientList = () => {
-  const [patients, setPatients] = useState([]);
+  const [patients, setPatients] = useState<PatientType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -31,7 +32,10 @@ const PatientList = () => {
     }
   };
 
-  const handleDelete = async (patientId, patientName) => {
+  const handleDelete = async (
+    patientId: string,
+    patientName: string
+  ): Promise<void> => {
     if (window.confirm(`Are you sure you want to delete ${patientName}?`)) {
       try {
         await patientAPI.delete(patientId);
@@ -43,11 +47,11 @@ const PatientList = () => {
     }
   };
 
-  const handleEdit = patientId => {
+  const handleEdit = (patientId: string): void => {
     navigate(`/patients/${patientId}/edit`);
   };
 
-  const handleAddNew = () => {
+  const handleAddNew = (): void => {
     navigate('/patients/new');
   };
 
@@ -162,18 +166,23 @@ const PatientList = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
                           <button
-                            onClick={() => handleEdit(patient.demographic_no)}
+                            onClick={() =>
+                              patient.demographic_no &&
+                              handleEdit(patient.demographic_no)
+                            }
                             className="text-indigo-600 hover:text-indigo-900"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={() =>
-                              handleDelete(
-                                patient.demographic_no,
-                                `${patient.first_name} ${patient.last_name}`
-                              )
-                            }
+                            onClick={() => {
+                              if (patient.demographic_no) {
+                                handleDelete(
+                                  patient.demographic_no,
+                                  `${patient.first_name} ${patient.last_name}`
+                                );
+                              }
+                            }}
                             className="text-red-600 hover:text-red-900"
                           >
                             Delete

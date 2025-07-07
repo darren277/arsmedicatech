@@ -2,141 +2,143 @@ import API_URL from '../env_vars';
 import authService from './auth';
 
 class ApiService {
-    constructor() {
-        this.baseURL = API_URL;
+  baseURL: string;
+
+  constructor() {
+    this.baseURL = API_URL;
+  }
+
+  // Helper method to get headers with authentication
+  getHeaders() {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    // Add auth token if available
+    const token = authService.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
-    // Helper method to get headers with authentication
-    getHeaders() {
-        const headers = {
-            'Content-Type': 'application/json',
-        };
+    return headers;
+  }
 
-        // Add auth token if available
-        const token = authService.getToken();
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
+  // Generic request method
+  async request(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const url = `${this.baseURL}${endpoint}`;
+    const config = {
+      headers: this.getHeaders(),
+      ...options,
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle authentication errors
+        if (response.status === 401) {
+          // Token might be expired, try to refresh or logout
+          await authService.logout();
+          throw new Error('Authentication required. Please log in again.');
         }
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
 
-        return headers;
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
     }
+  }
 
-    // Generic request method
-    async request(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
-        const config = {
-            headers: this.getHeaders(),
-            ...options,
-        };
+  // GET request
+  async get(endpoint: string): Promise<any> {
+    return this.request(endpoint, { method: 'GET' });
+  }
 
-        try {
-            const response = await fetch(url, config);
-            const data = await response.json();
+  // POST request
+  async post(endpoint: string, data: any): Promise<any> {
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 
-            if (!response.ok) {
-                // Handle authentication errors
-                if (response.status === 401) {
-                    // Token might be expired, try to refresh or logout
-                    await authService.logout();
-                    throw new Error('Authentication required. Please log in again.');
-                }
-                throw new Error(data.error || `HTTP error! status: ${response.status}`);
-            }
+  // PUT request
+  async put(endpoint: string, data: any): Promise<any> {
+    return this.request(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
 
-            return data;
-        } catch (error) {
-            console.error('API request failed:', error);
-            throw error;
-        }
-    }
+  // DELETE request
+  async delete(endpoint: string): Promise<any> {
+    return this.request(endpoint, { method: 'DELETE' });
+  }
 
-    // GET request
-    async get(endpoint) {
-        return this.request(endpoint, { method: 'GET' });
-    }
+  // Patient-related API calls
+  async getPatients() {
+    return this.get('/patients');
+  }
 
-    // POST request
-    async post(endpoint, data) {
-        return this.request(endpoint, {
-            method: 'POST',
-            body: JSON.stringify(data),
-        });
-    }
+  async searchPatients(query: string): Promise<any> {
+    return this.get(`/patients/search?q=${encodeURIComponent(query)}`);
+  }
 
-    // PUT request
-    async put(endpoint, data) {
-        return this.request(endpoint, {
-            method: 'PUT',
-            body: JSON.stringify(data),
-        });
-    }
+  async getPatient(patientId: string): Promise<any> {
+    return this.get(`/patients/${patientId}`);
+  }
 
-    // DELETE request
-    async delete(endpoint) {
-        return this.request(endpoint, { method: 'DELETE' });
-    }
+  // Chat-related API calls
+  async getChatHistory(): Promise<any> {
+    return this.get('/chat');
+  }
 
-    // Patient-related API calls
-    async getPatients() {
-        return this.get('/patients');
-    }
+  async sendChatMessage(message: string): Promise<any> {
+    return this.post('/chat', { message });
+  }
 
-    async searchPatients(query) {
-        return this.get(`/patients/search?q=${encodeURIComponent(query)}`);
-    }
+  // LLM-related API calls
+  async getLLMChatHistory(): Promise<any> {
+    return this.get('/llm_chat');
+  }
 
-    async getPatient(patientId) {
-        return this.get(`/patients/${patientId}`);
-    }
+  async sendLLMMessage(prompt: string): Promise<any> {
+    return this.post('/llm_chat', { prompt });
+  }
 
-    // Chat-related API calls
-    async getChatHistory() {
-        return this.get('/chat');
-    }
+  async resetLLMChat(): Promise<any> {
+    return this.post('/llm_chat/reset', {});
+  }
 
-    async sendChatMessage(message) {
-        return this.post('/chat', { message });
-    }
+  // Time API
+  async getCurrentTime(): Promise<any> {
+    return this.get('/time');
+  }
 
-    // LLM-related API calls
-    async getLLMChatHistory() {
-        return this.get('/llm_chat');
-    }
+  // Admin-related API calls (require admin role)
+  async getAllUsers(): Promise<any> {
+    return this.get('/admin/users');
+  }
 
-    async sendLLMMessage(prompt) {
-        return this.post('/llm_chat', { prompt });
-    }
+  async deactivateUser(userId: string): Promise<any> {
+    return this.post(`/admin/users/${userId}/deactivate`, {});
+  }
 
-    async resetLLMChat() {
-        return this.post('/llm_chat/reset');
-    }
+  async activateUser(userId: string): Promise<any> {
+    return this.post(`/admin/users/${userId}/activate`, {});
+  }
 
-    // Time API
-    async getCurrentTime() {
-        return this.get('/time');
-    }
+  async setupDefaultAdmin(): Promise<any> {
+    return this.post('/admin/setup', {});
+  }
 
-    // Admin-related API calls (require admin role)
-    async getAllUsers() {
-        return this.get('/admin/users');
-    }
-
-    async deactivateUser(userId) {
-        return this.post(`/admin/users/${userId}/deactivate`);
-    }
-
-    async activateUser(userId) {
-        return this.post(`/admin/users/${userId}/activate`);
-    }
-
-    async setupDefaultAdmin() {
-        return this.post('/admin/setup');
-    }
-
-    // Test endpoints
-    async testSurrealDB() {
-        return this.get('/test_surrealdb');
-    }
+  // Test endpoints
+  async testSurrealDB(): Promise<any> {
+    return this.get('/test_surrealdb');
+  }
 }
 
 // Create a singleton instance
@@ -144,23 +146,25 @@ const apiService = new ApiService();
 
 // Patient CRUD operations
 export const patientAPI = {
-    // Get all patients
-    getAll: () => apiService.get('/patients'),
-    
-    // Get a specific patient
-    getById: (id) => apiService.get(`/patients/${id}`),
-    
-    // Create a new patient
-    create: (patientData) => apiService.post('/patients', patientData),
-    
-    // Update a patient
-    update: (id, patientData) => apiService.put(`/patients/${id}`, patientData),
-    
-    // Delete a patient
-    delete: (id) => apiService.delete(`/patients/${id}`),
-    
-    // Search patients
-    search: (query) => apiService.get(`/patients/search?q=${encodeURIComponent(query)}`)
+  // Get all patients
+  getAll: () => apiService.get('/patients'),
+
+  // Get a specific patient
+  getById: (id: string) => apiService.get(`/patients/${id}`),
+
+  // Create a new patient
+  create: (patientData: any) => apiService.post('/patients', patientData),
+
+  // Update a patient
+  update: (id: string, patientData: any) =>
+    apiService.put(`/patients/${id}`, patientData),
+
+  // Delete a patient
+  delete: (id: string) => apiService.delete(`/patients/${id}`),
+
+  // Search patients
+  search: (query: string) =>
+    apiService.get(`/patients/search?q=${encodeURIComponent(query)}`),
 };
 
 export default apiService;

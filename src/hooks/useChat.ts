@@ -91,7 +91,7 @@ function useChat(isLLM = false) {
     conv => conv.id === selectedConversationId
   );
 
-  const handleSelectConversation = id => {
+  const handleSelectConversation = (id: number): void => {
     setSelectedConversationId(id);
     setNewMessage('');
   };

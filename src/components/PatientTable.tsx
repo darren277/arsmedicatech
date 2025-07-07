@@ -4,6 +4,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import React from 'react';
+import { PatientType } from '../types';
 
 /*
 interface Patient {
@@ -18,9 +19,9 @@ interface Patient {
 export function PatientTable({
   rows,
   isLoading = false,
-  // }: {
-  //     rows: Patient[];
-  //     isLoading?: boolean;
+}: {
+  rows: PatientType[];
+  isLoading?: boolean;
 }) {
   /** Column definition only runs once */
   //const columns = React.useMemo<ColumnDef<Patient>[]>(
@@ -32,7 +33,7 @@ export function PatientTable({
         accessorKey: 'highlighted_note',
         header: 'Snippet',
         //cell: ctx => (<div dangerouslySetInnerHTML={{__html: ctx.getValue() as string,}} />),
-        cell: ctx => (
+        cell: (ctx: any): JSX.Element => (
           <div dangerouslySetInnerHTML={{ __html: ctx.getValue() }} />
         ),
       },

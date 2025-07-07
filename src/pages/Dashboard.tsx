@@ -68,7 +68,13 @@ const dashboardData = {
   reports: '1,083',
 };
 
-const AuthenticatedDashboard = ({ user, onLogout }) => {
+const AuthenticatedDashboard = ({
+  user,
+  onLogout,
+}: {
+  user: any;
+  onLogout: () => void;
+}): JSX.Element => {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -119,7 +125,11 @@ const AuthenticatedDashboard = ({ user, onLogout }) => {
   );
 };
 
-const PublicDashboard = ({ showSignupPopup }) => {
+const PublicDashboard = ({
+  showSignupPopup,
+}: {
+  showSignupPopup: () => void;
+}) => {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -180,9 +190,18 @@ const PublicDashboard = ({ showSignupPopup }) => {
   );
 };
 
+interface UserData {
+  id: number;
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  role: string;
+}
+
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [showLogin, setShowLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
@@ -203,12 +222,12 @@ const Dashboard = () => {
     checkAuth();
   }, []);
 
-  const handleLogin = userData => {
+  const handleLogin = (userData: UserData): void => {
     setUser(userData);
     setIsAuthenticated(true);
   };
 
-  const handleRegister = userData => {
+  const handleRegister = (userData: UserData): void => {
     setUser(userData);
     setIsAuthenticated(true);
   };

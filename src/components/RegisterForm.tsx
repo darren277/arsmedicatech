@@ -2,7 +2,15 @@ import { useState } from 'react';
 import authService from '../services/auth';
 import './LoginForm.css';
 
-const RegisterForm = ({ onRegister, onSwitchToLogin, onClose }) => {
+const RegisterForm = ({
+  onRegister,
+  onSwitchToLogin,
+  onClose,
+}: {
+  onRegister: (user: any) => void;
+  onSwitchToLogin: () => void;
+  onClose?: () => void;
+}): JSX.Element => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -11,18 +19,27 @@ const RegisterForm = ({ onRegister, onSwitchToLogin, onClose }) => {
     first_name: '',
     last_name: '',
   });
-  const [errors, setErrors] = useState({});
+  type RegisterFormFields =
+    | 'username'
+    | 'email'
+    | 'password'
+    | 'confirmPassword'
+    | 'first_name'
+    | 'last_name';
+  type ErrorsType = Partial<Record<RegisterFormFields, string>>;
+
+  const [errors, setErrors] = useState<ErrorsType>({});
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
     // Clear field-specific error when user starts typing
-    if (errors[name]) {
+    if (errors[name as RegisterFormFields]) {
       setErrors(prev => ({
         ...prev,
         [name]: '',
@@ -31,7 +48,7 @@ const RegisterForm = ({ onRegister, onSwitchToLogin, onClose }) => {
     setGeneralError('');
   };
 
-  const validateUsername = username => {
+  const validateUsername = (username: string): string => {
     if (!username.trim()) {
       return 'Username is required';
     }
@@ -47,7 +64,7 @@ const RegisterForm = ({ onRegister, onSwitchToLogin, onClose }) => {
     return '';
   };
 
-  const validateEmail = email => {
+  const validateEmail = (email: string): string => {
     if (!email.trim()) {
       return 'Email is required';
     }
@@ -58,7 +75,7 @@ const RegisterForm = ({ onRegister, onSwitchToLogin, onClose }) => {
     return '';
   };
 
-  const validatePassword = password => {
+  const validatePassword = (password: string): string => {
     if (!password) {
       return 'Password is required';
     }
@@ -78,7 +95,7 @@ const RegisterForm = ({ onRegister, onSwitchToLogin, onClose }) => {
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: ErrorsType = {};
 
     // Validate username
     const usernameError = validateUsername(formData.username);
@@ -107,7 +124,9 @@ const RegisterForm = ({ onRegister, onSwitchToLogin, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -143,7 +162,7 @@ const RegisterForm = ({ onRegister, onSwitchToLogin, onClose }) => {
       <div className="login-form">
         {onClose && (
           <button className="form-close-button" onClick={onClose}>
-            ×
+            x
           </button>
         )}
         <h2>Create Account</h2>

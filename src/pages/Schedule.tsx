@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import Calendar from 'react-calendar';
+import { Value } from 'react-calendar/dist/cjs/shared/types';
 import SignupPopup from '../components/SignupPopup';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import authService from '../services/auth';
 
-function isSameDay(date1, date2) {
+function isSameDay(date1: Date, date2: Date): boolean {
   return (
     date1.getDate() === date2.getDate() &&
     date1.getMonth() === date2.getMonth() &&
@@ -19,7 +20,13 @@ const datesToAddContentTo = [
   new Date(2022, 3, 1),
 ];
 
-function tileContent({ date, view }) {
+function tileContent({
+  date,
+  view,
+}: {
+  date: Date;
+  view: string;
+}): string | null {
   // Add class to tiles in month view only
   if (view === 'month') {
     // Check if a date React-Calendar wants to check is on the list of dates to add class to
@@ -27,9 +34,16 @@ function tileContent({ date, view }) {
       return 'My content';
     }
   }
+  return null;
 }
 
-function tileClassName({ date, view }) {
+function tileClassName({
+  date,
+  view,
+}: {
+  date: Date;
+  view: string;
+}): string | null {
   const datesToAddClassTo = datesToAddContentTo;
   // Add class to tiles in month view only
   if (view === 'month') {
@@ -38,6 +52,7 @@ function tileClassName({ date, view }) {
       return 'myClassName';
     }
   }
+  return null;
 }
 
 const Schedule = () => {
@@ -45,12 +60,22 @@ const Schedule = () => {
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
 
-  function onCalendarChange(nextValue) {
+  function onCalendarChange(
+    value: Value,
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ): void {
     if (!isAuthenticated) {
       showSignupPopup();
       return;
     }
-    setCalendarValue(nextValue);
+    // Handle single date or range, fallback to today if null
+    if (value instanceof Date) {
+      setCalendarValue(value);
+    } else if (Array.isArray(value) && value[0] instanceof Date) {
+      setCalendarValue(value[0]);
+    } else {
+      setCalendarValue(new Date());
+    }
   }
 
   return (

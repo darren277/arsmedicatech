@@ -2,23 +2,35 @@ import { useState } from 'react';
 import authService from '../services/auth';
 import './LoginForm.css';
 
-const LoginForm = ({ onLogin, onSwitchToRegister, onClose }) => {
+const LoginForm = ({
+  onLogin,
+  onSwitchToRegister,
+  onClose,
+}: {
+  onLogin: (user: any) => void;
+  onSwitchToRegister: () => void;
+  onClose: () => void;
+}): JSX.Element => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   });
-  const [errors, setErrors] = useState({});
+  interface Errors {
+    username?: string;
+    password?: string;
+  }
+  const [errors, setErrors] = useState<Errors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
     // Clear field-specific error when user starts typing
-    if (errors[name]) {
+    if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({
         ...prev,
         [name]: '',
@@ -28,7 +40,7 @@ const LoginForm = ({ onLogin, onSwitchToRegister, onClose }) => {
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: Errors = {};
 
     if (!formData.username.trim()) {
       newErrors.username = 'Username is required';
@@ -42,7 +54,7 @@ const LoginForm = ({ onLogin, onSwitchToRegister, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!validateForm()) {

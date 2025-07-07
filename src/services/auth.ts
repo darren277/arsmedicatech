@@ -1,12 +1,15 @@
 import API_URL from '../env_vars';
 
 class AuthService {
+  token: string | null;
+  user: { role: 'user' | 'nurse' | 'doctor' | 'admin' } | null;
+
   constructor() {
     this.token = localStorage.getItem('auth_token');
     this.user = JSON.parse(localStorage.getItem('user') || 'null');
   }
 
-  async login(username, password) {
+  async login(username: string, password: string) {
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
@@ -21,7 +24,7 @@ class AuthService {
       if (response.ok) {
         this.token = data.token;
         this.user = data.user;
-        localStorage.setItem('auth_token', this.token);
+        localStorage.setItem('auth_token', this.token ?? '');
         localStorage.setItem('user', JSON.stringify(this.user));
         return { success: true, data };
       } else {
@@ -32,7 +35,13 @@ class AuthService {
     }
   }
 
-  async register(username, email, password, first_name = '', last_name = '') {
+  async register(
+    username: string,
+    email: string,
+    password: string,
+    first_name: string = '',
+    last_name: string = ''
+  ): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
@@ -60,7 +69,7 @@ class AuthService {
     }
   }
 
-  async logout() {
+  async logout(): Promise<void> {
     try {
       if (this.token) {
         await fetch(`${API_URL}/api/auth/logout`, {
@@ -81,7 +90,7 @@ class AuthService {
     }
   }
 
-  async getCurrentUser() {
+  async getCurrentUser(): Promise<any> {
     if (!this.token) {
       return null;
     }
@@ -109,7 +118,10 @@ class AuthService {
     }
   }
 
-  async changePassword(currentPassword, newPassword) {
+  async changePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
       const response = await fetch(`${API_URL}/api/auth/change-password`, {
         method: 'POST',
@@ -135,7 +147,11 @@ class AuthService {
     }
   }
 
-  async setupDefaultAdmin() {
+  async setupDefaultAdmin(): Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+  }> {
     try {
       const response = await fetch(`${API_URL}/api/admin/setup`, {
         method: 'POST',
@@ -156,19 +172,19 @@ class AuthService {
     }
   }
 
-  isAuthenticated() {
+  isAuthenticated(): boolean {
     return !!this.token && !!this.user;
   }
 
-  getUser() {
+  getUser(): any {
     return this.user;
   }
 
-  getToken() {
+  getToken(): string | null {
     return this.token;
   }
 
-  hasRole(role) {
+  hasRole(role: string): boolean {
     if (!this.user) return false;
 
     const roleHierarchy = {
@@ -178,26 +194,28 @@ class AuthService {
       admin: 4,
     };
 
-    const userLevel = roleHierarchy[this.user.role] || 0;
-    const requiredLevel = roleHierarchy[role] || 0;
+    const userRole = this.user.role as keyof typeof roleHierarchy;
+    const userLevel = roleHierarchy[userRole] || 0;
+    const requiredLevel =
+      roleHierarchy[role as keyof typeof roleHierarchy] || 0;
 
     return userLevel >= requiredLevel;
   }
 
-  isAdmin() {
+  isAdmin(): boolean {
     return this.user?.role === 'admin';
   }
 
-  isDoctor() {
+  isDoctor(): boolean {
     return this.hasRole('doctor');
   }
 
-  isNurse() {
+  isNurse(): boolean {
     return this.hasRole('nurse');
   }
 
   // Helper method to add auth headers to fetch requests
-  getAuthHeaders() {
+  getAuthHeaders(): Record<string, string> {
     return {
       Authorization: `Bearer ${this.token}`,
       'Content-Type': 'application/json',

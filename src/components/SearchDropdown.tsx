@@ -1,17 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
 
-export default function SearchDropdown({ show, loading, results }) {
+export default function SearchDropdown({
+  show,
+  loading,
+  results,
+}: {
+  show: boolean;
+  loading: boolean;
+  results: Array<{
+    id: number;
+    first_name: string;
+    last_name: string;
+    highlighted_note: string;
+  }>;
+}): JSX.Element | null {
   const [open, setOpen] = useState(false);
   //const ref = useRef<HTMLDivElement | null>(null);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => setOpen(show), [show]);
 
   useEffect(() => {
     // e: MouseEvent
-    function handleOutside(e) {
+    function handleOutside(e: MouseEvent): void {
       // e.target as Node
-      if (ref.current && !ref.current.contains(e.target)) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }

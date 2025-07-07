@@ -1,7 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import './SignupPopup.css';
 
-const SignupPopup = ({ isOpen, onClose, onSwitchToLogin }) => {
+const SignupPopup = ({
+  isOpen,
+  onClose,
+  onSwitchToLogin,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSwitchToLogin?: () => void;
+}): JSX.Element | null => {
   const navigate = useNavigate();
 
   if (!isOpen) return null;

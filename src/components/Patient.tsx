@@ -3,11 +3,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import { patientAPI } from '../services/api';
 import authService from '../services/auth';
+import { PatientType } from '../types';
 import SignupPopup from './SignupPopup';
 
 const Patient = () => {
   const { id } = useParams();
-  const [patient, setPatient] = useState({ history: [] });
+  const [patient, setPatient] = useState<PatientType>({ history: [] });
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Patient = () => {
   const loadPatient = async () => {
     try {
       setLoading(true);
-      const response = await patientAPI.getById(id);
+      const response = await patientAPI.getById(id as string);
       setPatient(response.data);
     } catch (err) {
       setError('Failed to load patient data');
@@ -42,7 +43,7 @@ const Patient = () => {
       )
     ) {
       try {
-        await patientAPI.delete(id);
+        await patientAPI.delete(id as string);
         navigate('/patients');
       } catch (err) {
         setError('Failed to delete patient');
@@ -85,12 +86,12 @@ const Patient = () => {
     );
   }
 
-  const formatDate = dateString => {
+  const formatDate = (dateString: string | undefined) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString();
   };
 
-  const formatLocation = location => {
+  const formatLocation = (location: string[] | null | undefined) => {
     if (!location || !Array.isArray(location)) return '-';
     return location.filter(Boolean).join(', ') || '-';
   };
@@ -222,7 +223,11 @@ const Patient = () => {
           </div>
         </div>
       </div>
-      <SignupPopup isOpen={isPopupOpen} onClose={hideSignupPopup} />
+      <SignupPopup
+        isOpen={isPopupOpen}
+        onClose={hideSignupPopup}
+        onSwitchToLogin={undefined}
+      />
     </>
   );
 };
