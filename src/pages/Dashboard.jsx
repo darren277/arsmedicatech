@@ -254,12 +254,14 @@ const Dashboard = () => {
                         {showLogin ? (
                             <LoginForm 
                                 onLogin={handleLogin} 
-                                onSwitchToRegister={() => setShowLogin(false)} 
+                                onSwitchToRegister={() => setShowLogin(false)}
+                                onClose={hideSignupPopup}
                             />
                         ) : (
                             <RegisterForm 
                                 onRegister={handleRegister} 
-                                onSwitchToLogin={() => setShowLogin(true)} 
+                                onSwitchToLogin={() => setShowLogin(true)}
+                                onClose={hideSignupPopup}
                             />
                         )}
                         

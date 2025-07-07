@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import authService from '../services/auth';
 import './LoginForm.css';
 
-const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
+const RegisterForm = ({ onRegister, onSwitchToLogin, onClose }) => {
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -141,6 +141,11 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
     return (
         <div className="login-container">
             <div className="login-form">
+                {onClose && (
+                    <button className="form-close-button" onClick={onClose}>
+                        ×
+                    </button>
+                )}
                 <h2>Create Account</h2>
                 <p className="login-subtitle">Sign up for a new account</p>
                 
