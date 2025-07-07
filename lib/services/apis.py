@@ -50,10 +50,21 @@ class ClinicalTrials:
         """
         import requests
         url = "https://clinicaltrials.gov/api/v2/studies"
+
         headers = {
             "accept": "application/json"
         }
-        response = requests.get(url, headers=headers)
+
+        data = {
+            "query.cond": query
+        }
+
+        response = requests.get(
+            url,
+            params=data,
+            headers=headers
+        )
+
         if response.status_code == 200:
             data = response.json()
             return data
