@@ -41,8 +41,8 @@ const DUMMY_CONVERSATIONS = [
   },
 ];
 
-const CHAT_ENDPOINT = API_URL + '/api/chat';
-const LLM_CHAT_ENDPOINT = API_URL + '/api/llm_chat';
+const CHAT_ENDPOINT = API_URL + '/chat';
+const LLM_CHAT_ENDPOINT = API_URL + '/llm_chat';
 
 function useChat(isLLM = false) {
     const [conversations, setConversations] = useState(DUMMY_CONVERSATIONS);
