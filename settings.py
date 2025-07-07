@@ -40,3 +40,5 @@ HOST = os.environ.get('HOST', '0.0.0.0')
 print("PORT:", PORT)
 print("DEBUG:", DEBUG)
 print("HOST:", HOST)
+
+NCBI_API_KEY = os.environ.get('NCBI_API_KEY')
