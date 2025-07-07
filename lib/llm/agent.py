@@ -61,7 +61,7 @@ class LLMAgent:
     def fetch_history(self):
         """ Fetch history from database. """
         # TODO.
-        return [{"role": "system", "content": "You are a helpful assistant."}]
+        return [{"role": "system", "content": self.system_prompt}]
 
     def to_dict(self):
         """Serialize the agent state to a dictionary for Flask session storage."""
@@ -80,7 +80,7 @@ class LLMAgent:
     def from_dict(cls, data, api_key, tool_definitions=None, tool_func_dict=None):
         """Create an agent instance from serialized data."""
         agent = cls(
-            model=LLMModel(data.get('model', 'gpt-4.1-nano')),
+            model=LLMModel(data.get('model', LLMModel.GPT_4_1)),
             api_key=api_key,
             system_prompt=data.get('system_prompt', DEFAULT_SYSTEM_PROMPT),
             **data.get('params', {})
