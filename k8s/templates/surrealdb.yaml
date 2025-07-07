@@ -8,10 +8,24 @@ spec:
   template:
     metadata: { labels: { app: surrealdb } }
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      initContainers:
+        - name: fix-perms
+          image: busybox
+          command: [ "sh", "-c", "chown -R 1000:1000 /mydata || true" ]
+          volumeMounts:
+            - name: data
+              mountPath: /mydata
+              subPath: surrealdb
       containers:
         - name: surrealdb
           image: surrealdb/surrealdb:latest
-          args: [ "start", "--log", "info", "rocksdb:/mydata/mydatabase.db" ]
+          args:
+            - start
+            - rocksdb:/mydata/surreal.db
           env:
             - { name: SURREAL_USER, valueFrom: { secretKeyRef: { name: surreal-secret, key: user } } }
             - { name: SURREAL_PASS, valueFrom: { secretKeyRef: { name: surreal-secret, key: pass } } }
