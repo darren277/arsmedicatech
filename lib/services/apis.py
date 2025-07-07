@@ -95,7 +95,7 @@ class NCBI:
             "sort": "relevance",
             "api_key": self.api_key,
             "tool": "clinical-search",
-            "email": "your.name@example.com",
+            "email": self.email
         }
         r = requests.get(self.BASE + "esearch.fcgi", params=params, headers=self.HEADERS, timeout=15)
         r.raise_for_status()
@@ -112,7 +112,7 @@ class NCBI:
             "retmode": "json",
             "api_key": self.api_key,
             "tool": "clinical-search",
-            "email": "your.name@example.com",
+            "email": self.email
         }
         r = requests.get(self.BASE + "esummary.fcgi", params=params, headers=self.HEADERS, timeout=15)
         r.raise_for_status()
@@ -129,7 +129,7 @@ class NCBI:
             "retmode": "text",
             "api_key": self.api_key,
             "tool": "clinical-search",
-            "email": "your.name@example.com",
+            "email": self.email
         }
         r = requests.get(self.BASE + "efetch.fcgi", params=params, headers=self.HEADERS, timeout=15)
         r.raise_for_status()
