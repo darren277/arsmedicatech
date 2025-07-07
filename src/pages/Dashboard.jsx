@@ -1,27 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import BarChart from '../components/BarChart';
-import {useState, useEffect} from 'react';
+import LoginForm from '../components/LoginForm';
+import RegisterForm from '../components/RegisterForm';
+import authService from '../services/auth';
 import { Link } from "react-router-dom";
-
-import API_URL from '../env_vars'
+import API_URL from '../env_vars';
 
 const Panel1 = () => {
     const [currentTime, setCurrentTime] = useState(0);
 
-  useEffect(() => {
-        fetch(`${API_URL}/time`, {headers: {
-            'Access-Control-Allow-Origin': 'http://127.0.0.1:3010',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-    }).then(res => res.json()).then(data => {
+    useEffect(() => {
+        fetch(`${API_URL}/time`, {
+            headers: {
+                'Access-Control-Allow-Origin': 'http://127.0.0.1:3010',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+        }).then(res => res.json()).then(data => {
             setCurrentTime(data.time);
         });
     }, []);
 
     return (
         <header className="App-header">
-            ... no changes in this part ...
             <p>The current time is {currentTime}.</p>
             <p><Link to="patients">Patients</Link></p>
             <p><Link to="about">About</Link></p>
@@ -33,19 +34,19 @@ const Panel1 = () => {
 }
 
 const DashboardOld = () => {
-  return (
-    <div className="dashboard">
-      <h2>Dashboard</h2>
-      <div className="cards-grid">
-        <div className="card">
-            <Panel1 />
+    return (
+        <div className="dashboard">
+            <h2>Dashboard</h2>
+            <div className="cards-grid">
+                <div className="card">
+                    <Panel1 />
+                </div>
+                <div className="card"><BarChart /></div>
+                <div className="card">Panel 3</div>
+                <div className="card">Panel 4</div>
+            </div>
         </div>
-        <div className="card"><BarChart /></div>
-        <div className="card">Panel 3</div>
-        <div className="card">Panel 4</div>
-      </div>
-    </div>
-  );
+    );
 };
 
 const dashboardData = {
@@ -55,11 +56,20 @@ const dashboardData = {
     reports: '1,083'
 };
 
-const Dashboard = () => {
+const AuthenticatedDashboard = ({ user, onLogout }) => {
     return (
         <div className="dashboard">
             <div className="dashboard-header">
-                <h1>Dashboard</h1>
+                <div className="dashboard-title">
+                    <h1>Dashboard</h1>
+                    <p>Welcome back, {user.first_name || user.username}!</p>
+                </div>
+                <div className="user-info">
+                    <span className="user-role">{user.role}</span>
+                    <button onClick={onLogout} className="logout-button">
+                        Logout
+                    </button>
+                </div>
             </div>
             <div className="dashboard-grid">
                 <div className="card stats-card">
@@ -92,6 +102,93 @@ const Dashboard = () => {
                     <div className="card-title">Recent Activity</div>
                     {/* This would be a list rendered from data */}
                 </div>
+            </div>
+        </div>
+    );
+};
+
+const Dashboard = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(null);
+    const [showLogin, setShowLogin] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Check if user is already authenticated
+        const checkAuth = async () => {
+            if (authService.isAuthenticated()) {
+                const currentUser = await authService.getCurrentUser();
+                if (currentUser) {
+                    setUser(currentUser);
+                    setIsAuthenticated(true);
+                }
+            }
+            setIsLoading(false);
+        };
+
+        checkAuth();
+    }, []);
+
+    const handleLogin = (userData) => {
+        setUser(userData);
+        setIsAuthenticated(true);
+    };
+
+    const handleRegister = (userData) => {
+        setUser(userData);
+        setIsAuthenticated(true);
+    };
+
+    const handleLogout = async () => {
+        await authService.logout();
+        setUser(null);
+        setIsAuthenticated(false);
+    };
+
+    const handleSetupAdmin = async () => {
+        const result = await authService.setupDefaultAdmin();
+        if (result.success) {
+            alert('Default admin user created! Username: admin, Password: Admin123!');
+        } else {
+            alert('Error creating admin user: ' + result.error);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Loading...</p>
+            </div>
+        );
+    }
+
+    if (isAuthenticated && user) {
+        return <AuthenticatedDashboard user={user} onLogout={handleLogout} />;
+    }
+
+    return (
+        <div className="auth-container">
+            {showLogin ? (
+                <LoginForm 
+                    onLogin={handleLogin} 
+                    onSwitchToRegister={() => setShowLogin(false)} 
+                />
+            ) : (
+                <RegisterForm 
+                    onRegister={handleRegister} 
+                    onSwitchToLogin={() => setShowLogin(true)} 
+                />
+            )}
+            
+            {/* Admin setup button - only show if no users exist */}
+            <div className="admin-setup">
+                <button onClick={handleSetupAdmin} className="setup-admin-button">
+                    Setup Default Admin
+                </button>
+                <p className="setup-note">
+                    Use this to create the first admin user if no users exist in the system.
+                </p>
             </div>
         </div>
     );
