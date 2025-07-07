@@ -1,4 +1,5 @@
 // tourSteps.js
+
 export const tourSteps = [
   {
     target: '.sidebar-toggle-button',

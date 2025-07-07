@@ -1,19 +1,19 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 export const useSignupPopup = () => {
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-    const showSignupPopup = useCallback(() => {
-        setIsPopupOpen(true);
-    }, []);
+  const showSignupPopup = useCallback(() => {
+    setIsPopupOpen(true);
+  }, []);
 
-    const hideSignupPopup = useCallback(() => {
-        setIsPopupOpen(false);
-    }, []);
+  const hideSignupPopup = useCallback(() => {
+    setIsPopupOpen(false);
+  }, []);
 
-    return {
-        isPopupOpen,
-        showSignupPopup,
-        hideSignupPopup
-    };
-}; 
+  return {
+    isPopupOpen,
+    showSignupPopup,
+    hideSignupPopup,
+  };
+};
