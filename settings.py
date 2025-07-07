@@ -42,3 +42,7 @@ print("DEBUG:", DEBUG)
 print("HOST:", HOST)
 
 NCBI_API_KEY = os.environ.get('NCBI_API_KEY')
+
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', 'sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+
+FLASK_SECRET_KEY = 'secret key'
