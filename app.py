@@ -48,7 +48,9 @@ def hello_world():
 @app.route('/api/auth/register', methods=['POST'])
 def register():
     """Register a new user account"""
+    print("[DEBUG] Registration request received")
     data = request.json
+    print(f"[DEBUG] Registration data: {data}")
     if not data:
         return jsonify({"error": "No data provided"}), 400
     
@@ -58,12 +60,15 @@ def register():
     first_name = data.get('first_name')
     last_name = data.get('last_name')
     
+    print(f"[DEBUG] Registration fields - username: {username}, email: {email}, first_name: {first_name}, last_name: {last_name}")
+    
     if not all([username, email, password]):
         return jsonify({"error": "Username, email, and password are required"}), 400
     
     user_service = UserService()
     user_service.connect()
     try:
+        print("[DEBUG] Calling user_service.create_user")
         success, message, user = user_service.create_user(
             username=username,
             email=email,
@@ -72,7 +77,9 @@ def register():
             last_name=last_name
         )
         
+        print(f"[DEBUG] User creation result - success: {success}, message: {message}")
         if success:
+            print(f"[DEBUG] User created successfully: {user.id}")
             return jsonify({
                 "message": message,
                 "user": {
@@ -85,6 +92,7 @@ def register():
                 }
             }), 201
         else:
+            print(f"[DEBUG] User creation failed: {message}")
             return jsonify({"error": message}), 400
     finally:
         user_service.close()

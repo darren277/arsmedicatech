@@ -60,10 +60,13 @@ class UserService:
             
             # Save to database
             result = self.db.create('User', user.to_dict())
+            print(f"[DEBUG] Database create result: {result}")
             if result and isinstance(result, dict) and result.get('id'):
                 user.id = result['id']
+                print(f"[DEBUG] User created successfully with ID: {user.id}")
                 return True, "User created successfully", user
             else:
+                print(f"[DEBUG] Failed to create user. Result: {result}")
                 return False, "Failed to create user in database", None
                 
         except Exception as e:
@@ -77,7 +80,9 @@ class UserService:
         """
         try:
             # Get user by username
+            print(f"[DEBUG] Authenticating user: {username}")
             user = self.get_user_by_username(username)
+            print(f"[DEBUG] User lookup result: {user}")
             if not user:
                 return False, "Invalid username or password", None
             
@@ -86,7 +91,10 @@ class UserService:
                 return False, "Account is deactivated", None
             
             # Verify password
-            if not user.verify_password(password):
+            print(f"[DEBUG] Verifying password for user: {user.username}")
+            password_valid = user.verify_password(password)
+            print(f"[DEBUG] Password verification result: {password_valid}")
+            if not password_valid:
                 return False, "Invalid username or password", None
             
             # Create session
@@ -111,6 +119,8 @@ class UserService:
                 "SELECT * FROM User WHERE username = $username",
                 {"username": username}
             )
+            
+            print(f"[DEBUG] Raw query result: {result}")
             
             if result and isinstance(result, list) and len(result) > 0:
                 user_data = result[0].get('result', [])

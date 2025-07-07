@@ -48,10 +48,16 @@ class User:
     def verify_password(self, password: str) -> bool:
         """Verify a password against the stored hash"""
         if not self.password_hash:
+            print(f"[DEBUG] No password hash stored for user")
             return False
         
         try:
+            print(f"[DEBUG] Stored password hash: {self.password_hash}")
+            print(f"[DEBUG] Attempting to verify password: {password}")
             salt, hash_value = self.password_hash.split('$', 1)
+            print(f"[DEBUG] Extracted salt: {salt}")
+            print(f"[DEBUG] Extracted hash: {hash_value}")
+            
             hash_obj = hashlib.sha256()
             hash_obj.update((password + salt).encode('utf-8'))
             return hash_obj.hexdigest() == hash_value
