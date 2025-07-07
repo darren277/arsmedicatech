@@ -142,27 +142,25 @@ class ApiService {
 // Create a singleton instance
 const apiService = new ApiService();
 
-export default apiService;
-
 // Patient CRUD operations
 export const patientAPI = {
     // Get all patients
-    getAll: () => api.get('/patients'),
+    getAll: () => apiService.get('/patients'),
     
     // Get a specific patient
-    getById: (id) => api.get(`/patients/${id}`),
+    getById: (id) => apiService.get(`/patients/${id}`),
     
     // Create a new patient
-    create: (patientData) => api.post('/patients', patientData),
+    create: (patientData) => apiService.post('/patients', patientData),
     
     // Update a patient
-    update: (id, patientData) => api.put(`/patients/${id}`, patientData),
+    update: (id, patientData) => apiService.put(`/patients/${id}`, patientData),
     
     // Delete a patient
-    delete: (id) => api.delete(`/patients/${id}`),
+    delete: (id) => apiService.delete(`/patients/${id}`),
     
     // Search patients
-    search: (query) => api.get(`/patients/search?q=${encodeURIComponent(query)}`)
+    search: (query) => apiService.get(`/patients/search?q=${encodeURIComponent(query)}`)
 };
 
-export default api;
+export default apiService;
