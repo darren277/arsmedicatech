@@ -241,7 +241,7 @@ def test_surrealdb():
 
     add_some_placeholder_patients(db)
 
-    results = db.select_many('Patient')
+    results = db.select_many('patient')
     logger.info("RESULTS: " + str(results))
     return jsonify({"message": "Test completed."})
 
