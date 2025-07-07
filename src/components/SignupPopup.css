@@ -28,7 +28,7 @@
     padding: 0;
     max-width: 480px;
     width: 90%;
-    max-height: 90vh;
+    max-height: 85vh;
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     position: relative;
@@ -50,28 +50,30 @@
     position: absolute;
     top: 16px;
     right: 16px;
-    background: none;
-    border: none;
-    font-size: 24px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    font-size: 20px;
     color: #666;
     cursor: pointer;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    z-index: 1;
+    z-index: 10;
+    font-weight: bold;
 }
 
 .popup-close-button:hover {
-    background: #f0f0f0;
+    background: #e9ecef;
     color: #333;
+    transform: scale(1.1);
 }
 
 .popup-content {
-    padding: 40px;
+    padding: 40px 40px 30px 40px;
     text-align: center;
 }
 

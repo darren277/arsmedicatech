@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import authService from '../services/auth';
 import './LoginForm.css';
 
-const LoginForm = ({ onLogin, onSwitchToRegister }) => {
+const LoginForm = ({ onLogin, onSwitchToRegister, onClose }) => {
     const [formData, setFormData] = useState({
         username: '',
         password: ''
@@ -70,6 +70,11 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
     return (
         <div className="login-container">
             <div className="login-form">
+                {onClose && (
+                    <button className="form-close-button" onClick={onClose}>
+                        ×
+                    </button>
+                )}
                 <h2>Welcome Back</h2>
                 <p className="login-subtitle">Sign in to your account</p>
                 
