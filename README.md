@@ -60,24 +60,24 @@ ArsMedicaTech is built to support the evolving digital needs of healthcare. Its 
 
 ### 🔄 Near-Term Priorities
 
-* [ ] Replace all **hardcoded test data** with SurrealDB-backed endpoints ([AMT-016])
-* [ ] **Pull data from Oscar EMR** into SurrealDB ([AMT-014])
-* [ ] Launch **live messaging** using WebSockets ([AMT-017])
-* [ ] Add **profile screen and editing** ([AMT-022])
-* [ ] Implement **settings panel** (e.g., dark mode toggle) ([AMT-020])
-* [ ] Build **notifications system** ([AMT-019])
+* [ ] Replace all **hardcoded test data** with SurrealDB-backed endpoints [AMT-016](https://github.com/darren277/arsmedicatech/issues/39).
+* [ ] **Pull data from Oscar EMR** into SurrealDB [AMT-014](https://github.com/darren277/arsmedicatech/issues/36).
+* [ ] Launch **live messaging** using WebSockets [AMT-017](https://github.com/darren277/arsmedicatech/issues/42).
+* [ ] Add **profile screen and editing** [AMT-022](https://github.com/darren277/arsmedicatech/issues/43).
+* [ ] Implement **settings panel** (e.g., dark mode toggle) [AMT-020](https://github.com/darren277/arsmedicatech/issues/45).
+* [ ] Build **notifications system** [AMT-019](https://github.com/darren277/arsmedicatech/issues/44).
 
 ### 🧠 AI Integration
 
-* [ ] Add **prompt engineering** support (e.g., Latitude.so) ([AMT-025])
-* [ ] Implement **Retrieval-Augmented Generation (RAG)** with SurrealDB vector store ([AMT-024])
-* [ ] Add support for **LLM fine-tuning** ([AMT-023])
-* [ ] Build **decision tree integration** for deterministic AI reasoning ([AMT-026])
+* [ ] Add **prompt engineering** support (e.g., Latitude.so) [AMT-025](https://github.com/darren277/arsmedicatech/issues/65).
+* [ ] Implement **Retrieval-Augmented Generation (RAG)** with SurrealDB vector store [AMT-024](https://github.com/darren277/arsmedicatech/issues/64).
+* [ ] Add support for **LLM fine-tuning** [AMT-023](https://github.com/darren277/arsmedicatech/issues/63).
+* [ ] Build **decision tree integration** for deterministic AI reasoning [AMT-026](https://github.com/darren277/arsmedicatech/issues/66).
 
 ### 🧰 Developer Experience
 
-* [ ] Convert frontend codebase to **TypeScript** with linting/formatting ([AMT-027])
-* [ ] Split `EncounterTable` and `PatientTable` for better UX ([AMT-028])
+* [ ] Convert frontend codebase to **TypeScript** with linting/formatting [AMT-027](https://github.com/darren277/arsmedicatech/issues/67).
+* [ ] Split `EncounterTable` and `PatientTable` for better UX [AMT-028](https://github.com/darren277/arsmedicatech/issues/70).
 
 ---
 
@@ -92,8 +92,6 @@ This project is still in active development, and contributions are welcome. Whet
 ***TBD** — Will be updated upon reaching MVP milestone.*
 
 ---
-
-Let me know if you'd like to include screenshots, diagrams, or badges (build, coverage, etc.) and I can generate those sections too.
 
 ## Architecture
 
