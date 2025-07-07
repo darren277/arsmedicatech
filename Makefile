@@ -57,3 +57,17 @@ k8s-deploy:
 k8s-debug:
 	kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
 	helm template $(NAMESPACE) ./k8s -f ./k8s/values.yaml | kubectl apply --namespace $(NAMESPACE) -f - --dry-run=server
+
+
+# Tests
+test-crud:
+	python test_api.py
+
+test-schema:
+	python test_schema.py
+
+test-surrealdb:
+	python test_db.py
+
+test-create-and-retrieve:
+	python test_create_and_retrieve.py

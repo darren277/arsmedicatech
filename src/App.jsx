@@ -5,6 +5,7 @@ import { tourSteps } from './onboarding/tourSteps';
 import './App.css';
 import PatientList from './components/PatientList';
 import Patient from './components/Patient';
+import PatientForm from './components/PatientForm';
 import { usePatientSearch } from "./hooks/usePatientSearch";
 import { PatientTable } from "./components/PatientTable";
 
@@ -102,7 +103,9 @@ const router = createBrowserRouter([
             { path: "about", element: <About /> },
             { path: "contact", element: <Contact /> },
             { path: "patients", element: <PatientList /> },
+            { path: "patients/new", element: <PatientForm /> },
             { path: "patients/:id", element: <Patient /> },
+            { path: "patients/:id/edit", element: <PatientForm /> },
             { path: "schedule", element :<Schedule /> },
             { path: "messages", element :<Messages /> }
         ],

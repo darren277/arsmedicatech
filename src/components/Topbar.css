@@ -120,3 +120,36 @@
     background-color: #cbd5e0;
     background-image: url('https://placehold.co/40x40/E2E8F0/4A5568?text=DC');
 }
+
+.auth-status {
+    display: flex;
+    align-items: center;
+}
+
+.guest-auth {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.guest-label {
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+}
+
+.auth-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-button:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    transform: translateY(-1px);
+}
