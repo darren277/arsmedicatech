@@ -182,9 +182,14 @@ def patients_endpoint():
 
 @app.route('/api/patients/<patient_id>', methods=['GET', 'PUT', 'DELETE'])
 def patient_endpoint(patient_id):
+    print(f"[DEBUG] Patient endpoint called with patient_id: {patient_id}")
+    print(f"[DEBUG] Request method: {request.method}")
+    
     if request.method == 'GET':
         # Get a specific patient
+        print(f"[DEBUG] Getting patient with ID: {patient_id}")
         patient = get_patient_by_id(patient_id)
+        print(f"[DEBUG] Patient result: {patient}")
         if patient:
             return jsonify(patient)
         else:
