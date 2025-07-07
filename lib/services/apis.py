@@ -85,15 +85,16 @@ class NCBI:
             "User-Agent": f"arsmedicatech/0.1 ({self.email})"
         }
 
-    def fetch_ncbi_studies(self, query: str):
+    def fetch_ncbi_studies(self, query: str, debug: bool = False):
         hits, total_found = self.search_pubmed(query, max_records=10, with_abstract=True)
-        print(f"{total_found:,} articles in PubMed; showing {len(hits)} results:\n")
-        for i, art in enumerate(hits, 1):
-            print(f"{i}. {art['title']}  ({art['journal']}, {art['pubdate']})")
-            print(f"   PMID: {art['pmid']}")
-            print(f"   Authors: {art['authors']}")
-            if 'abstract' in art:
-                print(f"   Abstract (truncated): {art['abstract'][:300]}...\n")
+        if debug:
+            print(f"{total_found:,} articles in PubMed; showing {len(hits)} results:\n")
+            for i, art in enumerate(hits, 1):
+                print(f"{i}. {art['title']}  ({art['journal']}, {art['pubdate']})")
+                print(f"   PMID: {art['pmid']}")
+                print(f"   Authors: {art['authors']}")
+                if 'abstract' in art:
+                    print(f"   Abstract (truncated): {art['abstract'][:300]}...\n")
         return hits
 
     def esearch(self, query, retmax=100):
