@@ -5,11 +5,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const PORT = process.env.PORT || 80;
 
 module.exports = {
-  entry: path.resolve(__dirname, "./src/index.jsx"),
+  entry: path.resolve(__dirname, "./src/index.tsx"),
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(js|jsx|ts|tsx)$/,
         exclude: /node_modules/,
         use: ["babel-loader"],
       },
@@ -24,7 +24,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ["*", ".js", ".jsx", ".css"],
+    extensions: ["*", ".js", ".jsx", ".ts", ".tsx", ".css"],
   },
   output: {
     path: path.resolve(__dirname, "./dist"),
