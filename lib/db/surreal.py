@@ -39,6 +39,10 @@ class DbController:
         """Connect to SurrealDB and authenticate"""
         from surrealdb import Surreal
 
+        print(f"[DEBUG] Connecting to SurrealDB at {self.url}")
+        print(f"[DEBUG] Using namespace: {self.namespace}, database: {self.database}")
+        print(f"[DEBUG] Username: {self.user}")
+
         # Initialize connection
         self.db = Surreal(self.url)
 
@@ -47,9 +51,11 @@ class DbController:
             "username": self.user,
             "password": self.password
         })
+        print(f"[DEBUG] Signin result: {signin_result}")
 
         # Use namespace and database
         self.db.use(self.namespace, self.database)
+        print(f"[DEBUG] Set namespace and database")
 
         return signin_result
 
@@ -141,7 +147,9 @@ class DbController:
         :param table_name: Table name
         :return: List of records
         """
+        print(f"[DEBUG] Selecting many from table: {table_name}")
         result = self.db.select(table_name)
+        print(f"[DEBUG] Select many raw result: {result}")
 
         # Process results
         if isinstance(result, list):
@@ -149,6 +157,7 @@ class DbController:
                 if isinstance(record, dict) and 'id' in record:
                     _id = str(record.pop("id"))
                     result[i] = {**record, 'id': _id}
+            print(f"[DEBUG] Select many processed result: {result}")
 
         return result
 
@@ -159,12 +168,17 @@ class DbController:
         :param record: Record ID string (e.g., "table:id")
         :return: Record data
         """
+        print(f"[DEBUG] Selecting record: {record}")
         result = self.db.select(record)
+        print(f"[DEBUG] Select raw result: {result}")
 
         # Handle record ID conversion
         if isinstance(result, dict) and 'id' in result:
             _id = str(result.pop("id"))
-            return {**result, 'id': _id}
+            final_result = {**result, 'id': _id}
+            print(f"[DEBUG] Final result: {final_result}")
+            return final_result
+        print(f"[DEBUG] Final result: {result}")
         return result
 
     def delete(self, record):

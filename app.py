@@ -8,7 +8,7 @@ from lib.db.surreal import DbController
 from lib.llm.agent import LLMAgent
 from lib.llm.trees import blood_pressure_decision_tree_lookup, tool_definition_bp
 from lib.models.patient import search_patient_history, create_schema, add_some_placeholder_encounters, \
-    add_some_placeholder_patients
+    add_some_placeholder_patients, get_patient_by_id, update_patient, delete_patient, create_patient, get_all_patients
 from settings import PORT, DEBUG, HOST, logger, OPENAI_API_KEY, FLASK_SECRET_KEY
 
 app = Flask(__name__)
@@ -155,16 +155,65 @@ jane_doe_history = [
     {"date": "2021-01-03", "note": "Patient has a headache."}
 ]
 
-@app.route('/api/patients', methods=['GET'])
-def get_patients():
-    # This is your existing endpoint, using the mock DB controller.
-    db = DbController()
-    db.connect()
-    results = db.select_many('Patient')
-    db.close()
-    if results and isinstance(results, list) and len(results) > 0:
-        return jsonify(results[0].get('result', []))
-    return jsonify([])
+@app.route('/api/patients', methods=['GET', 'POST'])
+def patients_endpoint():
+    if request.method == 'GET':
+        # Get all patients
+        patients = get_all_patients()
+        return jsonify(patients)
+    elif request.method == 'POST':
+        # Create a new patient
+        data = request.json
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        # Validate required fields
+        required_fields = ['first_name', 'last_name']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        
+        patient = create_patient(data)
+        if patient:
+            return jsonify(patient), 201
+        else:
+            return jsonify({"error": "Failed to create patient"}), 500
+
+
+@app.route('/api/patients/<patient_id>', methods=['GET', 'PUT', 'DELETE'])
+def patient_endpoint(patient_id):
+    print(f"[DEBUG] Patient endpoint called with patient_id: {patient_id}")
+    print(f"[DEBUG] Request method: {request.method}")
+    
+    if request.method == 'GET':
+        # Get a specific patient
+        print(f"[DEBUG] Getting patient with ID: {patient_id}")
+        patient = get_patient_by_id(patient_id)
+        print(f"[DEBUG] Patient result: {patient}")
+        if patient:
+            return jsonify(patient)
+        else:
+            return jsonify({"error": "Patient not found"}), 404
+    
+    elif request.method == 'PUT':
+        # Update a patient
+        data = request.json
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        patient = update_patient(patient_id, data)
+        if patient:
+            return jsonify(patient)
+        else:
+            return jsonify({"error": "Patient not found or update failed"}), 404
+    
+    elif request.method == 'DELETE':
+        # Delete a patient
+        result = delete_patient(patient_id)
+        if result:
+            return jsonify({"message": "Patient deleted successfully"})
+        else:
+            return jsonify({"error": "Patient not found or delete failed"}), 404
 
 
 @app.route('/api/patients/search', methods=['GET'])
@@ -183,17 +232,6 @@ def search_patients():
 
 
 
-@app.route('/api/patients/<patient_id>', methods=['GET'])
-def get_patient(patient_id):
-    print("Patient ID:", patient_id)
-    if patient_id == '1':
-        return jsonify({"id": 1, "first_name": "John", "last_name": "Doe", "age": 45, "history": john_doe_history})
-    elif patient_id == '2':
-        return jsonify({"id": 2, "first_name": "Jane", "last_name": "Doe", "age": 35, "history": jane_doe_history})
-    else:
-        return jsonify({"result": "Patient not found."})
-
-
 @app.route('/api/test_surrealdb', methods=['GET'])
 def test_surrealdb():
     db = DbController()
@@ -203,9 +241,59 @@ def test_surrealdb():
 
     add_some_placeholder_patients(db)
 
-    results = db.select_many('Patient')
+    results = db.select_many('patient')
     logger.info("RESULTS: " + str(results))
     return jsonify({"message": "Test completed."})
+
+
+@app.route('/api/test_crud', methods=['GET'])
+def test_crud():
+    """Test endpoint to verify CRUD operations"""
+    try:
+        # Test creating a patient
+        test_patient_data = {
+            "first_name": "Test",
+            "last_name": "Patient",
+            "date_of_birth": "1990-01-01",
+            "sex": "M",
+            "phone": "555-1234",
+            "email": "test@example.com",
+            "location": ["Test City", "Test State", "Test Country", "12345"]
+        }
+        
+        created_patient = create_patient(test_patient_data)
+        if not created_patient:
+            return jsonify({"error": "Failed to create patient"}), 500
+        
+        patient_id = created_patient.get('demographic_no')
+        
+        # Test reading the patient
+        read_patient = get_patient_by_id(patient_id)
+        if not read_patient:
+            return jsonify({"error": "Failed to read patient"}), 500
+        
+        # Test updating the patient
+        update_data = {"phone": "555-5678"}
+        updated_patient = update_patient(patient_id, update_data)
+        if not updated_patient:
+            return jsonify({"error": "Failed to update patient"}), 500
+        
+        # Test deleting the patient
+        delete_result = delete_patient(patient_id)
+        if not delete_result:
+            return jsonify({"error": "Failed to delete patient"}), 500
+        
+        return jsonify({
+            "message": "CRUD operations test completed successfully",
+            "created": created_patient,
+            "read": read_patient,
+            "updated": updated_patient,
+            "deleted": delete_result
+        })
+        
+    except Exception as e:
+        logger.error(f"CRUD test failed: {e}")
+        return jsonify({"error": f"CRUD test failed: {str(e)}"}), 500
 
 
 if __name__ == '__main__':
