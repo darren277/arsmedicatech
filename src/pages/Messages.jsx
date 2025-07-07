@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import './Messages.css';
 import { useChat } from '../hooks/useChat';
+import authService from '../services/auth';
+import { useSignupPopup } from '../hooks/useSignupPopup';
+import SignupPopup from '../components/SignupPopup';
 
 const DUMMY_CONVERSATIONS = [
   {
@@ -44,6 +47,9 @@ const DUMMY_CONVERSATIONS = [
 
 const Messages = () => {
     const isLLM = true;
+    const isAuthenticated = authService.isAuthenticated();
+    const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
+    
     const {
         conversations, 
         selectedConversation, 
@@ -55,33 +61,42 @@ const Messages = () => {
         isLoading
     } = useChat(isLLM);
 
+    const handleSendMessage = () => {
+        if (!isAuthenticated) {
+            showSignupPopup();
+            return;
+        }
+        handleSend();
+    };
+
   return (
-    <div className="messages-container">
-      {/* Left sidebar: conversation list */}
-      <div className="conversations-list">
-        <h3 className="conversation-list-title">Conversations</h3>
-        <ul>
-          {conversations.map((conv) => (
-            <li
-              key={conv.id}
-              onClick={() => handleSelectConversation(conv.id)}
-              className={
-                conv.id === selectedConversationId ? 'conversation active' : 'conversation'
-              }
-            >
-              <img
-                className="avatar"
-                src={conv.avatar}
-                alt={conv.name}
-              />
-              <div className="conversation-info">
-                <p className="conversation-name">{conv.name}</p>
-                <p className="conversation-last">{conv.lastMessage}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <>
+      <div className="messages-container">
+        {/* Left sidebar: conversation list */}
+        <div className="conversations-list">
+          <h3 className="conversation-list-title">Conversations</h3>
+          <ul>
+            {conversations.map((conv) => (
+              <li
+                key={conv.id}
+                onClick={() => handleSelectConversation(conv.id)}
+                className={
+                  conv.id === selectedConversationId ? 'conversation active' : 'conversation'
+                }
+              >
+                <img
+                  className="avatar"
+                  src={conv.avatar}
+                  alt={conv.name}
+                />
+                <div className="conversation-info">
+                  <p className="conversation-name">{conv.name}</p>
+                  <p className="conversation-last">{conv.lastMessage}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
 
       {/* Right side: chat window */}
       <div className="chat-window">
@@ -112,27 +127,33 @@ const Messages = () => {
             <div className="message-input-container">
               <input
                 type="text"
-                placeholder="Type a message..."
+                placeholder={isAuthenticated ? "Type a message..." : "Sign up to send messages..."}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !isLoading) {
-                    handleSend();
+                    handleSendMessage();
                   }
                 }}
-                disabled={isLoading}
+                disabled={isLoading || !isAuthenticated}
               />
               <button 
-                onClick={handleSend} 
-                disabled={isLoading || !newMessage.trim()}
+                onClick={handleSendMessage} 
+                disabled={isLoading || !newMessage.trim() || !isAuthenticated}
+                className={!isAuthenticated ? 'send-button-disabled' : ''}
               >
-                {isLoading ? 'Sending...' : 'Send'}
+                {isLoading ? 'Sending...' : isAuthenticated ? 'Send' : 'Sign Up to Send'}
               </button>
             </div>
           </>
         )}
       </div>
     </div>
+    <SignupPopup 
+      isOpen={isPopupOpen} 
+      onClose={hideSignupPopup}
+    />
+    </>
   );
 };
 
