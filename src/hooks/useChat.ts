@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import apiService from '../services/api';
+import { Conversation } from '../types';
 
-const DUMMY_CONVERSATIONS = [
+const DUMMY_CONVERSATIONS: Conversation[] = [
   {
     id: 1,
     name: 'Jane Smith',

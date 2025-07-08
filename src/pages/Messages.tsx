@@ -1,12 +1,12 @@
 import NewConversationModal from '../components/NewConversationModal';
 import SignupPopup from '../components/SignupPopup';
-import { useChat } from '../hooks/useChat';
+import { Conversation, useChat } from '../hooks/useChat';
 import { useNewConversationModal } from '../hooks/useNewConversationModal';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import authService from '../services/auth';
 import './Messages.css';
 
-const DUMMY_CONVERSATIONS = [
+const DUMMY_CONVERSATIONS: Conversation[] = [
   {
     id: 1,
     name: 'Jane Smith',
