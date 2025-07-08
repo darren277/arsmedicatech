@@ -40,7 +40,8 @@ class AuthService {
     email: string,
     password: string,
     first_name: string = '',
-    last_name: string = ''
+    last_name: string = '',
+    role: string = 'patient'
   ): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
       const response = await fetch(`${API_URL}/api/auth/register`, {
@@ -54,6 +55,7 @@ class AuthService {
           password,
           first_name,
           last_name,
+          role,
         }),
       });
 

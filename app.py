@@ -59,8 +59,8 @@ def register():
     password = data.get('password')
     first_name = data.get('first_name')
     last_name = data.get('last_name')
-    
-    print(f"[DEBUG] Registration fields - username: {username}, email: {email}, first_name: {first_name}, last_name: {last_name}")
+    role = data.get('role', 'patient')
+    print(f"[DEBUG] Registration fields - username: {username}, email: {email}, first_name: {first_name}, last_name: {last_name}, role: {role}")
     
     if not all([username, email, password]):
         return jsonify({"error": "Username, email, and password are required"}), 400
@@ -74,7 +74,8 @@ def register():
             email=email,
             password=password,
             first_name=first_name,
-            last_name=last_name
+            last_name=last_name,
+            role=role
         )
         
         print(f"[DEBUG] User creation result - success: {success}, message: {message}")
