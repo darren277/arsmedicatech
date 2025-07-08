@@ -210,10 +210,39 @@
     margin-right: 12px;
 }
 
+.user-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
 .user-name {
     color: #333;
     font-size: 14px;
     font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.user-role {
+    color: #666;
+    font-size: 12px;
+    text-transform: capitalize;
+}
+
+.search-loading {
+    color: #666;
+    font-size: 14px;
+    font-style: italic;
+    margin-top: 8px;
+    text-align: center;
+}
+
+.no-results {
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
 }
 
 .modal-actions {

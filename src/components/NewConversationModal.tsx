@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import apiService from '../services/api';
 import './NewConversationModal.css';
 
 interface NewConversationModalProps {
@@ -14,13 +15,10 @@ const NewConversationModal = ({
   onStartChatbot,
   onStartUserChat,
 }: NewConversationModalProps): JSX.Element | null => {
-  const [selectedOption, setSelectedOption] = useState<
-    'chatbot' | 'user' | null
-  >(null);
+  const [selectedOption, setSelectedOption] = useState<'chatbot' | 'user' | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<
-    Array<{ id: string; name: string; avatar: string }>
-  >([]);
+  const [searchResults, setSearchResults] = useState<Array<{ id: string; name: string; avatar: string; display_name: string; role: string }>>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   if (!isOpen) return null;
 
@@ -33,26 +31,26 @@ const NewConversationModal = ({
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
+    
     if (query.trim().length > 2) {
-      // Mock search results - replace with actual API call
-      const mockResults = [
-        {
-          id: '1',
-          name: 'Dr. Sarah Johnson',
-          avatar: 'https://via.placeholder.com/40',
-        },
-        {
-          id: '2',
-          name: 'Dr. Michael Chen',
-          avatar: 'https://via.placeholder.com/40',
-        },
-        {
-          id: '3',
-          name: 'Dr. Emily Rodriguez',
-          avatar: 'https://via.placeholder.com/40',
-        },
-      ].filter(user => user.name.toLowerCase().includes(query.toLowerCase()));
-      setSearchResults(mockResults);
+      setIsSearching(true);
+      try {
+        const response = await apiService.searchUsers(query);
+        if (response.users) {
+          setSearchResults(response.users.map((user: any) => ({
+            id: user.id,
+            name: user.display_name,
+            avatar: user.avatar,
+            display_name: user.display_name,
+            role: user.role
+          })));
+        }
+      } catch (error) {
+        console.error('Error searching users:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
     } else {
       setSearchResults([]);
     }
@@ -65,11 +63,7 @@ const NewConversationModal = ({
     }
   };
 
-  const handleUserSelect = (user: {
-    id: string;
-    name: string;
-    avatar: string;
-  }) => {
+  const handleUserSelect = (user: { id: string; name: string; avatar: string; display_name: string; role: string }) => {
     onStartUserChat(user.id);
     onClose();
   };
@@ -83,49 +77,40 @@ const NewConversationModal = ({
 
   return (
     <div className="new-conversation-modal-overlay" onClick={handleClose}>
-      <div
-        className="new-conversation-modal"
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="new-conversation-modal" onClick={e => e.stopPropagation()}>
         <button className="modal-close-button" onClick={handleClose}>
           ×
         </button>
 
         <div className="modal-content">
           <div className="modal-icon">💬</div>
-
+          
           <h2>Start New Conversation</h2>
-
+          
           <p className="modal-description">
             Choose how you'd like to start a new conversation
           </p>
 
           <div className="conversation-options">
-            <div
+            <div 
               className={`option-card ${selectedOption === 'chatbot' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('chatbot')}
             >
               <div className="option-icon">🤖</div>
               <div className="option-content">
                 <h3>AI Assistant</h3>
-                <p>
-                  Chat with our intelligent AI assistant for medical guidance
-                  and support
-                </p>
+                <p>Chat with our intelligent AI assistant for medical guidance and support</p>
               </div>
             </div>
 
-            <div
+            <div 
               className={`option-card ${selectedOption === 'user' ? 'selected' : ''}`}
               onClick={() => handleOptionSelect('user')}
             >
               <div className="option-icon">👥</div>
               <div className="option-content">
                 <h3>Find User</h3>
-                <p>
-                  Search for and start a conversation with another healthcare
-                  professional
-                </p>
+                <p>Search for and start a conversation with another healthcare professional</p>
               </div>
             </div>
           </div>
@@ -137,27 +122,35 @@ const NewConversationModal = ({
                   type="text"
                   placeholder="Search for users..."
                   value={searchQuery}
-                  onChange={e => handleSearch(e.target.value)}
+                  onChange={(e) => handleSearch(e.target.value)}
                   className="user-search-input"
                 />
+                {isSearching && (
+                  <div className="search-loading">Searching...</div>
+                )}
               </div>
-
+              
               {searchResults.length > 0 && (
                 <div className="search-results">
                   {searchResults.map(user => (
-                    <div
+                    <div 
                       key={user.id}
                       className="user-result"
                       onClick={() => handleUserSelect(user)}
                     >
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="user-avatar"
-                      />
-                      <span className="user-name">{user.name}</span>
+                      <img src={user.avatar} alt={user.name} className="user-avatar" />
+                      <div className="user-info">
+                        <span className="user-name">{user.display_name}</span>
+                        <span className="user-role">{user.role}</span>
+                      </div>
                     </div>
                   ))}
+                </div>
+              )}
+              
+              {searchQuery.length > 2 && searchResults.length === 0 && !isSearching && (
+                <div className="no-results">
+                  No users found matching "{searchQuery}"
                 </div>
               )}
             </div>
@@ -165,7 +158,7 @@ const NewConversationModal = ({
 
           {selectedOption === 'chatbot' && (
             <div className="modal-actions">
-              <button
+              <button 
                 className="start-chatbot-button"
                 onClick={handleStartConversation}
               >
