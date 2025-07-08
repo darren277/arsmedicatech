@@ -57,9 +57,9 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
 function useChat(isLLM = false) {
   const [conversations, setConversations] =
     useState<Conversation[]>(DUMMY_CONVERSATIONS);
-  const [selectedConversationId, setSelectedConversationId] = useState(
-    conversations[0]?.id || 1
-  );
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    number | string
+  >(conversations[0]?.id || 1);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -71,17 +71,33 @@ function useChat(isLLM = false) {
         if (isLLM) {
           data = await apiService.getLLMChatHistory();
         } else {
-          data = await apiService.getChatHistory();
+          data = await apiService.getUserConversations();
         }
         console.log('Fetched conversations:', data);
-        setConversations(data);
-        if (data.length > 0 && !selectedConversationId) {
-          setSelectedConversationId(data[0].id);
+
+        // Transform the data to match the frontend format
+        if (data && Array.isArray(data)) {
+          const transformedData = data.map((conv: any) => ({
+            id: conv.id,
+            name: conv.name || 'Unknown User',
+            lastMessage: conv.lastMessage || 'No messages yet',
+            avatar:
+              conv.avatar ||
+              'https://ui-avatars.com/api/?name=User&background=random',
+            messages: conv.messages || [],
+            isAI: conv.isAI || false,
+          }));
+          setConversations(transformedData);
+          if (transformedData.length > 0 && !selectedConversationId) {
+            setSelectedConversationId(transformedData[0].id);
+          }
+        } else {
+          setConversations([]);
         }
       } catch (error) {
         console.error('Error fetching conversations:', error);
-        // Fallback to dummy data if fetch fails
-        setConversations(DUMMY_CONVERSATIONS);
+        // Fallback to empty array if fetch fails
+        setConversations([]);
       }
     };
 
@@ -104,6 +120,17 @@ function useChat(isLLM = false) {
     participantAvatar: string,
     isAI: boolean = false
   ) => {
+    console.log(
+      '[DEBUG] Creating new conversation with participantId:',
+      participantId
+    );
+
+    // For database conversation IDs, we need to use the full ID string
+    // For AI conversations, we use a timestamp
+    const conversationId = isAI ? Date.now() : participantId;
+
+    console.log('[DEBUG] Using conversation ID:', conversationId);
+
     const newConversation: Conversation = {
       id: conversationId,
       name: isAI ? 'AI Assistant' : participantName,
@@ -193,6 +220,7 @@ function useChat(isLLM = false) {
 
   return {
     conversations,
+    setConversations,
     selectedConversation,
     selectedConversationId,
     newMessage,
