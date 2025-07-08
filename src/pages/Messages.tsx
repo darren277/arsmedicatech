@@ -1,5 +1,7 @@
+import NewConversationModal from '../components/NewConversationModal';
 import SignupPopup from '../components/SignupPopup';
 import { useChat } from '../hooks/useChat';
+import { useNewConversationModal } from '../hooks/useNewConversationModal';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import authService from '../services/auth';
 import './Messages.css';
@@ -60,6 +62,7 @@ const Messages = () => {
   const isLLM = true;
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
+  const { isModalOpen, showModal, hideModal } = useNewConversationModal();
 
   const {
     conversations,
@@ -80,12 +83,39 @@ const Messages = () => {
     handleSend();
   };
 
+  const handleStartChatbot = () => {
+    // TODO: Implement chatbot conversation start
+    console.log('Starting chatbot conversation');
+  };
+
+  const handleStartUserChat = (userId: string) => {
+    // TODO: Implement user conversation start
+    console.log('Starting conversation with user:', userId);
+  };
+
+  const handleNewConversation = () => {
+    if (!isAuthenticated) {
+      showSignupPopup();
+      return;
+    }
+    showModal();
+  };
+
   return (
     <>
       <div className="messages-container">
         {/* Left sidebar: conversation list */}
         <div className="conversations-list">
-          <h3 className="conversation-list-title">Conversations</h3>
+          <div className="conversation-list-header">
+            <h3 className="conversation-list-title">Conversations</h3>
+            <button
+              className="new-conversation-button"
+              onClick={handleNewConversation}
+              title="Start new conversation"
+            >
+              <span className="button-icon">+</span>
+            </button>
+          </div>
           <ul>
             {conversations.map(conv => (
               <li
@@ -167,6 +197,12 @@ const Messages = () => {
         </div>
       </div>
       <SignupPopup isOpen={isPopupOpen} onClose={hideSignupPopup} />
+      <NewConversationModal
+        isOpen={isModalOpen}
+        onClose={hideModal}
+        onStartChatbot={handleStartChatbot}
+        onStartUserChat={handleStartUserChat}
+      />
     </>
   );
 };

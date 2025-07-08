@@ -12,11 +12,43 @@
   overflow-y: auto;
 }
 
+.conversation-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
 .conversation-list-title {
   margin: 0;
-  padding: 20px;
   font-size: 1.2rem;
-  border-bottom: 1px solid #ddd;
+}
+
+.new-conversation-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #007bff;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.new-conversation-button:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  transform: scale(1.1);
+}
+
+.button-icon {
+  line-height: 1;
 }
 
 .conversations-list ul {
