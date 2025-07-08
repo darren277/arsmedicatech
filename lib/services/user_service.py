@@ -72,6 +72,35 @@ class UserService:
                 user.id = f"user_{len(self._mock_users) + 1}"
                 self._mock_users[user.username] = user
                 print(f"[DEBUG] User created successfully with ID: {user.id}")
+                # If the user is a patient, create a corresponding Patient record
+                if user.role == "patient" and user.id:
+                    try:
+                        from lib.models.patient import create_patient
+                        user_id = str(user.id)
+                        if ':' in user_id:
+                            patient_id = user_id.split(':', 1)[1]
+                        else:
+                            patient_id = user_id
+                        patient_data = {
+                            "demographic_no": patient_id,
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                            "email": user.email,
+                            "date_of_birth": "",
+                            "sex": "",
+                            "phone": "",
+                            "location": [],
+                            # Add more fields as needed
+                        }
+                        # Replace None with empty string for all string fields
+                        for key in patient_data:
+                            if key != "location" and patient_data[key] is None:
+                                patient_data[key] = ""
+                        patient_result = create_patient(patient_data)
+                        if not patient_result:
+                            print(f"[ERROR] Failed to create patient record for user: {user.id}")
+                    except Exception as e:
+                        print(f"[ERROR] Exception during patient record creation: {e}")
                 return True, "User created successfully", user
             
             result = self.db.create('User', user.to_dict())
@@ -79,6 +108,35 @@ class UserService:
             if result and isinstance(result, dict) and result.get('id'):
                 user.id = result['id']
                 print(f"[DEBUG] User created successfully with ID: {user.id}")
+                # If the user is a patient, create a corresponding Patient record
+                if user.role == "patient" and user.id:
+                    try:
+                        from lib.models.patient import create_patient
+                        user_id = str(user.id)
+                        if ':' in user_id:
+                            patient_id = user_id.split(':', 1)[1]
+                        else:
+                            patient_id = user_id
+                        patient_data = {
+                            "demographic_no": patient_id,
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                            "email": user.email,
+                            "date_of_birth": "",
+                            "sex": "",
+                            "phone": "",
+                            "location": [],
+                            # Add more fields as needed
+                        }
+                        # Replace None with empty string for all string fields
+                        for key in patient_data:
+                            if key != "location" and patient_data[key] is None:
+                                patient_data[key] = ""
+                        patient_result = create_patient(patient_data)
+                        if not patient_result:
+                            print(f"[ERROR] Failed to create patient record for user: {user.id}")
+                    except Exception as e:
+                        print(f"[ERROR] Exception during patient record creation: {e}")
                 return True, "User created successfully", user
             else:
                 print(f"[DEBUG] Failed to create user. Result: {result}")
