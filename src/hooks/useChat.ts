@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import API_URL from '../env_vars';
+import apiService from '../services/api';
 
 const DUMMY_CONVERSATIONS = [
   {
@@ -53,9 +53,6 @@ const DUMMY_CONVERSATIONS = [
   },
 ];
 
-const CHAT_ENDPOINT = API_URL + '/chat';
-const LLM_CHAT_ENDPOINT = API_URL + '/llm_chat';
-
 function useChat(isLLM = false) {
   const [conversations, setConversations] = useState(DUMMY_CONVERSATIONS);
   const [selectedConversationId, setSelectedConversationId] = useState(
@@ -68,10 +65,12 @@ function useChat(isLLM = false) {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const endpoint = isLLM ? LLM_CHAT_ENDPOINT : CHAT_ENDPOINT;
-        const response = await fetch(endpoint);
-        if (!response.ok) throw new Error('Failed to fetch conversations');
-        const data = await response.json();
+        let data;
+        if (isLLM) {
+          data = await apiService.getLLMChatHistory();
+        } else {
+          data = await apiService.getChatHistory();
+        }
         console.log('Fetched conversations:', data);
         setConversations(data);
         if (data.length > 0 && !selectedConversationId) {
@@ -85,6 +84,7 @@ function useChat(isLLM = false) {
     };
 
     fetchConversations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLLM]);
 
   const selectedConversation = conversations.find(
@@ -103,16 +103,8 @@ function useChat(isLLM = false) {
 
     try {
       if (isLLM) {
-        // For LLM chat, send the message to the LLM endpoint
-        const response = await fetch(LLM_CHAT_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: newMessage }),
-        });
-
-        if (!response.ok) throw new Error('Failed to get LLM response');
-
-        const llmResponse = await response.json();
+        // For LLM chat, send the message to the LLM endpoint using apiService
+        const llmResponse = await apiService.sendLLMMessage(newMessage);
         console.log('LLM Response:', llmResponse);
 
         // Add both user message and LLM response to the conversation
@@ -139,7 +131,7 @@ function useChat(isLLM = false) {
 
         setConversations(updatedConversations);
       } else {
-        // For regular chat, just add the message locally
+        // For regular chat, add the message locally and send to server using apiService
         const updatedConversations = conversations.map(conv => {
           if (conv.id === selectedConversationId) {
             return {
@@ -154,11 +146,7 @@ function useChat(isLLM = false) {
         setConversations(updatedConversations);
 
         // Save to server
-        await fetch(CHAT_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updatedConversations),
-        });
+        await apiService.sendChatMessage(newMessage);
       }
     } catch (error) {
       console.error('Error sending message:', error);
