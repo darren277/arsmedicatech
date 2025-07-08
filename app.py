@@ -288,6 +288,55 @@ def check_users_exist():
     finally:
         user_service.close()
 
+@app.route('/api/users/search', methods=['GET'])
+@require_auth
+def search_users():
+    """Search for users (authenticated users only)"""
+    query = request.args.get('q', '').strip()
+    
+    user_service = UserService()
+    user_service.connect()
+    try:
+        # Get all users and filter by search query
+        all_users = user_service.get_all_users()
+        
+        # Filter users based on search query
+        filtered_users = []
+        for user in all_users:
+            # Skip inactive users
+            if not user.is_active:
+                continue
+                
+            # Skip the current user
+            if user.id == get_current_user().user_id:
+                continue
+                
+            # Search in username, first_name, last_name, and email
+            searchable_text = f"{user.username} {user.first_name or ''} {user.last_name or ''} {user.email or ''}".lower()
+            
+            if not query or query.lower() in searchable_text:
+                filtered_users.append({
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "role": user.role,
+                    "display_name": f"{user.first_name or ''} {user.last_name or ''}".strip() or user.username,
+                    "avatar": f"https://ui-avatars.com/api/?name={user.first_name or user.username}&background=random"
+                })
+        
+        # Limit results to 20 users
+        filtered_users = filtered_users[:20]
+        
+        return jsonify({
+            "users": filtered_users,
+            "total": len(filtered_users)
+        }), 200
+        
+    finally:
+        user_service.close()
+
 id, name, lastMessage, avatar, messages, sender, text = 'id', 'name', 'lastMessage', 'avatar', 'messages', 'sender', 'text'
 
 DUMMY_CONVERSATIONS = [
