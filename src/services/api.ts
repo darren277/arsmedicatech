@@ -30,6 +30,7 @@ class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     const config = {
       headers: this.getHeaders(),
+      credentials: 'include' as RequestCredentials,
       ...options,
     };
 

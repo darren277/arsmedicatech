@@ -16,6 +16,7 @@ class AuthService {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
 
@@ -80,6 +81,7 @@ class AuthService {
             Authorization: `Bearer ${this.token}`,
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         });
       }
     } catch (error) {
@@ -102,6 +104,7 @@ class AuthService {
         headers: {
           Authorization: `Bearer ${this.token}`,
         },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -131,6 +134,7 @@ class AuthService {
           Authorization: `Bearer ${this.token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           current_password: currentPassword,
           new_password: newPassword,

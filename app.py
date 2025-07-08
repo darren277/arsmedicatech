@@ -14,7 +14,7 @@ from lib.services.auth_decorators import require_auth, require_admin, require_do
 from settings import PORT, DEBUG, HOST, logger, OPENAI_API_KEY, FLASK_SECRET_KEY
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"]}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"], "supports_credentials": True}})
 
 app.secret_key = FLASK_SECRET_KEY
 
