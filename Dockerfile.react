@@ -7,8 +7,7 @@ ENV API_URL=${API_URL}
 
 WORKDIR /src
 COPY package*.json ./
-COPY webpack.config.js ./
-COPY .babelrc ./
+COPY config/ ./config
 #RUN npm ci
 RUN yarn
 COPY ./src ./src
