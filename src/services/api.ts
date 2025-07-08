@@ -130,12 +130,16 @@ class ApiService {
   }
 
   // LLM-related API calls
-  async getLLMChatHistory(): Promise<any> {
-    return this.getAPI('/llm_chat');
+  async getLLMChatHistory(assistantId: string): Promise<any> {
+    const allChats = await this.getAPI('/llm_chat');
+    // Find the chat for this assistant
+    return (
+      (allChats.find((chat: any) => chat.assistant_id === assistantId) || { messages: [] })
+    );
   }
 
-  async sendLLMMessage(prompt: string): Promise<any> {
-    return this.postAPI('/llm_chat', { prompt });
+  async sendLLMMessage(assistantId: string, prompt: string): Promise<any> {
+    return this.postAPI('/llm_chat', { assistant_id: assistantId, prompt });
   }
 
   async resetLLMChat(): Promise<any> {
