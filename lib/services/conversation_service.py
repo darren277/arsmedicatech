@@ -25,6 +25,9 @@ class ConversationService:
         :return: (success, message, conversation_object)
         """
         try:
+            print(f"[DEBUG] Creating conversation with participants: {participants}")
+            print(f"[DEBUG] Conversation type: {conversation_type}")
+            
             # Validate participants
             if len(participants) < 2:
                 return False, "At least 2 participants are required", None
@@ -32,30 +35,77 @@ class ConversationService:
             # Check if conversation already exists between these participants
             existing_conv = self.get_conversation_by_participants(participants)
             if existing_conv:
+                print(f"[DEBUG] Found existing conversation: {existing_conv.id}")
                 return True, "Conversation already exists", existing_conv
             
             # Create new conversation
             conversation = Conversation(participants, conversation_type)
+            print(f"[DEBUG] Creating conversation in DB with data: {conversation.to_dict()}")
+            print(f"[DEBUG] Created conversation object: {conversation.to_dict()}")
             
             # Save to database
             result = self.db.create('Conversation', conversation.to_dict())
+            print(f"[DEBUG] Database create result: {result}")
             if result and isinstance(result, dict):
                 conversation.id = result.get('id')
+                print(f"[DEBUG] Set conversation ID to: {conversation.id}")
+                
+                # Verify the conversation was saved by trying to retrieve it
+                print(f"[DEBUG] Verifying conversation was saved...")
+                verification = self.get_conversation_by_id(conversation.id)
+                if verification:
+                    print(f"[DEBUG] Conversation verification successful: {verification.id}")
+                else:
+                    print(f"[DEBUG] Conversation verification failed - could not retrieve saved conversation")
+                    
+                    # Let's check what's actually in the database
+                    print(f"[DEBUG] Checking all conversations in database...")
+                    all_conversations = self.db.query("SELECT * FROM Conversation")
+                    print(f"[DEBUG] All conversations: {all_conversations}")
+                    
+                    # Also try to get conversations by participants
+                    print(f"[DEBUG] Checking conversations by participants...")
+                    participant_conversations = self.db.query(
+                        "SELECT * FROM Conversation WHERE $user_id IN participants",
+                        {"user_id": participants[0]}
+                    )
+                    print(f"[DEBUG] Conversations for participant {participants[0]}: {participant_conversations}")
+                
                 return True, "Conversation created successfully", conversation
             else:
+                print(f"[DEBUG] Database create failed: {result}")
                 return False, "Failed to create conversation", None
                 
         except Exception as e:
+            print(f"[DEBUG] Exception in create_conversation: {e}")
             return False, f"Error creating conversation: {str(e)}", None
     
     def get_conversation_by_id(self, conversation_id: str) -> Optional[Conversation]:
         """Get conversation by ID"""
         try:
-            result = self.db.select(f"Conversation:{conversation_id}")
-            if result and isinstance(result, dict):
-                return Conversation.from_dict(result)
+            # Extract the record_id part from the conversation_id
+            if conversation_id.startswith('Conversation:'):
+                record_id = conversation_id.split(':', 1)[1]
+            else:
+                record_id = conversation_id
+
+            record_id_expr = f"Conversation:{record_id}"
+            print(f"[DEBUG] Looking for conversation with record_id_expr: {record_id_expr}")
+
+            # Use SurrealQL RecordID syntax (no quotes)
+            query = f"SELECT * FROM Conversation WHERE id = {record_id_expr}"
+            query_result = self.db.query(query)
+            print(f"[DEBUG] Query result: {query_result}")
+
+            if query_result and isinstance(query_result, list) and len(query_result) > 0:
+                if isinstance(query_result[0], dict):
+                    conv = Conversation.from_dict(query_result[0])
+                    print(f"[DEBUG] Found conversation: {conv.id}")
+                    return conv
+
+            print(f"[DEBUG] No conversation found with ID: {conversation_id}")
             return None
-            
+
         except Exception as e:
             print(f"Error getting conversation by ID: {e}")
             return None
@@ -123,13 +173,27 @@ class ConversationService:
             
             # Save message to database
             result = self.db.create('Message', message.to_dict())
+            print(f"[DEBUG] Message create result: {result}")
+            if isinstance(result, tuple):
+                result = result[0]
+            if isinstance(result, list) and len(result) > 0:
+                result = result[0]
             if result and isinstance(result, dict):
                 message.id = result.get('id')
                 
-                # Update conversation's last_message_at
-                self.db.update(f"Conversation:{conversation_id}", {
-                    "last_message_at": message.created_at
-                })
+                # Merge update: fetch full conversation, update last_message_at, write back
+                conv_data = self.db.select(f"Conversation:{conversation_id}")
+                print(f"[DEBUG] Conversation data before update: {conv_data}")
+                if conv_data and isinstance(conv_data, dict):
+                    conv_data["last_message_at"] = message.created_at
+                    update_result = self.db.update(f"Conversation:{conversation_id}", conv_data)
+                    print(f"[DEBUG] Conversation update result: {update_result}")
+                    if isinstance(update_result, tuple):
+                        update_result = update_result[0]
+                    if isinstance(update_result, list) and len(update_result) > 0:
+                        update_result = update_result[0]
+                else:
+                    print(f"[DEBUG] Could not fetch conversation for safe update, skipping merge update.")
                 
                 return True, "Message sent successfully", message
             else:
