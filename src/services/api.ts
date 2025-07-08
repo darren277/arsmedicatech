@@ -3,9 +3,11 @@ import authService from './auth';
 
 class ApiService {
   baseURL: string;
+  apiURL: string;
 
   constructor() {
     this.baseURL = API_URL;
+    this.apiURL = API_URL + '/api';
   }
 
   // Helper method to get headers with authentication
@@ -57,9 +59,22 @@ class ApiService {
     return this.request(endpoint, { method: 'GET' });
   }
 
+  // GET request with API prefix
+  async getAPI(endpoint: string): Promise<any> {
+    return this.request('/api' + endpoint, { method: 'GET' });
+  }
+
   // POST request
   async post(endpoint: string, data: any): Promise<any> {
     return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // POST request with API prefix
+  async postAPI(endpoint: string, data: any): Promise<any> {
+    return this.request('/api' + endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -73,71 +88,88 @@ class ApiService {
     });
   }
 
+  // PUT request with API prefix
+  async putAPI(endpoint: string, data: any): Promise<any> {
+    return this.request('/api' + endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
   // DELETE request
   async delete(endpoint: string): Promise<any> {
     return this.request(endpoint, { method: 'DELETE' });
   }
 
+  // DELETE request with API prefix
+  async deleteAPI(endpoint: string): Promise<any> {
+    return this.request('/api' + endpoint, { method: 'DELETE' });
+  }
+
   // Patient-related API calls
   async getPatients() {
-    return this.get('/patients');
+    return this.getAPI('/patients');
   }
 
   async searchPatients(query: string): Promise<any> {
-    return this.get(`/patients/search?q=${encodeURIComponent(query)}`);
+    return this.getAPI(`/patients/search?q=${encodeURIComponent(query)}`);
   }
 
   async getPatient(patientId: string): Promise<any> {
-    return this.get(`/patients/${patientId}`);
+    return this.getAPI(`/patients/${patientId}`);
   }
 
   // Chat-related API calls
   async getChatHistory(): Promise<any> {
-    return this.get('/chat');
+    return this.getAPI('/chat');
   }
 
   async sendChatMessage(message: string): Promise<any> {
-    return this.post('/chat', { message });
+    return this.postAPI('/chat', { message });
   }
 
   // LLM-related API calls
   async getLLMChatHistory(): Promise<any> {
-    return this.get('/llm_chat');
+    return this.getAPI('/llm_chat');
   }
 
   async sendLLMMessage(prompt: string): Promise<any> {
-    return this.post('/llm_chat', { prompt });
+    return this.postAPI('/llm_chat', { prompt });
   }
 
   async resetLLMChat(): Promise<any> {
-    return this.post('/llm_chat/reset', {});
+    return this.postAPI('/llm_chat/reset', {});
   }
 
   // Time API
   async getCurrentTime(): Promise<any> {
-    return this.get('/time');
+    return this.getAPI('/time');
   }
 
   // Admin-related API calls (require admin role)
   async getAllUsers(): Promise<any> {
-    return this.get('/admin/users');
+    return this.getAPI('/admin/users');
   }
 
   async deactivateUser(userId: string): Promise<any> {
-    return this.post(`/admin/users/${userId}/deactivate`, {});
+    return this.postAPI(`/admin/users/${userId}/deactivate`, {});
   }
 
   async activateUser(userId: string): Promise<any> {
-    return this.post(`/admin/users/${userId}/activate`, {});
+    return this.postAPI(`/admin/users/${userId}/activate`, {});
   }
 
   async setupDefaultAdmin(): Promise<any> {
-    return this.post('/admin/setup', {});
+    return this.postAPI('/admin/setup', {});
+  }
+
+  async checkUsersExist(): Promise<any> {
+    return this.getAPI('/users/exist');
   }
 
   // Test endpoints
   async testSurrealDB(): Promise<any> {
-    return this.get('/test_surrealdb');
+    return this.getAPI('/test_surrealdb');
   }
 }
 
@@ -147,24 +179,24 @@ const apiService = new ApiService();
 // Patient CRUD operations
 export const patientAPI = {
   // Get all patients
-  getAll: () => apiService.get('/patients'),
+  getAll: () => apiService.getAPI('/patients'),
 
   // Get a specific patient
-  getById: (id: string) => apiService.get(`/patients/${id}`),
+  getById: (id: string) => apiService.getAPI(`/patients/${id}`),
 
   // Create a new patient
-  create: (patientData: any) => apiService.post('/patients', patientData),
+  create: (patientData: any) => apiService.postAPI('/patients', patientData),
 
   // Update a patient
   update: (id: string, patientData: any) =>
-    apiService.put(`/patients/${id}`, patientData),
+    apiService.putAPI(`/patients/${id}`, patientData),
 
   // Delete a patient
-  delete: (id: string) => apiService.delete(`/patients/${id}`),
+  delete: (id: string) => apiService.deleteAPI(`/patients/${id}`),
 
   // Search patients
   search: (query: string) =>
-    apiService.get(`/patients/search?q=${encodeURIComponent(query)}`),
+    apiService.getAPI(`/patients/search?q=${encodeURIComponent(query)}`),
 };
 
 export default apiService;
