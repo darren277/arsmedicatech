@@ -366,10 +366,15 @@ def get_user_conversations():
     """Get all conversations for the current user"""
     current_user_id = get_current_user().user_id
     
+    print(f"[DEBUG] Getting conversations for user: {current_user_id}")
+    
     conversation_service = ConversationService()
     conversation_service.connect()
     try:
         conversations = conversation_service.get_user_conversations(current_user_id)
+        print(f"[DEBUG] Found {len(conversations)} conversations")
+        for conv in conversations:
+            print(f"[DEBUG] Conversation: {conv.id} - {conv.participants} - {conv.conversation_type}")
         
         # Convert to frontend format
         conversation_list = []
@@ -462,8 +467,13 @@ def get_conversation_messages(conversation_id):
 @require_auth
 def send_message(conversation_id):
     """Send a message in a conversation"""
+    print(f"[DEBUG] ===== SEND MESSAGE ENDPOINT CALLED =====")
     current_user_id = get_current_user().user_id
     data = request.json
+    
+    print(f"[DEBUG] Sending message to conversation: {conversation_id}")
+    print(f"[DEBUG] Current user: {current_user_id}")
+    print(f"[DEBUG] Message data: {data}")
     
     if not data or 'text' not in data:
         return jsonify({"error": "Message text is required"}), 400
@@ -474,23 +484,29 @@ def send_message(conversation_id):
     conversation_service.connect()
     try:
         # Verify conversation exists and user is a participant
+        print(f"[DEBUG] Looking up conversation: {conversation_id}")
         conversation = conversation_service.get_conversation_by_id(conversation_id)
         if not conversation:
+            print(f"[DEBUG] Conversation not found: {conversation_id}")
             return jsonify({"error": "Conversation not found"}), 404
         
+        print(f"[DEBUG] Found conversation: {conversation.id}")
         if not conversation.is_participant(current_user_id):
             return jsonify({"error": "Access denied"}), 403
         
         # Add message
+        print(f"[DEBUG] Adding message to conversation")
         success, message, msg_obj = conversation_service.add_message(conversation_id, current_user_id, message_text)
         
         if success and msg_obj:
+            print(f"[DEBUG] Message sent successfully: {msg_obj.id}")
             return jsonify({
                 "message": "Message sent successfully",
                 "message_id": msg_obj.id,
                 "timestamp": msg_obj.created_at
             }), 200
         else:
+            print(f"[DEBUG] Failed to send message: {message}")
             return jsonify({"error": message}), 400
             
     finally:
@@ -500,8 +516,12 @@ def send_message(conversation_id):
 @require_auth
 def create_conversation():
     """Create a new conversation"""
+    print(f"[DEBUG] ===== CONVERSATION CREATION ENDPOINT CALLED =====")
     current_user_id = get_current_user().user_id
     data = request.json
+    
+    print(f"[DEBUG] Creating conversation - current user: {current_user_id}")
+    print(f"[DEBUG] Request data: {data}")
     
     if not data:
         return jsonify({"error": "No data provided"}), 400
@@ -509,9 +529,14 @@ def create_conversation():
     participants = data.get('participants', [])
     conversation_type = data.get('type', 'user_to_user')
     
+    print(f"[DEBUG] Participants: {participants}")
+    print(f"[DEBUG] Conversation type: {conversation_type}")
+    
     # Ensure current user is included in participants
     if current_user_id not in participants:
         participants.append(current_user_id)
+    
+    print(f"[DEBUG] Final participants: {participants}")
     
     if len(participants) < 2:
         return jsonify({"error": "At least 2 participants are required"}), 400
@@ -520,6 +545,9 @@ def create_conversation():
     conversation_service.connect()
     try:
         success, message, conversation = conversation_service.create_conversation(participants, conversation_type)
+        
+        print(f"[DEBUG] Conversation creation result - success: {success}, message: {message}")
+        print(f"[DEBUG] Conversation object: {conversation.to_dict() if conversation else None}")
         
         if success and conversation:
             return jsonify({
