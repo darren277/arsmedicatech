@@ -35,7 +35,7 @@ interface PatientIntakeFormValues {
   /* Step 1 – Personal */
   firstName: string;
   lastName: string;
-  dob: string;
+  date_of_birth: string;
   gender: string;
   phone: string;
   email: string;
@@ -61,7 +61,7 @@ interface PatientIntakeFormValues {
 const initialValues: PatientIntakeFormValues = {
   firstName: '',
   lastName: '',
-  dob: '',
+  date_of_birth: '',
   gender: '',
   phone: '',
   email: '',
@@ -121,7 +121,7 @@ export default function PatientIntakeForm() {
   ] as const;
 
   const stepFieldMap: Record<Step, (keyof PatientIntakeFormValues)[]> = {
-    0: ['firstName', 'lastName', 'dob', 'gender', 'phone', 'email'],
+    0: ['firstName', 'lastName', 'date_of_birth', 'gender', 'phone', 'email'],
     1: [
       'address',
       'city',
@@ -182,8 +182,8 @@ export default function PatientIntakeForm() {
             />
             <Input
               type="date"
-              placeholder="DOB"
-              {...register('dob', { required: true })}
+              placeholder="Date of Birth"
+              {...register('date_of_birth', { required: true })}
             />
             <Input
               placeholder="Gender"
