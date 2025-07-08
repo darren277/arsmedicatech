@@ -98,6 +98,12 @@ const Messages = () => {
     const messageText = newMessage;
     setNewMessage(''); // Clear input immediately
 
+    console.log(
+      '[DEBUG] Sending user message to conversation:',
+      selectedConversation.id
+    );
+    console.log('[DEBUG] Selected conversation:', selectedConversation);
+
     // Add message locally first for immediate feedback
     const updatedConversations = conversations.map(conv => {
       if (conv.id === selectedConversationId) {
@@ -127,6 +133,7 @@ const Messages = () => {
     } catch (error) {
       console.error('Error sending message:', error);
       // In a real app, you might want to show an error message to the user
+      // and potentially revert the local state change
     }
   };
 
@@ -144,14 +151,21 @@ const Messages = () => {
     userId: string,
     userInfo?: { display_name: string; avatar: string }
   ) => {
+    console.log('[DEBUG] Starting user chat with:', userId, userInfo);
     try {
       // Create conversation in database
+      console.log('[DEBUG] Creating conversation in database...');
       const response = await apiService.createConversation(
         [userId],
         'user_to_user'
       );
+      console.log('[DEBUG] Conversation creation response:', response);
 
       if (response.conversation_id) {
+        console.log(
+          '[DEBUG] Creating conversation in frontend with ID:',
+          response.conversation_id
+        );
         // Create conversation in frontend with the database ID
         createNewConversation(
           response.conversation_id,
@@ -166,6 +180,7 @@ const Messages = () => {
     } catch (error) {
       console.error('Error creating conversation:', error);
       // Fallback: create conversation locally
+      console.log('[DEBUG] Falling back to local conversation creation');
       createNewConversation(
         userId,
         userInfo?.display_name || 'Unknown User',
