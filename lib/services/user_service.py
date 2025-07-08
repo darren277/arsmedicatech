@@ -10,7 +10,13 @@ class UserService:
     
     def connect(self):
         """Connect to database"""
-        self.db.connect()
+        print("[DEBUG] Connecting to database...")
+        try:
+            self.db.connect()
+            print("[DEBUG] Database connection successful")
+        except Exception as e:
+            print(f"[DEBUG] Database connection error: {e}")
+            raise
     
     def close(self):
         """Close database connection"""
@@ -276,8 +282,8 @@ class UserService:
         # If not in memory, check database
         try:
             result = self.db.query(
-                "SELECT * FROM Session WHERE token = $token",
-                {"token": token}
+                "SELECT * FROM Session WHERE token = $session_token",
+                {"session_token": token}
             )
             
             if result and isinstance(result, list) and len(result) > 0:
@@ -306,8 +312,8 @@ class UserService:
         # Remove from database
         try:
             result = self.db.query(
-                "SELECT * FROM Session WHERE token = $token",
-                {"token": token}
+                "SELECT * FROM Session WHERE token = $session_token",
+                {"session_token": token}
             )
             
             if result and isinstance(result, list) and len(result) > 0:
@@ -322,13 +328,16 @@ class UserService:
     def get_all_users(self) -> List[User]:
         """Get all users (admin only)"""
         try:
+            print("[DEBUG] Getting all users from database...")
             results = self.db.select_many('User')
+            print(f"[DEBUG] Raw results: {results}")
             users = []
             for user_data in results:
                 if isinstance(user_data, dict):
                     # Remove password hash for security
                     user_data.pop('password_hash', None)
                     users.append(User.from_dict(user_data))
+            print(f"[DEBUG] Processed {len(users)} users")
             return users
             
         except Exception as e:

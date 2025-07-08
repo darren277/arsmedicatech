@@ -101,12 +101,15 @@ def register():
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     """Authenticate user and create session"""
+    print("[DEBUG] Login request received")
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
     
     username = data.get('username')
     password = data.get('password')
+    
+    print(f"[DEBUG] Login attempt for username: {username}")
     
     if not all([username, password]):
         return jsonify({"error": "Username and password are required"}), 400
@@ -116,9 +119,12 @@ def login():
     try:
         success, message, user_session = user_service.authenticate_user(username, password)
         
+        print(f"[DEBUG] Authentication result - success: {success}, message: {message}")
+        
         if success:
             # Store token in session
             session['auth_token'] = user_session.token
+            print(f"[DEBUG] Stored session token: {user_session.token[:10]}...")
             
             return jsonify({
                 "message": message,
@@ -284,15 +290,30 @@ def check_users_exist():
     user_service.connect()
     try:
         users = user_service.get_all_users()
-        return jsonify({"users_exist": len(users) > 0})
+        print(f"[DEBUG] Found {len(users)} users in database")
+        for user in users:
+            print(f"[DEBUG] User: {user.username} (ID: {user.id}, Role: {user.role}, Active: {user.is_active})")
+        return jsonify({"users_exist": len(users) > 0, "user_count": len(users)})
     finally:
         user_service.close()
+
+@app.route('/api/debug/session', methods=['GET'])
+def debug_session():
+    """Debug endpoint to check session state"""
+    print(f"[DEBUG] Session data: {dict(session)}")
+    print(f"[DEBUG] Request headers: {dict(request.headers)}")
+    return jsonify({
+        "session": dict(session),
+        "headers": dict(request.headers)
+    })
 
 @app.route('/api/users/search', methods=['GET'])
 @require_auth
 def search_users():
     """Search for users (authenticated users only)"""
+    print("[DEBUG] User search request received")
     query = request.args.get('q', '').strip()
+    print(f"[DEBUG] Search query: '{query}'")
     
     user_service = UserService()
     user_service.connect()
