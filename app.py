@@ -639,11 +639,35 @@ def llm_agent_endpoint():
             prompt = data.get('prompt')
             if not prompt:
                 return jsonify({"error": "No prompt provided"}), 400
-            # Add user message
+
+            # Add user message to persistent chat
             chat = llm_chat_service.add_message(current_user_id, assistant_id, 'Me', prompt)
-            # Here you would call your LLM and append the assistant's response
-            # For now, just echo the prompt as the assistant's response
-            chat = llm_chat_service.add_message(current_user_id, assistant_id, 'AI Assistant', f"Echo: {prompt}")
+
+            # --- LLM agent logic ---
+            agent_data = session.get('agent_data')
+            if agent_data:
+                agent = LLMAgent.from_dict(
+                    agent_data,
+                    api_key=OPENAI_API_KEY,
+                    tool_definitions=GLOBAL_TOOL_DEFINITIONS,
+                    tool_func_dict=GLOBAL_TOOL_FUNC_DICT
+                )
+            else:
+                agent = LLMAgent(api_key=OPENAI_API_KEY)
+                agent.tool_definitions = GLOBAL_TOOL_DEFINITIONS
+                agent.tool_func_dict = GLOBAL_TOOL_FUNC_DICT
+
+            # Use the persistent chat history as context
+            history = chat.messages
+            # You may want to format this for your LLM
+            response = agent.complete(prompt, history=history)
+
+            # Add assistant response to persistent chat
+            chat = llm_chat_service.add_message(current_user_id, assistant_id, 'AI Assistant', response.get('response', ''))
+
+            # Save updated agent state to session
+            session['agent_data'] = agent.to_dict()
+
             return jsonify(chat.to_dict())
     finally:
         llm_chat_service.close()
