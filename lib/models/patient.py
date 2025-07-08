@@ -330,27 +330,31 @@ def get_patient_by_id(patient_id: str):
 
 
 def update_patient(patient_id: str, patient_data: dict):
-    """Update a patient record"""
+    """Update a patient record with only the provided fields, supporting PATCH/partial updates."""
     print(f"[DEBUG] Updating patient with ID: {patient_id}")
     db = DbController()
     db.connect()
     
     try:
-        # Prepare the data for update
-        update_data = {
-            "first_name": patient_data.get("first_name"),
-            "last_name": patient_data.get("last_name"),
-            "date_of_birth": patient_data.get("date_of_birth"),
-            "sex": patient_data.get("sex"),
-            "phone": patient_data.get("phone"),
-            "email": patient_data.get("email"),
-            "location": patient_data.get("location", [])
+        # Map 'dob' to 'date_of_birth' if present
+        if 'dob' in patient_data:
+            patient_data['date_of_birth'] = patient_data.pop('dob')
+
+        # List of valid patient fields
+        valid_fields = {
+            "first_name", "last_name", "date_of_birth", "sex", "phone", "email", "location",
+            "address", "city", "province", "postalCode", "insuranceProvider", "insuranceNumber",
+            "medicalConditions", "medications", "allergies", "reasonForVisit", "symptoms",
+            "symptomOnset", "consent"
         }
-        
-        # Remove None values
-        update_data = {k: v for k, v in update_data.items() if v is not None}
-        
-        # Use a direct UPDATE query
+
+        # Only include fields present in patient_data and valid for the patient
+        update_data = {k: v for k, v in patient_data.items() if k in valid_fields and v is not None}
+
+        if not update_data:
+            print("[DEBUG] No valid fields to update.")
+            return None
+
         set_clause = ", ".join([f"{k} = ${k}" for k in update_data.keys()])
         query = f"UPDATE patient SET {set_clause} WHERE demographic_no = $patient_id RETURN *"
         params = {**update_data, "patient_id": patient_id}

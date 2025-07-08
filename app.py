@@ -549,18 +549,16 @@ def test_crud():
 @app.route('/api/intake/<patient_id>', methods=['PATCH'])
 def patch_intake(patient_id):
     payload = request.get_json()
-    #surreal.update(f'patient:{patient_id}', payload)   # or `.merge` for partial
     print(f"[DEBUG] Patching patient {patient_id} with payload: {payload}")
-    db = DbController()
-    db.connect()
 
-    patient_id = patient_id.replace('User:', 'patient:')
+    # Map 'User:' to patient ID if needed
+    patient_id = patient_id.replace('User:', '')
 
-    message = db.update(patient_id, payload)
-    print(f"[DEBUG] Update result: {message}")
-    if not message:
-        logger.error(f"Failed to update patient {patient_id}: {message}")
-        return jsonify({"error": message}), 400
+    result = update_patient(patient_id, payload)
+    print(f"[DEBUG] Update result: {result}")
+    if not result:
+        logger.error(f"Failed to update patient {patient_id}: {result}")
+        return jsonify({"error": "Failed to update patient"}), 400
     return jsonify({'ok': True}), 200
 
 
