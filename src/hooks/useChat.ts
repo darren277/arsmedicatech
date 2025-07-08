@@ -93,7 +93,7 @@ function useChat(isLLM = false) {
     conv => conv.id === selectedConversationId
   );
 
-  const handleSelectConversation = (id: number): void => {
+  const handleSelectConversation = (id: number | string): void => {
     setSelectedConversationId(id);
     setNewMessage('');
   };
@@ -105,11 +105,7 @@ function useChat(isLLM = false) {
     isAI: boolean = false
   ) => {
     const newConversation: Conversation = {
-      id: isAI
-        ? Date.now()
-        : participantId.includes(':')
-          ? parseInt(participantId.split(':')[1])
-          : Date.now(), // Use database ID for user conversations
+      id: conversationId,
       name: isAI ? 'AI Assistant' : participantName,
       lastMessage: 'New conversation',
       avatar: participantAvatar,

@@ -11,7 +11,7 @@ export interface PatientType {
 }
 
 export interface Conversation {
-  id: number;
+  id: number | string;
   name: string;
   lastMessage: string;
   avatar: string;
