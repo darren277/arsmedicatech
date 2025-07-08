@@ -1,9 +1,12 @@
 """
 Simple test script to verify the patient CRUD API endpoints
 """
-import requests
 import json
+
+import requests
+
 from settings import BASE_URL
+
 
 def test_api():
     print("Testing Patient CRUD API endpoints...")
