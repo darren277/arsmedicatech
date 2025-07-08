@@ -542,8 +542,8 @@ def patch_intake(patient_id):
     print(f"[DEBUG] Patching patient {patient_id} with payload: {payload}")
     db = DbController()
     db.connect()
-    success, message = db.update(patient_id, payload)
-    if not success:
+    message = db.update(patient_id, payload)
+    if not message:
         logger.error(f"Failed to update patient {patient_id}: {message}")
         return jsonify({"error": message}), 400
     return jsonify({'ok': True}), 200
