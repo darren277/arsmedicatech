@@ -188,7 +188,13 @@ class ApiService {
     participants: string[],
     type: string = 'user_to_user'
   ): Promise<any> {
-    return this.postAPI('/conversations', { participants, type });
+    console.log('[DEBUG] Creating conversation via API:', {
+      participants,
+      type,
+    });
+    const result = await this.postAPI('/conversations', { participants, type });
+    console.log('[DEBUG] Conversation creation API result:', result);
+    return result;
   }
 
   // Test endpoints
