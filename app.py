@@ -277,6 +277,17 @@ def setup_default_admin():
     finally:
         user_service.close()
 
+@app.route('/api/users/exist', methods=['GET'])
+def check_users_exist():
+    """Check if any users exist (public endpoint)"""
+    user_service = UserService()
+    user_service.connect()
+    try:
+        users = user_service.get_all_users()
+        return jsonify({"users_exist": len(users) > 0})
+    finally:
+        user_service.close()
+
 id, name, lastMessage, avatar, messages, sender, text = 'id', 'name', 'lastMessage', 'avatar', 'messages', 'sender', 'text'
 
 DUMMY_CONVERSATIONS = [
