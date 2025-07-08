@@ -112,7 +112,13 @@ class DbController:
         :param data: Dictionary of data to update
         :return: Updated record
         """
+        print(f"[DEBUG] SurrealDB update record: {record}")
         result = self.db.update(record, data)
+        print(f"[DEBUG] SurrealDB update raw result: {result}")
+        if isinstance(result, tuple):
+            result = result[0]
+        if isinstance(result, list) and len(result) > 0:
+            result = result[0]
 
         # Handle record ID conversion
         if isinstance(result, dict) and 'id' in result:

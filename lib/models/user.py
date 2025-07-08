@@ -215,10 +215,14 @@ class UserSession:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'UserSession':
         """Create session from dictionary"""
-        return cls(
+        session = cls(
             user_id=data.get('user_id'),
             username=data.get('username'),
             role=data.get('role'),
             created_at=data.get('created_at'),
             expires_at=data.get('expires_at')
         )
+        # Set the token from the data if it exists
+        if 'token' in data:
+            session.token = data['token']
+        return session

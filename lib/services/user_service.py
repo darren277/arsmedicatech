@@ -10,7 +10,13 @@ class UserService:
     
     def connect(self):
         """Connect to database"""
-        self.db.connect()
+        print("[DEBUG] Connecting to database...")
+        try:
+            self.db.connect()
+            print("[DEBUG] Database connection successful")
+        except Exception as e:
+            print(f"[DEBUG] Database connection error: {e}")
+            raise
     
     def close(self):
         """Close database connection"""
@@ -72,6 +78,35 @@ class UserService:
                 user.id = f"user_{len(self._mock_users) + 1}"
                 self._mock_users[user.username] = user
                 print(f"[DEBUG] User created successfully with ID: {user.id}")
+                # If the user is a patient, create a corresponding Patient record
+                if user.role == "patient" and user.id:
+                    try:
+                        from lib.models.patient import create_patient
+                        user_id = str(user.id)
+                        if ':' in user_id:
+                            patient_id = user_id.split(':', 1)[1]
+                        else:
+                            patient_id = user_id
+                        patient_data = {
+                            "demographic_no": patient_id,
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                            "email": user.email,
+                            "date_of_birth": "",
+                            "sex": "",
+                            "phone": "",
+                            "location": [],
+                            # Add more fields as needed
+                        }
+                        # Replace None with empty string for all string fields
+                        for key in patient_data:
+                            if key != "location" and patient_data[key] is None:
+                                patient_data[key] = ""
+                        patient_result = create_patient(patient_data)
+                        if not patient_result:
+                            print(f"[ERROR] Failed to create patient record for user: {user.id}")
+                    except Exception as e:
+                        print(f"[ERROR] Exception during patient record creation: {e}")
                 return True, "User created successfully", user
             
             result = self.db.create('User', user.to_dict())
@@ -79,6 +114,35 @@ class UserService:
             if result and isinstance(result, dict) and result.get('id'):
                 user.id = result['id']
                 print(f"[DEBUG] User created successfully with ID: {user.id}")
+                # If the user is a patient, create a corresponding Patient record
+                if user.role == "patient" and user.id:
+                    try:
+                        from lib.models.patient import create_patient
+                        user_id = str(user.id)
+                        if ':' in user_id:
+                            patient_id = user_id.split(':', 1)[1]
+                        else:
+                            patient_id = user_id
+                        patient_data = {
+                            "demographic_no": patient_id,
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                            "email": user.email,
+                            "date_of_birth": "",
+                            "sex": "",
+                            "phone": "",
+                            "location": [],
+                            # Add more fields as needed
+                        }
+                        # Replace None with empty string for all string fields
+                        for key in patient_data:
+                            if key != "location" and patient_data[key] is None:
+                                patient_data[key] = ""
+                        patient_result = create_patient(patient_data)
+                        if not patient_result:
+                            print(f"[ERROR] Failed to create patient record for user: {user.id}")
+                    except Exception as e:
+                        print(f"[ERROR] Exception during patient record creation: {e}")
                 return True, "User created successfully", user
             else:
                 print(f"[DEBUG] Failed to create user. Result: {result}")
@@ -119,8 +183,15 @@ class UserService:
                 role=user.role
             )
             
-            # Store session
-            self.active_sessions[session.token] = session
+            # Store session in database
+            try:
+                self.db.create('Session', session.to_dict())
+                # Also keep in memory for faster access
+                self.active_sessions[session.token] = session
+            except Exception as e:
+                print(f"[DEBUG] Error storing session in database: {e}")
+                # Fallback to memory-only storage
+                self.active_sessions[session.token] = session
             
             return True, "Authentication successful", session
             
@@ -200,31 +271,73 @@ class UserService:
     
     def validate_session(self, token: str) -> Optional[UserSession]:
         """Validate session token and return session if valid"""
+        # First check memory cache
         session = self.active_sessions.get(token)
         if session and not session.is_expired():
             return session
         elif session and session.is_expired():
             # Remove expired session
             del self.active_sessions[token]
+        
+        # If not in memory, check database
+        try:
+            result = self.db.query(
+                "SELECT * FROM Session WHERE token = $session_token",
+                {"session_token": token}
+            )
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                session_data = result[0]
+                session = UserSession.from_dict(session_data)
+                
+                if session.is_expired():
+                    # Remove expired session from database
+                    self.db.delete(f"Session:{session_data.get('id')}")
+                    return None
+                
+                # Add to memory cache
+                self.active_sessions[token] = session
+                return session
+        except Exception as e:
+            print(f"[DEBUG] Error validating session from database: {e}")
+        
         return None
     
     def logout(self, token: str) -> bool:
         """Logout user by removing session"""
+        # Remove from memory
         if token in self.active_sessions:
             del self.active_sessions[token]
-            return True
-        return False
+        
+        # Remove from database
+        try:
+            result = self.db.query(
+                "SELECT * FROM Session WHERE token = $session_token",
+                {"session_token": token}
+            )
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                session_data = result[0]
+                self.db.delete(f"Session:{session_data.get('id')}")
+                return True
+        except Exception as e:
+            print(f"[DEBUG] Error removing session from database: {e}")
+        
+        return True
     
     def get_all_users(self) -> List[User]:
         """Get all users (admin only)"""
         try:
+            print("[DEBUG] Getting all users from database...")
             results = self.db.select_many('User')
+            print(f"[DEBUG] Raw results: {results}")
             users = []
             for user_data in results:
                 if isinstance(user_data, dict):
                     # Remove password hash for security
                     user_data.pop('password_hash', None)
                     users.append(User.from_dict(user_data))
+            print(f"[DEBUG] Processed {len(users)} users")
             return users
             
         except Exception as e:

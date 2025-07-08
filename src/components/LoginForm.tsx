@@ -65,17 +65,29 @@ const LoginForm = ({
     setGeneralError('');
 
     try {
+      console.log('Attempting login with:', formData.username);
+
       const result = await authService.login(
         formData.username,
         formData.password
       );
 
+      console.log('Login result:', result); // Debug log
+
       if (result.success) {
-        onLogin(result.data.user);
+        // The authService.login() returns { success: true, data: { token, user } }
+        // We need to pass the user object to onLogin
+        const userData = result.data.user || result.data;
+        console.log('User data to pass:', userData); // Debug log
+        console.log('Calling onLogin with userData:', userData);
+        onLogin(userData);
+        console.log('onLogin called successfully');
       } else {
+        console.log('Login failed:', result.error);
         setGeneralError(result.error || 'Login failed');
       }
     } catch (error) {
+      console.error('Login error:', error);
       setGeneralError('An unexpected error occurred');
     } finally {
       setIsLoading(false);

@@ -1,8 +1,16 @@
 import { NavLink } from 'react-router-dom';
+import { useUser } from './UserContext';
 // It is recommended to use an icon library like react-icons
 // import { FiGrid, FiUsers, FiMessageSquare, FiCalendar } from 'react-icons/fi';
 
 const Sidebar = () => {
+  const { user, isLoading } = useUser();
+  const userType = user?.role || 'guest';
+
+  console.log('Sidebar user:', user);
+
+  if (isLoading) return null; // or a spinner
+
   return (
     <aside className="sidebar">
       <div className="logo-container">ArsMedicaTech</div>
@@ -17,14 +25,27 @@ const Sidebar = () => {
               Dashboard
             </NavLink>
           </li>
-          <li>
-            <NavLink
-              to="/patients"
-              className={({ isActive }) => (isActive ? 'active' : '')}
-            >
-              Patients
-            </NavLink>
-          </li>
+          {userType === 'patient' ? (
+            <li>
+              {user?.id && (
+                <NavLink
+                  to={`/intake/${user.id}`}
+                  className={({ isActive }) => (isActive ? 'active' : '')}
+                >
+                  Intake Form
+                </NavLink>
+              )}
+            </li>
+          ) : (
+            <li>
+              <NavLink
+                to="/patients"
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
+                Patients
+              </NavLink>
+            </li>
+          )}
           <li>
             <NavLink
               to="/messages"

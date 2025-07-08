@@ -9,3 +9,13 @@ export interface PatientType {
   location?: string[] | null;
   history: any[];
 }
+
+export interface Conversation {
+  id: number | string;
+  name: string;
+  lastMessage: string;
+  avatar: string;
+  messages: { sender: string; text: string }[];
+  participantId?: string;
+  isAI?: boolean;
+}

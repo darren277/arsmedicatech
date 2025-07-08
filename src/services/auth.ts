@@ -16,6 +16,7 @@ class AuthService {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
 
@@ -40,7 +41,8 @@ class AuthService {
     email: string,
     password: string,
     first_name: string = '',
-    last_name: string = ''
+    last_name: string = '',
+    role: string = 'patient'
   ): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
       const response = await fetch(`${API_URL}/api/auth/register`, {
@@ -54,6 +56,7 @@ class AuthService {
           password,
           first_name,
           last_name,
+          role,
         }),
       });
 
@@ -78,6 +81,7 @@ class AuthService {
             Authorization: `Bearer ${this.token}`,
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
         });
       }
     } catch (error) {
@@ -100,6 +104,7 @@ class AuthService {
         headers: {
           Authorization: `Bearer ${this.token}`,
         },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -129,6 +134,7 @@ class AuthService {
           Authorization: `Bearer ${this.token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           current_password: currentPassword,
           new_password: newPassword,

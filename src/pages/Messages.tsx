@@ -1,10 +1,14 @@
+import { useEffect, useState } from 'react';
+import NewConversationModal from '../components/NewConversationModal';
 import SignupPopup from '../components/SignupPopup';
-import { useChat } from '../hooks/useChat';
+import { Conversation, useChat } from '../hooks/useChat';
+import { useNewConversationModal } from '../hooks/useNewConversationModal';
 import { useSignupPopup } from '../hooks/useSignupPopup';
+import apiService from '../services/api';
 import authService from '../services/auth';
 import './Messages.css';
 
-const DUMMY_CONVERSATIONS = [
+const DUMMY_CONVERSATIONS: Conversation[] = [
   {
     id: 1,
     name: 'Jane Smith',
@@ -57,27 +61,195 @@ const DUMMY_CONVERSATIONS = [
 ];
 
 const Messages = () => {
-  const isLLM = true;
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
+  const { isModalOpen, showModal, hideModal } = useNewConversationModal();
+  const [selectedMessages, setSelectedMessages] = useState<
+    { sender: string; text: string }[]
+  >([]);
 
   const {
     conversations,
+    setConversations,
     selectedConversation,
     selectedConversationId,
     handleSelectConversation,
     newMessage,
     setNewMessage,
     handleSend,
+    createNewConversation,
     isLoading,
-  } = useChat(isLLM);
+  } = useChat(false); // Default to regular chat, will be overridden per conversation
 
-  const handleSendMessage = () => {
+  // Fetch messages when a conversation is selected
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedConversationId || !selectedConversation) return;
+      if (selectedConversation.isAI) {
+        // For AI assistant, fetch from LLM chat history endpoint
+        try {
+          const assistantId =
+            selectedConversation.participantId || 'ai-assistant';
+          const response = await apiService.getLLMChatHistory(assistantId);
+          setSelectedMessages(response.messages || []);
+        } catch (error) {
+          console.error('Error fetching LLM messages:', error);
+          setSelectedMessages([]);
+        }
+        return;
+      }
+      try {
+        const response = await apiService.getConversationMessages(
+          selectedConversationId.toString()
+        );
+        // The backend returns { messages: [...] }
+        setSelectedMessages(
+          (response.messages || []).map((msg: any) => ({
+            sender: msg.sender,
+            text: msg.text,
+          }))
+        );
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+        setSelectedMessages([]);
+      }
+    };
+    fetchMessages();
+  }, [selectedConversationId, selectedConversation]);
+
+  const handleSendMessage = async () => {
     if (!isAuthenticated) {
       showSignupPopup();
       return;
     }
-    handleSend();
+
+    // Check if this is an AI conversation or user-to-user conversation
+    if (selectedConversation?.isAI) {
+      // Use LLM chat for AI conversations
+      if (!newMessage.trim()) return;
+      try {
+        const assistantId =
+          selectedConversation.participantId || 'ai-assistant';
+        // Send message to LLM endpoint
+        await apiService.sendLLMMessage(assistantId, newMessage);
+        // Fetch updated LLM chat history for this assistant
+        const response = await apiService.getLLMChatHistory(assistantId);
+        setSelectedMessages(response.messages || []);
+        setNewMessage('');
+      } catch (error) {
+        console.error('Error sending LLM message:', error);
+      }
+    } else {
+      // Use regular chat for user-to-user conversations
+      handleSendUserMessage();
+    }
+  };
+
+  const handleSendUserMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation) return;
+
+    const messageText = newMessage;
+    setNewMessage(''); // Clear input immediately
+
+    console.log(
+      '[DEBUG] Sending user message to conversation:',
+      selectedConversation.id
+    );
+    console.log('[DEBUG] Selected conversation:', selectedConversation);
+
+    // Add message locally first for immediate feedback
+    const updatedConversations = conversations.map(conv => {
+      if (conv.id === selectedConversationId) {
+        return {
+          ...conv,
+          messages: [...conv.messages, { sender: 'Me', text: messageText }],
+          lastMessage: messageText,
+        };
+      }
+      return conv;
+    });
+
+    // Update conversations state immediately for UI feedback
+    // We need to update the conversations state since useChat doesn't handle user-to-user messages
+    setConversations(updatedConversations);
+
+    // Send message to backend
+    try {
+      await apiService.sendMessage(
+        selectedConversation.id.toString(),
+        messageText
+      );
+      console.log(
+        'Message sent successfully to conversation:',
+        selectedConversation.id
+      );
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // In a real app, you might want to show an error message to the user
+      // and potentially revert the local state change
+    }
+  };
+
+  const handleStartChatbot = () => {
+    // Create AI Assistant conversation
+    createNewConversation(
+      'ai-assistant',
+      'AI Assistant',
+      'https://ui-avatars.com/api/?name=AI&background=random',
+      true
+    );
+  };
+
+  const handleStartUserChat = async (
+    userId: string,
+    userInfo?: { display_name: string; avatar: string }
+  ) => {
+    console.log('[DEBUG] Starting user chat with:', userId, userInfo);
+    try {
+      // Create conversation in database
+      console.log('[DEBUG] Creating conversation in database...');
+      const response = await apiService.createConversation(
+        [userId],
+        'user_to_user'
+      );
+      console.log('[DEBUG] Conversation creation response:', response);
+
+      if (response.conversation_id) {
+        console.log(
+          '[DEBUG] Creating conversation in frontend with ID:',
+          response.conversation_id
+        );
+        // Create conversation in frontend with the database ID
+        createNewConversation(
+          response.conversation_id,
+          userInfo?.display_name || 'Unknown User',
+          userInfo?.avatar ||
+            'https://ui-avatars.com/api/?name=User&background=random',
+          false
+        );
+      } else {
+        console.error('Failed to create conversation:', response);
+      }
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      // Fallback: create conversation locally
+      console.log('[DEBUG] Falling back to local conversation creation');
+      createNewConversation(
+        userId,
+        userInfo?.display_name || 'Unknown User',
+        userInfo?.avatar ||
+          'https://ui-avatars.com/api/?name=User&background=random',
+        false
+      );
+    }
+  };
+
+  const handleNewConversation = () => {
+    if (!isAuthenticated) {
+      showSignupPopup();
+      return;
+    }
+    showModal();
   };
 
   return (
@@ -85,7 +257,16 @@ const Messages = () => {
       <div className="messages-container">
         {/* Left sidebar: conversation list */}
         <div className="conversations-list">
-          <h3 className="conversation-list-title">Conversations</h3>
+          <div className="conversation-list-header">
+            <h3 className="conversation-list-title">Conversations</h3>
+            <button
+              className="new-conversation-button"
+              onClick={handleNewConversation}
+              title="Start new conversation"
+            >
+              <span className="button-icon">+</span>
+            </button>
+          </div>
           <ul>
             {conversations.map(conv => (
               <li
@@ -115,7 +296,7 @@ const Messages = () => {
                 <h3>{selectedConversation.name}</h3>
               </div>
               <div className="messages-list">
-                {selectedConversation.messages.map((msg, index) => (
+                {selectedMessages.map((msg, index) => (
                   <div
                     key={index}
                     className={msg.sender === 'Me' ? 'message me' : 'message'}
@@ -167,6 +348,12 @@ const Messages = () => {
         </div>
       </div>
       <SignupPopup isOpen={isPopupOpen} onClose={hideSignupPopup} />
+      <NewConversationModal
+        isOpen={isModalOpen}
+        onClose={hideModal}
+        onStartChatbot={handleStartChatbot}
+        onStartUserChat={handleStartUserChat}
+      />
     </>
   );
 };

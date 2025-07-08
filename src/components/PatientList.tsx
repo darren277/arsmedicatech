@@ -23,7 +23,9 @@ const PatientList = () => {
     try {
       setLoading(true);
       const response = await patientAPI.getAll();
-      setPatients(response.data);
+      // Handle both response structures
+      const patientsData = response.data || response;
+      setPatients(patientsData || []);
     } catch (err) {
       setError('Failed to load patients');
       console.error(err);
@@ -91,26 +93,7 @@ const PatientList = () => {
           </div>
         )}
 
-        {patients.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-500 mb-4">No patients found</p>
-            {isAuthenticated ? (
-              <button
-                onClick={handleAddNew}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Add Your First Patient
-              </button>
-            ) : (
-              <button
-                onClick={showSignupPopup}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Sign Up to Add Patients
-              </button>
-            )}
-          </div>
-        ) : (
+        {patients && patients.length > 0 ? (
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -194,6 +177,25 @@ const PatientList = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500 mb-4">No patients found</p>
+            {isAuthenticated ? (
+              <button
+                onClick={handleAddNew}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Add Your First Patient
+              </button>
+            ) : (
+              <button
+                onClick={showSignupPopup}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Sign Up to Add Patients
+              </button>
+            )}
           </div>
         )}
       </div>

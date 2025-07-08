@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import authService from '../services/auth';
 import './LoginForm.css';
+import { useUser } from './UserContext';
 
 const RegisterForm = ({
   onRegister,
@@ -18,6 +19,7 @@ const RegisterForm = ({
     confirmPassword: '',
     first_name: '',
     last_name: '',
+    role: 'patient', // default to patient
   });
   type RegisterFormFields =
     | 'username'
@@ -25,14 +27,18 @@ const RegisterForm = ({
     | 'password'
     | 'confirmPassword'
     | 'first_name'
-    | 'last_name';
+    | 'last_name'
+    | 'role';
   type ErrorsType = Partial<Record<RegisterFormFields, string>>;
 
   const [errors, setErrors] = useState<ErrorsType>({});
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
+  const { setUser } = useUser();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -120,6 +126,11 @@ const RegisterForm = ({
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
+    // Validate role
+    if (!formData.role) {
+      newErrors.role = 'Please select an account type';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -142,15 +153,20 @@ const RegisterForm = ({
         formData.email,
         formData.password,
         formData.first_name,
-        formData.last_name
+        formData.last_name,
+        formData.role
       );
 
       if (result.success) {
-        onRegister(result.data.user);
+        // The register response might return the user directly in data
+        // or nested under data.user - handle both cases
+        const userData = result.data.user || result.data;
+        onRegister(userData);
       } else {
         setGeneralError(result.error || 'Registration failed');
       }
     } catch (error) {
+      console.error('Registration error:', error);
       setGeneralError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
@@ -266,6 +282,26 @@ const RegisterForm = ({
             />
             {errors.confirmPassword && (
               <span className="error-message">{errors.confirmPassword}</span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="role">Account Type *</label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className={errors.role ? 'error' : ''}
+              disabled={isLoading}
+            >
+              <option value="">Select account type</option>
+              <option value="admin">Administrator</option>
+              <option value="provider">Healthcare Provider</option>
+              <option value="patient">Patient</option>
+            </select>
+            {errors.role && (
+              <span className="error-message">{errors.role}</span>
             )}
           </div>
 

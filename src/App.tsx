@@ -17,6 +17,8 @@ import Messages from './pages/Messages';
 import Schedule from './pages/Schedule';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import PatientIntakeForm from './components/PatientIntakeForm';
+import { UserProvider } from './components/UserContext';
 
 function Home() {
   console.log('Home component rendered');
@@ -106,6 +108,7 @@ const router = createBrowserRouter([
       { path: 'patients/new', element: <PatientForm /> },
       { path: 'patients/:id', element: <Patient /> },
       { path: 'patients/:id/edit', element: <PatientForm /> },
+      { path: 'intake/:patientId', element: <PatientIntakeForm /> },
       { path: 'schedule', element: <Schedule /> },
       { path: 'messages', element: <Messages /> },
     ],
@@ -114,7 +117,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <UserProvider>
+      <RouterProvider router={router} />
+    </UserProvider>
+  );
 }
 
 export default App;

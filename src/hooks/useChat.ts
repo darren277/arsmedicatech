@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import API_URL from '../env_vars';
+import apiService from '../services/api';
+import { Conversation } from '../types';
 
-const DUMMY_CONVERSATIONS = [
+const DUMMY_CONVERSATIONS: Conversation[] = [
   {
     id: 1,
     name: 'Jane Smith',
@@ -53,14 +54,12 @@ const DUMMY_CONVERSATIONS = [
   },
 ];
 
-const CHAT_ENDPOINT = API_URL + '/chat';
-const LLM_CHAT_ENDPOINT = API_URL + '/llm_chat';
-
 function useChat(isLLM = false) {
-  const [conversations, setConversations] = useState(DUMMY_CONVERSATIONS);
-  const [selectedConversationId, setSelectedConversationId] = useState(
-    conversations[0]?.id || 1
-  );
+  const [conversations, setConversations] =
+    useState<Conversation[]>(DUMMY_CONVERSATIONS);
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    number | string
+  >(conversations[0]?.id || 1);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -68,31 +67,82 @@ function useChat(isLLM = false) {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const endpoint = isLLM ? LLM_CHAT_ENDPOINT : CHAT_ENDPOINT;
-        const response = await fetch(endpoint);
-        if (!response.ok) throw new Error('Failed to fetch conversations');
-        const data = await response.json();
+        let data;
+        if (isLLM) {
+          data = await apiService.getLLMChatHistory();
+        } else {
+          data = await apiService.getUserConversations();
+        }
         console.log('Fetched conversations:', data);
-        setConversations(data);
-        if (data.length > 0 && !selectedConversationId) {
-          setSelectedConversationId(data[0].id);
+
+        // Transform the data to match the frontend format
+        if (data && Array.isArray(data)) {
+          const transformedData = data.map((conv: any) => ({
+            id: conv.id,
+            name: conv.name || 'Unknown User',
+            lastMessage: conv.lastMessage || 'No messages yet',
+            avatar:
+              conv.avatar ||
+              'https://ui-avatars.com/api/?name=User&background=random',
+            messages: conv.messages || [],
+            isAI: conv.isAI || false,
+          }));
+          setConversations(transformedData);
+          if (transformedData.length > 0 && !selectedConversationId) {
+            setSelectedConversationId(transformedData[0].id);
+          }
+        } else {
+          setConversations([]);
         }
       } catch (error) {
         console.error('Error fetching conversations:', error);
-        // Fallback to dummy data if fetch fails
-        setConversations(DUMMY_CONVERSATIONS);
+        // Fallback to empty array if fetch fails
+        setConversations([]);
       }
     };
 
     fetchConversations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLLM]);
 
   const selectedConversation = conversations.find(
     conv => conv.id === selectedConversationId
   );
 
-  const handleSelectConversation = (id: number): void => {
+  const handleSelectConversation = (id: number | string): void => {
     setSelectedConversationId(id);
+    setNewMessage('');
+  };
+
+  const createNewConversation = (
+    participantId: string,
+    participantName: string,
+    participantAvatar: string,
+    isAI: boolean = false
+  ) => {
+    console.log(
+      '[DEBUG] Creating new conversation with participantId:',
+      participantId
+    );
+
+    // For database conversation IDs, we need to use the full ID string
+    // For AI conversations, we use a timestamp
+    const conversationId = isAI ? Date.now() : participantId;
+
+    console.log('[DEBUG] Using conversation ID:', conversationId);
+
+    const newConversation: Conversation = {
+      id: conversationId,
+      name: isAI ? 'AI Assistant' : participantName,
+      lastMessage: 'New conversation',
+      avatar: participantAvatar,
+      messages: [],
+      participantId: participantId,
+      isAI: isAI,
+    };
+
+    setConversations(prev => [newConversation, ...prev]);
+    setSelectedConversationId(newConversation.id);
     setNewMessage('');
   };
 
@@ -103,16 +153,8 @@ function useChat(isLLM = false) {
 
     try {
       if (isLLM) {
-        // For LLM chat, send the message to the LLM endpoint
-        const response = await fetch(LLM_CHAT_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: newMessage }),
-        });
-
-        if (!response.ok) throw new Error('Failed to get LLM response');
-
-        const llmResponse = await response.json();
+        // For LLM chat, send the message to the LLM endpoint using apiService
+        const llmResponse = await apiService.sendLLMMessage(newMessage);
         console.log('LLM Response:', llmResponse);
 
         // Add both user message and LLM response to the conversation
@@ -139,7 +181,7 @@ function useChat(isLLM = false) {
 
         setConversations(updatedConversations);
       } else {
-        // For regular chat, just add the message locally
+        // For regular chat, add the message locally and send to server using apiService
         const updatedConversations = conversations.map(conv => {
           if (conv.id === selectedConversationId) {
             return {
@@ -154,11 +196,7 @@ function useChat(isLLM = false) {
         setConversations(updatedConversations);
 
         // Save to server
-        await fetch(CHAT_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updatedConversations),
-        });
+        await apiService.sendChatMessage(newMessage);
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -182,14 +220,16 @@ function useChat(isLLM = false) {
 
   return {
     conversations,
+    setConversations,
     selectedConversation,
     selectedConversationId,
     newMessage,
     setNewMessage,
     handleSelectConversation,
     handleSend,
+    createNewConversation,
     isLoading,
   };
 }
 
-export { useChat };
+export { useChat, type Conversation };
