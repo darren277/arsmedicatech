@@ -1,8 +1,12 @@
 import { NavLink } from 'react-router-dom';
+import { useUser } from './UserContext';
 // It is recommended to use an icon library like react-icons
 // import { FiGrid, FiUsers, FiMessageSquare, FiCalendar } from 'react-icons/fi';
 
 const Sidebar = () => {
+  const { user } = useUser();
+  const userType = user?.role || 'guest';
+
   return (
     <aside className="sidebar">
       <div className="logo-container">ArsMedicaTech</div>

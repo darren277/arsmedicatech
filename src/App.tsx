@@ -17,6 +17,7 @@ import Messages from './pages/Messages';
 import Schedule from './pages/Schedule';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { UserProvider } from './components/UserContext';
 
 function Home() {
   console.log('Home component rendered');
@@ -114,7 +115,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <UserProvider>
+      <RouterProvider router={router} />
+    </UserProvider>
+  );
 }
 
 export default App;
