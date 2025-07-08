@@ -95,15 +95,28 @@ type Step = 0 | 1 | 2 | 3 | 4;
 const isStepComplete = (
   stepFields: (keyof PatientIntakeFormValues)[],
   values: PatientIntakeFormValues
-) =>
-  stepFields.every(field => {
-    if (field === 'consent') return !!values[field];
-    return (
-      values[field] !== '' &&
-      values[field] !== undefined &&
-      values[field] !== null
-    );
+) => {
+  console.log('Checking step completion for fields:', stepFields);
+  console.log('Current values:', values);
+
+  const result = stepFields.every(field => {
+    const value = values[field];
+    console.log(`Field ${field}:`, value, typeof value);
+
+    if (field === 'consent') {
+      const isValid = Boolean(value);
+      console.log(`Consent field valid:`, isValid);
+      return isValid;
+    }
+
+    const isValid = value && value.toString().trim() !== '';
+    console.log(`Field ${field} valid:`, isValid);
+    return isValid;
   });
+
+  console.log('Step complete result:', result);
+  return result;
+};
 
 export default function PatientIntakeForm() {
   const { patientId } = useParams<{ patientId: string }>();
@@ -189,17 +202,27 @@ export default function PatientIntakeForm() {
             getValues()
           );
           const isActive = step === idx;
+          // Allow navigation to current, previous, or completed steps
+          const canNavigate = idx <= step || complete;
           return (
             <div
               key={label}
               className="flex-1 flex flex-col items-center relative"
             >
-              <div
-                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${isActive ? 'border-blue-600 bg-blue-600 text-white' : complete ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 bg-white text-gray-400'}`}
+              <button
+                type="button"
+                onClick={() => canNavigate && setStep(idx as Step)}
+                disabled={!canNavigate}
+                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400
+                  ${isActive ? 'border-blue-600 bg-blue-600 text-white' : complete ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 bg-white text-gray-400'}
+                  ${canNavigate ? 'cursor-pointer hover:scale-110 hover:shadow-lg' : 'cursor-not-allowed opacity-60'}
+                `}
                 style={{ zIndex: 1 }}
+                aria-current={isActive ? 'step' : undefined}
+                aria-label={`Go to step ${idx + 1}: ${label}`}
               >
                 {isActive ? idx + 1 : complete ? <MdArrowForward /> : idx + 1}
-              </div>
+              </button>
               <span
                 className={`mt-2 text-xs font-medium ${isActive ? 'text-blue-600' : complete ? 'text-green-600' : 'text-gray-400'}`}
               >
@@ -237,7 +260,13 @@ export default function PatientIntakeForm() {
               <Input
                 placeholder="First Name"
                 {...register('firstName', { required: true })}
+                className={errors.firstName ? 'border-red-500' : ''}
               />
+              {errors.firstName && (
+                <p className="text-red-500 text-xs mt-1">
+                  First name is required
+                </p>
+              )}
             </div>
             <div>
               <label className="block mb-1 font-medium">
@@ -441,11 +470,10 @@ export default function PatientIntakeForm() {
               icon={<MdArrowForward size={24} />}
               type="button"
               onClick={next}
-              disabled={
-                !isStepComplete(stepFieldMap[step], getValues()) ||
-                mutation.isLoading
-              }
+              //disabled={!isStepComplete(stepFieldMap[step], getValues()) || mutation.isLoading}
+              disabled={mutation.isLoading} // Temporarily disable validation
               aria-label="Next"
+              title="Next"
             />
           ) : (
             <Button
@@ -460,6 +488,67 @@ export default function PatientIntakeForm() {
           )}
         </div>
       </form>
+
+      {/* Debug Panel - Below the form */}
+      <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+            Form Debug Information
+          </h3>
+          <button
+            type="button"
+            onClick={() => console.log('Form values:', getValues())}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors"
+          >
+            Log to Console
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+              <span className="font-medium text-gray-700">Current Step:</span>
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-sm font-medium">
+                {step + 1} of {stepLabels.length}
+              </span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+              <span className="font-medium text-gray-700">Step Complete:</span>
+              <span
+                className={`px-2 py-1 rounded-md text-sm font-medium ${
+                  isStepComplete(stepFieldMap[step], getValues())
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}
+              >
+                {isStepComplete(stepFieldMap[step], getValues()) ? 'Yes' : 'No'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+              <span className="font-medium text-gray-700">Loading:</span>
+              <span
+                className={`px-2 py-1 rounded-md text-sm font-medium ${
+                  mutation.isLoading
+                    ? 'bg-orange-100 text-orange-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}
+              >
+                {mutation.isLoading ? 'Yes' : 'No'}
+              </span>
+            </div>
+          </div>
+
+          <div className="p-3 bg-white rounded-lg border">
+            <h4 className="font-medium text-gray-700 mb-2">
+              Current Form Values:
+            </h4>
+            <pre className="text-xs text-gray-600 bg-gray-50 p-3 rounded overflow-auto max-h-32">
+              {JSON.stringify(getValues(), null, 2)}
+            </pre>
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }
