@@ -167,6 +167,10 @@ class ApiService {
     return this.getAPI('/users/exist');
   }
 
+  async searchUsers(query: string): Promise<any> {
+    return this.getAPI(`/users/search?q=${encodeURIComponent(query)}`);
+  }
+
   // Test endpoints
   async testSurrealDB(): Promise<any> {
     return this.getAPI('/test_surrealdb');
