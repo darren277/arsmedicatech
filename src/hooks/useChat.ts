@@ -55,7 +55,8 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
 ];
 
 function useChat(isLLM = false) {
-  const [conversations, setConversations] = useState(DUMMY_CONVERSATIONS);
+  const [conversations, setConversations] =
+    useState<Conversation[]>(DUMMY_CONVERSATIONS);
   const [selectedConversationId, setSelectedConversationId] = useState(
     conversations[0]?.id || 1
   );
@@ -103,7 +104,7 @@ function useChat(isLLM = false) {
     participantAvatar: string,
     isAI: boolean = false
   ) => {
-    const newConversation = {
+    const newConversation: Conversation = {
       id: Date.now(), // Simple ID generation for now
       name: isAI ? 'AI Assistant' : participantName,
       lastMessage: 'New conversation',
@@ -203,4 +204,4 @@ function useChat(isLLM = false) {
   };
 }
 
-export { useChat };
+export { useChat, type Conversation };

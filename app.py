@@ -3,6 +3,7 @@ import time
 from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
+from datetime import datetime
 
 from lib.db.surreal import DbController
 from lib.llm.agent import LLMAgent
@@ -357,6 +358,48 @@ def search_users():
         
     finally:
         user_service.close()
+
+@app.route('/api/conversations', methods=['GET'])
+@require_auth
+def get_user_conversations():
+    """Get all conversations for the current user"""
+    current_user_id = get_current_user().user_id
+    
+    # TODO: Implement conversation retrieval from database
+    # For now, return empty list
+    return jsonify({"conversations": []}), 200
+
+@app.route('/api/conversations/<conversation_id>/messages', methods=['GET'])
+@require_auth
+def get_conversation_messages(conversation_id):
+    """Get messages for a specific conversation"""
+    current_user_id = get_current_user().user_id
+    
+    # TODO: Implement message retrieval from database
+    # For now, return empty list
+    return jsonify({"messages": []}), 200
+
+@app.route('/api/conversations/<conversation_id>/messages', methods=['POST'])
+@require_auth
+def send_message(conversation_id):
+    """Send a message in a conversation"""
+    current_user_id = get_current_user().user_id
+    data = request.json
+    
+    if not data or 'text' not in data:
+        return jsonify({"error": "Message text is required"}), 400
+    
+    message_text = data['text']
+    
+    # TODO: Implement message sending to database
+    # For now, just return success
+    print(f"[DEBUG] User {current_user_id} sending message to conversation {conversation_id}: {message_text}")
+    
+    return jsonify({
+        "message": "Message sent successfully",
+        "message_id": f"msg_{int(time.time())}",
+        "timestamp": datetime.utcnow().isoformat()
+    }), 200
 
 id, name, lastMessage, avatar, messages, sender, text = 'id', 'name', 'lastMessage', 'avatar', 'messages', 'sender', 'text'
 

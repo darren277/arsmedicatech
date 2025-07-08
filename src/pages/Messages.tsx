@@ -3,6 +3,7 @@ import SignupPopup from '../components/SignupPopup';
 import { Conversation, useChat } from '../hooks/useChat';
 import { useNewConversationModal } from '../hooks/useNewConversationModal';
 import { useSignupPopup } from '../hooks/useSignupPopup';
+import apiService from '../services/api';
 import authService from '../services/auth';
 import './Messages.css';
 
@@ -59,7 +60,6 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
 ];
 
 const Messages = () => {
-  const isLLM = true;
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
   const { isModalOpen, showModal, hideModal } = useNewConversationModal();
@@ -74,14 +74,60 @@ const Messages = () => {
     handleSend,
     createNewConversation,
     isLoading,
-  } = useChat(isLLM);
+  } = useChat(false); // Default to regular chat, will be overridden per conversation
 
   const handleSendMessage = () => {
     if (!isAuthenticated) {
       showSignupPopup();
       return;
     }
-    handleSend();
+
+    // Check if this is an AI conversation or user-to-user conversation
+    if (selectedConversation?.isAI) {
+      // Use LLM chat for AI conversations
+      handleSend();
+    } else {
+      // Use regular chat for user-to-user conversations
+      handleSendUserMessage();
+    }
+  };
+
+  const handleSendUserMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation) return;
+
+    const messageText = newMessage;
+    setNewMessage(''); // Clear input immediately
+
+    // Add message locally first for immediate feedback
+    const updatedConversations = conversations.map(conv => {
+      if (conv.id === selectedConversationId) {
+        return {
+          ...conv,
+          messages: [...conv.messages, { sender: 'Me', text: messageText }],
+          lastMessage: messageText,
+        };
+      }
+      return conv;
+    });
+
+    // Update conversations state
+    // Note: We need to update the conversations state here since useChat doesn't handle user-to-user messages
+    // For now, we'll just log the message. In a full implementation, you'd update the state here.
+
+    // Send message to backend
+    try {
+      await apiService.sendMessage(
+        selectedConversation.id.toString(),
+        messageText
+      );
+      console.log(
+        'Message sent successfully to conversation:',
+        selectedConversation.id
+      );
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // In a real app, you might want to show an error message to the user
+    }
   };
 
   const handleStartChatbot = () => {

@@ -172,6 +172,18 @@ class ApiService {
     return this.getAPI(`/users/search?q=${encodeURIComponent(query)}`);
   }
 
+  async getUserConversations(): Promise<any> {
+    return this.getAPI('/conversations');
+  }
+
+  async getConversationMessages(conversationId: string): Promise<any> {
+    return this.getAPI(`/conversations/${conversationId}/messages`);
+  }
+
+  async sendMessage(conversationId: string, text: string): Promise<any> {
+    return this.postAPI(`/conversations/${conversationId}/messages`, { text });
+  }
+
   // Test endpoints
   async testSurrealDB(): Promise<any> {
     return this.getAPI('/test_surrealdb');
