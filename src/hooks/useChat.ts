@@ -105,7 +105,11 @@ function useChat(isLLM = false) {
     isAI: boolean = false
   ) => {
     const newConversation: Conversation = {
-      id: Date.now(), // Simple ID generation for now
+      id: isAI
+        ? Date.now()
+        : participantId.includes(':')
+          ? parseInt(participantId.split(':')[1])
+          : Date.now(), // Use database ID for user conversations
       name: isAI ? 'AI Assistant' : participantName,
       lastMessage: 'New conversation',
       avatar: participantAvatar,
