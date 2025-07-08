@@ -72,6 +72,7 @@ const Messages = () => {
     newMessage,
     setNewMessage,
     handleSend,
+    createNewConversation,
     isLoading,
   } = useChat(isLLM);
 
@@ -84,13 +85,35 @@ const Messages = () => {
   };
 
   const handleStartChatbot = () => {
-    // TODO: Implement chatbot conversation start
-    console.log('Starting chatbot conversation');
+    // Create AI Assistant conversation
+    createNewConversation(
+      'ai-assistant',
+      'AI Assistant',
+      'https://ui-avatars.com/api/?name=AI&background=random',
+      true
+    );
   };
 
-  const handleStartUserChat = (userId: string) => {
-    // TODO: Implement user conversation start
-    console.log('Starting conversation with user:', userId);
+  const handleStartUserChat = (
+    userId: string,
+    userInfo?: { display_name: string; avatar: string }
+  ) => {
+    if (userInfo) {
+      createNewConversation(
+        userId,
+        userInfo.display_name,
+        userInfo.avatar,
+        false
+      );
+    } else {
+      // Fallback if user info is not provided
+      createNewConversation(
+        userId,
+        'Unknown User',
+        'https://ui-avatars.com/api/?name=User&background=random',
+        false
+      );
+    }
   };
 
   const handleNewConversation = () => {

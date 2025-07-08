@@ -96,6 +96,27 @@ function useChat(isLLM = false) {
     setNewMessage('');
   };
 
+  const createNewConversation = (
+    participantId: string,
+    participantName: string,
+    participantAvatar: string,
+    isAI: boolean = false
+  ) => {
+    const newConversation = {
+      id: Date.now(), // Simple ID generation for now
+      name: isAI ? 'AI Assistant' : participantName,
+      lastMessage: 'New conversation',
+      avatar: participantAvatar,
+      messages: [],
+      participantId: participantId,
+      isAI: isAI,
+    };
+
+    setConversations(prev => [newConversation, ...prev]);
+    setSelectedConversationId(newConversation.id);
+    setNewMessage('');
+  };
+
   const handleSend = async () => {
     if (!newMessage.trim()) return;
 
@@ -176,6 +197,7 @@ function useChat(isLLM = false) {
     setNewMessage,
     handleSelectConversation,
     handleSend,
+    createNewConversation,
     isLoading,
   };
 }
