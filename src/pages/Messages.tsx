@@ -140,23 +140,37 @@ const Messages = () => {
     );
   };
 
-  const handleStartUserChat = (
+  const handleStartUserChat = async (
     userId: string,
     userInfo?: { display_name: string; avatar: string }
   ) => {
-    if (userInfo) {
-      createNewConversation(
-        userId,
-        userInfo.display_name,
-        userInfo.avatar,
-        false
+    try {
+      // Create conversation in database
+      const response = await apiService.createConversation(
+        [userId],
+        'user_to_user'
       );
-    } else {
-      // Fallback if user info is not provided
+
+      if (response.conversation_id) {
+        // Create conversation in frontend with the database ID
+        createNewConversation(
+          response.conversation_id,
+          userInfo?.display_name || 'Unknown User',
+          userInfo?.avatar ||
+            'https://ui-avatars.com/api/?name=User&background=random',
+          false
+        );
+      } else {
+        console.error('Failed to create conversation:', response);
+      }
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      // Fallback: create conversation locally
       createNewConversation(
         userId,
-        'Unknown User',
-        'https://ui-avatars.com/api/?name=User&background=random',
+        userInfo?.display_name || 'Unknown User',
+        userInfo?.avatar ||
+          'https://ui-avatars.com/api/?name=User&background=random',
         false
       );
     }
