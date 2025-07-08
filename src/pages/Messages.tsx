@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import NewConversationModal from '../components/NewConversationModal';
 import SignupPopup from '../components/SignupPopup';
 import { Conversation, useChat } from '../hooks/useChat';
@@ -63,9 +64,13 @@ const Messages = () => {
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
   const { isModalOpen, showModal, hideModal } = useNewConversationModal();
+  const [selectedMessages, setSelectedMessages] = useState<
+    { sender: string; text: string }[]
+  >([]);
 
   const {
     conversations,
+    setConversations,
     selectedConversation,
     selectedConversationId,
     handleSelectConversation,
@@ -75,6 +80,29 @@ const Messages = () => {
     createNewConversation,
     isLoading,
   } = useChat(false); // Default to regular chat, will be overridden per conversation
+
+  // Fetch messages when a conversation is selected
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedConversationId) return;
+      try {
+        const response = await apiService.getConversationMessages(
+          selectedConversationId.toString()
+        );
+        // The backend returns { messages: [...] }
+        setSelectedMessages(
+          (response.messages || []).map((msg: any) => ({
+            sender: msg.sender,
+            text: msg.text,
+          }))
+        );
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+        setSelectedMessages([]);
+      }
+    };
+    fetchMessages();
+  }, [selectedConversationId]);
 
   const handleSendMessage = () => {
     if (!isAuthenticated) {
@@ -116,9 +144,9 @@ const Messages = () => {
       return conv;
     });
 
-    // Update conversations state
-    // Note: We need to update the conversations state here since useChat doesn't handle user-to-user messages
-    // For now, we'll just log the message. In a full implementation, you'd update the state here.
+    // Update conversations state immediately for UI feedback
+    // We need to update the conversations state since useChat doesn't handle user-to-user messages
+    setConversations(updatedConversations);
 
     // Send message to backend
     try {
@@ -243,7 +271,7 @@ const Messages = () => {
                 <h3>{selectedConversation.name}</h3>
               </div>
               <div className="messages-list">
-                {selectedConversation.messages.map((msg, index) => (
+                {selectedMessages.map((msg, index) => (
                   <div
                     key={index}
                     className={msg.sender === 'Me' ? 'message me' : 'message'}
