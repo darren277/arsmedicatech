@@ -3,6 +3,7 @@ import authService from '../services/auth';
 import { ProfilePanel } from './ProfilePanel';
 import SearchBox from './SearchBox';
 import SignupPopup from './SignupPopup';
+import { useUser } from './UserContext';
 
 interface Props {
   query: string;
@@ -12,8 +13,17 @@ interface Props {
 }
 
 export default function Topbar(props: Props) {
-  const isAuthenticated = authService.isAuthenticated();
+  const { user, isAuthenticated, setUser } = useUser();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <>
@@ -27,15 +37,15 @@ export default function Topbar(props: Props) {
         </div>
 
         <div className="auth-status">
-          {isAuthenticated ? (
+          {isAuthenticated && user ? (
             <ProfilePanel
               user={{
-                name: '',
-                role: '',
+                name:
+                  `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
+                  user.username,
+                role: user.role,
               }}
-              onLogout={function (): void {
-                throw new Error('Function not implemented.');
-              }}
+              onLogout={handleLogout}
             />
           ) : (
             <div className="guest-auth">

@@ -158,12 +158,15 @@ const RegisterForm = ({
       );
 
       if (result.success) {
-        setUser(result.data.user);
-        onRegister(result.data.user);
+        // The register response might return the user directly in data
+        // or nested under data.user - handle both cases
+        const userData = result.data.user || result.data;
+        onRegister(userData);
       } else {
         setGeneralError(result.error || 'Registration failed');
       }
     } catch (error) {
+      console.error('Registration error:', error);
       setGeneralError('An unexpected error occurred');
     } finally {
       setIsLoading(false);

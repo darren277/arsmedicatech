@@ -30,6 +30,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Debug logging for state changes
+  useEffect(() => {
+    console.log('UserContext - user state changed:', user);
+    console.log('UserContext - isAuthenticated state changed:', !!user);
+  }, [user]);
+
   useEffect(() => {
     const checkAuth = async () => {
       if (authService.isAuthenticated()) {
@@ -44,8 +50,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
+  const setUserWithLogging = (newUser: User | null) => {
+    console.log('UserContext - setUser called with:', newUser);
+    setUser(newUser);
+    setIsAuthenticated(!!newUser);
+    console.log('UserContext - isAuthenticated set to:', !!newUser);
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser, isAuthenticated, isLoading }}>
+    <UserContext.Provider
+      value={{ user, setUser: setUserWithLogging, isAuthenticated, isLoading }}
+    >
       {children}
     </UserContext.Provider>
   );
