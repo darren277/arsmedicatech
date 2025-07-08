@@ -14,7 +14,7 @@ from lib.services.auth_decorators import require_auth, require_admin, require_do
 from settings import PORT, DEBUG, HOST, logger, OPENAI_API_KEY, FLASK_SECRET_KEY
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"]}})
 
 app.secret_key = FLASK_SECRET_KEY
 
@@ -535,7 +535,7 @@ def test_crud():
         return jsonify({"error": f"CRUD test failed: {str(e)}"}), 500
 
 
-@app.route('/api/intake/<patient_id>', methods=['PATCH'])
+@app.route('/api/intake/<patient_id>', methods=['PATCH', 'OPTIONS'])
 def patch_intake(patient_id):
     payload = request.get_json()
     #surreal.update(f'patient:{patient_id}', payload)   # or `.merge` for partial
