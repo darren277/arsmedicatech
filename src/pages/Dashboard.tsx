@@ -6,6 +6,7 @@ import RegisterForm from '../components/RegisterForm';
 import SignupPopup from '../components/SignupPopup';
 import API_URL from '../env_vars';
 import { useSignupPopup } from '../hooks/useSignupPopup';
+import apiService from '../services/api';
 import authService from '../services/auth';
 
 const Panel1 = () => {
@@ -205,6 +206,7 @@ const Dashboard = () => {
   const [showLogin, setShowLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
+  const [usersExist, setUsersExist] = useState<boolean | null>(null);
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -219,7 +221,19 @@ const Dashboard = () => {
       setIsLoading(false);
     };
 
+    // Check if any users exist
+    const checkUsersExist = async () => {
+      try {
+        const users = await apiService.getAllUsers();
+        setUsersExist(Array.isArray(users.users) && users.users.length > 0);
+      } catch (error) {
+        // If error (e.g. 403), assume users exist to avoid exposing admin setup
+        setUsersExist(true);
+      }
+    };
+
     checkAuth();
+    checkUsersExist();
   }, []);
 
   const handleLogin = (userData: UserData): void => {
@@ -289,15 +303,20 @@ const Dashboard = () => {
             )}
 
             {/* Admin setup button - only show if no users exist */}
-            <div className="admin-setup">
-              <button onClick={handleSetupAdmin} className="setup-admin-button">
-                Setup Default Admin
-              </button>
-              <p className="setup-note">
-                Use this to create the first admin user if no users exist in the
-                system.
-              </p>
-            </div>
+            {usersExist === false && (
+              <div className="admin-setup">
+                <button
+                  onClick={handleSetupAdmin}
+                  className="setup-admin-button"
+                >
+                  Setup Default Admin
+                </button>
+                <p className="setup-note">
+                  Use this to create the first admin user if no users exist in
+                  the system.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
