@@ -4,8 +4,12 @@ import { useUser } from './UserContext';
 // import { FiGrid, FiUsers, FiMessageSquare, FiCalendar } from 'react-icons/fi';
 
 const Sidebar = () => {
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
   const userType = user?.role || 'guest';
+
+  console.log('Sidebar user:', user);
+
+  if (isLoading) return null; // or a spinner
 
   return (
     <aside className="sidebar">

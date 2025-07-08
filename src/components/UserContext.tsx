@@ -20,6 +20,7 @@ interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -27,6 +28,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -37,12 +39,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           setIsAuthenticated(true);
         }
       }
+      setIsLoading(false);
     };
     checkAuth();
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, isAuthenticated }}>
+    <UserContext.Provider value={{ user, setUser, isAuthenticated, isLoading }}>
       {children}
     </UserContext.Provider>
   );
