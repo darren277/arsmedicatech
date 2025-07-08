@@ -224,8 +224,8 @@ const Dashboard = () => {
     // Check if any users exist
     const checkUsersExist = async () => {
       try {
-        const users = await apiService.getAllUsers();
-        setUsersExist(Array.isArray(users.users) && users.users.length > 0);
+        const response = await apiService.checkUsersExist();
+        setUsersExist(response.users_exist);
       } catch (error) {
         // If error (e.g. 403), assume users exist to avoid exposing admin setup
         setUsersExist(true);
