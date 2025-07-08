@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import authService from '../services/auth';
 import './LoginForm.css';
+import { useUser } from './UserContext';
 
 const RegisterForm = ({
   onRegister,
@@ -33,8 +34,11 @@ const RegisterForm = ({
   const [errors, setErrors] = useState<ErrorsType>({});
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
+  const { setUser } = useUser();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -154,6 +158,7 @@ const RegisterForm = ({
       );
 
       if (result.success) {
+        setUser(result.data.user);
         onRegister(result.data.user);
       } else {
         setGeneralError(result.error || 'Registration failed');
