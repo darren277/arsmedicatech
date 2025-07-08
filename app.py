@@ -410,7 +410,7 @@ def get_user_conversations():
                 "last_message_at": conv.last_message_at
             })
         
-        return jsonify({"conversations": conversation_list}), 200
+        return jsonify(conversation_list), 200
         
     finally:
         conversation_service.close()
