@@ -32,13 +32,14 @@ const Sidebar = () => {
             </li>
           ) : (
             <li>
-              <NavLink
-                to="/intake"
-                state={{ patientId: user?.id }}
-                className={({ isActive }) => (isActive ? 'active' : '')}
-              >
-                Intake Form
-              </NavLink>
+              {user?.id && (
+                <NavLink
+                  to={`/intake/${user.id}`}
+                  className={({ isActive }) => (isActive ? 'active' : '')}
+                >
+                  Intake Form
+                </NavLink>
+              )}
             </li>
           )}
           <li>

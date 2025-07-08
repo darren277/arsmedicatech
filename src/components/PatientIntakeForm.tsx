@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
+import API_URL from '../env_vars';
 import { Button, Card, CardContent, Checkbox, Input } from './FormComponents';
 
 /**
@@ -80,11 +82,8 @@ const initialValues: PatientIntakeFormValues = {
 
 type Step = 0 | 1 | 2 | 3 | 4;
 
-export default function PatientIntakeForm({
-  patientId,
-}: {
-  patientId: string;
-}) {
+export default function PatientIntakeForm() {
+  const { patientId } = useParams<{ patientId: string }>();
   const [step, setStep] = useState<Step>(0);
 
   const {
@@ -104,7 +103,7 @@ export default function PatientIntakeForm({
    */
   const mutation = useSimpleMutation(
     async (data: Partial<PatientIntakeFormValues>): Promise<void> => {
-      const res = await fetch(`/api/intake/${patientId}`, {
+      const res = await fetch(`${API_URL}/api/intake/${patientId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
