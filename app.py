@@ -126,9 +126,11 @@ def login():
         print(f"[DEBUG] Authentication result - success: {success}, message: {message}")
         
         if success:
-            # Store token in session
+            # Store token and user_id in session
             session['auth_token'] = user_session.token
+            session['user_id'] = user_session.user_id
             print(f"[DEBUG] Stored session token: {user_session.token[:10]}...")
+            print(f"[DEBUG] Stored session user_id: {user_session.user_id}")
             
             return jsonify({
                 "message": message,
@@ -618,19 +620,22 @@ def chat_endpoint():
 @app.route('/api/llm_chat', methods=['GET', 'POST'])
 @optional_auth
 def llm_agent_endpoint():
+    print('[DEBUG] /api/llm_chat called')
+    print('[DEBUG] Request headers:', dict(request.headers))
+    print('[DEBUG] Session:', dict(session))
     current_user_id = None
     if hasattr(g, 'user') and g.user:
         current_user_id = g.user.user_id
     elif 'user_id' in session:
         current_user_id = session['user_id']
     else:
+        print('[DEBUG] Not authenticated in /api/llm_chat')
         return jsonify({"error": "Not authenticated"}), 401
 
     llm_chat_service = LLMChatService()
     llm_chat_service.connect()
     try:
         if request.method == 'GET':
-            # List all LLM chats for the current user
             chats = llm_chat_service.get_llm_chats_for_user(current_user_id)
             return jsonify([chat.to_dict() for chat in chats])
         elif request.method == 'POST':
