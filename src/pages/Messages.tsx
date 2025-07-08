@@ -84,7 +84,20 @@ const Messages = () => {
   // Fetch messages when a conversation is selected
   useEffect(() => {
     const fetchMessages = async () => {
-      if (!selectedConversationId) return;
+      if (!selectedConversationId || !selectedConversation) return;
+      if (selectedConversation.isAI) {
+        // For AI assistant, fetch from LLM chat history endpoint
+        try {
+          const assistantId =
+            selectedConversation.participantId || 'ai-assistant';
+          const response = await apiService.getLLMChatHistory(assistantId);
+          setSelectedMessages(response.messages || []);
+        } catch (error) {
+          console.error('Error fetching LLM messages:', error);
+          setSelectedMessages([]);
+        }
+        return;
+      }
       try {
         const response = await apiService.getConversationMessages(
           selectedConversationId.toString()
@@ -102,9 +115,9 @@ const Messages = () => {
       }
     };
     fetchMessages();
-  }, [selectedConversationId]);
+  }, [selectedConversationId, selectedConversation]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!isAuthenticated) {
       showSignupPopup();
       return;
@@ -113,7 +126,19 @@ const Messages = () => {
     // Check if this is an AI conversation or user-to-user conversation
     if (selectedConversation?.isAI) {
       // Use LLM chat for AI conversations
-      handleSend();
+      if (!newMessage.trim()) return;
+      try {
+        const assistantId =
+          selectedConversation.participantId || 'ai-assistant';
+        // Send message to LLM endpoint
+        await apiService.sendLLMMessage(assistantId, newMessage);
+        // Fetch updated LLM chat history for this assistant
+        const response = await apiService.getLLMChatHistory(assistantId);
+        setSelectedMessages(response.messages || []);
+        setNewMessage('');
+      } catch (error) {
+        console.error('Error sending LLM message:', error);
+      }
     } else {
       // Use regular chat for user-to-user conversations
       handleSendUserMessage();
