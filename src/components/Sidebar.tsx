@@ -27,15 +27,6 @@ const Sidebar = () => {
           </li>
           {userType === 'patient' ? (
             <li>
-              <NavLink
-                to="/patients"
-                className={({ isActive }) => (isActive ? 'active' : '')}
-              >
-                Patients
-              </NavLink>
-            </li>
-          ) : (
-            <li>
               {user?.id && (
                 <NavLink
                   to={`/intake/${user.id}`}
@@ -44,6 +35,15 @@ const Sidebar = () => {
                   Intake Form
                 </NavLink>
               )}
+            </li>
+          ) : (
+            <li>
+              <NavLink
+                to="/patients"
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
+                Patients
+              </NavLink>
             </li>
           )}
           <li>
