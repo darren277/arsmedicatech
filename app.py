@@ -1,6 +1,6 @@
 """"""
 import time
-from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify, request, session, g
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 from datetime import datetime
@@ -14,6 +14,8 @@ from lib.services.user_service import UserService
 from lib.services.conversation_service import ConversationService
 from lib.services.auth_decorators import require_auth, require_admin, require_doctor, require_nurse, optional_auth, get_current_user
 from settings import PORT, DEBUG, HOST, logger, OPENAI_API_KEY, FLASK_SECRET_KEY
+from lib.services.llm_chat_service import LLMChatService
+from lib.models.llm_chat import LLMChat
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"], "supports_credentials": True}})
@@ -616,40 +618,35 @@ def chat_endpoint():
 @app.route('/api/llm_chat', methods=['GET', 'POST'])
 @optional_auth
 def llm_agent_endpoint():
-    if request.method == 'GET':
-        #conversation_history = session.get('conversation_history', [])
-        conversation_history = DUMMY_CONVERSATIONS
-        return jsonify(conversation_history)
-    data = request.json
-
-    print("Received data:", data)
-
-    prompt = data.get('prompt')
-    
-    # Get or create agent from session
-    agent_data = session.get('agent_data')
-    
-    if agent_data:
-        # Recreate agent from session data
-        agent = LLMAgent.from_dict(
-            agent_data, 
-            api_key=OPENAI_API_KEY,
-            tool_definitions=GLOBAL_TOOL_DEFINITIONS,
-            tool_func_dict=GLOBAL_TOOL_FUNC_DICT
-        )
+    current_user_id = None
+    if hasattr(g, 'user') and g.user:
+        current_user_id = g.user.user_id
+    elif 'user_id' in session:
+        current_user_id = session['user_id']
     else:
-        # Create new agent
-        agent = LLMAgent(api_key=OPENAI_API_KEY)
-        agent.tool_definitions = GLOBAL_TOOL_DEFINITIONS
-        agent.tool_func_dict = GLOBAL_TOOL_FUNC_DICT
+        return jsonify({"error": "Not authenticated"}), 401
 
-    # Process the prompt
-    response = agent.complete(prompt)
-    
-    # Save updated agent state to session
-    session['agent_data'] = agent.to_dict()
-
-    return jsonify(response)
+    llm_chat_service = LLMChatService()
+    llm_chat_service.connect()
+    try:
+        if request.method == 'GET':
+            # List all LLM chats for the current user
+            chats = llm_chat_service.get_llm_chats_for_user(current_user_id)
+            return jsonify([chat.to_dict() for chat in chats])
+        elif request.method == 'POST':
+            data = request.json
+            assistant_id = data.get('assistant_id', 'ai-assistant')
+            prompt = data.get('prompt')
+            if not prompt:
+                return jsonify({"error": "No prompt provided"}), 400
+            # Add user message
+            chat = llm_chat_service.add_message(current_user_id, assistant_id, 'Me', prompt)
+            # Here you would call your LLM and append the assistant's response
+            # For now, just echo the prompt as the assistant's response
+            chat = llm_chat_service.add_message(current_user_id, assistant_id, 'AI Assistant', f"Echo: {prompt}")
+            return jsonify(chat.to_dict())
+    finally:
+        llm_chat_service.close()
 
 @app.route('/api/llm_chat/reset', methods=['POST'])
 @optional_auth
