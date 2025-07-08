@@ -1,8 +1,17 @@
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { MdArrowBack, MdArrowForward, MdWarning } from 'react-icons/md';
 import { useParams } from 'react-router-dom';
 import API_URL from '../env_vars';
-import { Button, Card, CardContent, Checkbox, Input } from './FormComponents';
+import {
+  Button,
+  Card,
+  CardContent,
+  Checkbox,
+  IconButton,
+  Input,
+  RequiredAsterisk,
+} from './FormComponents';
 
 /**
  * Progressive, multi‑page patient intake form
@@ -82,6 +91,20 @@ const initialValues: PatientIntakeFormValues = {
 
 type Step = 0 | 1 | 2 | 3 | 4;
 
+// Helper to check if all required fields in a step are filled
+const isStepComplete = (
+  stepFields: (keyof PatientIntakeFormValues)[],
+  values: PatientIntakeFormValues
+) =>
+  stepFields.every(field => {
+    if (field === 'consent') return !!values[field];
+    return (
+      values[field] !== '' &&
+      values[field] !== undefined &&
+      values[field] !== null
+    );
+  });
+
 export default function PatientIntakeForm() {
   const { patientId } = useParams<{ patientId: string }>();
   const [step, setStep] = useState<Step>(0);
@@ -158,113 +181,232 @@ export default function PatientIntakeForm() {
 
   return (
     <Card className="max-w-3xl mx-auto p-6 md:p-10 rounded-2xl shadow-xl">
-      {/* Progress bar */}
-      <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
-        <div
-          className="bg-blue-600 h-2 rounded-full transition-all"
-          style={{ width: `${progress}%` }}
-        />
+      {/* Stepper Breadcrumbs */}
+      <div className="flex items-center justify-between mb-8">
+        {stepLabels.map((label, idx) => {
+          const complete = isStepComplete(
+            stepFieldMap[idx as Step],
+            getValues()
+          );
+          const isActive = step === idx;
+          return (
+            <div
+              key={label}
+              className="flex-1 flex flex-col items-center relative"
+            >
+              <div
+                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${isActive ? 'border-blue-600 bg-blue-600 text-white' : complete ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 bg-white text-gray-400'}`}
+                style={{ zIndex: 1 }}
+              >
+                {isActive ? idx + 1 : complete ? <MdArrowForward /> : idx + 1}
+              </div>
+              <span
+                className={`mt-2 text-xs font-medium ${isActive ? 'text-blue-600' : complete ? 'text-green-600' : 'text-gray-400'}`}
+              >
+                {label}
+              </span>
+              {!complete && !isActive && (
+                <MdWarning
+                  className="absolute -top-2 right-0 text-yellow-500"
+                  title="Required fields missing"
+                />
+              )}
+              {idx < stepLabels.length - 1 && (
+                <div
+                  className="absolute left-1/2 top-4 w-full h-0.5 bg-gray-200"
+                  style={{ zIndex: 0, width: '100%', marginLeft: '50%' }}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      <h2 className="text-2xl font-semibold mb-4">{stepLabels[step]}</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-center">
+        {stepLabels[step]}
+      </h2>
 
-      <form onSubmit={handleSubmit(submit)} className="space-y-6">
+      <form onSubmit={handleSubmit(submit)} className="space-y-8">
         {/* Step 1 */}
         {step === 0 && (
-          <CardContent className="grid md:grid-cols-2 gap-4">
-            <Input
-              placeholder="First Name"
-              {...register('firstName', { required: true })}
-            />
-            <Input
-              placeholder="Last Name"
-              {...register('lastName', { required: true })}
-            />
-            <Input
-              type="date"
-              placeholder="Date of Birth"
-              {...register('date_of_birth', { required: true })}
-            />
-            <Input
-              placeholder="Gender"
-              {...register('gender', { required: true })}
-            />
-            <Input
-              placeholder="Phone"
-              {...register('phone', { required: true })}
-            />
-            <Input
-              type="email"
-              placeholder="Email"
-              {...register('email', { required: true })}
-            />
+          <CardContent className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block mb-1 font-medium">
+                First Name <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="First Name"
+                {...register('firstName', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Last Name <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Last Name"
+                {...register('lastName', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Date of Birth <RequiredAsterisk />
+              </label>
+              <Input
+                type="date"
+                placeholder="Date of Birth"
+                {...register('date_of_birth', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Gender <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Gender"
+                {...register('gender', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Phone <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Phone"
+                {...register('phone', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Email <RequiredAsterisk />
+              </label>
+              <Input
+                type="email"
+                placeholder="Email"
+                {...register('email', { required: true })}
+              />
+            </div>
           </CardContent>
         )}
-
         {/* Step 2 */}
         {step === 1 && (
-          <CardContent className="grid md:grid-cols-2 gap-4">
-            <Input
-              placeholder="Address"
-              {...register('address', { required: true })}
-            />
-            <Input
-              placeholder="City"
-              {...register('city', { required: true })}
-            />
-            <Input
-              placeholder="Province/State"
-              {...register('province', { required: true })}
-            />
-            <Input
-              placeholder="Postal / ZIP"
-              {...register('postalCode', { required: true })}
-            />
-            <Input
-              placeholder="Insurance Provider"
-              {...register('insuranceProvider', { required: true })}
-            />
-            <Input
-              placeholder="Policy / Member #"
-              {...register('insuranceNumber', { required: true })}
-            />
+          <CardContent className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block mb-1 font-medium">
+                Address <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Address"
+                {...register('address', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                City <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="City"
+                {...register('city', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Province/State <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Province/State"
+                {...register('province', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Postal / ZIP <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Postal / ZIP"
+                {...register('postalCode', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Insurance Provider <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Insurance Provider"
+                {...register('insuranceProvider', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Policy / Member # <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Policy / Member #"
+                {...register('insuranceNumber', { required: true })}
+              />
+            </div>
           </CardContent>
         )}
-
         {/* Step 3 */}
         {step === 2 && (
-          <CardContent className="grid gap-4">
-            <Input
-              placeholder="Known Medical Conditions"
-              {...register('medicalConditions')}
-            />
-            <Input
-              placeholder="Current Medications"
-              {...register('medications')}
-            />
-            <Input placeholder="Allergies" {...register('allergies')} />
+          <CardContent className="grid gap-6">
+            <div>
+              <label className="block mb-1 font-medium">
+                Known Medical Conditions
+              </label>
+              <Input
+                placeholder="Known Medical Conditions"
+                {...register('medicalConditions')}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Current Medications
+              </label>
+              <Input
+                placeholder="Current Medications"
+                {...register('medications')}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">Allergies</label>
+              <Input placeholder="Allergies" {...register('allergies')} />
+            </div>
           </CardContent>
         )}
-
         {/* Step 4 */}
         {step === 3 && (
-          <CardContent className="grid gap-4">
-            <Input
-              placeholder="Reason for Visit"
-              {...register('reasonForVisit', { required: true })}
-            />
-            <Input
-              placeholder="Key Symptoms"
-              {...register('symptoms', { required: true })}
-            />
-            <Input
-              type="date"
-              placeholder="Symptom Onset Date"
-              {...register('symptomOnset')}
-            />
+          <CardContent className="grid gap-6">
+            <div>
+              <label className="block mb-1 font-medium">
+                Reason for Visit <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Reason for Visit"
+                {...register('reasonForVisit', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Key Symptoms <RequiredAsterisk />
+              </label>
+              <Input
+                placeholder="Key Symptoms"
+                {...register('symptoms', { required: true })}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">
+                Symptom Onset Date
+              </label>
+              <Input
+                type="date"
+                placeholder="Symptom Onset Date"
+                {...register('symptomOnset')}
+              />
+            </div>
           </CardContent>
         )}
-
         {/* Step 5 */}
         {step === 4 && (
           <CardContent className="space-y-4">
@@ -279,28 +421,40 @@ export default function PatientIntakeForm() {
               />
               <label htmlFor="consent" className="text-sm">
                 I consent to the collection and use of my personal health
-                information.
+                information. <RequiredAsterisk />
               </label>
             </div>
           </CardContent>
         )}
-
         {/* Navigation */}
-        <div className="flex justify-between pt-4">
-          <Button
-            variant="secondary"
+        <div className="flex justify-between pt-4 items-center">
+          <IconButton
+            icon={<MdArrowBack size={24} />}
             type="button"
             onClick={back}
             disabled={step === 0}
-          >
-            Back
-          </Button>
+            aria-label="Back"
+          />
+          <div className="flex-1" />
           {step < 4 ? (
-            <Button type="button" onClick={next} disabled={mutation.isLoading}>
-              Next
-            </Button>
+            <IconButton
+              icon={<MdArrowForward size={24} />}
+              type="button"
+              onClick={next}
+              disabled={
+                !isStepComplete(stepFieldMap[step], getValues()) ||
+                mutation.isLoading
+              }
+              aria-label="Next"
+            />
           ) : (
-            <Button type="submit" disabled={mutation.isLoading}>
+            <Button
+              type="submit"
+              disabled={
+                mutation.isLoading ||
+                !isStepComplete(stepFieldMap[step], getValues())
+              }
+            >
               Submit
             </Button>
           )}

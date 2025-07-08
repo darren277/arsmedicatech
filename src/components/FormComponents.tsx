@@ -118,3 +118,26 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   )
 );
 Checkbox.displayName = 'Checkbox';
+
+export const IconButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { icon: React.ReactNode }
+>(({ icon, className, ...props }, ref) => (
+  <button
+    ref={ref}
+    className={cn(
+      'inline-flex items-center justify-center rounded-full p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
+      className
+    )}
+    {...props}
+  >
+    {icon}
+  </button>
+));
+IconButton.displayName = 'IconButton';
+
+export const RequiredAsterisk = () => (
+  <span className="text-red-500 ml-0.5" title="Required">
+    *
+  </span>
+);
