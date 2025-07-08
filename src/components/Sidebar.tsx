@@ -21,14 +21,26 @@ const Sidebar = () => {
               Dashboard
             </NavLink>
           </li>
-          <li>
-            <NavLink
-              to="/patients"
-              className={({ isActive }) => (isActive ? 'active' : '')}
-            >
-              Patients
-            </NavLink>
-          </li>
+          {userType === 'patient' ? (
+            <li>
+              <NavLink
+                to="/patients"
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
+                Patients
+              </NavLink>
+            </li>
+          ) : (
+            <li>
+              <NavLink
+                to="/intake"
+                state={{ patientId: user?.id }}
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
+                Intake Form
+              </NavLink>
+            </li>
+          )}
           <li>
             <NavLink
               to="/messages"
