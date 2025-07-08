@@ -184,6 +184,13 @@ class ApiService {
     return this.postAPI(`/conversations/${conversationId}/messages`, { text });
   }
 
+  async createConversation(
+    participants: string[],
+    type: string = 'user_to_user'
+  ): Promise<any> {
+    return this.postAPI('/conversations', { participants, type });
+  }
+
   // Test endpoints
   async testSurrealDB(): Promise<any> {
     return this.getAPI('/test_surrealdb');
