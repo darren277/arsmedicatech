@@ -177,8 +177,15 @@ class UserService:
                 role=user.role
             )
             
-            # Store session
-            self.active_sessions[session.token] = session
+            # Store session in database
+            try:
+                self.db.create('Session', session.to_dict())
+                # Also keep in memory for faster access
+                self.active_sessions[session.token] = session
+            except Exception as e:
+                print(f"[DEBUG] Error storing session in database: {e}")
+                # Fallback to memory-only storage
+                self.active_sessions[session.token] = session
             
             return True, "Authentication successful", session
             
@@ -258,20 +265,59 @@ class UserService:
     
     def validate_session(self, token: str) -> Optional[UserSession]:
         """Validate session token and return session if valid"""
+        # First check memory cache
         session = self.active_sessions.get(token)
         if session and not session.is_expired():
             return session
         elif session and session.is_expired():
             # Remove expired session
             del self.active_sessions[token]
+        
+        # If not in memory, check database
+        try:
+            result = self.db.query(
+                "SELECT * FROM Session WHERE token = $token",
+                {"token": token}
+            )
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                session_data = result[0]
+                session = UserSession.from_dict(session_data)
+                
+                if session.is_expired():
+                    # Remove expired session from database
+                    self.db.delete(f"Session:{session_data.get('id')}")
+                    return None
+                
+                # Add to memory cache
+                self.active_sessions[token] = session
+                return session
+        except Exception as e:
+            print(f"[DEBUG] Error validating session from database: {e}")
+        
         return None
     
     def logout(self, token: str) -> bool:
         """Logout user by removing session"""
+        # Remove from memory
         if token in self.active_sessions:
             del self.active_sessions[token]
-            return True
-        return False
+        
+        # Remove from database
+        try:
+            result = self.db.query(
+                "SELECT * FROM Session WHERE token = $token",
+                {"token": token}
+            )
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                session_data = result[0]
+                self.db.delete(f"Session:{session_data.get('id')}")
+                return True
+        except Exception as e:
+            print(f"[DEBUG] Error removing session from database: {e}")
+        
+        return True
     
     def get_all_users(self) -> List[User]:
         """Get all users (admin only)"""
