@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: mcp-server, namespace: {{ .Values.namespace }} }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: mcp-server } }
+  template:
+    metadata:
+      labels:
+        app: mcp-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "{{ .Values.mcp.port }}"
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: mcp-server
+          image: "{{ .Values.mcp.image.repository }}:{{ .Values.mcp.image.tag }}"
+          imagePullPolicy: "{{ .Values.mcp.image.pullPolicy }}"
+          env:
+            {{ include "surrealdb.sharedEnv" . | indent 10 }}
+          ports: [ { containerPort: {{ .Values.mcp.port }} } ]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: mcp-server, namespace: {{ .Values.namespace }} }
+spec:
+  selector: { app: mcp-server }
+  ports: [ { port: 80, targetPort: {{ .Values.mcp.port }} } ]
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vec-migration
+  namespace: {{ .Values.namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: vec-migration
+          image: "{{ .Values.mcp.image.repository }}:{{ .Values.mcp.image.tag }}"
+          command: ["python", "lib/migrations/vec.py"]
+          env:
+            {{ include "surrealdb.sharedEnv" . | indent 12 }}

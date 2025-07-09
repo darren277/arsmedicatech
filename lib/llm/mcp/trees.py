@@ -1,8 +1,13 @@
 """"""
+import asyncio
 import re
-from typing import Any, Callable, Dict, Tuple, Union, Iterable
+from typing import Any, Callable, Dict, Tuple, Union, Iterable, Annotated
 import enum
 
+from fastmcp import Context
+from pydantic import Field
+
+from mcp_init import mcp
 
 compare_ops: dict[str, Callable[[Any, Any], bool]] = {}
 
@@ -241,19 +246,6 @@ tool_definition_enhanced = {
     }
 }
 
-result = decision_tree_lookup(
-    ENHANCED_TREE,
-    loan_purpose=Purpose.EDUCATION,
-    country='US',
-    credit_score=720
-)
-print(result)
-
-assert result['decision'] == "Approved"
-assert result['reason'] == "Domestic study"
-assert "<Purpose.EDUCATION: 'education'> == <Purpose.EDUCATION: 'education'>" in result['path_taken'][0]
-assert "'US' in frozenset" in result['path_taken'][1]
-
 
 
 # ---------------
@@ -292,7 +284,16 @@ BP_DECISION_TREE = {
     }
 }
 
-def blood_pressure_decision_tree_lookup(systolic_blood_pressure: int, diastolic_blood_pressure: int) -> dict:
+@mcp.tool
+async def blood_pressure_decision_tree_lookup(
+        systolic_blood_pressure: Annotated[
+            int, Field(description="The patient's systolic blood pressure, e.g., 128")
+        ],
+        diastolic_blood_pressure: Annotated[
+            int, Field(description="The patient's diastolic blood pressure, e.g., 78")
+        ],
+        ctx: Context,
+) -> dict:
     """
     Looks up a blood pressure classification from a decision tree.
 
@@ -303,11 +304,22 @@ def blood_pressure_decision_tree_lookup(systolic_blood_pressure: int, diastolic_
     Returns:
         A dictionary containing the final classification and the logical path taken.
     """
-    return decision_tree_lookup(
+    #await ctx.info(f"Received systolic: {systolic_blood_pressure}, diastolic: {diastolic_blood_pressure}")
+    print(f"Received systolic: {systolic_blood_pressure}, diastolic: {diastolic_blood_pressure}")
+
+    result = await asyncio.to_thread(
+        decision_tree_lookup,
         BP_DECISION_TREE,
-        systolic_blood_pressure=systolic_blood_pressure,
-        diastolic_blood_pressure=diastolic_blood_pressure
+        **dict(
+            systolic_blood_pressure=systolic_blood_pressure,
+            diastolic_blood_pressure=diastolic_blood_pressure
+        )
     )
+
+    #await ctx.info("Lookup complete")
+    print("Lookup complete")
+
+    return result
 
 tool_definition_bp = {
     "type": "function",
@@ -330,15 +342,3 @@ tool_definition_bp = {
         }
     }
 }
-
-result = decision_tree_lookup(
-    BP_DECISION_TREE,
-    systolic_blood_pressure=128,
-    diastolic_blood_pressure=78
-)
-print(result)
-
-assert result['decision'] == "Elevated blood pressure"
-assert result['reason'] == "Adopt heart‑healthy lifestyle"
-assert "Checked diastolic blood pressure: 78 < 120" in result['path_taken'][0]
-assert "Checked systolic blood pressure: 128 in range(120, 130)" in result['path_taken'][1]

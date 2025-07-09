@@ -1,14 +1,20 @@
 """"""
 import enum
 import json
+from typing import Callable
+
 from openai import OpenAI
 
+from lib.llm.mcp_tools import fetch_mcp_tool_defs
 
 DEFAULT_SYSTEM_PROMPT = """
 You are a clinical assistant that helps healthcare providers with patient care tasks.
 You can answer questions, provide information, and assist with various healthcare-related tasks.
 Your responses should be accurate, concise, and helpful.
 """
+
+
+ToolDefinition = dict
 
 class LLMModel(enum.Enum):
     """Enumeration of supported LLM models."""
@@ -19,12 +25,16 @@ class LLMModel(enum.Enum):
     def __str__(self):
         return self.value
 
-def process_tool_call(tool_call, tool_dict):
+async def process_tool_call(tool_call, tool_dict):
     function_name = tool_call.function.name
     arguments = json.loads(tool_call.function.arguments)
 
+    for key, val in tool_dict.items():
+        print(f"[DEBUG] Tool: {key} -> {val}") # [DEBUG] Tool: _call -> <function fetch_mcp_tool_defs.<locals>.wrap.<locals>._call at 0x7f78720b23e0>
+        print(f"[DEBUG] Function: {function_name} -> {val.__name__}") # [DEBUG] Function: rag -> _call
+
     tool_function = tool_dict[function_name]
-    tool_result = tool_function(**arguments)
+    tool_result = await tool_function(**arguments)
 
     result = json.dumps(tool_result)
 
@@ -51,12 +61,12 @@ class LLMAgent:
 
         self.client = OpenAI(api_key=self.api_key)
 
-    def add_tool(self, tool, tool_def):
+    def add_tool(self, tool_name: str, tool: Callable, tool_def: ToolDefinition):
         """Add a tool to the agent."""
         if not callable(tool):
             raise ValueError("Tool must be a callable function.")
         self.tool_definitions.append(tool_def)
-        self.tool_func_dict[tool.__name__] = tool
+        self.tool_func_dict[tool_name] = tool
 
     def fetch_history(self):
         """ Fetch history from database. """
@@ -96,7 +106,23 @@ class LLMAgent:
         
         return agent
 
-    def complete(self, prompt: str or None, **kwargs):
+    @classmethod
+    async def from_mcp(cls, mcp_url: str, api_key: str, **kwargs):
+        """
+        Build an LLMAgent that proxies every tool call to the given MCP server.
+        """
+        # 1) Discover tools from MCP
+        defs, funcs = await fetch_mcp_tool_defs(mcp_url)
+
+        # 2) Instantiate the agent
+        agent = cls(api_key=api_key, **kwargs)
+        for d in defs:
+            name = d["function"]["name"]
+            print("[DEBUG] Adding tool:", d["function"]["name"], funcs[name], d)
+            agent.add_tool(name, funcs[name], d)
+        return agent
+
+    async def complete(self, prompt: str or None, **kwargs):
         if prompt:
             self.message_history.append({"role": "user", "content": prompt})
 
@@ -115,18 +141,18 @@ class LLMAgent:
         print("Top choice:", top_choice)
 
         if tool_calls:
-            self.process_tool_calls(tool_calls)
+            await self.process_tool_calls(tool_calls)
 
             # Recurse to handle tool calls
-            return self.complete(None, **kwargs)
+            return await self.complete(None, **kwargs)
         else:
             # Add assistant response to message history
             self.message_history.append({"role": "assistant", "content": top_choice.content})
 
         return {"response": top_choice.content}
 
-    def process_tool_calls(self, tool_calls):
+    async def process_tool_calls(self, tool_calls):
         for tool_call in tool_calls:
-            result = process_tool_call(tool_call, self.tool_func_dict)
+            result = await process_tool_call(tool_call, self.tool_func_dict)
             self.message_history.append(result)
 

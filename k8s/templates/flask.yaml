@@ -20,12 +20,7 @@ spec:
           image: "{{ .Values.flask.image.repository }}:{{ .Values.flask.image.tag }}"
           imagePullPolicy: "{{ .Values.flask.image.pullPolicy }}"
           env:
-            - name: DATABASE_URL
-              value: http://surrealdb:8000
-            - name: DB_USER
-              valueFrom: { secretKeyRef: { name: surreal-secret, key: user } }
-            - name: DB_PASS
-              valueFrom: { secretKeyRef: { name: surreal-secret, key: pass } }
+            {{ include "surrealdb.sharedEnv" . | indent 10 }}
           ports: [ { containerPort: 5000 } ]
 ---
 apiVersion: v1

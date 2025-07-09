@@ -163,7 +163,9 @@ def test_crud():
 def patch_intake(patient_id):
     return patch_intake_route(patient_id)
 
+from asgiref.wsgi import WsgiToAsgi
 
-if __name__ == '__main__':
-    app.run(port=PORT, debug=DEBUG, host=HOST)
+asgi_app = WsgiToAsgi(app)
+
+#if __name__ == '__main__': app.run(port=PORT, debug=DEBUG, host=HOST)
 

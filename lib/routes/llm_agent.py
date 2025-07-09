@@ -1,30 +1,15 @@
 """"""
+import asyncio
+
 from flask import request, jsonify, session, g
 
-from lib.llm.agent import LLMAgent
-from lib.llm.trees import blood_pressure_decision_tree_lookup, tool_definition_bp
+from settings import MCP_URL
+
+from lib.llm.agent import LLMAgent, LLMModel
 from lib.services.llm_chat_service import LLMChatService
-from settings import OPENAI_API_KEY
 
-# Global tool registry - these don't need to be in session
-GLOBAL_TOOL_DEFINITIONS = []
-GLOBAL_TOOL_FUNC_DICT = {}
-
-
-def register_tools():
-    """Register tools globally - only needs to be done once"""
-    global GLOBAL_TOOL_DEFINITIONS, GLOBAL_TOOL_FUNC_DICT
-
-    # Create a temporary agent to get the tool definitions
-    temp_agent = LLMAgent(api_key=OPENAI_API_KEY)
-    temp_agent.add_tool(blood_pressure_decision_tree_lookup, tool_definition_bp)
-
-    GLOBAL_TOOL_DEFINITIONS = temp_agent.tool_definitions
-    GLOBAL_TOOL_FUNC_DICT = temp_agent.tool_func_dict
-
-
-# Register tools on startup
-register_tools()
+# TODO: Attach this to user via user settings UI:
+from settings import MIGRATION_OPENAI_API_KEY as OPENAI_API_KEY
 
 
 def llm_agent_endpoint_route():
@@ -56,24 +41,19 @@ def llm_agent_endpoint_route():
             # Add user message to persistent chat
             chat = llm_chat_service.add_message(current_user_id, assistant_id, 'Me', prompt)
 
-            # --- LLM agent logic ---
-            agent_data = session.get('agent_data')
-            if agent_data:
-                agent = LLMAgent.from_dict(
-                    agent_data,
+            agent = asyncio.run(
+                LLMAgent.from_mcp(
+                    mcp_url=MCP_URL,
                     api_key=OPENAI_API_KEY,
-                    tool_definitions=GLOBAL_TOOL_DEFINITIONS,
-                    tool_func_dict=GLOBAL_TOOL_FUNC_DICT
+                    model=LLMModel.GPT_4_1_NANO,
                 )
-            else:
-                agent = LLMAgent(api_key=OPENAI_API_KEY)
-                agent.tool_definitions = GLOBAL_TOOL_DEFINITIONS
-                agent.tool_func_dict = GLOBAL_TOOL_FUNC_DICT
+            )
 
             # Use the persistent chat history as context
             history = chat.messages
             # You may want to format this for your LLM
-            response = agent.complete(prompt, history=history)
+            response = asyncio.run(agent.complete(prompt, history=history))
+            print('response', type(response), response)
 
             # Add assistant response to persistent chat
             chat = llm_chat_service.add_message(current_user_id, assistant_id, 'AI Assistant',

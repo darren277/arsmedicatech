@@ -18,7 +18,7 @@ spec:
             - name: API_URL
               value: "{{ .Values.react.apiUrl | default .Values.flask.serviceUrl }}"
             - name: NODE_ENV
-              value: "{{ .Values.react.nodeEnv | default 'production' }}"
+              value: "{{ .Values.react.nodeEnv }}"
 ---
 apiVersion: v1
 kind: Service
