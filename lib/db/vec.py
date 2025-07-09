@@ -130,16 +130,50 @@ class Vec:
             raise ValueError("This function requires an OpenAI client to be initialized.")
 
         texts  = [d["text"] for d in batch]
-        embeds = (await client.embeddings.create(model=self.embed_model, input=texts)).data
-        records = [
-            {
-                "id": f"knowledge:{b['id']}",
+        resp = await self.client.embeddings.create(model=self.embed_model, input=texts)
+        embeds = [e.embedding for e in resp.data]
+
+        inserted = 0
+        for i, (b, e) in enumerate(zip(batch, embeds)):
+            record_id = f"knowledge:{b['id']}"
+            print(f"\n[DEBUG] RECORD {i} → {record_id}")
+            print(f"  → type(embedding): {type(e)}")
+            print(f"  → type(e[0]): {type(e[0]) if isinstance(e, list) and e else 'N/A'}")
+            print(f"  → len(embedding): {len(e) if isinstance(e, list) else 'N/A'}")
+            print(f"  → sample values: {e[:5] if isinstance(e, list) else 'N/A'}")
+
+            # Surreal expects: array<float>
+            if not isinstance(e, list):
+                print(f"[ERROR] Embedding is not a list.")
+                continue
+            if not all(isinstance(x, float) for x in e):
+                bad_types = {type(x) for x in e}
+                print(f"[ERROR] Non-float types in embedding: {bad_types}")
+                continue
+            if len(e) != 1536:
+                print(f"[ERROR] Bad vector length: {len(e)}")
+                continue
+
+            record = {
+                "id": record_id,
                 "text": b["text"],
-                "embedding": e.embedding,
+                "embedding": e,
             }
-            for b, e in zip(batch, embeds)
-        ]
-        await db.create("knowledge", records)
+
+            try:
+                # Build the full query
+                value_tuples = ",\n".join(
+                    f"{{ id: 'knowledge:{b['id']}', text: {json.dumps(b['text'])}, embedding: {json.dumps(e)} }}"
+                    for b, e in zip(batch, embeds)
+                )
+
+                query = f"INSERT INTO knowledge [{value_tuples}];"
+                result = await db.query(query)
+                print(f"[OK] Inserted {record_id}")
+                print(f"SurrealDB result: {result}")
+                inserted += 1
+            except Exception as ex:
+                print(f"[FAIL] {record_id}: {ex}")
 
     async def get_context(self, question, k=4):
         if not self.client:
