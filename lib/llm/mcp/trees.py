@@ -1,9 +1,13 @@
 """"""
+import asyncio
 import re
 from typing import Any, Callable, Dict, Tuple, Union, Iterable, Annotated
 import enum
 
+from fastmcp import Context
 from pydantic import Field
+
+from mcp_init import mcp
 
 compare_ops: dict[str, Callable[[Any, Any], bool]] = {}
 
@@ -293,13 +297,15 @@ BP_DECISION_TREE = {
     }
 }
 
-def blood_pressure_decision_tree_lookup(
+@mcp.tool
+async def blood_pressure_decision_tree_lookup(
         systolic_blood_pressure: Annotated[
             int, Field(description="The patient's systolic blood pressure, e.g., 128")
         ],
         diastolic_blood_pressure: Annotated[
             int, Field(description="The patient's diastolic blood pressure, e.g., 78")
         ],
+        ctx: Context,
 ) -> dict:
     """
     Looks up a blood pressure classification from a decision tree.
@@ -311,11 +317,20 @@ def blood_pressure_decision_tree_lookup(
     Returns:
         A dictionary containing the final classification and the logical path taken.
     """
-    return decision_tree_lookup(
+    await ctx.info("Accessed context from contextvars")
+    await ctx.info(f"Received systolic: {systolic_blood_pressure}, diastolic: {diastolic_blood_pressure}")
+
+    result = await asyncio.to_thread(
+        decision_tree_lookup,
         BP_DECISION_TREE,
-        systolic_blood_pressure=systolic_blood_pressure,
-        diastolic_blood_pressure=diastolic_blood_pressure
+        **dict(
+            systolic_blood_pressure=systolic_blood_pressure,
+            diastolic_blood_pressure=diastolic_blood_pressure
+        )
     )
+
+    await ctx.info("Lookup complete")
+    return result
 
 tool_definition_bp = {
     "type": "function",
