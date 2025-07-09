@@ -8,8 +8,8 @@ from settings import MCP_URL
 from lib.llm.agent import LLMAgent, LLMModel
 from lib.services.llm_chat_service import LLMChatService
 
-# TODO: Attach this to use via user settings UI:
-from settings import OPENAI_API_KEY
+# TODO: Attach this to user via user settings UI:
+from settings import MIGRATION_OPENAI_API_KEY as OPENAI_API_KEY
 
 
 def llm_agent_endpoint_route():
