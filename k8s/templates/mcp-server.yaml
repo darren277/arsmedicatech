@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata: { name: mcp-server, namespace: {{ .Values.namespace }} }
 spec:
-  replicas: 2
+  replicas: 1
   selector: { matchLabels: { app: mcp-server } }
   template:
     metadata:
