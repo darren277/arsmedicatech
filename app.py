@@ -15,6 +15,7 @@ from lib.routes.users import search_users_route, check_users_exist_route, setup_
     activate_user_route, deactivate_user_route, get_all_users_route, change_password_route, get_current_user_info_route, \
     logout_route, register_route, login_route
 from lib.services.auth_decorators import require_auth, require_admin, optional_auth
+from lib.routes.settings import settings_route
 from settings import PORT, DEBUG, HOST, FLASK_SECRET_KEY
 
 app = Flask(__name__)
@@ -162,6 +163,12 @@ def test_crud():
 @app.route('/api/intake/<patient_id>', methods=['PATCH'])
 def patch_intake(patient_id):
     return patch_intake_route(patient_id)
+
+@app.route('/api/settings', methods=['GET', 'POST'])
+@require_auth
+def settings():
+    return settings_route()
+
 
 from asgiref.wsgi import WsgiToAsgi
 
