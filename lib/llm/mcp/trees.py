@@ -317,8 +317,8 @@ async def blood_pressure_decision_tree_lookup(
     Returns:
         A dictionary containing the final classification and the logical path taken.
     """
-    await ctx.info("Accessed context from contextvars")
-    await ctx.info(f"Received systolic: {systolic_blood_pressure}, diastolic: {diastolic_blood_pressure}")
+    #await ctx.info(f"Received systolic: {systolic_blood_pressure}, diastolic: {diastolic_blood_pressure}")
+    print(f"Received systolic: {systolic_blood_pressure}, diastolic: {diastolic_blood_pressure}")
 
     result = await asyncio.to_thread(
         decision_tree_lookup,
@@ -329,7 +329,9 @@ async def blood_pressure_decision_tree_lookup(
         )
     )
 
-    await ctx.info("Lookup complete")
+    #await ctx.info("Lookup complete")
+    print("Lookup complete")
+
     return result
 
 tool_definition_bp = {
