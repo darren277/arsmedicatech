@@ -1,5 +1,6 @@
 FROM python:3.12-slim
 
+ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV PORT=9000
 
@@ -16,7 +17,16 @@ RUN pip install uv
 RUN uv pip install --no-cache-dir git+https://github.com/jlowin/fastmcp.git@main#egg=fastmcp --system
 RUN uv add fastmcp
 
+RUN pip install openai
+RUN pip install surrealdb
+
 COPY ./lib/llm/mcp ./
+
+# Migrations
+COPY ./settings.py .
+COPY ./lib/logger.py ./lib/logger.py
+COPY ./lib/db ./lib/db
+COPY ./lib/migrations ./lib/migrations
 
 EXPOSE 9000
 
