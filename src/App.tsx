@@ -18,6 +18,7 @@ import Schedule from './pages/Schedule';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import PatientIntakeForm from './components/PatientIntakeForm';
+import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
 function Home() {
@@ -111,6 +112,7 @@ const router = createBrowserRouter([
       { path: 'intake/:patientId', element: <PatientIntakeForm /> },
       { path: 'schedule', element: <Schedule /> },
       { path: 'messages', element: <Messages /> },
+      { path: 'settings', element: <Settings /> },
     ],
     errorElement: <ErrorPage />,
   },

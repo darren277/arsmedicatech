@@ -62,6 +62,14 @@ const Sidebar = () => {
               Schedule
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/settings"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Settings
+            </NavLink>
+          </li>
         </ul>
       </nav>
       <div className="sidebar-footer">
