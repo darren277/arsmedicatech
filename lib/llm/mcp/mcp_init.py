@@ -6,7 +6,7 @@ from fastmcp.server.middleware.logging import LoggingMiddleware
 from starlette.responses import PlainTextResponse
 from starlette.requests import Request
 
-mcp = FastMCP("Webhook API")
+mcp = FastMCP("ArsMedicaTech MCP Server")
 
 # plug‑in generic middleware
 mcp.add_middleware(TimingMiddleware())
