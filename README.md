@@ -303,3 +303,15 @@ Integration with External Data: To fill out a large knowledge graph, you can loo
 * ICD-10/11 codes (WHO)
 * UMLS Metathesaurus (NIH)
 * SNOMED CT
+
+## MCP (Model Context Protocol)
+
+### Usage
+
+#### Inspector
+
+1. Start a temporary port forward: `kubectl port-forward -n arsmedicatech service/mcp-server 9000:80`.
+2. Run the inspector client: `npx @modelcontextprotocol/inspector@0.14.0`.
+3. Navigate to the URL. Something like this: http://127.0.0.1:6274/#tools
+4. Enter the URL: http://127.0.0.1:9000/mcp.
+5. Click "Connect" to view the available tools.
