@@ -43,10 +43,12 @@ docker-mcp:
 docker-flask:
 	docker build --build-arg PORT=$(FLASK_PORT) -t $(DOCKER_REGISTRY)/$(FLASK_IMAGE):$(FLASK_VERSION) -f Dockerfile.flask .
 	docker push $(DOCKER_REGISTRY)/$(FLASK_IMAGE):$(FLASK_VERSION)
+	kubectl rollout restart deployment $(FLASK_DEPLOYMENT) --namespace=$(NAMESPACE)
 
 docker-react:
 	docker build --build-arg PORT=$(REACT_PORT) --build-arg API_URL=$(API_URL) -t $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION) -f Dockerfile.react .
 	docker push $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION)
+	kubectl rollout restart deployment $(REACT_DEPLOYMENT) --namespace=$(NAMESPACE)
 
 
 # Kubernetes and Helm
