@@ -113,10 +113,17 @@ class Vec:
         for doc in docs:
             batch.append(doc)
             if len(batch) == chunk:
+                print(f"[SEED] Inserting {len(batch)} records...")
                 await self.insert(batch, db)
+                print("[SEED] Insert complete.")
                 batch = []
         if batch:
+            print(f"[SEED] Inserting {len(batch)} records...")
             await self.insert(batch, db)
+            print("[SEED] Insert complete.")
+
+        res = await db.query("SELECT id, text FROM knowledge LIMIT 5;")
+        print("[DEBUG] Sample records:", res)
 
     async def insert(self, batch, db):
         if not self.client:
