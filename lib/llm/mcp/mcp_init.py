@@ -3,6 +3,7 @@ import json
 from fastmcp import FastMCP
 from fastmcp.server.middleware.timing import TimingMiddleware
 from fastmcp.server.middleware.logging import LoggingMiddleware
+from openai import AsyncOpenAI
 from starlette.responses import PlainTextResponse
 from starlette.requests import Request
 
@@ -27,3 +28,19 @@ def hello(name: str = "world") -> str:
     return json.dumps(dict(msg=f"Hello, {name}!"))
 
 #register_openai_tool(mcp, blood_pressure_decision_tree_lookup, tool_definition_bp)
+
+@mcp.tool
+async def rag(query: str) -> str:
+    """
+    Perform a retrieval-augmented generation (RAG) query.
+    :param query:
+    :return:
+    """
+    from settings import MIGRATION_OPENAI_API_KEY as TEMPORARY_KEY
+    client = AsyncOpenAI(api_key=TEMPORARY_KEY)
+    from lib.db.vec import Vec
+    vec = Vec(client)
+    print(f"RAG query: {query}")
+    msg = await vec.rag_chat(query)
+    print(f"RAG response: {msg}")
+    return json.dumps(dict(msg=msg))
