@@ -6,26 +6,6 @@ from lib.llm.trees import blood_pressure_decision_tree_lookup, tool_definition_b
 from lib.services.llm_chat_service import LLMChatService
 from settings import OPENAI_API_KEY
 
-# Global tool registry - these don't need to be in session
-GLOBAL_TOOL_DEFINITIONS = []
-GLOBAL_TOOL_FUNC_DICT = {}
-
-
-def register_tools():
-    """Register tools globally - only needs to be done once"""
-    global GLOBAL_TOOL_DEFINITIONS, GLOBAL_TOOL_FUNC_DICT
-
-    # Create a temporary agent to get the tool definitions
-    temp_agent = LLMAgent(api_key=OPENAI_API_KEY)
-    temp_agent.add_tool(blood_pressure_decision_tree_lookup, tool_definition_bp)
-
-    GLOBAL_TOOL_DEFINITIONS = temp_agent.tool_definitions
-    GLOBAL_TOOL_FUNC_DICT = temp_agent.tool_func_dict
-
-
-# Register tools on startup
-register_tools()
-
 
 def llm_agent_endpoint_route():
     print('[DEBUG] /api/llm_chat called')
