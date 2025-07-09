@@ -88,13 +88,26 @@ class Vec:
         await db.query(knowledge_hsnw_v2)
         await db.close()
 
-    async def seed(self, data_source: str):
+    async def seed(self, data_source: str, data_type: str = 'json'):
         db = AsyncSurreal(DB_URL)
         await db.connect()
         await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})
         await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
 
-        docs = [json.loads(l) for l in open("docs.jsonl")]
+        res = await db.query("INFO FOR DB;")
+        print("[DEBUG] Database info:", res)
+
+        res = await db.query("INFO FOR TABLE knowledge;")
+        print("[DEBUG] Table info:", res)
+
+        if data_type == 'jsonl':
+            docs = [json.loads(l) for l in open(data_source, "r", encoding="utf-8") if l.strip()]
+        elif data_type == 'json':
+            with open(data_source, "r", encoding="utf-8") as f:
+                docs = json.load(f)
+        else:
+            raise ValueError(f"Unsupported data type: {data_type}. Supported types are 'jsonl' and 'json'.")
+
         chunk, batch = 96, []
 
         for doc in docs:
