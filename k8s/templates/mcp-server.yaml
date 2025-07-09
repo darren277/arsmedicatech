@@ -29,3 +29,23 @@ metadata: { name: mcp-server, namespace: {{ .Values.namespace }} }
 spec:
   selector: { app: mcp-server }
   ports: [ { port: 80, targetPort: {{ .Values.mcp.port }} } ]
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vec-migration
+  namespace: {{ .Values.namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: vec-migration
+          image: "{{ .Values.mcp.image.repository }}:{{ .Values.mcp.image.tag }}"
+          command: ["python", "lib/migrations/vec.py"]
+          env:
+            {{ include "surrealdb.sharedEnv" . | indent 12 }}
