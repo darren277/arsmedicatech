@@ -1,9 +1,13 @@
 """"""
+import asyncio
+
 from flask import request, jsonify, session, g
 
-from lib.llm.agent import LLMAgent
+from lib.llm.agent import LLMAgent, LLMModel, MCP_URL
 from lib.llm.trees import blood_pressure_decision_tree_lookup, tool_definition_bp
 from lib.services.llm_chat_service import LLMChatService
+
+# TODO: Attach this to use via user settings UI:
 from settings import OPENAI_API_KEY
 
 
@@ -36,19 +40,13 @@ def llm_agent_endpoint_route():
             # Add user message to persistent chat
             chat = llm_chat_service.add_message(current_user_id, assistant_id, 'Me', prompt)
 
-            # --- LLM agent logic ---
-            agent_data = session.get('agent_data')
-            if agent_data:
-                agent = LLMAgent.from_dict(
-                    agent_data,
+            agent = asyncio.run(
+                LLMAgent.from_mcp(
+                    mcp_url=MCP_URL,
                     api_key=OPENAI_API_KEY,
-                    tool_definitions=GLOBAL_TOOL_DEFINITIONS,
-                    tool_func_dict=GLOBAL_TOOL_FUNC_DICT
+                    model=LLMModel.GPT_4_1_NANO,
                 )
-            else:
-                agent = LLMAgent(api_key=OPENAI_API_KEY)
-                agent.tool_definitions = GLOBAL_TOOL_DEFINITIONS
-                agent.tool_func_dict = GLOBAL_TOOL_FUNC_DICT
+            )
 
             # Use the persistent chat history as context
             history = chat.messages

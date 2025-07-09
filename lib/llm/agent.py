@@ -3,12 +3,15 @@ import enum
 import json
 from openai import OpenAI
 
+from lib.llm.mcp_tools import fetch_mcp_tool_defs
 
 DEFAULT_SYSTEM_PROMPT = """
 You are a clinical assistant that helps healthcare providers with patient care tasks.
 You can answer questions, provide information, and assist with various healthcare-related tasks.
 Your responses should be accurate, concise, and helpful.
 """
+
+MCP_URL = "http://localhost:9000/mcp"
 
 class LLMModel(enum.Enum):
     """Enumeration of supported LLM models."""
@@ -94,6 +97,20 @@ class LLMAgent:
             agent.tool_definitions = tool_definitions
             agent.tool_func_dict = tool_func_dict
         
+        return agent
+
+    @classmethod
+    async def from_mcp(cls, mcp_url: str, api_key: str, **kwargs):
+        """
+        Build an LLMAgent that proxies every tool call to the given MCP server.
+        """
+        # 1) Discover tools from MCP
+        defs, funcs = await fetch_mcp_tool_defs(mcp_url)
+
+        # 2) Instantiate the agent
+        agent = cls(api_key=api_key, **kwargs)
+        for d in defs:
+            agent.add_tool(funcs[d["function"]["name"]], d)
         return agent
 
     def complete(self, prompt: str or None, **kwargs):
