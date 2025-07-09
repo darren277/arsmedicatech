@@ -1,5 +1,6 @@
 from typing import Optional, Dict, Any, List
 from lib.models.user import User, UserSession
+from lib.models.user_settings import UserSettings
 from lib.db.surreal import DbController
 
 
@@ -439,4 +440,92 @@ class UserService:
                 return False, f"Failed to create default admin: {message}"
                 
         except Exception as e:
-            return False, f"Error creating default admin: {str(e)}" 
+            return False, f"Error creating default admin: {str(e)}"
+    
+    def get_user_settings(self, user_id: str) -> Optional[UserSettings]:
+        """Get user settings"""
+        try:
+            result = self.db.query(
+                "SELECT * FROM UserSettings WHERE user_id = $user_id",
+                {"user_id": user_id}
+            )
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                settings_data = result[0]
+                return UserSettings.from_dict(settings_data)
+            
+            # If no settings exist, create default settings
+            return UserSettings(user_id=user_id)
+            
+        except Exception as e:
+            print(f"[ERROR] Error getting user settings: {e}")
+            return None
+    
+    def save_user_settings(self, user_id: str, settings: UserSettings) -> tuple[bool, str]:
+        """Save user settings"""
+        try:
+            # Check if settings already exist
+            existing_settings = self.get_user_settings(user_id)
+            
+            if existing_settings and existing_settings.id:
+                # Update existing settings
+                result = self.db.update(f"UserSettings:{existing_settings.id}", settings.to_dict())
+                if result:
+                    return True, "Settings updated successfully"
+                else:
+                    return False, "Failed to update settings"
+            else:
+                # Create new settings
+                result = self.db.create('UserSettings', settings.to_dict())
+                if result and isinstance(result, dict) and result.get('id'):
+                    settings.id = result['id']
+                    return True, "Settings created successfully"
+                else:
+                    return False, "Failed to create settings"
+                    
+        except Exception as e:
+            return False, f"Error saving settings: {str(e)}"
+    
+    def update_openai_api_key(self, user_id: str, api_key: str) -> tuple[bool, str]:
+        """Update user's OpenAI API key"""
+        try:
+            # Validate API key
+            valid, msg = UserSettings.validate_openai_api_key(api_key)
+            if not valid:
+                return False, msg
+            
+            # Get or create settings
+            settings = self.get_user_settings(user_id)
+            if not settings:
+                settings = UserSettings(user_id=user_id)
+            
+            # Update API key
+            settings.set_openai_api_key(api_key)
+            
+            # Save settings
+            return self.save_user_settings(user_id, settings)
+            
+        except Exception as e:
+            return False, f"Error updating API key: {str(e)}"
+    
+    def get_openai_api_key(self, user_id: str) -> str:
+        """Get user's decrypted OpenAI API key"""
+        try:
+            settings = self.get_user_settings(user_id)
+            if settings:
+                return settings.get_openai_api_key()
+            return ""
+        except Exception as e:
+            print(f"[ERROR] Error getting API key: {e}")
+            return ""
+    
+    def has_openai_api_key(self, user_id: str) -> bool:
+        """Check if user has a valid OpenAI API key"""
+        try:
+            settings = self.get_user_settings(user_id)
+            if settings:
+                return settings.has_openai_api_key()
+            return False
+        except Exception as e:
+            print(f"[ERROR] Error checking API key: {e}")
+            return False 
