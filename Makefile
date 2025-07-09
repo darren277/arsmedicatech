@@ -33,6 +33,12 @@ auth:
 create-repos:
 	aws ecr create-repository --repository-name $(FLASK_IMAGE) --region us-east-1 || true
 	aws ecr create-repository --repository-name $(REACT_IMAGE) --region us-east-1 || true
+	aws ecr create-repository --repository-name $(MCP_SERVER_IMAGE) --region us-east-1 || true
+
+docker-mcp:
+	docker build --build-arg PORT=$(MCP_SERVER_PORT) -t $(DOCKER_REGISTRY)/$(MCP_SERVER_IMAGE):$(MCP_SERVER_VERSION) -f Dockerfile.mcp .
+	docker push $(DOCKER_REGISTRY)/$(MCP_SERVER_IMAGE):$(MCP_SERVER_VERSION)
+	kubectl rollout restart deployment $(MCP_SERVER_DEPLOYMENT) --namespace=$(NAMESPACE)
 
 docker-flask:
 	docker build --build-arg PORT=$(FLASK_PORT) -t $(DOCKER_REGISTRY)/$(FLASK_IMAGE):$(FLASK_VERSION) -f Dockerfile.flask .
