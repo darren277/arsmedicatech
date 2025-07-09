@@ -1,8 +1,9 @@
 """"""
 import re
-from typing import Any, Callable, Dict, Tuple, Union, Iterable
+from typing import Any, Callable, Dict, Tuple, Union, Iterable, Annotated
 import enum
 
+from pydantic import Field
 
 compare_ops: dict[str, Callable[[Any, Any], bool]] = {}
 
@@ -292,7 +293,14 @@ BP_DECISION_TREE = {
     }
 }
 
-def blood_pressure_decision_tree_lookup(systolic_blood_pressure: int, diastolic_blood_pressure: int) -> dict:
+def blood_pressure_decision_tree_lookup(
+        systolic_blood_pressure: Annotated[
+            int, Field(description="The patient's systolic blood pressure, e.g., 128")
+        ],
+        diastolic_blood_pressure: Annotated[
+            int, Field(description="The patient's diastolic blood pressure, e.g., 78")
+        ],
+) -> dict:
     """
     Looks up a blood pressure classification from a decision tree.
 
