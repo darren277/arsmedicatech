@@ -4,7 +4,6 @@ import asyncio
 from flask import request, jsonify, session, g
 
 from lib.llm.agent import LLMAgent, LLMModel, MCP_URL
-from lib.llm.trees import blood_pressure_decision_tree_lookup, tool_definition_bp
 from lib.services.llm_chat_service import LLMChatService
 
 # TODO: Attach this to use via user settings UI:
