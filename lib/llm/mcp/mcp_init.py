@@ -6,9 +6,6 @@ from fastmcp.server.middleware.logging import LoggingMiddleware
 from starlette.responses import PlainTextResponse
 from starlette.requests import Request
 
-from register_tools import register_openai_tool
-from trees import blood_pressure_decision_tree_lookup, tool_definition_bp
-
 mcp = FastMCP("Webhook API")
 
 # plug‑in generic middleware
@@ -29,4 +26,4 @@ def hello(name: str = "world") -> str:
     """
     return json.dumps(dict(msg=f"Hello, {name}!"))
 
-register_openai_tool(mcp, blood_pressure_decision_tree_lookup, tool_definition_bp)
+#register_openai_tool(mcp, blood_pressure_decision_tree_lookup, tool_definition_bp)

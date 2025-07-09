@@ -4,6 +4,8 @@ from fastmcp import FastMCP
 
 def register_openai_tool(mcp: FastMCP, fn: Callable, openai_tool_def: dict):
     """
+    NOTE: CURRENTLY DOES NOT WORK DUE TO COMPLICATIONS WITH INJECTING CONTEXT (`ctx`).
+
     Registers a plain function with FastMCP using OpenAI-style tool definition metadata.
     """
     name = openai_tool_def["function"]["name"]
