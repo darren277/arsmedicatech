@@ -3,7 +3,9 @@ import asyncio
 
 from flask import request, jsonify, session, g
 
-from lib.llm.agent import LLMAgent, LLMModel, MCP_URL
+from settings import MCP_URL
+
+from lib.llm.agent import LLMAgent, LLMModel
 from lib.services.llm_chat_service import LLMChatService
 
 # TODO: Attach this to use via user settings UI:

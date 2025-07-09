@@ -49,3 +49,6 @@ MIGRATION_OPENAI_API_KEY = os.environ.get('MIGRATION_OPENAI_API_KEY', 'sk-XXXXXX
 FLASK_SECRET_KEY = 'secret key'
 
 BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:3123/api')
+
+#MCP_URL = "http://localhost:9000/mcp"
+MCP_URL = os.environ.get('MCP_URL', "http://mcp-server/mcp/")

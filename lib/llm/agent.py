@@ -13,8 +13,6 @@ You can answer questions, provide information, and assist with various healthcar
 Your responses should be accurate, concise, and helpful.
 """
 
-#MCP_URL = "http://localhost:9000/mcp"
-MCP_URL = "http://mcp-server/mcp/"
 
 ToolDefinition = dict
 
