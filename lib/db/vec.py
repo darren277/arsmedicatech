@@ -185,20 +185,27 @@ class Vec:
         await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
 
         # SurrealQL k‑NN syntax:  <|k, COSINE|> $vector
-        res = await db.query(
-            "LET $q := $vec RETURN SELECT text FROM knowledge WHERE embedding <|$k,COSINE|> $q;",
-            {
-                "vec": qvec,
-                "k":   k
-            }
-        )
-        await db.close()
-        return [row["text"] for row in res[0]["result"]]
+        q = f"SELECT text FROM knowledge WHERE embedding <|{k}, COSINE|> $vec;"
+
+        try:
+            res = await db.query(q, {"vec": qvec})
+            print('[DEBUG] Raw SurrealDB result:', json.dumps(res, indent=2))
+        except Exception as e:
+            print('[ERROR] Exception while querying SurrealDB:', e)
+            return None
+        finally:
+            await db.close()
+
+        return [row["text"] for row in res]
 
     async def rag_chat(self, question, max_tokens: int = 400):
         if not self.client:
             raise ValueError("This function requires an OpenAI client to be initialized.")
         context = await self.get_context(question, k=4)
+
+        if not context:
+            return "I don't have enough information to answer that question."
+
         messages = [
             {"role": "system", "content": self.system_prompt},
             {"role": "system", "content": "Context:\n" + "\n".join(f"- {c}" for c in context)},
