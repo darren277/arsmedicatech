@@ -243,6 +243,11 @@ vs...
 
 ### SurrealDB
 
+#### Connecting Remotely
+
+1. Expose a port forward route: `kubectl port-forward service/surrealdb 8000:8000 -n arsmedicatech`.
+2. Then, you can connect however you choose, for example by using the Surrealist UI desktop application.
+
 #### ICD
 
 Example: `section111validicd10-jan2025_0.csv`:
