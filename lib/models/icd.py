@@ -5,9 +5,8 @@ from surrealdb import AsyncSurreal
 
 from settings import SURREALDB_NAMESPACE, SURREALDB_ICD_DB
 from settings import SURREALDB_USER, SURREALDB_PASS
-from settings import SURREALDB_PROTOCOL, SURREALDB_HOST, SURREALDB_PORT
+from settings import SURREALDB_URL
 
-SURREALDB_URL = f"{SURREALDB_PROTOCOL}://{SURREALDB_HOST}:{SURREALDB_PORT}"
 
 async def import_icd_codes(csv_file_path):
     db = AsyncSurreal(SURREALDB_URL)

@@ -17,13 +17,14 @@ load_dotenv(dotenv_path)
 
 SURREALDB_NAMESPACE = os.environ.get("SURREALDB_NAMESPACE")
 SURREALDB_DATABASE = os.environ.get("SURREALDB_DATABASE")
-SURREALDB_URL = os.environ.get("SURREALDB_URL")
 SURREALDB_USER = os.environ.get("SURREALDB_USER")
 SURREALDB_PASS = os.environ.get("SURREALDB_PASS")
 
 SURREALDB_PROTOCOL = os.environ.get("SURREALDB_PROTOCOL", 'ws')
 SURREALDB_HOST = os.environ.get("SURREALDB_HOST", 'localhost')
 SURREALDB_PORT = os.environ.get("SURREALDB_PORT", 8700)
+
+SURREALDB_URL = f"{SURREALDB_PROTOCOL}://{SURREALDB_HOST}:{SURREALDB_PORT}"
 
 SURREALDB_ICD_DB = os.environ.get("SURREALDB_ICD_DB", 'diagnosis')
 
