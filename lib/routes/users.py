@@ -3,6 +3,7 @@ from flask import jsonify, request, session
 
 from lib.services.auth_decorators import get_current_user, get_current_user_id
 from lib.services.user_service import UserService
+from lib.services.openai_security import get_openai_security_service
 
 
 def search_users_route():
@@ -371,4 +372,24 @@ def update_user_settings():
 
     except Exception as e:
         print(f"[ERROR] Error updating user settings: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+def get_api_usage_route():
+    """Get current user's API usage statistics"""
+    try:
+        user_id = get_current_user_id()
+        if not user_id:
+            return jsonify({"error": "Authentication required"}), 401
+
+        security_service = get_openai_security_service()
+        usage_stats = security_service.get_usage_stats(user_id)
+        
+        return jsonify({
+            "success": True,
+            "usage": usage_stats
+        })
+
+    except Exception as e:
+        print(f"[ERROR] Error getting API usage: {e}")
         return jsonify({"error": "Internal server error"}), 500

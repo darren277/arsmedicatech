@@ -10,9 +10,16 @@ interface UserSettings {
   updated_at: string;
 }
 
+interface UsageStats {
+  requests_this_hour: number;
+  max_requests_per_hour: number;
+  window_start: number;
+}
+
 const Settings: React.FC = () => {
   const { user } = useUser();
   const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [openaiApiKey, setOpenaiApiKey] = useState('');
@@ -24,6 +31,7 @@ const Settings: React.FC = () => {
 
   useEffect(() => {
     loadSettings();
+    loadUsageStats();
   }, []);
 
   const loadSettings = async () => {
@@ -40,6 +48,18 @@ const Settings: React.FC = () => {
       setMessage({ type: 'error', text: 'Failed to load settings' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUsageStats = async () => {
+    try {
+      const response = await apiService.getAPI('/usage');
+      if (response.success) {
+        setUsageStats(response.usage);
+      }
+    } catch (error) {
+      console.error('Error loading usage stats:', error);
+      // Don't show error for usage stats as it's not critical
     }
   };
 
@@ -221,6 +241,43 @@ const Settings: React.FC = () => {
             >
               {saving ? 'Saving...' : 'Save API Key'}
             </button>
+          </div>
+        )}
+      </div>
+
+      <div className="settings-section">
+        <h2>API Usage</h2>
+        <p className="section-description">
+          Monitor your OpenAI API usage and rate limits.
+        </p>
+        {usageStats && (
+          <div className="usage-info">
+            <div className="info-row">
+              <label>Requests This Hour:</label>
+              <span className="usage-counter">
+                {usageStats.requests_this_hour} /{' '}
+                {usageStats.max_requests_per_hour}
+              </span>
+            </div>
+            <div className="info-row">
+              <label>Usage Progress:</label>
+              <div className="usage-progress">
+                <div
+                  className="usage-bar"
+                  style={{
+                    width: `${(usageStats.requests_this_hour / usageStats.max_requests_per_hour) * 100}%`,
+                  }}
+                ></div>
+              </div>
+            </div>
+            <div className="info-row">
+              <label>Window Resets:</label>
+              <span>
+                {new Date(
+                  usageStats.window_start * 1000 + 3600000
+                ).toLocaleTimeString()}
+              </span>
+            </div>
           </div>
         )}
       </div>

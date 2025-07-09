@@ -7,7 +7,7 @@ from settings import MCP_URL
 
 from lib.llm.agent import LLMAgent, LLMModel
 from lib.services.llm_chat_service import LLMChatService
-from lib.services.user_service import UserService
+from lib.services.openai_security import get_openai_security_service
 
 
 def llm_agent_endpoint_route():
@@ -36,17 +36,12 @@ def llm_agent_endpoint_route():
             if not prompt:
                 return jsonify({"error": "No prompt provided"}), 400
 
-            # Get user's OpenAI API key from settings
-            user_service = UserService()
-            user_service.connect()
-            try:
-                openai_api_key = user_service.get_openai_api_key(current_user_id)
-                if not openai_api_key:
-                    return jsonify({
-                        "error": "OpenAI API key not configured. Please add your API key in Settings."
-                    }), 400
-            finally:
-                user_service.close()
+            # Get user's OpenAI API key with security validation
+            security_service = get_openai_security_service()
+            openai_api_key, error = security_service.get_user_api_key_with_validation(current_user_id)
+            
+            if not openai_api_key:
+                return jsonify({"error": error}), 400
 
             # Add user message to persistent chat
             chat = llm_chat_service.add_message(current_user_id, assistant_id, 'Me', prompt)
@@ -64,6 +59,9 @@ def llm_agent_endpoint_route():
             # You may want to format this for your LLM
             response = asyncio.run(agent.complete(prompt, history=history))
             print('response', type(response), response)
+
+            # Log API usage
+            security_service.log_api_usage(current_user_id, str(LLMModel.GPT_4_1_NANO))
 
             # Add assistant response to persistent chat
             chat = llm_chat_service.add_message(current_user_id, assistant_id, 'AI Assistant',

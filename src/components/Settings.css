@@ -49,7 +49,8 @@
 }
 
 .user-info,
-.security-info {
+.security-info,
+.usage-info {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -84,6 +85,25 @@
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+.usage-counter {
+  font-weight: 600;
+  color: #059669;
+}
+
+.usage-progress {
+  width: 100px;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.usage-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  transition: width 0.3s ease;
 }
 
 .api-key-status {
