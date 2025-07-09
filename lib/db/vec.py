@@ -5,8 +5,6 @@ from surrealdb import AsyncSurreal
 
 from settings import SURREALDB_NAMESPACE, SURREALDB_DATABASE, SURREALDB_HOST, SURREALDB_PORT, SURREALDB_PROTOCOL, SURREALDB_USER, SURREALDB_PASS
 
-client = AsyncOpenAI()
-
 DB_URL  = f"{SURREALDB_PROTOCOL}://{SURREALDB_HOST}:{SURREALDB_PORT}/rpc"
 
 knowledge_hsnw = """
@@ -42,12 +40,13 @@ class Vec:
     """Vector database for RAG (retrieval‑augmented generation) with SurrealDB."""
 
     def __init__(self,
+                 openai_client: AsyncOpenAI or None = None,
                  db_url=DB_URL,
                  system_prompt: str = DEFAULT_SYSTEM_PROMPT,
                  embed_model: str = "text-embedding-3-small",
                  inference_model: str = "gpt-4.1-nano"
                  ):
-        # system  = "You are an assistant whose reasoning is grounded in the book *Designing for Growth*."
+        self.client = openai_client
         self.system_prompt = system_prompt
         self.db_url = db_url
         self.embed_model = embed_model
@@ -80,6 +79,9 @@ class Vec:
             await self.insert(batch, db)
 
     async def insert(self, batch, db):
+        if not self.client:
+            raise ValueError("This function requires an OpenAI client to be initialized.")
+
         texts  = [d["text"] for d in batch]
         embeds = (await client.embeddings.create(model=self.embed_model, input=texts)).data
         records = [
@@ -93,7 +95,9 @@ class Vec:
         await db.create("knowledge", records)
 
     async def get_context(self, question, k=4):
-        qvec = (await client.embeddings.create(model=self.embed_model, input=[question])).data[0].embedding
+        if not self.client:
+            raise ValueError("This function requires an OpenAI client to be initialized.")
+        qvec = (await self.client.embeddings.create(model=self.embed_model, input=[question])).data[0].embedding
         db   = AsyncSurreal(DB_URL)
         await db.connect()
         await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})
@@ -111,13 +115,15 @@ class Vec:
         return [row["text"] for row in res[0]["result"]]
 
     async def rag_chat(self, question, max_tokens: int = 400):
+        if not self.client:
+            raise ValueError("This function requires an OpenAI client to be initialized.")
         context = await self.get_context(question, k=4)
         messages = [
             {"role": "system", "content": self.system_prompt},
             {"role": "system", "content": "Context:\n" + "\n".join(f"- {c}" for c in context)},
             {"role": "user",   "content": question},
         ]
-        answer = (await client.chat.completions.create(
+        answer = (await self.client.chat.completions.create(
             model=self.model, messages=messages, max_tokens=max_tokens
         )).choices[0].message.content
         return answer
@@ -125,10 +131,8 @@ class Vec:
 
 
 def example_usage():
-    # insert... asyncio.run(main())
-    vec = Vec()
-    asyncio.run(vec.init())
-    # seed... asyncio.run(vec.seed("docs.jsonl"))
+    client = AsyncOpenAI(api_key="your-openai-api-key")
+    vec = Vec(client)
     msg = asyncio.run(vec.rag_chat("Some query..."))
     print(msg)
 
