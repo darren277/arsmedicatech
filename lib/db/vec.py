@@ -29,6 +29,33 @@ DEFINE INDEX idx_knn ON knowledge
     db=SURREALDB_DATABASE
 )
 
+knowledge_hsnw_v2 = """
+-- Switch to your namespace / database
+USE ns {ns} DB {db};
+
+-- Table for each passage / triple
+DEFINE TABLE knowledge
+  PERMISSIONS NONE
+  SCHEMAFULL;            -- optional but nice: enforces field types
+
+-- ONE‑TIME migration -------------------------------------------
+REMOVE FIELD embedding ON knowledge;           -- if the field exists
+REMOVE INDEX idx_knn ON knowledge;             -- if the index exists
+
+-- Re‑define field as an array of 64‑bit floats, dimension 1536
+DEFINE FIELD embedding ON knowledge
+  TYPE array<float>
+  ASSERT array::len($value) = 1536;
+
+-- Re‑create the same HNSW index
+DEFINE INDEX idx_knn ON knowledge
+  FIELDS embedding
+  HNSW DIMENSION 1536 DIST COSINE TYPE F64;
+""".format(
+    ns=SURREALDB_NAMESPACE,
+    db=SURREALDB_DATABASE
+)
+
 DEFAULT_SYSTEM_PROMPT = """
 You are a medical knowledge retrieval assistant who has access to a large database of medical knowledge.
 Your task is to answer questions based on the provided context.
@@ -58,7 +85,7 @@ class Vec:
         await db.connect()
         await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})
         await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
-        await db.query(knowledge_hsnw)
+        await db.query(knowledge_hsnw_v2)
         await db.close()
 
     async def seed(self, data_source: str):
