@@ -7,9 +7,7 @@ from settings import MCP_URL
 
 from lib.llm.agent import LLMAgent, LLMModel
 from lib.services.llm_chat_service import LLMChatService
-
-# TODO: Attach this to user via user settings UI:
-from settings import MIGRATION_OPENAI_API_KEY as OPENAI_API_KEY
+from lib.services.user_service import UserService
 
 
 def llm_agent_endpoint_route():
@@ -38,13 +36,25 @@ def llm_agent_endpoint_route():
             if not prompt:
                 return jsonify({"error": "No prompt provided"}), 400
 
+            # Get user's OpenAI API key from settings
+            user_service = UserService()
+            user_service.connect()
+            try:
+                openai_api_key = user_service.get_openai_api_key(current_user_id)
+                if not openai_api_key:
+                    return jsonify({
+                        "error": "OpenAI API key not configured. Please add your API key in Settings."
+                    }), 400
+            finally:
+                user_service.close()
+
             # Add user message to persistent chat
             chat = llm_chat_service.add_message(current_user_id, assistant_id, 'Me', prompt)
 
             agent = asyncio.run(
                 LLMAgent.from_mcp(
                     mcp_url=MCP_URL,
-                    api_key=OPENAI_API_KEY,
+                    api_key=openai_api_key,
                     model=LLMModel.GPT_4_1_NANO,
                 )
             )
