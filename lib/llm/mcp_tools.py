@@ -8,7 +8,11 @@ async def fetch_mcp_tool_defs(mcp_url: str) -> tuple[list[dict], dict]:
     • Return (openai_tool_defs, {tool_name: call_function})
     """
     async with Client(mcp_url) as c:
-        tools = (await c.tools.list()).tools   # dict[name → Tool]
+        print('Fetching tools from MCP server:', mcp_url)
+        print(c.__dir__())
+        #tools = (await c.tools.list()).tools   # dict[name → Tool]
+        tools = (await c.list_tools())  # [Tool]
+        print('tools', tools)
 
     openai_defs: list[dict] = []
     func_lookup: dict[str, callable] = {}
@@ -17,17 +21,28 @@ async def fetch_mcp_tool_defs(mcp_url: str) -> tuple[list[dict], dict]:
     def wrap(tool_name):
         async def _call(**kwargs):
             async with Client(mcp_url) as c:
-                result = await c.tools.call(name=tool_name, arguments=kwargs)
+                # 'call_tool_mcp', 'call_tool'
+                #result = await c.tools.call(name=tool_name, arguments=kwargs)
+                # result = await client.call_tool("my_tool", {"param": "value"})
+                result = await c.call_tool(tool_name, kwargs)
+                print(f"[DEBUG] Tool call result for {tool_name}:", result)
                 return result.structured_content or result.content
         return _call
 
-    for name, tool in tools.items():
+    tool_dict = {tool.name: tool for tool in tools}
+
+    for name, tool in tool_dict.items():
         openai_defs.append({
             "type": "function",
             "function": {
                 "name": name,
                 "description": tool.description or "",
-                "parameters": tool.parameters
+                #"parameters": tool.parameters
+                "parameters": {
+                    "type": "object",
+                    "properties": tool.inputSchema.get("properties", {}),
+                    "required": tool.inputSchema.get("required", []),
+                }
             }
         })
         func_lookup[name] = wrap(name)

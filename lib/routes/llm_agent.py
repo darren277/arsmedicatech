@@ -50,7 +50,8 @@ def llm_agent_endpoint_route():
             # Use the persistent chat history as context
             history = chat.messages
             # You may want to format this for your LLM
-            response = agent.complete(prompt, history=history)
+            response = asyncio.run(agent.complete(prompt, history=history))
+            print('response', type(response), response)
 
             # Add assistant response to persistent chat
             chat = llm_chat_service.add_message(current_user_id, assistant_id, 'AI Assistant',
