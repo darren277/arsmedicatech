@@ -56,9 +56,29 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-      style={{ zIndex: 9999 }}
+      style={{
+        zIndex: 9999,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+      onClick={e => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl border border-gray-200">
+      <div
+        className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl border border-gray-200"
+        style={{
+          backgroundColor: 'white',
+          zIndex: 10000,
+          border: '3px solid red',
+          minHeight: '400px',
+        }}
+      >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">New Appointment</h2>
           <button
