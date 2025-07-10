@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import Calendar from 'react-calendar';
+import { Value } from 'react-calendar/dist/esm/shared/types.js';
 import AppointmentForm from '../components/AppointmentForm';
 import SignupPopup from '../components/SignupPopup';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import authService from '../services/auth';
-
 interface Appointment {
   id: string;
   patientName: string;
@@ -34,7 +34,10 @@ const Schedule = () => {
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
 
-  const handleCalendarChange = (value: Date | Date[] | null) => {
+  const handleCalendarChange = (
+    value: Value,
+    event?: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     if (!isAuthenticated) {
       showSignupPopup();
       return;
