@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiService from '../services/api';
+import EditProfile from './EditProfile';
+import Profile from './Profile';
 import './Settings.css';
 import { useUser } from './UserContext';
 
@@ -16,9 +18,28 @@ interface UsageStats {
   window_start: number;
 }
 
+interface UserProfile {
+  id: string;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  specialty?: string;
+  clinic_name?: string;
+  clinic_address?: string;
+  phone?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+type TabType = 'settings' | 'profile' | 'edit-profile';
+
 const Settings: React.FC = () => {
   const { user } = useUser();
+  const [activeTab, setActiveTab] = useState<TabType>('settings');
   const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -32,6 +53,7 @@ const Settings: React.FC = () => {
   useEffect(() => {
     loadSettings();
     loadUsageStats();
+    loadProfile();
   }, []);
 
   const loadSettings = async () => {
@@ -48,6 +70,19 @@ const Settings: React.FC = () => {
       setMessage({ type: 'error', text: 'Failed to load settings' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadProfile = async () => {
+    try {
+      const response = await apiService.getAPI('/profile');
+      if (response.success) {
+        setProfile(response.profile);
+      } else {
+        console.error('Failed to load profile:', response.error);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
     }
   };
 
@@ -131,181 +166,284 @@ const Settings: React.FC = () => {
     }
   };
 
+  const handleSaveProfile = async (
+    updates: Partial<UserProfile>
+  ): Promise<boolean> => {
+    try {
+      setSaving(true);
+      const response = await apiService.postAPI('/profile', updates);
+
+      if (response.success) {
+        setMessage({ type: 'success', text: 'Profile updated successfully' });
+        await loadProfile(); // Reload profile data
+        setActiveTab('profile'); // Switch back to profile view
+        return true;
+      } else {
+        setMessage({
+          type: 'error',
+          text: response.error || 'Failed to update profile',
+        });
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      const errorMessage =
+        error.response?.data?.error || 'Failed to update profile';
+      setMessage({ type: 'error', text: errorMessage });
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const clearMessage = () => {
     setMessage(null);
   };
 
-  if (loading) {
-    return (
-      <div className="settings-container">
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'profile':
+        return profile ? (
+          <Profile profile={profile} />
+        ) : (
+          <div className="settings-loading">
+            <div className="loading-spinner"></div>
+            <p>Loading profile...</p>
+          </div>
+        );
+
+      case 'edit-profile':
+        return profile ? (
+          <EditProfile
+            profile={profile}
+            onSave={handleSaveProfile}
+            onCancel={() => setActiveTab('profile')}
+          />
+        ) : (
+          <div className="settings-loading">
+            <div className="loading-spinner"></div>
+            <p>Loading profile...</p>
+          </div>
+        );
+
+      case 'settings':
+      default:
+        return renderSettingsContent();
+    }
+  };
+
+  const renderSettingsContent = () => {
+    if (loading) {
+      return (
         <div className="settings-loading">
           <div className="loading-spinner"></div>
           <p>Loading settings...</p>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
-    <div className="settings-container">
-      <div className="settings-header">
-        <h1>Account Settings</h1>
-        <p>Manage your account preferences and API keys</p>
-      </div>
-
-      {message && (
-        <div className={`message ${message.type}`}>
-          <span>{message.text}</span>
-          <button onClick={clearMessage} className="message-close">
-            ×
-          </button>
+    return (
+      <>
+        <div className="settings-header">
+          <h1>Account Settings</h1>
+          <p>Manage your account preferences and API keys</p>
         </div>
-      )}
 
-      <div className="settings-section">
-        <h2>User Information</h2>
-        <div className="user-info">
-          <div className="info-row">
-            <label>Username:</label>
-            <span>{user?.username}</span>
-          </div>
-          <div className="info-row">
-            <label>Email:</label>
-            <span>{user?.email}</span>
-          </div>
-          <div className="info-row">
-            <label>Role:</label>
-            <span className="role-badge">{user?.role}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="settings-section">
-        <h2>OpenAI API Key</h2>
-        <p className="section-description">
-          Your OpenAI API key is used to enable AI-powered features. It is
-          encrypted and stored securely.
-        </p>
-
-        {settings?.has_openai_api_key ? (
-          <div className="api-key-status">
-            <div className="status-indicator success">
-              <span className="status-dot"></span>
-              API key is configured
-            </div>
-            <div className="api-key-actions">
-              <button
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="btn btn-secondary"
-              >
-                {showApiKey ? 'Hide' : 'Show'} API Key
-              </button>
-              <button
-                onClick={handleRemoveApiKey}
-                className="btn btn-danger"
-                disabled={saving}
-              >
-                {saving ? 'Removing...' : 'Remove API Key'}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="api-key-form">
-            <div className="form-group">
-              <label htmlFor="openai-api-key">OpenAI API Key</label>
-              <div className="input-group">
-                <input
-                  type={showApiKey ? 'text' : 'password'}
-                  id="openai-api-key"
-                  value={openaiApiKey}
-                  onChange={e => setOpenaiApiKey(e.target.value)}
-                  placeholder="sk-..."
-                  className="form-input"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                  className="input-toggle"
-                >
-                  {showApiKey ? '👁️' : '👁️‍🗨️'}
-                </button>
-              </div>
-              <small className="form-help">
-                Your API key should start with "sk-" and be 51 characters long
-              </small>
-            </div>
-            <button
-              onClick={handleSaveApiKey}
-              disabled={saving || !openaiApiKey.trim()}
-              className="btn btn-primary"
-            >
-              {saving ? 'Saving...' : 'Save API Key'}
+        {message && (
+          <div className={`message ${message.type}`}>
+            <span>{message.text}</span>
+            <button onClick={clearMessage} className="message-close">
+              ×
             </button>
           </div>
         )}
-      </div>
 
-      <div className="settings-section">
-        <h2>API Usage</h2>
-        <p className="section-description">
-          Monitor your OpenAI API usage and rate limits.
-        </p>
-        {usageStats && (
-          <div className="usage-info">
+        <div className="settings-section">
+          <h2>User Information</h2>
+          <div className="user-info">
             <div className="info-row">
-              <label>Requests This Hour:</label>
-              <span className="usage-counter">
-                {usageStats.requests_this_hour} /{' '}
-                {usageStats.max_requests_per_hour}
+              <label>Username:</label>
+              <span>{user?.username}</span>
+            </div>
+            <div className="info-row">
+              <label>Email:</label>
+              <span>{user?.email}</span>
+            </div>
+            <div className="info-row">
+              <label>Role:</label>
+              <span className="role-badge">{user?.role}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <h2>OpenAI API Key</h2>
+          <p className="section-description">
+            Your OpenAI API key is used to enable AI-powered features. It is
+            encrypted and stored securely.
+          </p>
+
+          {settings?.has_openai_api_key ? (
+            <div className="api-key-status">
+              <div className="status-indicator success">
+                <span className="status-dot"></span>
+                API key is configured
+              </div>
+              <div className="api-key-actions">
+                <button
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="btn btn-secondary"
+                >
+                  {showApiKey ? 'Hide' : 'Show'} API Key
+                </button>
+                <button
+                  onClick={handleRemoveApiKey}
+                  className="btn btn-danger"
+                  disabled={saving}
+                >
+                  {saving ? 'Removing...' : 'Remove API Key'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="api-key-form">
+              <div className="form-group">
+                <label htmlFor="openai-api-key">OpenAI API Key</label>
+                <div className="input-group">
+                  <input
+                    type={showApiKey ? 'text' : 'password'}
+                    id="openai-api-key"
+                    value={openaiApiKey}
+                    onChange={e => setOpenaiApiKey(e.target.value)}
+                    placeholder="sk-..."
+                    className="form-input"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="input-toggle"
+                  >
+                    {showApiKey ? '👁️' : '👁️‍🗨️'}
+                  </button>
+                </div>
+                <small className="form-help">
+                  Your API key should start with "sk-" and be 51 characters long
+                </small>
+              </div>
+              <button
+                onClick={handleSaveApiKey}
+                disabled={saving || !openaiApiKey.trim()}
+                className="btn btn-primary"
+              >
+                {saving ? 'Saving...' : 'Save API Key'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="settings-section">
+          <h2>API Usage</h2>
+          <p className="section-description">
+            Monitor your OpenAI API usage and rate limits.
+          </p>
+          {usageStats && (
+            <div className="usage-info">
+              <div className="info-row">
+                <label>Requests This Hour:</label>
+                <span className="usage-counter">
+                  {usageStats.requests_this_hour} /{' '}
+                  {usageStats.max_requests_per_hour}
+                </span>
+              </div>
+              <div className="info-row">
+                <label>Usage Progress:</label>
+                <div className="usage-progress">
+                  <div
+                    className="usage-bar"
+                    style={{
+                      width: `${(usageStats.requests_this_hour / usageStats.max_requests_per_hour) * 100}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+              <div className="info-row">
+                <label>Window Resets:</label>
+                <span>
+                  {new Date(
+                    usageStats.window_start * 1000 + 3600000
+                  ).toLocaleTimeString()}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="settings-section">
+          <h2>Account Security</h2>
+          <p className="section-description">
+            Your account security information and settings.
+          </p>
+          <div className="security-info">
+            <div className="info-row">
+              <label>Account Created:</label>
+              <span>
+                {settings?.created_at
+                  ? new Date(settings.created_at).toLocaleDateString()
+                  : 'N/A'}
               </span>
             </div>
             <div className="info-row">
-              <label>Usage Progress:</label>
-              <div className="usage-progress">
-                <div
-                  className="usage-bar"
-                  style={{
-                    width: `${(usageStats.requests_this_hour / usageStats.max_requests_per_hour) * 100}%`,
-                  }}
-                ></div>
-              </div>
-            </div>
-            <div className="info-row">
-              <label>Window Resets:</label>
+              <label>Last Updated:</label>
               <span>
-                {new Date(
-                  usageStats.window_start * 1000 + 3600000
-                ).toLocaleTimeString()}
+                {settings?.updated_at
+                  ? new Date(settings.updated_at).toLocaleDateString()
+                  : 'N/A'}
               </span>
             </div>
           </div>
+        </div>
+      </>
+    );
+  };
+
+  return (
+    <div className="settings-container">
+      <div className="settings-tabs">
+        <button
+          className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          Settings
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          Profile
+        </button>
+        {activeTab === 'edit-profile' && (
+          <button
+            className={`tab-button ${activeTab === 'edit-profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('edit-profile')}
+          >
+            Edit Profile
+          </button>
         )}
       </div>
 
-      <div className="settings-section">
-        <h2>Account Security</h2>
-        <p className="section-description">
-          Your account security information and settings.
-        </p>
-        <div className="security-info">
-          <div className="info-row">
-            <label>Account Created:</label>
-            <span>
-              {settings?.created_at
-                ? new Date(settings.created_at).toLocaleDateString()
-                : 'N/A'}
-            </span>
-          </div>
-          <div className="info-row">
-            <label>Last Updated:</label>
-            <span>
-              {settings?.updated_at
-                ? new Date(settings.updated_at).toLocaleDateString()
-                : 'N/A'}
-            </span>
-          </div>
+      <div className="settings-content">{renderTabContent()}</div>
+
+      {/* Profile action buttons */}
+      {activeTab === 'profile' && profile && (
+        <div className="profile-actions">
+          <button
+            onClick={() => setActiveTab('edit-profile')}
+            className="btn btn-primary"
+          >
+            Edit Profile
+          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 };
