@@ -6,6 +6,9 @@ from fastmcp.server.middleware.logging import LoggingMiddleware
 from openai import AsyncOpenAI
 from starlette.responses import PlainTextResponse
 from starlette.requests import Request
+from fastmcp.server.dependencies import get_http_request
+
+from lib.services.encryption import get_encryption_service
 
 mcp = FastMCP("ArsMedicaTech MCP Server")
 
@@ -36,8 +39,23 @@ async def rag(query: str) -> str:
     :param query:
     :return:
     """
-    from settings import MIGRATION_OPENAI_API_KEY as TEMPORARY_KEY
-    client = AsyncOpenAI(api_key=TEMPORARY_KEY)
+    req: Request = get_http_request()
+
+    enc_key = req.headers.get("x-session-token")
+    print('ACTUAL HEADERS:', req.headers, req.headers.__dir__())
+    print(f"===> Encrypted key from context: {enc_key}")
+    if not enc_key:
+        raise ValueError("No encrypted key provided in header.")
+
+    key = get_encryption_service().decrypt_api_key(enc_key)
+
+    if not key:
+        raise ValueError("No OpenAI API key provided in the request headers.")
+
+    print(f"===> Using OpenAI API key: {key}")
+
+    client = AsyncOpenAI(api_key=key)
+
     from lib.db.vec import Vec
     vec = Vec(client)
     print(f"RAG query: {query}")

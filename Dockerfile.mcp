@@ -22,6 +22,9 @@ RUN pip install surrealdb
 
 COPY ./lib/llm/mcp ./
 
+# Encryption service for OpenAI API key transmission
+COPY ./lib/services/encryption.py ./lib/services/encryption.py
+
 # Migrations
 COPY ./settings.py .
 COPY ./lib/logger.py ./lib/logger.py

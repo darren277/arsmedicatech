@@ -134,7 +134,9 @@ class ApiService {
     const allChats = await this.getAPI('/llm_chat');
     // Find the chat for this assistant
     return (
-      (allChats.find((chat: any) => chat.assistant_id === assistantId) || { messages: [] })
+      allChats.find((chat: any) => chat.assistant_id === assistantId) || {
+        messages: [],
+      }
     );
   }
 
