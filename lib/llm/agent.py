@@ -6,6 +6,7 @@ from typing import Callable
 from openai import OpenAI
 
 from lib.llm.mcp_tools import fetch_mcp_tool_defs
+from lib.services.encryption import get_encryption_service
 
 DEFAULT_SYSTEM_PROMPT = """
 You are a clinical assistant that helps healthcare providers with patient care tasks.
@@ -132,6 +133,9 @@ class LLMAgent:
             tools=self.tool_definitions,
             #tool_choice="auto",
             #tool_choice='required',
+            extra_headers={
+                "x-user-openai-key": get_encryption_service().encrypt_api_key(self.api_key)
+            }
         )
 
         top_choice = completion.choices[0].message
