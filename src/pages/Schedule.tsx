@@ -5,6 +5,8 @@ import AppointmentForm from '../components/AppointmentForm';
 import SignupPopup from '../components/SignupPopup';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import authService from '../services/auth';
+import './Schedule.css';
+
 interface Appointment {
   id: string;
   patientName: string;
