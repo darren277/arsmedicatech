@@ -26,6 +26,11 @@ run-react-prod:
 	npx http-server ./dist -p $(REACT_PORT)
 
 
+run-mcp:
+	.\.venv\Scripts\activate
+	python lib/llm/mcp/mcp_server.py
+
+
 local-encryption-key:
 	@echo "Generating encryption key..."
 	@python3 -c "import secrets, string; print('ENCRYPTION_KEY=' + ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32)))"
