@@ -14,6 +14,9 @@ from lib.routes.testing import test_surrealdb_route, test_crud_route, debug_sess
 from lib.routes.users import search_users_route, check_users_exist_route, setup_default_admin_route, \
     activate_user_route, deactivate_user_route, get_all_users_route, change_password_route, get_current_user_info_route, \
     logout_route, register_route, login_route, settings_route, get_api_usage_route
+from lib.routes.appointments import create_appointment_route, get_appointments_route, get_appointment_route, \
+    update_appointment_route, cancel_appointment_route, confirm_appointment_route, get_available_slots_route, \
+    get_appointment_types_route, get_appointment_statuses_route
 from lib.services.auth_decorators import require_auth, require_admin, optional_auth
 from settings import PORT, DEBUG, HOST, FLASK_SECRET_KEY
 
@@ -172,6 +175,52 @@ def settings():
 @require_auth
 def api_usage():
     return get_api_usage_route()
+
+# Appointment endpoints
+@app.route('/api/appointments', methods=['GET'])
+@require_auth
+def get_appointments():
+    return get_appointments_route()
+
+@app.route('/api/appointments', methods=['POST'])
+@require_auth
+def create_appointment():
+    return create_appointment_route()
+
+@app.route('/api/appointments/<appointment_id>', methods=['GET'])
+@require_auth
+def get_appointment(appointment_id):
+    return get_appointment_route(appointment_id)
+
+@app.route('/api/appointments/<appointment_id>', methods=['PUT'])
+@require_auth
+def update_appointment(appointment_id):
+    return update_appointment_route(appointment_id)
+
+@app.route('/api/appointments/<appointment_id>/cancel', methods=['POST'])
+@require_auth
+def cancel_appointment(appointment_id):
+    return cancel_appointment_route(appointment_id)
+
+@app.route('/api/appointments/<appointment_id>/confirm', methods=['POST'])
+@require_auth
+def confirm_appointment(appointment_id):
+    return confirm_appointment_route(appointment_id)
+
+@app.route('/api/appointments/available-slots', methods=['GET'])
+@require_auth
+def get_available_slots():
+    return get_available_slots_route()
+
+@app.route('/api/appointments/types', methods=['GET'])
+@require_auth
+def get_appointment_types():
+    return get_appointment_types_route()
+
+@app.route('/api/appointments/statuses', methods=['GET'])
+@require_auth
+def get_appointment_statuses():
+    return get_appointment_statuses_route()
 
 
 from asgiref.wsgi import WsgiToAsgi
