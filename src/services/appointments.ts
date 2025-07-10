@@ -102,7 +102,7 @@ class AppointmentService {
   }
 
   async confirmAppointment(appointmentId: string): Promise<void> {
-    await apiService.postAPI(`${this.baseUrl}/${appointmentId}/confirm`);
+    await apiService.postAPI(`${this.baseUrl}/${appointmentId}/confirm`, {});
   }
 
   async getAvailableSlots(
