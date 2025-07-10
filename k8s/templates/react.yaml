@@ -14,6 +14,11 @@ spec:
           image: "{{ .Values.react.image.repository }}:{{ .Values.react.image.tag }}"
           imagePullPolicy: "{{ .Values.react.image.pullPolicy }}"
           ports: [ { containerPort: 80 } ]
+          env:
+            - name: API_URL
+              value: "{{ .Values.react.apiUrl | default .Values.flask.serviceUrl }}"
+            - name: NODE_ENV
+              value: "{{ .Values.react.nodeEnv }}"
 ---
 apiVersion: v1
 kind: Service

@@ -1,5 +1,6 @@
 from typing import Optional, Dict, Any, List
 from lib.models.user import User, UserSession
+from lib.models.user_settings import UserSettings
 from lib.db.surreal import DbController
 
 
@@ -10,7 +11,13 @@ class UserService:
     
     def connect(self):
         """Connect to database"""
-        self.db.connect()
+        print("[DEBUG] Connecting to database...")
+        try:
+            self.db.connect()
+            print("[DEBUG] Database connection successful")
+        except Exception as e:
+            print(f"[DEBUG] Database connection error: {e}")
+            raise
     
     def close(self):
         """Close database connection"""
@@ -72,6 +79,35 @@ class UserService:
                 user.id = f"user_{len(self._mock_users) + 1}"
                 self._mock_users[user.username] = user
                 print(f"[DEBUG] User created successfully with ID: {user.id}")
+                # If the user is a patient, create a corresponding Patient record
+                if user.role == "patient" and user.id:
+                    try:
+                        from lib.models.patient import create_patient
+                        user_id = str(user.id)
+                        if ':' in user_id:
+                            patient_id = user_id.split(':', 1)[1]
+                        else:
+                            patient_id = user_id
+                        patient_data = {
+                            "demographic_no": patient_id,
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                            "email": user.email,
+                            "date_of_birth": "",
+                            "sex": "",
+                            "phone": "",
+                            "location": [],
+                            # Add more fields as needed
+                        }
+                        # Replace None with empty string for all string fields
+                        for key in patient_data:
+                            if key != "location" and patient_data[key] is None:
+                                patient_data[key] = ""
+                        patient_result = create_patient(patient_data)
+                        if not patient_result:
+                            print(f"[ERROR] Failed to create patient record for user: {user.id}")
+                    except Exception as e:
+                        print(f"[ERROR] Exception during patient record creation: {e}")
                 return True, "User created successfully", user
             
             result = self.db.create('User', user.to_dict())
@@ -79,6 +115,35 @@ class UserService:
             if result and isinstance(result, dict) and result.get('id'):
                 user.id = result['id']
                 print(f"[DEBUG] User created successfully with ID: {user.id}")
+                # If the user is a patient, create a corresponding Patient record
+                if user.role == "patient" and user.id:
+                    try:
+                        from lib.models.patient import create_patient
+                        user_id = str(user.id)
+                        if ':' in user_id:
+                            patient_id = user_id.split(':', 1)[1]
+                        else:
+                            patient_id = user_id
+                        patient_data = {
+                            "demographic_no": patient_id,
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                            "email": user.email,
+                            "date_of_birth": "",
+                            "sex": "",
+                            "phone": "",
+                            "location": [],
+                            # Add more fields as needed
+                        }
+                        # Replace None with empty string for all string fields
+                        for key in patient_data:
+                            if key != "location" and patient_data[key] is None:
+                                patient_data[key] = ""
+                        patient_result = create_patient(patient_data)
+                        if not patient_result:
+                            print(f"[ERROR] Failed to create patient record for user: {user.id}")
+                    except Exception as e:
+                        print(f"[ERROR] Exception during patient record creation: {e}")
                 return True, "User created successfully", user
             else:
                 print(f"[DEBUG] Failed to create user. Result: {result}")
@@ -119,8 +184,15 @@ class UserService:
                 role=user.role
             )
             
-            # Store session
-            self.active_sessions[session.token] = session
+            # Store session in database
+            try:
+                self.db.create('Session', session.to_dict())
+                # Also keep in memory for faster access
+                self.active_sessions[session.token] = session
+            except Exception as e:
+                print(f"[DEBUG] Error storing session in database: {e}")
+                # Fallback to memory-only storage
+                self.active_sessions[session.token] = session
             
             return True, "Authentication successful", session
             
@@ -200,31 +272,73 @@ class UserService:
     
     def validate_session(self, token: str) -> Optional[UserSession]:
         """Validate session token and return session if valid"""
+        # First check memory cache
         session = self.active_sessions.get(token)
         if session and not session.is_expired():
             return session
         elif session and session.is_expired():
             # Remove expired session
             del self.active_sessions[token]
+        
+        # If not in memory, check database
+        try:
+            result = self.db.query(
+                "SELECT * FROM Session WHERE token = $session_token",
+                {"session_token": token}
+            )
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                session_data = result[0]
+                session = UserSession.from_dict(session_data)
+                
+                if session.is_expired():
+                    # Remove expired session from database
+                    self.db.delete(f"Session:{session_data.get('id')}")
+                    return None
+                
+                # Add to memory cache
+                self.active_sessions[token] = session
+                return session
+        except Exception as e:
+            print(f"[DEBUG] Error validating session from database: {e}")
+        
         return None
     
     def logout(self, token: str) -> bool:
         """Logout user by removing session"""
+        # Remove from memory
         if token in self.active_sessions:
             del self.active_sessions[token]
-            return True
-        return False
+        
+        # Remove from database
+        try:
+            result = self.db.query(
+                "SELECT * FROM Session WHERE token = $session_token",
+                {"session_token": token}
+            )
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                session_data = result[0]
+                self.db.delete(f"Session:{session_data.get('id')}")
+                return True
+        except Exception as e:
+            print(f"[DEBUG] Error removing session from database: {e}")
+        
+        return True
     
     def get_all_users(self) -> List[User]:
         """Get all users (admin only)"""
         try:
+            print("[DEBUG] Getting all users from database...")
             results = self.db.select_many('User')
+            print(f"[DEBUG] Raw results: {results}")
             users = []
             for user_data in results:
                 if isinstance(user_data, dict):
                     # Remove password hash for security
                     user_data.pop('password_hash', None)
                     users.append(User.from_dict(user_data))
+            print(f"[DEBUG] Processed {len(users)} users")
             return users
             
         except Exception as e:
@@ -326,4 +440,126 @@ class UserService:
                 return False, f"Failed to create default admin: {message}"
                 
         except Exception as e:
-            return False, f"Error creating default admin: {str(e)}" 
+            return False, f"Error creating default admin: {str(e)}"
+    
+    def get_user_settings(self, user_id: str) -> Optional[UserSettings]:
+        """Get user settings"""
+        try:
+            result = self.db.query(
+                "SELECT * FROM UserSettings WHERE user_id = $user_id",
+                {"user_id": user_id}
+            )
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                settings_data = result[0]
+                return UserSettings.from_dict(settings_data)
+            
+            # If no settings exist, create default settings
+            return UserSettings(user_id=user_id)
+            
+        except Exception as e:
+            print(f"[ERROR] Error getting user settings: {e}")
+            return None
+    
+    def save_user_settings(self, user_id: str, settings: UserSettings) -> tuple[bool, str]:
+        """Save user settings"""
+        try:
+            print(f"[DEBUG] Saving settings for user: {user_id}")
+            
+            # Check if settings already exist
+            existing_settings = self.get_user_settings(user_id)
+            print(f"[DEBUG] Existing settings: {existing_settings.id if existing_settings else 'None'}")
+            
+            if existing_settings and existing_settings.id:
+                # Update existing settings
+                print(f"[DEBUG] Updating existing settings: {existing_settings.id}")
+                
+                # Construct the record ID properly
+                if existing_settings.id.startswith('UserSettings:'):
+                    record_id = existing_settings.id
+                else:
+                    record_id = f"UserSettings:{existing_settings.id}"
+                
+                print(f"[DEBUG] Using record ID: {record_id}")
+                result = self.db.update(record_id, settings.to_dict())
+                print(f"[DEBUG] Update result: {result}")
+                print(f"[DEBUG] Update result type: {type(result)}")
+                print(f"[DEBUG] Update result is None: {result is None}")
+                print(f"[DEBUG] Update result is empty list: {result == []}")
+                print(f"[DEBUG] Update result is empty dict: {result == {}}")
+                # Check if result is truthy (not None, not empty, etc.)
+                if result is not None and result != [] and result != {}:
+                    return True, "Settings updated successfully"
+                else:
+                    return False, "Failed to update settings"
+            else:
+                # Create new settings
+                print(f"[DEBUG] Creating new settings")
+                result = self.db.create('UserSettings', settings.to_dict())
+                print(f"[DEBUG] Create result: {result}")
+                if result and isinstance(result, dict) and result.get('id'):
+                    settings.id = result['id']
+                    return True, "Settings created successfully"
+                else:
+                    return False, "Failed to create settings"
+                    
+        except Exception as e:
+            print(f"[ERROR] Error saving settings: {e}")
+            return False, f"Error saving settings: {str(e)}"
+    
+    def update_openai_api_key(self, user_id: str, api_key: str) -> tuple[bool, str]:
+        """Update user's OpenAI API key"""
+        try:
+            # Allow empty string to remove API key
+            if api_key == "":
+                # Get or create settings
+                settings = self.get_user_settings(user_id)
+                if not settings:
+                    settings = UserSettings(user_id=user_id)
+                
+                # Clear API key
+                settings.set_openai_api_key("")
+                
+                # Save settings
+                return self.save_user_settings(user_id, settings)
+            
+            # Validate API key if not empty
+            valid, msg = UserSettings.validate_openai_api_key(api_key)
+            if not valid:
+                return False, msg
+            
+            # Get or create settings
+            settings = self.get_user_settings(user_id)
+            if not settings:
+                settings = UserSettings(user_id=user_id)
+            
+            # Update API key
+            settings.set_openai_api_key(api_key)
+            
+            # Save settings
+            return self.save_user_settings(user_id, settings)
+            
+        except Exception as e:
+            return False, f"Error updating API key: {str(e)}"
+    
+    def get_openai_api_key(self, user_id: str) -> str:
+        """Get user's decrypted OpenAI API key"""
+        try:
+            settings = self.get_user_settings(user_id)
+            if settings:
+                return settings.get_openai_api_key()
+            return ""
+        except Exception as e:
+            print(f"[ERROR] Error getting API key: {e}")
+            return ""
+    
+    def has_openai_api_key(self, user_id: str) -> bool:
+        """Check if user has a valid OpenAI API key"""
+        try:
+            settings = self.get_user_settings(user_id)
+            if settings:
+                return settings.has_openai_api_key()
+            return False
+        except Exception as e:
+            print(f"[ERROR] Error checking API key: {e}")
+            return False 

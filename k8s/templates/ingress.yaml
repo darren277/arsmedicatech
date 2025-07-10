@@ -26,3 +26,10 @@ spec:
               service:
                 name: react-frontend
                 port: { number: 80 }
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: mcp-server
+                port:
+                  number: 9000

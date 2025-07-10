@@ -26,11 +26,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY ./lib ./lib
 COPY ./settings.py .
-COPY ./logger.py .
 COPY ./app.py .
 
 EXPOSE 5000
 
 RUN pip install gunicorn
+RUN pip install asgiref
 
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+#CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:5000", "app:asgi_app"]
+

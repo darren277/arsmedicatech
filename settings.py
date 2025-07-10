@@ -1,10 +1,10 @@
 """"""
 import os
-from os.path import join, dirname
+from os.path import dirname, join
 
 from dotenv import load_dotenv
 
-from logger import Logger
+from lib.logger import Logger
 
 logger = Logger()
 
@@ -17,13 +17,14 @@ load_dotenv(dotenv_path)
 
 SURREALDB_NAMESPACE = os.environ.get("SURREALDB_NAMESPACE")
 SURREALDB_DATABASE = os.environ.get("SURREALDB_DATABASE")
-SURREALDB_URL = os.environ.get("SURREALDB_URL")
 SURREALDB_USER = os.environ.get("SURREALDB_USER")
 SURREALDB_PASS = os.environ.get("SURREALDB_PASS")
 
 SURREALDB_PROTOCOL = os.environ.get("SURREALDB_PROTOCOL", 'ws')
 SURREALDB_HOST = os.environ.get("SURREALDB_HOST", 'localhost')
 SURREALDB_PORT = os.environ.get("SURREALDB_PORT", 8700)
+
+SURREALDB_URL = f"{SURREALDB_PROTOCOL}://{SURREALDB_HOST}:{SURREALDB_PORT}"
 
 SURREALDB_ICD_DB = os.environ.get("SURREALDB_ICD_DB", 'diagnosis')
 
@@ -32,6 +33,13 @@ print("SURREALDB_DATABASE:", SURREALDB_DATABASE)
 print("SURREALDB_URL:", SURREALDB_URL)
 print("SURREALDB_USER:", SURREALDB_USER)
 print("SURREALDB_PASS:", SURREALDB_PASS)
+
+# Security
+ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY')
+if not ENCRYPTION_KEY:
+    raise ValueError("ENCRYPTION_KEY must be set in settings.py or environment variable")
+
+print("ENCRYPTION_KEY:", "SET" if ENCRYPTION_KEY else "NOT SET")
 
 PORT = os.environ.get('PORT', 5000)
 DEBUG = os.environ.get('DEBUG', True)
@@ -43,8 +51,11 @@ print("HOST:", HOST)
 
 NCBI_API_KEY = os.environ.get('NCBI_API_KEY')
 
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', 'sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+MIGRATION_OPENAI_API_KEY = os.environ.get('MIGRATION_OPENAI_API_KEY', 'sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 
 FLASK_SECRET_KEY = 'secret key'
 
 BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:3123/api')
+
+#MCP_URL = "http://localhost:9000/mcp"
+MCP_URL = os.environ.get('MCP_URL', "http://mcp-server/mcp/")
