@@ -76,7 +76,13 @@ const Settings: React.FC = () => {
   const loadProfile = async () => {
     try {
       const response = await apiService.getAPI('/profile');
+      console.log('[DEBUG] loadProfile - API response:', response);
+
       if (response.success) {
+        console.log(
+          '[DEBUG] loadProfile - Setting profile data:',
+          response.profile
+        );
         setProfile(response.profile);
       } else {
         console.error('Failed to load profile:', response.error);

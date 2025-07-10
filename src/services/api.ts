@@ -18,8 +18,12 @@ class ApiService {
 
     // Add auth token if available
     const token = authService.getToken();
+    console.log('[DEBUG] API getHeaders - token available:', !!token);
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+      console.log('[DEBUG] API getHeaders - Authorization header set');
+    } else {
+      console.log('[DEBUG] API getHeaders - No token available');
     }
 
     return headers;
@@ -34,9 +38,16 @@ class ApiService {
       ...options,
     };
 
+    console.log('[DEBUG] API request - URL:', url);
+    console.log('[DEBUG] API request - Method:', options.method || 'GET');
+    console.log('[DEBUG] API request - Headers:', config.headers);
+
     try {
       const response = await fetch(url, config);
+      console.log('[DEBUG] API request - Response status:', response.status);
+      
       const data = await response.json();
+      console.log('[DEBUG] API request - Response data:', data);
 
       if (!response.ok) {
         // Handle authentication errors
