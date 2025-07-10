@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
 import { Value } from 'react-calendar/dist/esm/shared/types.js';
 import AppointmentForm from '../components/AppointmentForm';
 import SignupPopup from '../components/SignupPopup';
 import { useSignupPopup } from '../hooks/useSignupPopup';
+import { appointmentService } from '../services/appointments';
 import authService from '../services/auth';
 import './Schedule.css';
 
@@ -36,6 +37,34 @@ const Schedule = () => {
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
 
+  useEffect(() => {
+    const loadAppointments = async () => {
+      if (isAuthenticated) {
+        try {
+          const response = await appointmentService.getAppointments();
+          // Convert backend appointments to frontend format
+          const convertedAppointments = response.appointments.map(apt => ({
+            id: apt.id,
+            patientName: `Patient ${apt.patient_id}`, // We'll need to get actual patient names later
+            appointmentDate: apt.appointment_date,
+            startTime: apt.start_time,
+            endTime: apt.end_time,
+            appointmentType: apt.appointment_type,
+            status: apt.status,
+            notes: apt.notes,
+            location: apt.location,
+          }));
+          setAppointments(convertedAppointments);
+        } catch (error) {
+          console.error('Error loading appointments:', error);
+          // For now, keep using local appointments if backend fails
+        }
+      }
+    };
+
+    loadAppointments();
+  }, [isAuthenticated]);
+
   const handleCalendarChange = (
     value: Value,
     event?: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -60,28 +89,59 @@ const Schedule = () => {
   };
 
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleAppointmentSubmit = (appointmentData: any) => {
+  const handleAppointmentSubmit = async (appointmentData: any) => {
     console.log('Appointment submitted:', appointmentData);
-    const newAppointment: Appointment = {
-      id: Date.now().toString(),
-      patientName: appointmentData.patientName,
-      appointmentDate: appointmentData.appointmentDate,
-      startTime: appointmentData.startTime,
-      endTime: appointmentData.endTime,
-      appointmentType: appointmentData.appointmentType,
-      status: 'scheduled',
-      notes: appointmentData.notes,
-      location: appointmentData.location,
-    };
+    setIsSubmitting(true);
+    setError('');
 
-    setAppointments(prev => [...prev, newAppointment]);
-    setSelectedDate(null);
-    setIsModalOpen(false);
+    try {
+      // Convert frontend form data to backend format
+      const backendData = {
+        patient_id: '1', // For now, use a default patient ID - we'll need to implement patient selection
+        appointment_date: appointmentData.appointmentDate,
+        start_time: appointmentData.startTime,
+        end_time: appointmentData.endTime,
+        appointment_type: appointmentData.appointmentType,
+        notes: appointmentData.notes,
+        location: appointmentData.location,
+      };
 
-    // Show success message
-    setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3000);
+      console.log('Sending to backend:', backendData);
+
+      // Send to backend
+      const newBackendAppointment =
+        await appointmentService.createAppointment(backendData);
+      console.log('Backend response:', newBackendAppointment);
+
+      // Convert backend response to frontend format
+      const newAppointment: Appointment = {
+        id: newBackendAppointment.id,
+        patientName: `Patient ${newBackendAppointment.patient_id}`,
+        appointmentDate: newBackendAppointment.appointment_date,
+        startTime: newBackendAppointment.start_time,
+        endTime: newBackendAppointment.end_time,
+        appointmentType: newBackendAppointment.appointment_type,
+        status: newBackendAppointment.status,
+        notes: newBackendAppointment.notes,
+        location: newBackendAppointment.location,
+      };
+
+      setAppointments(prev => [...prev, newAppointment]);
+      setSelectedDate(null);
+      setIsModalOpen(false);
+
+      // Show success message
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+      setError('Failed to create appointment. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
@@ -240,6 +300,25 @@ const Schedule = () => {
         </div>
       )}
 
+      {/* Error Message */}
+      {error && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-md shadow-lg z-50">
+          {error}
+        </div>
+      )}
+
+      {/* Loading Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 shadow-xl">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+              <p>Creating appointment...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <AppointmentForm
         isOpen={isModalOpen}
         onClose={() => {
@@ -249,6 +328,7 @@ const Schedule = () => {
         }}
         selectedDate={selectedDate || undefined}
         onSubmit={handleAppointmentSubmit}
+        isSubmitting={isSubmitting}
       />
 
       {/* Debug info */}

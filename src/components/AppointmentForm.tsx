@@ -5,6 +5,7 @@ interface AppointmentFormProps {
   onClose: () => void;
   selectedDate?: Date;
   onSubmit?: (appointmentData: any) => void;
+  isSubmitting?: boolean;
 }
 
 const AppointmentForm: React.FC<AppointmentFormProps> = ({
@@ -12,6 +13,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   onClose,
   selectedDate,
   onSubmit,
+  isSubmitting = false,
 }) => {
   const [formData, setFormData] = useState({
     patientName: '',
@@ -207,9 +209,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium shadow-sm"
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isSubmitting}
             >
-              Create Appointment
+              {isSubmitting ? 'Creating...' : 'Create Appointment'}
             </button>
           </div>
         </form>
