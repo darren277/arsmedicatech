@@ -13,21 +13,27 @@ def require_auth(f):
         token = request.headers.get('Authorization')
         if token and token.startswith('Bearer '):
             token = token[7:]  # Remove 'Bearer ' prefix
+            print(f"[DEBUG] Got Bearer token: {token[:10]}...")
         
         if not token:
             token = session.get('auth_token')
+            print(f"[DEBUG] Got session token: {token[:10] if token else 'None'}...")
         
         if not token:
+            print("[DEBUG] No token found")
             return jsonify({"error": "Authentication required"}), 401
         
         # Validate session
         user_service = UserService()
         user_service.connect()
         try:
+            print(f"[DEBUG] Validating session token: {token[:10]}...")
             user_session = user_service.validate_session(token)
             if not user_session:
+                print("[DEBUG] Session validation failed")
                 return jsonify({"error": "Invalid or expired session"}), 401
             
+            print(f"[DEBUG] Session validated for user: {user_session.username}")
             # Add user info to request context
             request.user_session = user_session
             request.user_id = user_session.user_id
