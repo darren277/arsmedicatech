@@ -401,3 +401,115 @@ def get_api_usage_route():
     except Exception as e:
         print(f"[ERROR] Error getting API usage: {e}")
         return jsonify({"error": "Internal server error"}), 500
+
+
+def get_user_profile_route():
+    """Get current user's profile information"""
+    try:
+        user_id = get_current_user_id()
+        if not user_id:
+            return jsonify({"error": "Authentication required"}), 401
+
+        user_service = UserService()
+        user_service.connect()
+        try:
+            user = user_service.get_user_by_id(user_id)
+            if not user:
+                return jsonify({"error": "User not found"}), 404
+
+            return jsonify({
+                "success": True,
+                "profile": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "role": user.role,
+                    "specialty": user.specialty,
+                    "clinic_name": user.clinic_name,
+                    "clinic_address": user.clinic_address,
+                    "phone": user.phone,
+                    "is_active": user.is_active,
+                    "created_at": user.created_at
+                }
+            }), 200
+        finally:
+            user_service.close()
+
+    except Exception as e:
+        print(f"[ERROR] Error getting user profile: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+def update_user_profile_route():
+    """Update current user's profile information"""
+    try:
+        user_id = get_current_user_id()
+        if not user_id:
+            return jsonify({"error": "Authentication required"}), 401
+
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        print(f"[DEBUG] Updating profile for user: {user_id}")
+        print(f"[DEBUG] Request data: {data}")
+
+        user_service = UserService()
+        user_service.connect()
+        try:
+            # Prepare updates
+            updates = {}
+            
+            # Basic profile fields
+            if 'first_name' in data:
+                updates['first_name'] = data['first_name']
+            if 'last_name' in data:
+                updates['last_name'] = data['last_name']
+            if 'phone' in data:
+                # Validate phone number
+                valid, msg = User.validate_phone(data['phone'])
+                if not valid:
+                    return jsonify({"error": msg}), 400
+                updates['phone'] = data['phone']
+            
+            # Provider-specific fields
+            if 'specialty' in data:
+                updates['specialty'] = data['specialty']
+            if 'clinic_name' in data:
+                updates['clinic_name'] = data['clinic_name']
+            if 'clinic_address' in data:
+                updates['clinic_address'] = data['clinic_address']
+            
+            # Role updates (admin only)
+            if 'role' in data:
+                current_user = user_service.get_user_by_id(user_id)
+                if not current_user or not current_user.is_admin():
+                    return jsonify({"error": "Only admins can change roles"}), 403
+                
+                valid, msg = User.validate_role(data['role'])
+                if not valid:
+                    return jsonify({"error": msg}), 400
+                updates['role'] = data['role']
+
+            if not updates:
+                return jsonify({"error": "No valid fields to update"}), 400
+
+            success, message = user_service.update_user(user_id, updates)
+            print(f"[DEBUG] Update result: success={success}, message={message}")
+
+            if success:
+                return jsonify({
+                    "success": True,
+                    "message": "Profile updated successfully"
+                })
+            else:
+                return jsonify({"error": message}), 400
+
+        finally:
+            user_service.close()
+
+    except Exception as e:
+        print(f"[ERROR] Error updating user profile: {e}")
+        return jsonify({"error": "Internal server error"}), 500

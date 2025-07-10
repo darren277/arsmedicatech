@@ -13,7 +13,7 @@ from lib.routes.patients import patch_intake_route, search_patients_route, patie
 from lib.routes.testing import test_surrealdb_route, test_crud_route, debug_session_route
 from lib.routes.users import search_users_route, check_users_exist_route, setup_default_admin_route, \
     activate_user_route, deactivate_user_route, get_all_users_route, change_password_route, get_current_user_info_route, \
-    logout_route, register_route, login_route, settings_route, get_api_usage_route
+    logout_route, register_route, login_route, settings_route, get_api_usage_route, get_user_profile_route, update_user_profile_route
 from lib.services.auth_decorators import require_auth, require_admin, optional_auth
 from settings import PORT, DEBUG, HOST, FLASK_SECRET_KEY
 
@@ -172,6 +172,16 @@ def settings():
 @require_auth
 def api_usage():
     return get_api_usage_route()
+
+@app.route('/api/profile', methods=['GET'])
+@require_auth
+def get_user_profile():
+    return get_user_profile_route()
+
+@app.route('/api/profile', methods=['POST'])
+@require_auth
+def update_user_profile():
+    return update_user_profile_route()
 
 
 from asgiref.wsgi import WsgiToAsgi
