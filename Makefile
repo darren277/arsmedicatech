@@ -26,6 +26,12 @@ run-react-prod:
 	npx http-server ./dist -p $(REACT_PORT)
 
 
+local-encryption-key:
+	@echo "Generating encryption key..."
+	@python3 -c "import secrets, string; print('ENCRYPTION_KEY=' + ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32)))"
+
+
+
 # Docker
 auth:
 	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(DOCKER_REGISTRY)
@@ -57,6 +63,11 @@ k8s-init:
 
 k8s-auth:
 	kubectl create secret docker-registry ecr-secret --docker-server=$(DOCKER_REGISTRY) --docker-username=AWS --docker-password=$(DOCKER_PASSWORD) --namespace=$(NAMESPACE)
+
+k8s-encryption-key:
+	@echo "Generating encryption key..."
+	@python3 -c "import secrets, string; print('ENCRYPTION_KEY=' + ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32)))"
+	kubectl create secret generic encryption-key --from-literal=ENCRYPTION_KEY=your_generated_key_here --namespace=$(NAMESPACE) || true
 
 SECRETS=--set surrealdb.secret.user=$(SURREALDB_USER) --set surrealdb.secret.pass=$(SURREALDB_PASS) --set migration-openai.apiKey=$(MIGRATION_OPENAI_API_KEY)
 

@@ -35,12 +35,10 @@ print("SURREALDB_USER:", SURREALDB_USER)
 print("SURREALDB_PASS:", SURREALDB_PASS)
 
 # Security
-import secrets
-import string
-ENCRYPTION_KEY = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32))
-print(ENCRYPTION_KEY)
+ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY')
+if not ENCRYPTION_KEY:
+    raise ValueError("ENCRYPTION_KEY must be set in settings.py or environment variable")
 
-#ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY', ENCRYPTION_KEY)
 print("ENCRYPTION_KEY:", "SET" if ENCRYPTION_KEY else "NOT SET")
 
 PORT = os.environ.get('PORT', 5000)
