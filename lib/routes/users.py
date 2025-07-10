@@ -349,13 +349,21 @@ def update_user_settings():
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
+        print(f"[DEBUG] Updating settings for user: {user_id}")
+        print(f"[DEBUG] Request data: {data}")
+
         user_service = UserService()
         user_service.connect()
         try:
             # Handle OpenAI API key update
             if 'openai_api_key' in data:
                 api_key = data['openai_api_key']
+                print(f"[DEBUG] Updating API key for user {user_id}")
+                print(f"[DEBUG] API key length: {len(api_key) if api_key else 0}")
+                print(f"[DEBUG] API key starts with sk-: {api_key.startswith('sk-') if api_key else False}")
+                
                 success, message = user_service.update_openai_api_key(user_id, api_key)
+                print(f"[DEBUG] Update result: success={success}, message={message}")
 
                 if success:
                     return jsonify({

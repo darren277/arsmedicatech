@@ -464,19 +464,39 @@ class UserService:
     def save_user_settings(self, user_id: str, settings: UserSettings) -> tuple[bool, str]:
         """Save user settings"""
         try:
+            print(f"[DEBUG] Saving settings for user: {user_id}")
+            
             # Check if settings already exist
             existing_settings = self.get_user_settings(user_id)
+            print(f"[DEBUG] Existing settings: {existing_settings.id if existing_settings else 'None'}")
             
             if existing_settings and existing_settings.id:
                 # Update existing settings
-                result = self.db.update(f"UserSettings:{existing_settings.id}", settings.to_dict())
-                if result:
+                print(f"[DEBUG] Updating existing settings: {existing_settings.id}")
+                
+                # Construct the record ID properly
+                if existing_settings.id.startswith('UserSettings:'):
+                    record_id = existing_settings.id
+                else:
+                    record_id = f"UserSettings:{existing_settings.id}"
+                
+                print(f"[DEBUG] Using record ID: {record_id}")
+                result = self.db.update(record_id, settings.to_dict())
+                print(f"[DEBUG] Update result: {result}")
+                print(f"[DEBUG] Update result type: {type(result)}")
+                print(f"[DEBUG] Update result is None: {result is None}")
+                print(f"[DEBUG] Update result is empty list: {result == []}")
+                print(f"[DEBUG] Update result is empty dict: {result == {}}")
+                # Check if result is truthy (not None, not empty, etc.)
+                if result is not None and result != [] and result != {}:
                     return True, "Settings updated successfully"
                 else:
                     return False, "Failed to update settings"
             else:
                 # Create new settings
+                print(f"[DEBUG] Creating new settings")
                 result = self.db.create('UserSettings', settings.to_dict())
+                print(f"[DEBUG] Create result: {result}")
                 if result and isinstance(result, dict) and result.get('id'):
                     settings.id = result['id']
                     return True, "Settings created successfully"
@@ -484,6 +504,7 @@ class UserService:
                     return False, "Failed to create settings"
                     
         except Exception as e:
+            print(f"[ERROR] Error saving settings: {e}")
             return False, f"Error saving settings: {str(e)}"
     
     def update_openai_api_key(self, user_id: str, api_key: str) -> tuple[bool, str]:
