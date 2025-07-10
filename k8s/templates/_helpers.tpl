@@ -24,4 +24,9 @@
     secretKeyRef:
       name: migration-openai-secret
       key: apiKey
+- name: ENCRYPTION_KEY
+  valueFrom:
+    secretKeyRef:
+      name: encryption-key
+      key: ENCRYPTION_KEY
 {{- end }}
