@@ -510,7 +510,20 @@ class UserService:
     def update_openai_api_key(self, user_id: str, api_key: str) -> tuple[bool, str]:
         """Update user's OpenAI API key"""
         try:
-            # Validate API key
+            # Allow empty string to remove API key
+            if api_key == "":
+                # Get or create settings
+                settings = self.get_user_settings(user_id)
+                if not settings:
+                    settings = UserSettings(user_id=user_id)
+                
+                # Clear API key
+                settings.set_openai_api_key("")
+                
+                # Save settings
+                return self.save_user_settings(user_id, settings)
+            
+            # Validate API key if not empty
             valid, msg = UserSettings.validate_openai_api_key(api_key)
             if not valid:
                 return False, msg
