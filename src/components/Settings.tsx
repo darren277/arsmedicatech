@@ -42,6 +42,7 @@ const Settings: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
@@ -75,6 +76,10 @@ const Settings: React.FC = () => {
 
   const loadProfile = async () => {
     try {
+      console.log('[DEBUG] loadProfile - Starting profile load');
+      setProfileLoading(true);
+
+      console.log('[DEBUG] loadProfile - Making API request to /profile');
       const response = await apiService.getAPI('/profile');
       console.log('[DEBUG] loadProfile - API response:', response);
 
@@ -86,9 +91,14 @@ const Settings: React.FC = () => {
         setProfile(response.profile);
       } else {
         console.error('Failed to load profile:', response.error);
+        setMessage({ type: 'error', text: 'Failed to load profile' });
       }
     } catch (error) {
       console.error('Error loading profile:', error);
+      setMessage({ type: 'error', text: 'Failed to load profile' });
+    } finally {
+      console.log('[DEBUG] loadProfile - Setting profileLoading to false');
+      setProfileLoading(false);
     }
   };
 
@@ -209,16 +219,31 @@ const Settings: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'profile':
+        if (profileLoading) {
+          return (
+            <div className="settings-loading">
+              <div className="loading-spinner"></div>
+              <p>Loading profile...</p>
+            </div>
+          );
+        }
         return profile ? (
           <Profile profile={profile} />
         ) : (
           <div className="settings-loading">
-            <div className="loading-spinner"></div>
-            <p>Loading profile...</p>
+            <p>No profile data available</p>
           </div>
         );
 
       case 'edit-profile':
+        if (profileLoading) {
+          return (
+            <div className="settings-loading">
+              <div className="loading-spinner"></div>
+              <p>Loading profile...</p>
+            </div>
+          );
+        }
         return profile ? (
           <EditProfile
             profile={profile}
@@ -227,8 +252,7 @@ const Settings: React.FC = () => {
           />
         ) : (
           <div className="settings-loading">
-            <div className="loading-spinner"></div>
-            <p>Loading profile...</p>
+            <p>No profile data available</p>
           </div>
         );
 
