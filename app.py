@@ -178,5 +178,5 @@ from asgiref.wsgi import WsgiToAsgi
 
 asgi_app = WsgiToAsgi(app)
 
-#if __name__ == '__main__': app.run(port=PORT, debug=DEBUG, host=HOST)
+if __name__ == '__main__': app.run(port=PORT, debug=DEBUG, host=HOST)
 
