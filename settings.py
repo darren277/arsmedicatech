@@ -34,6 +34,15 @@ print("SURREALDB_URL:", SURREALDB_URL)
 print("SURREALDB_USER:", SURREALDB_USER)
 print("SURREALDB_PASS:", SURREALDB_PASS)
 
+# Security
+import secrets
+import string
+ENCRYPTION_KEY = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32))
+print(ENCRYPTION_KEY)
+
+#ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY', ENCRYPTION_KEY)
+print("ENCRYPTION_KEY:", "SET" if ENCRYPTION_KEY else "NOT SET")
+
 PORT = os.environ.get('PORT', 5000)
 DEBUG = os.environ.get('DEBUG', True)
 HOST = os.environ.get('HOST', '0.0.0.0')
