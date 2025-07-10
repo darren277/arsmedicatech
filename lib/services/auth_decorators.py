@@ -82,14 +82,14 @@ def require_admin(f):
     return require_role('admin')(f)
 
 
-def require_doctor(f):
-    """Decorator to require doctor role"""
-    return require_role('doctor')(f)
+def require_provider(f):
+    """Decorator to require provider role"""
+    return require_role('provider')(f)
 
 
-def require_nurse(f):
-    """Decorator to require nurse role"""
-    return require_role('nurse')(f)
+def require_patient(f):
+    """Decorator to require patient role"""
+    return require_role('patient')(f)
 
 
 def optional_auth(f):
