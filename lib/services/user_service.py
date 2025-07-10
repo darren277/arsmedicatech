@@ -25,7 +25,7 @@ class UserService:
     
     def create_user(self, username: str, email: str, password: str, 
                    first_name: str = None, last_name: str = None, 
-                   role: str = "user") -> tuple[bool, str, Optional[User]]:
+                   role: str = "patient") -> tuple[bool, str, Optional[User]]:
         """
         Create a new user account
         
