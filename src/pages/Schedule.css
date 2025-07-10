@@ -97,6 +97,16 @@
   background-color: #f8f9fa;
 }
 
+.selected-date {
+  background-color: #007bff !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.selected-date.has-appointments {
+  background-color: #0056b3 !important;
+}
+
 .appointments-list {
   margin-top: 20px;
 }

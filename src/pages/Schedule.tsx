@@ -59,6 +59,8 @@ const Schedule = () => {
     setIsModalOpen(true);
   };
 
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
   const handleAppointmentSubmit = (appointmentData: any) => {
     console.log('Appointment submitted:', appointmentData);
     const newAppointment: Appointment = {
@@ -76,6 +78,10 @@ const Schedule = () => {
     setAppointments(prev => [...prev, newAppointment]);
     setSelectedDate(null);
     setIsModalOpen(false);
+
+    // Show success message
+    setShowSuccessMessage(true);
+    setTimeout(() => setShowSuccessMessage(false), 3000);
   };
 
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
@@ -108,13 +114,22 @@ const Schedule = () => {
 
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
+      const classes: string[] = [];
+
+      // Check if this date has appointments
       const dayAppointments = appointments.filter(apt =>
         isSameDay(date, new Date(apt.appointmentDate))
       );
-
       if (dayAppointments.length > 0) {
-        return 'has-appointments';
+        classes.push('has-appointments');
       }
+
+      // Check if this is the selected date
+      if (selectedDate && isSameDay(date, selectedDate)) {
+        classes.push('selected-date');
+      }
+
+      return classes.length > 0 ? classes.join(' ') : null;
     }
     return null;
   };
@@ -217,6 +232,13 @@ const Schedule = () => {
       </div>
 
       <SignupPopup isOpen={isPopupOpen} onClose={hideSignupPopup} />
+
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50">
+          Appointment created successfully!
+        </div>
+      )}
 
       <AppointmentForm
         isOpen={isModalOpen}

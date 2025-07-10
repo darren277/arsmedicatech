@@ -25,6 +25,22 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     location: '',
   });
 
+  // Update form data when selectedDate changes
+  React.useEffect(() => {
+    if (selectedDate) {
+      setFormData(prev => ({
+        ...prev,
+        appointmentDate: selectedDate.toISOString().split('T')[0],
+      }));
+    }
+  }, [selectedDate]);
+
+  console.log('AppointmentForm - selectedDate:', selectedDate);
+  console.log(
+    'AppointmentForm - formData.appointmentDate:',
+    formData.appointmentDate
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit?.(formData);
@@ -38,15 +54,18 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">New Appointment</h2>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+      style={{ zIndex: 9999 }}
+    >
+      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl border border-gray-200">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">New Appointment</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-gray-500 hover:text-gray-700 text-3xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
           >
-            ×
+            x
           </button>
         </div>
 
@@ -68,6 +87,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Date *
             </label>
+            {selectedDate && (
+              <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                <span className="text-sm text-blue-700">
+                  Selected: {selectedDate.toLocaleDateString()}
+                </span>
+              </div>
+            )}
             <input
               type="date"
               value={formData.appointmentDate}
@@ -151,17 +177,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             />
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 font-medium"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium shadow-sm"
             >
               Create Appointment
             </button>
