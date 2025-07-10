@@ -1,8 +1,6 @@
 import time
-import hashlib
 from typing import Dict, Optional, Tuple
-from openai import OpenAI
-from openai.types.error import AuthenticationError, RateLimitError
+from openai import OpenAI, AuthenticationError, RateLimitError
 from lib.services.user_service import UserService
 
 
