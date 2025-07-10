@@ -113,18 +113,37 @@ class DbController:
         :return: Updated record
         """
         print(f"[DEBUG] SurrealDB update record: {record}")
-        result = self.db.update(record, data)
-        print(f"[DEBUG] SurrealDB update raw result: {result}")
-        if isinstance(result, tuple):
-            result = result[0]
-        if isinstance(result, list) and len(result) > 0:
-            result = result[0]
+        try:
+            result = self.db.update(record, data)
+            print(f"[DEBUG] SurrealDB update raw result: {result}")
+            print(f"[DEBUG] SurrealDB update result type: {type(result)}")
+            
+            # Handle tuple result (common with SurrealDB)
+            if isinstance(result, tuple):
+                print(f"[DEBUG] Result is tuple with {len(result)} elements")
+                result = result[0]  # Take first element
+                print(f"[DEBUG] After tuple unpacking: {result}")
+            
+            # Handle list result
+            if isinstance(result, list) and len(result) > 0:
+                result = result[0]
+                print(f"[DEBUG] After list unpacking: {result}")
 
-        # Handle record ID conversion
-        if isinstance(result, dict) and 'id' in result:
-            _id = str(result.pop("id"))
-            return {**result, 'id': _id}
-        return result
+            # Handle record ID conversion
+            if isinstance(result, dict) and 'id' in result:
+                _id = str(result.pop("id"))
+                final_result = {**result, 'id': _id}
+                print(f"[DEBUG] Final result: {final_result}")
+                return final_result
+            
+            print(f"[DEBUG] Final result: {result}")
+            return result
+            
+        except Exception as e:
+            print(f"[ERROR] Exception in update: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
 
     def create(self, table_name, data):
         """
