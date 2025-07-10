@@ -18,10 +18,16 @@ class EncryptionService:
         if master_key:
             self.master_key = master_key
         else:
-            # Get from environment variable
-            self.master_key = os.getenv('ENCRYPTION_KEY')
+            # Try to get from settings first, then environment variable
+            try:
+                from settings import ENCRYPTION_KEY as settings_key
+                self.master_key = settings_key
+            except ImportError:
+                # Fallback to environment variable
+                self.master_key = os.getenv('ENCRYPTION_KEY')
+            
             if not self.master_key:
-                raise ValueError("ENCRYPTION_KEY environment variable must be set")
+                raise ValueError("ENCRYPTION_KEY must be set in settings.py or environment variable")
         
         # Generate a key from the master key using PBKDF2
         kdf = PBKDF2HMAC(
