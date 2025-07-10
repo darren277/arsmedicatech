@@ -1,5 +1,17 @@
 """"""
+import httpx
 from fastmcp.client import Client
+
+class CustomHeaderAuth(httpx.Auth):
+    def __init__(self, headers: dict[str, str]):
+        self.headers = headers
+
+    def auth_flow(self, request):
+        for key, value in self.headers.items():
+            request.headers[key] = value
+        yield request
+
+
 
 async def fetch_mcp_tool_defs(mcp_url: str) -> tuple[list[dict], dict]:
     """
@@ -19,14 +31,23 @@ async def fetch_mcp_tool_defs(mcp_url: str) -> tuple[list[dict], dict]:
 
     # Per‑tool wrapper that calls MCP via the Python client
     def wrap(tool_name):
-        async def _call(**kwargs):
-            async with Client(mcp_url) as c:
+        async def _call(*, session_id: str, **kwargs):
+            custom_auth = CustomHeaderAuth({
+                "x-user-id": "optional to add later...",
+                "x-session-token": session_id
+            })
+
+            async with Client(mcp_url, auth=custom_auth) as c:
                 # 'call_tool_mcp', 'call_tool'
                 #result = await c.tools.call(name=tool_name, arguments=kwargs)
                 # result = await client.call_tool("my_tool", {"param": "value"})
+                print(f"[DEBUG] Calling tool: {tool_name} with args:", kwargs)
                 result = await c.call_tool(tool_name, kwargs)
                 print(f"[DEBUG] Tool call result for {tool_name}:", result)
-                return result.structured_content or result.content
+                if hasattr(result, 'structured_content'):
+                    return result.structured_content or result.content
+                else:
+                    return result.content or result
         return _call
 
     tool_dict = {tool.name: tool for tool in tools}

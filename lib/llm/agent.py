@@ -14,6 +14,7 @@ You can answer questions, provide information, and assist with various healthcar
 Your responses should be accurate, concise, and helpful.
 """
 
+tools_with_keys = ['rag']
 
 ToolDefinition = dict
 
@@ -26,7 +27,7 @@ class LLMModel(enum.Enum):
     def __str__(self):
         return self.value
 
-async def process_tool_call(tool_call, tool_dict):
+async def process_tool_call(tool_call, tool_dict, session_id: str = None):
     function_name = tool_call.function.name
     arguments = json.loads(tool_call.function.arguments)
 
@@ -35,7 +36,10 @@ async def process_tool_call(tool_call, tool_dict):
         print(f"[DEBUG] Function: {function_name} -> {val.__name__}") # [DEBUG] Function: rag -> _call
 
     tool_function = tool_dict[function_name]
-    tool_result = await tool_function(**arguments)
+    if function_name in tools_with_keys:
+        tool_result = await tool_function(session_id=session_id, **arguments)
+    else:
+        tool_result = await tool_function(**arguments)
 
     result = json.dumps(tool_result)
 
@@ -127,6 +131,14 @@ class LLMAgent:
         if prompt:
             self.message_history.append({"role": "user", "content": prompt})
 
+        api_key = get_encryption_service().encrypt_api_key(self.api_key)
+
+        print("[DEBUG] Sending request to OpenAI with model:", self.model.value)
+        print("[DEBUG] API Key:", api_key)
+
+        if not api_key:
+            raise ValueError("API key is required for LLM access.")
+
         completion = self.client.chat.completions.create(
             model=self.model.value,
             messages=self.message_history,
@@ -134,7 +146,7 @@ class LLMAgent:
             #tool_choice="auto",
             #tool_choice='required',
             extra_headers={
-                "x-user-openai-key": get_encryption_service().encrypt_api_key(self.api_key)
+                "x-user-pw": api_key
             }
         )
 
@@ -156,7 +168,14 @@ class LLMAgent:
         return {"response": top_choice.content}
 
     async def process_tool_calls(self, tool_calls):
+        api_key = get_encryption_service().encrypt_api_key(self.api_key)
+
+        print("[DEBUG] Sending request to OpenAI with model:", self.model.value)
+        print("[DEBUG] API Key:", api_key)
+
+        if not api_key: raise ValueError("API key is required for LLM access.")
+
         for tool_call in tool_calls:
-            result = await process_tool_call(tool_call, self.tool_func_dict)
+            result = await process_tool_call(tool_call, self.tool_func_dict, session_id=api_key)
             self.message_history.append(result)
 
