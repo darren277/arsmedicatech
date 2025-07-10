@@ -136,22 +136,38 @@ const Schedule = () => {
     if (isAuthenticated) {
       try {
         console.log('Refreshing appointments...');
+
         const response = await appointmentService.getAppointments();
-        const convertedAppointments = response.appointments.map(apt => ({
-          id: apt.id,
-          patientName: `Patient ${apt.patient_id}`,
-          appointmentDate: apt.appointment_date,
-          startTime: apt.start_time,
-          endTime: apt.end_time,
-          appointmentType: apt.appointment_type,
-          status: apt.status,
-          notes: apt.notes,
-          location: apt.location,
-        }));
+
+        if (!response.appointments || response.appointments.length === 0) {
+          console.log('No appointments returned from backend');
+          setAppointments([]);
+          return;
+        }
+
+        const convertedAppointments = response.appointments.map(apt => {
+          console.log('Converting appointment:', apt);
+          return {
+            id: apt.id,
+            patientName: `Patient ${apt.patient_id}`,
+            appointmentDate: apt.appointment_date,
+            startTime: apt.start_time,
+            endTime: apt.end_time,
+            appointmentType: apt.appointment_type,
+            status: apt.status,
+            notes: apt.notes,
+            location: apt.location,
+          };
+        });
         setAppointments(convertedAppointments);
         console.log('Appointments refreshed:', convertedAppointments);
       } catch (error) {
         console.error('Error refreshing appointments:', error);
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name,
+        });
       }
     }
   };

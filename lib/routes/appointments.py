@@ -86,34 +86,35 @@ def get_appointments_route():
         if not current_user:
             return jsonify({"error": "Authentication required"}), 401
         
+        print(f"[DEBUG] Getting appointments for user: {current_user.user_id}, role: {current_user.role}")
+        
         # Get query parameters
         date = request.args.get('date')
         patient_id = request.args.get('patient_id')
         provider_id = request.args.get('provider_id', current_user.user_id)
         status = request.args.get('status')
         
+        print(f"[DEBUG] Query params - date: {date}, patient_id: {patient_id}, provider_id: {provider_id}, status: {status}")
+        
         scheduling_service = SchedulingService()
         scheduling_service.connect()
         try:
             appointments = []
             
-            if date:
-                # Get appointments for specific date
-                appointments = scheduling_service.get_appointments_by_date(date, provider_id)
-            elif patient_id:
-                # Get appointments for specific patient
-                appointments = scheduling_service.get_appointments_by_patient(patient_id)
-            else:
-                # Get appointments for current user (provider)
-                appointments = scheduling_service.get_appointments_by_provider(provider_id)
+            # For debugging, get ALL appointments regardless of provider
+            print("[DEBUG] Getting ALL appointments for debugging...")
+            appointments = scheduling_service.get_all_appointments()
+            print(f"[DEBUG] Found {len(appointments)} total appointments")
             
             # Filter by status if specified
             if status:
                 appointments = [apt for apt in appointments if apt.status == status]
+                print(f"[DEBUG] After status filter: {len(appointments)} appointments")
             
             # Convert to JSON-serializable format
             appointment_list = []
             for appointment in appointments:
+                print(f"[DEBUG] Processing appointment: {appointment.id} - provider: {appointment.provider_id}, patient: {appointment.patient_id}")
                 appointment_list.append({
                     "id": appointment.id,
                     "patient_id": appointment.patient_id,
@@ -129,6 +130,7 @@ def get_appointments_route():
                     "updated_at": appointment.updated_at
                 })
             
+            print(f"[DEBUG] Returning {len(appointment_list)} appointments")
             return jsonify({
                 "success": True,
                 "appointments": appointment_list,

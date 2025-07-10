@@ -84,25 +84,37 @@ class Appointment:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Appointment':
         """Create appointment from dictionary"""
+        print(f"[DEBUG] Appointment.from_dict called with data: {data}")
+        
         # Convert RecordID to string if it exists
         appointment_id = data.get('id')
         if hasattr(appointment_id, '__str__'):
             appointment_id = str(appointment_id)
         
-        return cls(
-            patient_id=data.get('patient_id'),
-            provider_id=data.get('provider_id'),
-            appointment_date=data.get('appointment_date'),
-            start_time=data.get('start_time'),
-            end_time=data.get('end_time'),
-            appointment_type=data.get('appointment_type', 'consultation'),
-            status=data.get('status', 'scheduled'),
-            notes=data.get('notes'),
-            location=data.get('location'),
-            id=appointment_id,
-            created_at=data.get('created_at'),
-            updated_at=data.get('updated_at')
-        )
+        print(f"[DEBUG] Converted appointment_id: {appointment_id}")
+        
+        try:
+            appointment = cls(
+                patient_id=data.get('patient_id'),
+                provider_id=data.get('provider_id'),
+                appointment_date=data.get('appointment_date'),
+                start_time=data.get('start_time'),
+                end_time=data.get('end_time'),
+                appointment_type=data.get('appointment_type', 'consultation'),
+                status=data.get('status', 'scheduled'),
+                notes=data.get('notes'),
+                location=data.get('location'),
+                id=appointment_id,
+                created_at=data.get('created_at'),
+                updated_at=data.get('updated_at')
+            )
+            print(f"[DEBUG] Successfully created appointment object: {appointment.id}")
+            return appointment
+        except Exception as e:
+            print(f"[ERROR] Failed to create appointment from dict: {e}")
+            import traceback
+            print(f"[ERROR] Traceback: {traceback.format_exc()}")
+            raise
     
     def get_duration_minutes(self) -> int:
         """Calculate appointment duration in minutes"""

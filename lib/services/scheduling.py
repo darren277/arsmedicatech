@@ -162,6 +162,51 @@ class SchedulingService:
             print(f"Error getting appointments by provider: {e}")
             return []
     
+    def get_all_appointments(self) -> List[Appointment]:
+        """Get all appointments (for debugging)"""
+        try:
+            print("[DEBUG] get_all_appointments: Starting query...")
+            
+            # First, let's see what tables exist
+            print("[DEBUG] Checking what tables exist...")
+            tables_query = "INFO FOR DB"
+            tables_result = self.db.query(tables_query, {})
+            print(f"[DEBUG] Tables query result: {tables_result}")
+            
+            # Try a simple query to see what's in the appointment table
+            print("[DEBUG] Trying simple SELECT query...")
+            simple_query = "SELECT * FROM appointment"
+            simple_result = self.db.query(simple_query, {})
+            print(f"[DEBUG] Simple query result: {simple_result}")
+            
+            # Now try the full query
+            query = "SELECT * FROM appointment ORDER BY appointment_date, start_time"
+            print(f"[DEBUG] Executing query: {query}")
+            results = self.db.query(query, {})
+            print(f"[DEBUG] Full query results: {results}")
+            
+            appointments = []
+            
+            for result in results:
+                print(f"[DEBUG] Processing result: {result}")
+                # The result is already the record, not nested under 'result'
+                if isinstance(result, dict):
+                    print(f"[DEBUG] Processing record: {result}")
+                    appointments.append(Appointment.from_dict(result))
+                elif result.get('result'):
+                    # Fallback for nested structure
+                    for record in result['result']:
+                        print(f"[DEBUG] Processing nested record: {record}")
+                        appointments.append(Appointment.from_dict(record))
+            
+            print(f"[DEBUG] Final appointments list: {appointments}")
+            return appointments
+        except Exception as e:
+            print(f"Error getting all appointments: {e}")
+            import traceback
+            print(f"[ERROR] Traceback: {traceback.format_exc()}")
+            return []
+    
     def update_appointment(self, appointment_id: str, updates: Dict[str, Any]) -> Tuple[bool, str]:
         """Update an appointment"""
         try:
