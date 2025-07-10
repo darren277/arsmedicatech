@@ -60,6 +60,7 @@ const Schedule = () => {
   };
 
   const handleAppointmentSubmit = (appointmentData: any) => {
+    console.log('Appointment submitted:', appointmentData);
     const newAppointment: Appointment = {
       id: Date.now().toString(),
       patientName: appointmentData.patientName,
@@ -155,8 +156,10 @@ const Schedule = () => {
             <div className="schedule-actions">
               <button
                 onClick={() => {
+                  console.log('New Appointment button clicked');
                   setSelectedDate(new Date());
                   setIsModalOpen(true);
+                  console.log('Modal should be open:', true);
                 }}
                 className="btn-primary"
               >
@@ -217,12 +220,34 @@ const Schedule = () => {
       <AppointmentForm
         isOpen={isModalOpen}
         onClose={() => {
+          console.log('Modal closing');
           setIsModalOpen(false);
           setSelectedDate(null);
         }}
         selectedDate={selectedDate || undefined}
         onSubmit={handleAppointmentSubmit}
       />
+
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 10,
+            right: 10,
+            background: 'white',
+            padding: 10,
+            border: '1px solid #ccc',
+            fontSize: '12px',
+          }}
+        >
+          Modal Open: {isModalOpen.toString()}
+          <br />
+          Selected Date: {selectedDate?.toDateString() || 'None'}
+          <br />
+          Appointments: {appointments.length}
+        </div>
+      )}
     </>
   );
 };
