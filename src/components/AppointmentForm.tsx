@@ -53,7 +53,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  if (!isOpen) return null;
+  console.log(
+    'AppointmentForm render - isOpen:',
+    isOpen,
+    'selectedDate:',
+    selectedDate
+  );
+
+  if (!isOpen) {
+    console.log('AppointmentForm not rendering - isOpen is false');
+    return null;
+  }
 
   return (
     <div
