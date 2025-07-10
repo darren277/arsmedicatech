@@ -40,6 +40,12 @@
   padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
 }
 
 .calendar-container {
