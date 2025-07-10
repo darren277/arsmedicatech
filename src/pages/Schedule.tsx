@@ -75,6 +75,7 @@ const Schedule = () => {
 
     setAppointments(prev => [...prev, newAppointment]);
     setSelectedDate(null);
+    setIsModalOpen(false);
   };
 
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
