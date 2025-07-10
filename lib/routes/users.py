@@ -407,32 +407,40 @@ def get_user_profile_route():
     """Get current user's profile information"""
     try:
         user_id = get_current_user_id()
+        print(f"[DEBUG] get_user_profile_route - user_id: {user_id}")
         if not user_id:
+            print("[DEBUG] No user_id found")
             return jsonify({"error": "Authentication required"}), 401
 
         user_service = UserService()
         user_service.connect()
         try:
+            print(f"[DEBUG] Getting user by ID: {user_id}")
             user = user_service.get_user_by_id(user_id)
+            print(f"[DEBUG] User lookup result: {user}")
             if not user:
+                print("[DEBUG] User not found")
                 return jsonify({"error": "User not found"}), 404
+
+            profile_data = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "role": user.role,
+                "specialty": user.specialty,
+                "clinic_name": user.clinic_name,
+                "clinic_address": user.clinic_address,
+                "phone": user.phone,
+                "is_active": user.is_active,
+                "created_at": user.created_at
+            }
+            print(f"[DEBUG] Returning profile data: {profile_data}")
 
             return jsonify({
                 "success": True,
-                "profile": {
-                    "id": user.id,
-                    "username": user.username,
-                    "email": user.email,
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                    "role": user.role,
-                    "specialty": user.specialty,
-                    "clinic_name": user.clinic_name,
-                    "clinic_address": user.clinic_address,
-                    "phone": user.phone,
-                    "is_active": user.is_active,
-                    "created_at": user.created_at
-                }
+                "profile": profile_data
             }), 200
         finally:
             user_service.close()

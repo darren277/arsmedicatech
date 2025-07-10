@@ -13,11 +13,18 @@ class UserService:
         """Connect to database"""
         print("[DEBUG] Connecting to database...")
         try:
-            self.db.connect()
-            print("[DEBUG] Database connection successful")
+            print(f"[DEBUG] Database controller type: {type(self.db)}")
+            print(f"[DEBUG] Database controller has connect method: {hasattr(self.db, 'connect')}")
+            
+            if hasattr(self.db, 'connect'):
+                self.db.connect()
+                print("[DEBUG] Database connection successful")
+            else:
+                print("[DEBUG] Database controller does not have connect method - using mock mode")
         except Exception as e:
             print(f"[DEBUG] Database connection error: {e}")
-            raise
+            print("[DEBUG] Continuing with mock database mode")
+            # Don't raise the exception, continue with mock mode
     
     def close(self):
         """Close database connection"""
@@ -74,11 +81,15 @@ class UserService:
                 # Mock user storage (in-memory for testing)
                 if not hasattr(self, '_mock_users'):
                     self._mock_users = {}
+                    print("[DEBUG] Mock users storage initialized")
                 
                 # Generate a mock ID
                 user.id = f"user_{len(self._mock_users) + 1}"
                 self._mock_users[user.username] = user
                 print(f"[DEBUG] User created successfully with ID: {user.id}")
+                print(f"[DEBUG] Mock users now available: {list(self._mock_users.keys())}")
+                print(f"[DEBUG] User data: {user.to_dict()}")
+                
                 # If the user is a patient, create a corresponding Patient record
                 if user.role == "patient" and user.id:
                     try:
@@ -112,9 +123,20 @@ class UserService:
             
             result = self.db.create('User', user.to_dict())
             print(f"[DEBUG] Database create result: {result}")
+            print(f"[DEBUG] Database create result type: {type(result)}")
             if result and isinstance(result, dict) and result.get('id'):
                 user.id = result['id']
                 print(f"[DEBUG] User created successfully with ID: {user.id}")
+                print(f"[DEBUG] User ID type: {type(user.id)}")
+                
+                # Test if we can immediately retrieve the user
+                print(f"[DEBUG] Testing immediate user retrieval...")
+                test_user = self.get_user_by_id(user.id)
+                if test_user:
+                    print(f"[DEBUG] ✅ User can be retrieved immediately: {test_user.username}")
+                else:
+                    print(f"[DEBUG] ❌ User cannot be retrieved immediately")
+                
                 # If the user is a patient, create a corresponding Patient record
                 if user.role == "patient" and user.id:
                     try:
@@ -178,15 +200,20 @@ class UserService:
                 return False, "Invalid username or password", None
             
             # Create session
+            print(f"[DEBUG] Creating session for user: {user.username}")
+            print(f"[DEBUG] User ID being stored in session: {user.id}")
             session = UserSession(
                 user_id=user.id,
                 username=user.username,
                 role=user.role
             )
+            print(f"[DEBUG] Session created with user_id: {session.user_id}")
             
             # Store session in database
             try:
                 self.db.create('Session', session.to_dict())
+                print(f"[DEBUG] Session stored in database: {session.token[:10]}...")
+                
                 # Also keep in memory for faster access
                 self.active_sessions[session.token] = session
             except Exception as e:
@@ -202,18 +229,8 @@ class UserService:
     def get_user_by_username(self, username: str) -> Optional[User]:
         """Get user by username"""
         try:
-            # For testing, use a mock database if SurrealDB is not available
-            if not hasattr(self.db, 'query') or self.db is None:
-                print("[DEBUG] Using mock database for user lookup")
-                # Mock user storage (in-memory for testing)
-                if not hasattr(self, '_mock_users'):
-                    self._mock_users = {}
-                return self._mock_users.get(username)
-            
-            # First, let's see all users in the database
-            all_users = self.db.select_many('User')
-            print(f"[DEBUG] All users in database: {all_users}")
-            
+            print(f"[DEBUG] get_user_by_username - username: {username}")
+
             result = self.db.query(
                 "SELECT * FROM User WHERE username = $username",
                 {"username": username}
@@ -272,12 +289,17 @@ class UserService:
     
     def validate_session(self, token: str) -> Optional[UserSession]:
         """Validate session token and return session if valid"""
+        print(f"[DEBUG] validate_session - token: {token[:10] if token else 'None'}...")
+        
         # First check memory cache
         session = self.active_sessions.get(token)
         if session and not session.is_expired():
+            print(f"[DEBUG] Session found in memory cache for user: {session.username}")
+            print(f"[DEBUG] Session user_id: {session.user_id}")
             return session
         elif session and session.is_expired():
             # Remove expired session
+            print(f"[DEBUG] Removing expired session from memory cache")
             del self.active_sessions[token]
         
         # If not in memory, check database
@@ -289,7 +311,9 @@ class UserService:
             
             if result and isinstance(result, list) and len(result) > 0:
                 session_data = result[0]
+                print(f"[DEBUG] Session data from database: {session_data}")
                 session = UserSession.from_dict(session_data)
+                print(f"[DEBUG] Session user_id from database: {session.user_id}")
                 
                 if session.is_expired():
                     # Remove expired session from database
