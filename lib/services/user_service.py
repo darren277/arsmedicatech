@@ -236,21 +236,10 @@ class UserService:
                 {"username": username}
             )
             
-            print(f"[DEBUG] Raw query result: {result}")
-            
             if result and isinstance(result, list) and len(result) > 0:
-                print(f"[DEBUG] Found {len(result)} users with username '{username}'")
-                # If multiple users exist, use the most recent one (latest created_at)
-                if len(result) > 1:
-                    # Sort by created_at timestamp (newest first)
-                    sorted_results = sorted(result, key=lambda x: x.get('created_at', ''), reverse=True)
-                    user_dict = sorted_results[0]
-                    print(f"[DEBUG] Using most recent user: {user_dict.get('created_at')}")
-                else:
-                    user_dict = result[0]
-                
-                print(f"[DEBUG] User dict: {user_dict}")
-                return User.from_dict(user_dict)
+                user_data = result[0]
+                return User.from_dict(user_data)
+            
             return None
             
         except Exception as e:
@@ -278,9 +267,21 @@ class UserService:
     def get_user_by_id(self, user_id: str) -> Optional[User]:
         """Get user by ID"""
         try:
-            result = self.db.select(f"User:{user_id}")
-            if result and isinstance(result, dict):
-                return User.from_dict(result)
+            print(f"[DEBUG] get_user_by_id - user_id: {user_id}")
+            print(f"[DEBUG] get_user_by_id - user_id type: {type(user_id)}")
+            
+            # Use a simple approach: get all users and find the one with matching ID
+            print("[DEBUG] Getting all users to find by ID...")
+            all_users = self.get_all_users()
+            print(f"[DEBUG] Found {len(all_users)} users")
+            
+            for user in all_users:
+                print(f"[DEBUG] Checking user: {user.username} (ID: {user.id})")
+                if user.id == user_id:
+                    print(f"[DEBUG] Found matching user: {user.username}")
+                    return user
+            
+            print(f"[DEBUG] No user found for ID: {user_id}")
             return None
             
         except Exception as e:
