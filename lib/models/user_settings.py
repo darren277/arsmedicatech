@@ -31,11 +31,15 @@ class UserSettings:
     def get_openai_api_key(self) -> str:
         """Get decrypted OpenAI API key"""
         if not self.openai_api_key:
+            print("[DEBUG] No API key stored in settings")
             return ""
         
+        print(f"[DEBUG] Attempting to decrypt API key (stored length: {len(self.openai_api_key)})")
         try:
             encryption_service = get_encryption_service()
-            return encryption_service.decrypt_api_key(self.openai_api_key)
+            result = encryption_service.decrypt_api_key(self.openai_api_key)
+            print(f"[DEBUG] API key decryption result length: {len(result)}")
+            return result
         except Exception as e:
             print(f"[ERROR] Failed to decrypt OpenAI API key: {e}")
             return ""

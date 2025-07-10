@@ -26,7 +26,9 @@ class OpenAISecurityService:
         try:
             client = OpenAI(api_key=api_key)
             # Make a minimal test request to validate the key
-            response = client.models.list(limit=1)
+            print("About to validate API key")
+            response = client.models.list()
+            print(f"[DEBUG] OpenAI API key validation response: {response}")
             return True, ""
         except AuthenticationError:
             return False, "Invalid API key"
