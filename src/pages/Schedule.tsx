@@ -41,7 +41,10 @@ const Schedule = () => {
     const loadAppointments = async () => {
       if (isAuthenticated) {
         try {
+          console.log('Loading appointments from backend...');
           const response = await appointmentService.getAppointments();
+          console.log('Backend appointments response:', response);
+
           // Convert backend appointments to frontend format
           const convertedAppointments = response.appointments.map(apt => ({
             id: apt.id,
@@ -54,6 +57,7 @@ const Schedule = () => {
             notes: apt.notes,
             location: apt.location,
           }));
+          console.log('Converted appointments:', convertedAppointments);
           setAppointments(convertedAppointments);
         } catch (error) {
           console.error('Error loading appointments:', error);
@@ -65,10 +69,45 @@ const Schedule = () => {
     loadAppointments();
   }, [isAuthenticated]);
 
+  // Also load appointments when component becomes visible (for navigation back)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isAuthenticated) {
+        console.log('Page became visible, refreshing appointments...');
+        const loadAppointments = async () => {
+          try {
+            const response = await appointmentService.getAppointments();
+            const convertedAppointments = response.appointments.map(apt => ({
+              id: apt.id,
+              patientName: `Patient ${apt.patient_id}`,
+              appointmentDate: apt.appointment_date,
+              startTime: apt.start_time,
+              endTime: apt.end_time,
+              appointmentType: apt.appointment_type,
+              status: apt.status,
+              notes: apt.notes,
+              location: apt.location,
+            }));
+            setAppointments(convertedAppointments);
+          } catch (error) {
+            console.error('Error refreshing appointments:', error);
+          }
+        };
+        loadAppointments();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () =>
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isAuthenticated]);
+
   const handleCalendarChange = (
     value: Value,
     event?: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
+    console.log('Calendar change - value:', value);
+
     if (!isAuthenticated) {
       showSignupPopup();
       return;
@@ -83,6 +122,7 @@ const Schedule = () => {
       selectedDate = new Date();
     }
 
+    console.log('Setting selected date:', selectedDate);
     setCalendarValue(selectedDate);
     setSelectedDate(selectedDate);
     setIsModalOpen(true);
@@ -91,6 +131,30 @@ const Schedule = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  const refreshAppointments = async () => {
+    if (isAuthenticated) {
+      try {
+        console.log('Refreshing appointments...');
+        const response = await appointmentService.getAppointments();
+        const convertedAppointments = response.appointments.map(apt => ({
+          id: apt.id,
+          patientName: `Patient ${apt.patient_id}`,
+          appointmentDate: apt.appointment_date,
+          startTime: apt.start_time,
+          endTime: apt.end_time,
+          appointmentType: apt.appointment_type,
+          status: apt.status,
+          notes: apt.notes,
+          location: apt.location,
+        }));
+        setAppointments(convertedAppointments);
+        console.log('Appointments refreshed:', convertedAppointments);
+      } catch (error) {
+        console.error('Error refreshing appointments:', error);
+      }
+    }
+  };
 
   const handleAppointmentSubmit = async (appointmentData: any) => {
     console.log('Appointment submitted:', appointmentData);
@@ -116,20 +180,9 @@ const Schedule = () => {
         await appointmentService.createAppointment(backendData);
       console.log('Backend response:', newBackendAppointment);
 
-      // Convert backend response to frontend format
-      const newAppointment: Appointment = {
-        id: newBackendAppointment.id,
-        patientName: `Patient ${newBackendAppointment.patient_id}`,
-        appointmentDate: newBackendAppointment.appointment_date,
-        startTime: newBackendAppointment.start_time,
-        endTime: newBackendAppointment.end_time,
-        appointmentType: newBackendAppointment.appointment_type,
-        status: newBackendAppointment.status,
-        notes: newBackendAppointment.notes,
-        location: newBackendAppointment.location,
-      };
+      // Refresh the appointments list from the backend
+      await refreshAppointments();
 
-      setAppointments(prev => [...prev, newAppointment]);
       setSelectedDate(null);
       setIsModalOpen(false);
 
@@ -230,6 +283,13 @@ const Schedule = () => {
           )}
           {isAuthenticated && (
             <div className="schedule-actions">
+              <button
+                onClick={refreshAppointments}
+                className="btn-primary mr-2"
+                title="Refresh appointments"
+              >
+                ↻ Refresh
+              </button>
               <button
                 onClick={() => {
                   console.log('New Appointment button clicked');

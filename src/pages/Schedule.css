@@ -48,6 +48,10 @@
   background-color: #0056b3;
 }
 
+.btn-primary.mr-2 {
+  margin-right: 0.5rem;
+}
+
 .calendar-container {
   margin-bottom: 30px;
 }
