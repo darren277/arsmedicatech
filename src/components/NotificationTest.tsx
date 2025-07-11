@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import API_URL from '../env_vars';
 
 const NotificationTest: React.FC = () => {
   const [status, setStatus] = useState<string>('');
@@ -6,7 +7,7 @@ const NotificationTest: React.FC = () => {
   const testSSE = async () => {
     try {
       setStatus('Testing SSE...');
-      const response = await fetch('/api/sse', {
+      const response = await fetch(`${API_URL}/api/sse`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -25,7 +26,7 @@ const NotificationTest: React.FC = () => {
     try {
       setStatus('Sending appointment reminder...');
       // This would be a real endpoint in production
-      const response = await fetch('/api/test/appointment-reminder', {
+      const response = await fetch(`${API_URL}/api/test/appointment-reminder`, {
         method: 'POST',
         credentials: 'include',
         headers: {

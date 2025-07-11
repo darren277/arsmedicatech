@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import API_URL from '../env_vars';
 
 interface EventCallbacks {
   onNewMessage?: (data: any) => void;
@@ -16,9 +17,11 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
       eventSourceRef.current.close();
     }
 
-    const eventSource = new EventSource(
-      `/api/events/stream?since=${lastEventTimestampRef.current}`
-    );
+    const sseUrl = `${API_URL}/api/events/stream?since=${lastEventTimestampRef.current}`;
+    console.log('Connecting to SSE URL:', sseUrl);
+    console.log('API_URL:', API_URL);
+
+    const eventSource = new EventSource(sseUrl);
 
     eventSource.onmessage = event => {
       try {
