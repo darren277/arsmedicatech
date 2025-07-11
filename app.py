@@ -32,6 +32,22 @@ app.config['SESSION_COOKIE_SECURE'] = False  # Allow HTTP in development
 app.config['SESSION_COOKIE_HTTPONLY'] = False  # Allow JavaScript access
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow cross-site requests
 
+# Global OPTIONS handler for CORS preflight
+@app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+@app.route('/<path:path>', methods=['OPTIONS'])
+def handle_options(path):
+    print(f"Global OPTIONS handler called for path: {path}")
+    response = Response()
+    origin = request.headers.get('Origin')
+    print(f"Global OPTIONS Origin: {origin}")
+    response.headers['Access-Control-Allow-Origin'] = origin or '*'
+    response.headers['Access-Control-Allow-Credentials'] = 'false'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept, Cache-Control'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    response.headers['Access-Control-Max-Age'] = '86400'
+    print(f"Global OPTIONS response headers: {dict(response.headers)}")
+    return response
+
 metrics = PrometheusMetrics(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
