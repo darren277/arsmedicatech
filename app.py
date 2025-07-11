@@ -53,7 +53,7 @@ def stream_events():
         response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
         return response
 
-    user_id = user.get('id') if user else None
+    user_id = session.get('user_id')
 
     redis = get_redis_connection()
     pubsub = redis.pubsub()
@@ -95,8 +95,7 @@ def stream_events():
 
 @app.route('/api/sse', methods=['GET'])
 def sse():
-    user = session.get('user')
-    user_id = user.get('id') if user else None
+    user_id = session.get('user_id')
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 401
 
