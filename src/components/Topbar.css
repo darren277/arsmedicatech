@@ -121,6 +121,12 @@
     background-image: url('https://placehold.co/40x40/E2E8F0/4A5568?text=DC');
 }
 
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 .auth-status {
     display: flex;
     align-items: center;
