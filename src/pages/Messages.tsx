@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import NewConversationModal from '../components/NewConversationModal';
+import { useNotificationContext } from '../components/NotificationContext';
 import NotificationTest from '../components/NotificationTest';
 import SignupPopup from '../components/SignupPopup';
 import { Conversation, useChat } from '../hooks/useChat';
@@ -70,6 +71,18 @@ const Messages = () => {
     { sender: string; text: string }[]
   >([]);
 
+  // Initialize notification system
+  const {
+    notifications,
+    unreadCount,
+    addNotification,
+    markAsRead,
+    markAllAsRead,
+    clearNotification,
+    clearAllNotifications,
+    getRecentNotifications,
+  } = useNotificationContext();
+
   const {
     conversations,
     setConversations,
@@ -87,6 +100,18 @@ const Messages = () => {
   const handleNewMessage = useCallback(
     (data: any) => {
       console.log('Received new message notification:', data);
+
+      // Add notification for new message
+      addNotification({
+        type: 'new_message',
+        title: 'New Message',
+        message: data.text,
+        timestamp: data.timestamp,
+        data: {
+          sender: data.sender,
+          conversation_id: data.conversation_id,
+        },
+      });
 
       // Update conversation list with new message
       setConversations(prevConversations =>
@@ -122,20 +147,43 @@ const Messages = () => {
         fetchMessages();
       }
     },
-    [selectedConversationId, setConversations]
+    [selectedConversationId, setConversations, addNotification]
   );
 
-  const handleAppointmentReminder = useCallback((data: any) => {
-    console.log('Received appointment reminder:', data);
-    // You can implement toast notifications here
-    // For now, just log it
-  }, []);
+  const handleAppointmentReminder = useCallback(
+    (data: any) => {
+      console.log('Received appointment reminder:', data);
 
-  const handleSystemNotification = useCallback((data: any) => {
-    console.log('Received system notification:', data);
-    // You can implement toast notifications here
-    // For now, just log it
-  }, []);
+      // Add notification for appointment reminder
+      addNotification({
+        type: 'appointment_reminder',
+        title: 'Appointment Reminder',
+        message: data.content,
+        timestamp: data.timestamp,
+        data: {
+          appointmentId: data.appointmentId,
+          time: data.time,
+        },
+      });
+    },
+    [addNotification]
+  );
+
+  const handleSystemNotification = useCallback(
+    (data: any) => {
+      console.log('Received system notification:', data);
+
+      // Add notification for system notification
+      addNotification({
+        type: 'system_notification',
+        title: 'System Notification',
+        message: data.content,
+        timestamp: data.timestamp,
+        data: data,
+      });
+    },
+    [addNotification]
+  );
 
   // Initialize SSE connection
   useEvents({
