@@ -5,7 +5,7 @@ import './App.css';
 import Patient from './components/Patient';
 import PatientForm from './components/PatientForm';
 import PatientList from './components/PatientList';
-import { PatientTable } from './components/PatientTable';
+import { SearchResultsTable } from './components/PatientTable';
 import { usePatientSearch } from './hooks/usePatientSearch';
 import { tourSteps } from './onboarding/tourSteps';
 
@@ -65,7 +65,7 @@ function Home() {
           onClearAll={clearAllNotifications}
         />
 
-        <PatientTable rows={results} />
+        <SearchResultsTable rows={results} />
 
         <div className="main-content">
           <main>
