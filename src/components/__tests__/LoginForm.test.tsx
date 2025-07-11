@@ -218,5 +218,11 @@ describe('LoginForm', () => {
 
     expect(submitButton).toBeDisabled();
     expect(screen.getByText(/signing in/i)).toBeInTheDocument();
+
+    // Resolve the promise to complete the test
+    resolveLogin!({
+      success: true,
+      data: { user: { id: '1', username: 'testuser' } },
+    });
   });
-}); 
+});
