@@ -224,6 +224,47 @@ graph TD
     LLM -->|Answer| USER
 ```
 
+## Messaging
+
+### Notifications
+
+Live updates and notifications are handled using SSE (Server-Sent Events) via Redis for a PubSub queue.
+
+| Event Type              | Payload Example                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| `new_message`           | `{ type: 'new_message', conversationId: '123', sender: 'provider', content: 'Hello!' }` |
+| `system_notification`   | `{ type: 'system_notification', content: 'Your profile is incomplete' }`       |
+| `appointment_reminder` | `{ type: 'appointment_reminder', appointmentId: '456', time: '2025-02-20T10:00:00Z' }` |
+
+### Usage
+
+To notify users when a new message is saved, you can implement a function that publishes an event to the Redis PubSub queue. This function should be called after successfully saving the message in the database.
+
+```python
+def notify_on_message_save(msg, recipient):
+    # After storing the message successfully
+    if success and msg_obj:
+        event = {
+            "type": "new_message",
+            "conversation_id": conversation_id,
+            "sender": "Dr. Smith",  # Or look up sender
+            "text": message_text,
+            "timestamp": str(msg_obj.created_at)
+        }
+        # Notify recipient
+        for participant_id in conversation.participant_ids:
+            if participant_id != current_user_id:
+                publish_event(participant_id, event)
+```
+
+```python
+def send_appointment_reminder():
+    publish_event(user_id=42, event_data={
+        "type": "appointment_reminder",
+        "time": "2025-07-11T10:00:00Z",
+        "content": "Annual checkup"
+    })
+```
 
 ## How to Use
 
