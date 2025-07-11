@@ -45,7 +45,7 @@ class ApiService {
     try {
       const response = await fetch(url, config);
       console.log('[DEBUG] API request - Response status:', response.status);
-      
+
       const data = await response.json();
       console.log('[DEBUG] API request - Response data:', data);
 
