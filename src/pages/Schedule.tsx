@@ -164,9 +164,9 @@ const Schedule = () => {
       } catch (error) {
         console.error('Error refreshing appointments:', error);
         console.error('Error details:', {
-          message: error.message,
-          stack: error.stack,
-          name: error.name,
+          message: (error as Error).message,
+          stack: (error as Error).stack,
+          name: (error as Error).name,
         });
       }
     }

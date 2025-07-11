@@ -69,7 +69,7 @@ function useChat(isLLM = false) {
       try {
         let data;
         if (isLLM) {
-          data = await apiService.getLLMChatHistory();
+          data = await apiService.getLLMChatHistory('ai-assistant');
         } else {
           data = await apiService.getUserConversations();
         }
@@ -154,7 +154,10 @@ function useChat(isLLM = false) {
     try {
       if (isLLM) {
         // For LLM chat, send the message to the LLM endpoint using apiService
-        const llmResponse = await apiService.sendLLMMessage(newMessage);
+        const llmResponse = await apiService.sendLLMMessage(
+          'ai-assistant',
+          newMessage
+        );
         console.log('LLM Response:', llmResponse);
 
         // Add both user message and LLM response to the conversation
