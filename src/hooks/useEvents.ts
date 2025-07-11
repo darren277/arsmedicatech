@@ -26,69 +26,122 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
     console.log('API_URL:', API_URL);
     console.log('User ID for SSE:', user_id);
 
-    // Create EventSource without credentials for SSE
-    const eventSource = new EventSource(sseUrl);
+    // Try using fetch with streaming instead of EventSource
+    fetch(sseUrl, {
+      method: 'GET',
+      headers: {
+        Accept: 'text/event-stream',
+        'Cache-Control': 'no-cache',
+      },
+    })
+      .then(response => {
+        console.log('Fetch response status:', response.status);
+        console.log('Fetch response headers:', response.headers);
 
-    console.log('EventSource created:', eventSource);
-    console.log('EventSource readyState:', eventSource.readyState);
-
-    eventSource.onopen = () => {
-      console.log('SSE connection opened successfully');
-    };
-
-    eventSource.onmessage = event => {
-      console.log('SSE event received:', event);
-      console.log('SSE event data:', event.data);
-
-      try {
-        const data = JSON.parse(event.data);
-        console.log('Parsed SSE data:', data);
-        lastEventTimestampRef.current = data.timestamp || '';
-
-        switch (data.type) {
-          case 'new_message':
-            console.log('Processing new_message event:', data);
-            if (callbacks.onNewMessage) {
-              console.log('Calling onNewMessage callback');
-              callbacks.onNewMessage(data);
-            } else {
-              console.log('No onNewMessage callback provided');
-            }
-            break;
-          case 'appointment_reminder':
-            console.log('Processing appointment_reminder event:', data);
-            if (callbacks.onAppointmentReminder) {
-              callbacks.onAppointmentReminder(data);
-            }
-            break;
-          case 'system_notification':
-            console.log('Processing system_notification event:', data);
-            if (callbacks.onSystemNotification) {
-              callbacks.onSystemNotification(data);
-            }
-            break;
-          default:
-            console.log('Unknown event type:', data.type, 'with data:', data);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-      } catch (error) {
-        console.error('Error parsing SSE event:', error);
-        console.error('Raw event data:', event.data);
-      }
-    };
 
-    eventSource.onerror = err => {
-      console.error('SSE connection error:', err);
-      // Attempt to reconnect after 5 seconds
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      reconnectTimeoutRef.current = setTimeout(() => {
-        console.log('Attempting to reconnect to SSE...');
-        connect();
-      }, 5000);
-    };
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error('No response body reader available');
+        }
 
-    eventSourceRef.current = eventSource;
+        console.log('SSE connection opened successfully via fetch');
+
+        const processStream = () => {
+          reader
+            .read()
+            .then(({ done, value }) => {
+              if (done) {
+                console.log('SSE stream ended');
+                return;
+              }
+
+              const chunk = new TextDecoder().decode(value);
+              console.log('SSE chunk received:', chunk);
+
+              // Process the chunk for SSE events
+              const lines = chunk.split('\n');
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  const data = line.slice(6);
+                  try {
+                    const eventData = JSON.parse(data);
+                    console.log('SSE event received:', eventData);
+
+                    switch (eventData.type) {
+                      case 'new_message':
+                        console.log('Processing new_message event:', eventData);
+                        if (callbacks.onNewMessage) {
+                          console.log('Calling onNewMessage callback');
+                          callbacks.onNewMessage(eventData);
+                        } else {
+                          console.log('No onNewMessage callback provided');
+                        }
+                        break;
+                      case 'appointment_reminder':
+                        console.log(
+                          'Processing appointment_reminder event:',
+                          eventData
+                        );
+                        if (callbacks.onAppointmentReminder) {
+                          callbacks.onAppointmentReminder(eventData);
+                        }
+                        break;
+                      case 'system_notification':
+                        console.log(
+                          'Processing system_notification event:',
+                          eventData
+                        );
+                        if (callbacks.onSystemNotification) {
+                          callbacks.onSystemNotification(eventData);
+                        }
+                        break;
+                      default:
+                        console.log(
+                          'Unknown event type:',
+                          eventData.type,
+                          'with data:',
+                          eventData
+                        );
+                    }
+                  } catch (error) {
+                    console.error('Error parsing SSE event:', error);
+                    console.error('Raw event data:', data);
+                  }
+                }
+              }
+
+              // Continue reading
+              processStream();
+            })
+            .catch(error => {
+              console.error('Error reading SSE stream:', error);
+              // Attempt to reconnect after 5 seconds
+              if (reconnectTimeoutRef.current) {
+                clearTimeout(reconnectTimeoutRef.current);
+              }
+              reconnectTimeoutRef.current = setTimeout(() => {
+                console.log('Attempting to reconnect to SSE...');
+                connect();
+              }, 5000);
+            });
+        };
+
+        processStream();
+      })
+      .catch(error => {
+        console.error('SSE connection error:', error);
+        // Attempt to reconnect after 5 seconds
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+        }
+        reconnectTimeoutRef.current = setTimeout(() => {
+          console.log('Attempting to reconnect to SSE...');
+          connect();
+        }, 5000);
+      });
   }, [callbacks]);
 
   useEffect(() => {
