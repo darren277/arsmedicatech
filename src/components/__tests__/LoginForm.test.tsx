@@ -154,13 +154,13 @@ describe('LoginForm', () => {
     });
   });
 
-  it('calls onSwitchToRegister when create account button is clicked', async () => {
+  it('calls onSwitchToRegister when sign up button is clicked', async () => {
     const user = userEvent.setup();
     render(
       <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
     );
 
-    const registerButton = screen.getByRole('button', { name: /create account/i });
+    const registerButton = screen.getByRole('button', { name: /sign up/i });
     await user.click(registerButton);
 
     expect(mockOnSwitchToRegister).toHaveBeenCalled();
