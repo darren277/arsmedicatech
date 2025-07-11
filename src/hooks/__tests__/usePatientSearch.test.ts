@@ -1,11 +1,19 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { usePatientSearch } from '../usePatientSearch';
 
+// Mock the API service
+jest.mock('../../services/api', () => ({
+  __esModule: true,
+  default: {
+    searchPatientsAndEncounters: jest.fn(),
+  },
+}));
+
+import apiService from '../../services/api';
+
 describe('usePatientSearch', () => {
   beforeEach(() => {
-    global.fetch = jest.fn().mockResolvedValue({
-      json: jest.fn().mockResolvedValue([{ id: '1', name: 'John Doe' }]),
-    });
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
@@ -36,9 +44,9 @@ describe('usePatientSearch', () => {
       { id: '2', name: 'Jane Smith', date_of_birth: '1985-05-15' },
     ];
 
-    global.fetch = jest.fn().mockResolvedValue({
-      json: jest.fn().mockResolvedValue(mockResults),
-    });
+    (apiService.searchPatientsAndEncounters as jest.Mock).mockResolvedValue(
+      mockResults
+    );
 
     const { result } = renderHook(() => usePatientSearch());
 
@@ -47,8 +55,8 @@ describe('usePatientSearch', () => {
     });
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/patients/search?q=john')
+      expect(apiService.searchPatientsAndEncounters).toHaveBeenCalledWith(
+        'john'
       );
     });
 
@@ -66,7 +74,9 @@ describe('usePatientSearch', () => {
       resolveSearch = resolve;
     });
 
-    global.fetch = jest.fn().mockReturnValue(searchPromise);
+    (apiService.searchPatientsAndEncounters as jest.Mock).mockReturnValue(
+      searchPromise
+    );
 
     const { result } = renderHook(() => usePatientSearch());
 
@@ -82,9 +92,7 @@ describe('usePatientSearch', () => {
     expect(result.current.loading).toBe(true);
 
     act(() => {
-      resolveSearch!({
-        json: jest.fn().mockResolvedValue([{ id: '1', name: 'Test Patient' }]),
-      });
+      resolveSearch!([{ id: '1', name: 'Test Patient' }]);
     });
 
     await waitFor(() => {
@@ -98,9 +106,7 @@ describe('usePatientSearch', () => {
     jest.useFakeTimers();
 
     // Mock fetch to return empty results
-    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
-      json: jest.fn().mockResolvedValue([]),
-    } as any);
+    (apiService.searchPatientsAndEncounters as jest.Mock).mockResolvedValue([]);
 
     // Render hook with an empty initial query to avoid immediate search
     const { result } = renderHook(() => usePatientSearch(''));
@@ -118,20 +124,20 @@ describe('usePatientSearch', () => {
     // Wait for the search to complete
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
-      expect(result.current.results).toEqual([]);
+      expect(result.current.results).toEqual([]); // Combined empty results
+      // Should make 2 calls: one for patients, one for encounters
+      expect(apiService.searchPatientsAndEncounters).toHaveBeenCalledWith(
+        'no results'
+      );
     });
 
-    // Restore mocks
-    fetchSpy.mockRestore();
     jest.useRealTimers();
   });
 
   it('should debounce search requests', async () => {
     jest.useFakeTimers();
 
-    global.fetch = jest.fn().mockResolvedValue({
-      json: jest.fn().mockResolvedValue([]),
-    });
+    (apiService.searchPatientsAndEncounters as jest.Mock).mockResolvedValue([]);
 
     const { result } = renderHook(() => usePatientSearch());
 
@@ -153,9 +159,9 @@ describe('usePatientSearch', () => {
     });
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledTimes(1);
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/patients/search?q=abc')
+      // Should make 2 calls: one for patients, one for encounters
+      expect(apiService.searchPatientsAndEncounters).toHaveBeenCalledWith(
+        'abc'
       );
     });
 
@@ -170,16 +176,16 @@ describe('usePatientSearch', () => {
     });
 
     await waitFor(() => {
-      expect(global.fetch).not.toHaveBeenCalled();
+      // Should not make any API calls for empty query
+      expect(apiService.searchPatientsAndEncounters).not.toHaveBeenCalled();
+      expect(result.current.results).toEqual([]);
     });
   });
 
   it('should handle rapid query changes', async () => {
     jest.useFakeTimers();
 
-    global.fetch = jest.fn().mockResolvedValue({
-      json: jest.fn().mockResolvedValue([]),
-    });
+    (apiService.searchPatientsAndEncounters as jest.Mock).mockResolvedValue([]);
 
     const { result } = renderHook(() => usePatientSearch());
 
@@ -209,9 +215,9 @@ describe('usePatientSearch', () => {
     });
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledTimes(1);
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/patients/search?q=abc')
+      // Should make 2 calls: one for patients, one for encounters
+      expect(apiService.searchPatientsAndEncounters).toHaveBeenCalledWith(
+        'abc'
       );
     });
 
