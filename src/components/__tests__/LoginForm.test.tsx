@@ -72,7 +72,11 @@ describe('LoginForm', () => {
   it('shows validation errors for empty fields on submit', async () => {
     const user = userEvent.setup();
     render(
-      <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
+      <LoginForm
+        onLogin={mockOnLogin}
+        onSwitchToRegister={mockOnSwitchToRegister}
+        onClose={mockOnClose}
+      />
     );
 
     const submitButton = screen.getByRole('button', { name: /sign in/i });
@@ -87,7 +91,11 @@ describe('LoginForm', () => {
   it('validates username is not empty', async () => {
     const user = userEvent.setup();
     render(
-      <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
+      <LoginForm
+        onLogin={mockOnLogin}
+        onSwitchToRegister={mockOnSwitchToRegister}
+        onClose={mockOnClose}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
@@ -105,7 +113,11 @@ describe('LoginForm', () => {
   it('validates password strength', async () => {
     const user = userEvent.setup();
     render(
-      <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
+      <LoginForm
+        onLogin={mockOnLogin}
+        onSwitchToRegister={mockOnSwitchToRegister}
+        onClose={mockOnClose}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
@@ -134,7 +146,11 @@ describe('LoginForm', () => {
     });
 
     render(
-      <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
+      <LoginForm
+        onLogin={mockOnLogin}
+        onSwitchToRegister={mockOnSwitchToRegister}
+        onClose={mockOnClose}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
@@ -157,7 +173,11 @@ describe('LoginForm', () => {
   it('calls onSwitchToRegister when sign up button is clicked', async () => {
     const user = userEvent.setup();
     render(
-      <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
+      <LoginForm
+        onLogin={mockOnLogin}
+        onSwitchToRegister={mockOnSwitchToRegister}
+        onClose={mockOnClose}
+      />
     );
 
     const registerButton = screen.getByRole('button', { name: /sign up/i });
@@ -169,7 +189,11 @@ describe('LoginForm', () => {
   it('clears validation errors when user starts typing', async () => {
     const user = userEvent.setup();
     render(
-      <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
+      <LoginForm
+        onLogin={mockOnLogin}
+        onSwitchToRegister={mockOnSwitchToRegister}
+        onClose={mockOnClose}
+      />
     );
 
     const submitButton = screen.getByRole('button', { name: /sign in/i });
@@ -183,7 +207,9 @@ describe('LoginForm', () => {
     await user.type(usernameInput, 'test');
 
     await waitFor(() => {
-      expect(screen.queryByText(/username is required/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/username is required/i)
+      ).not.toBeInTheDocument();
     });
   });
 
