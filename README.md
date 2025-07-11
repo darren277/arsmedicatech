@@ -276,6 +276,23 @@ docker run --name redis -d -p 6379:6379 redis:latest
 
 Then, you can connect to it using a Redis client library in your application.
 
+### Testing
+
+`{USER_ID}` is the user ID of the recipient, which can be obtained from your user management system or database.
+
+It looks something like `User:8jz38zk55xaboplbo9at`.
+
+```shell
+# Send a test message
+python test/send_notification.py {USER_ID} new_message "Hello from CLI!"
+
+# Send an appointment reminder
+python test/send_notification.py {USER_ID} appointment_reminder "Your appointment is tomorrow"
+
+# Send a system notification
+python test/send_notification.py {USER_ID} system_notification "System maintenance scheduled"
+```
+
 ## How to Use
 
 TBD...
