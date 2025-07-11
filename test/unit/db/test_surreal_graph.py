@@ -11,8 +11,23 @@ from unittest.mock import Mock, AsyncMock, patch
 from lib.db.surreal_graph import GraphController, AsyncGraphController
 
 
+# Module-level fixtures that can be used across all test classes
+@pytest.fixture
+def graph_controller(mock_db_controller):
+    """Create a GraphController instance with mocked dependencies."""
+    return GraphController(mock_db_controller)
+
+
+@pytest.fixture
+def async_graph_controller(mock_async_db_controller):
+    """Create an AsyncGraphController instance with mocked dependencies."""
+    return AsyncGraphController(mock_async_db_controller)
+
+
 class TestGraphController:
     """Test cases for the synchronous GraphController class."""
+    
+    pytestmark = pytest.mark.unit
 
     @pytest.fixture
     def mock_db_controller(self):
@@ -20,11 +35,6 @@ class TestGraphController:
         mock_db = Mock()
         mock_db.query = Mock()
         return mock_db
-
-    @pytest.fixture
-    def graph_controller(self, mock_db_controller):
-        """Create a GraphController instance with mocked dependencies."""
-        return GraphController(mock_db_controller)
 
     def test_init_with_sync_db_controller(self, mock_db_controller):
         """Test GraphController initialization with sync database controller."""
@@ -163,6 +173,8 @@ class TestGraphController:
 
 class TestAsyncGraphController:
     """Test cases for the asynchronous AsyncGraphController class."""
+    
+    pytestmark = [pytest.mark.unit, pytest.mark.asyncio]
 
     @pytest.fixture
     def mock_async_db_controller(self):
@@ -170,11 +182,6 @@ class TestAsyncGraphController:
         mock_db = Mock()
         mock_db.query = AsyncMock()
         return mock_db
-
-    @pytest.fixture
-    def async_graph_controller(self, mock_async_db_controller):
-        """Create an AsyncGraphController instance with mocked dependencies."""
-        return AsyncGraphController(mock_async_db_controller)
 
     def test_init(self, mock_async_db_controller):
         """Test AsyncGraphController initialization."""
@@ -292,6 +299,8 @@ class TestGraphControllerIntegration:
 
 class TestGraphControllerEdgeCases:
     """Test edge cases and error conditions for GraphController."""
+    
+    pytestmark = pytest.mark.unit
 
     @pytest.fixture
     def mock_db_controller_with_error(self):
@@ -336,7 +345,7 @@ class TestGraphControllerEdgeCases:
         
         graph_controller.relate(from_record, edge_table, to_record, edge_data)
         
-        expected_query = 'RELATE person:123 -> order:ulid() -> product:456 CONTENT { string_value: "test", int_value: 42, float_value: 3.14, bool_value: True, list_value: [1, 2, 3], dict_value: {"nested": "value"}, arrow_ref: ->table:id->field, back_arrow_ref: <-table:id<-field }'
+        expected_query = "RELATE person:123 -> order:ulid() -> product:456 CONTENT { string_value: \"test\", int_value: 42, float_value: 3.14, bool_value: True, list_value: [1, 2, 3], dict_value: {'nested': 'value'}, arrow_ref: ->table:id->field, back_arrow_ref: <-table:id<-field }"
         mock_db_controller.query.assert_called_once_with(expected_query)
 
     def test_get_relations_with_empty_strings(self, graph_controller, mock_db_controller):
@@ -347,5 +356,5 @@ class TestGraphControllerEdgeCases:
         
         graph_controller.get_relations(start_node, edge_table, end_table)
         
-        expected_query = "SELECT -><-> FROM "
+        expected_query = "SELECT ->-> FROM "
         mock_db_controller.query.assert_called_once_with(expected_query)
