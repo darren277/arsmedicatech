@@ -52,13 +52,21 @@ describe('LoginForm', () => {
 
   it('renders login form with all required fields', () => {
     render(
-      <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
+      <LoginForm
+        onLogin={mockOnLogin}
+        onSwitchToRegister={mockOnSwitchToRegister}
+        onClose={mockOnClose}
+      />
     );
 
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /sign in/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /sign up/i })
+    ).toBeInTheDocument();
   });
 
   it('shows validation errors for empty fields on submit', async () => {
