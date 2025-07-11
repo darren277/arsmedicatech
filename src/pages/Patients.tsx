@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { EncounterForm } from '../components/EncounterForm';
 import { EncounterTable } from '../components/EncounterTable';
 import { PatientFormModal } from '../components/PatientFormModal';
@@ -7,6 +8,7 @@ import { encounterAPI, patientAPI } from '../services/api';
 import { EncounterType, PatientType } from '../types';
 
 export function Patients() {
+  const navigate = useNavigate();
   const [patients, setPatients] = useState<PatientType[]>([]);
   const [encounters, setEncounters] = useState<EncounterType[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<PatientType | null>(
@@ -138,8 +140,7 @@ export function Patients() {
   };
 
   const handlePatientView = (patient: PatientType) => {
-    setSelectedPatient(patient);
-    setActiveTab('encounters');
+    navigate(`/patients/${patient.demographic_no}`);
   };
 
   const handlePatientEdit = (patient: PatientType) => {
@@ -147,14 +148,21 @@ export function Patients() {
     setShowPatientForm(true);
   };
 
+  const handlePatientRowClick = (patient: PatientType) => {
+    navigate(`/patients/${patient.demographic_no}`);
+  };
+
   const handleEncounterView = (encounter: EncounterType) => {
-    setSelectedEncounter(encounter);
-    setShowEncounterForm(true);
+    navigate(`/encounters/${encounter.note_id}`);
   };
 
   const handleEncounterEdit = (encounter: EncounterType) => {
     setSelectedEncounter(encounter);
     setShowEncounterForm(true);
+  };
+
+  const handleEncounterRowClick = (encounter: EncounterType) => {
+    navigate(`/encounters/${encounter.note_id}`);
   };
 
   return (
@@ -230,6 +238,7 @@ export function Patients() {
             onView={handlePatientView}
             onEdit={handlePatientEdit}
             onDelete={handleDeletePatient}
+            onRowClick={handlePatientRowClick}
           />
         </div>
       )}
@@ -252,6 +261,7 @@ export function Patients() {
             onView={handleEncounterView}
             onEdit={handleEncounterEdit}
             onDelete={handleDeleteEncounter}
+            onRowClick={handleEncounterRowClick}
           />
         </div>
       )}

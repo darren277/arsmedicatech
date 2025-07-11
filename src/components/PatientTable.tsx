@@ -4,37 +4,78 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import React from 'react';
-import { PatientType } from '../types';
-
-/*
-interface Patient {
-  id: string;
-  first_name: string;
-  last_name: string;
-  highlighted_note: string;
-}
-*/
+import { EncounterType, PatientType } from '../types';
 
 /** Dumb presentational component for search results */
 export function SearchResultsTable({
   rows,
   isLoading = false,
+  onRowClick,
 }: {
-  rows: PatientType[];
+  rows: (PatientType | EncounterType)[];
   isLoading?: boolean;
+  onRowClick?: (item: PatientType | EncounterType) => void;
 }) {
   /** Column definition only runs once */
-  //const columns = React.useMemo<ColumnDef<Patient>[]>(
   const columns = React.useMemo(
     () => [
-      { accessorKey: 'first_name', header: 'First name' },
-      { accessorKey: 'last_name', header: 'Last name' },
+      {
+        id: 'patient_name',
+        header: 'Patient Name',
+        cell: (ctx: any) => {
+          const item = ctx.row.original;
+          // Handle both patient and encounter search results
+          if ('patient' in item && item.patient) {
+            // This is an encounter result
+            return (
+              `${item.patient.first_name || ''} ${item.patient.last_name || ''}`.trim() ||
+              '-'
+            );
+          } else {
+            // This is a direct patient result
+            return (
+              `${item.first_name || ''} ${item.last_name || ''}`.trim() || '-'
+            );
+          }
+        },
+      },
+      {
+        id: 'patient_dob',
+        header: 'Date of Birth',
+        cell: (ctx: any) => {
+          const item = ctx.row.original;
+          let dob = null;
+
+          if ('patient' in item && item.patient) {
+            // This is an encounter result
+            dob = item.patient.date_of_birth;
+          } else {
+            // This is a direct patient result
+            dob = item.date_of_birth;
+          }
+
+          return dob ? new Date(dob).toLocaleDateString() : '-';
+        },
+      },
+      {
+        id: 'visit_date',
+        header: 'Visit Date',
+        cell: (ctx: any) => {
+          const item = ctx.row.original;
+          // Only show visit date for encounter results
+          if ('date_created' in item) {
+            return item.date_created
+              ? new Date(item.date_created).toLocaleDateString()
+              : '-';
+          }
+          return '-';
+        },
+      },
       {
         accessorKey: 'highlighted_note',
         header: 'Snippet',
-        //cell: ctx => (<div dangerouslySetInnerHTML={{__html: ctx.getValue() as string,}} />),
         cell: (ctx: any): JSX.Element => (
-          <div dangerouslySetInnerHTML={{ __html: ctx.getValue() }} />
+          <div dangerouslySetInnerHTML={{ __html: ctx.getValue() || '' }} />
         ),
       },
     ],
@@ -69,7 +110,11 @@ export function SearchResultsTable({
       </thead>
       <tbody className="divide-y divide-gray-200">
         {table.getRowModel().rows.map(row => (
-          <tr key={row.id}>
+          <tr
+            key={row.id}
+            className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
+            onClick={() => onRowClick && onRowClick(row.original)}
+          >
             {row.getVisibleCells().map(cell => (
               <td key={cell.id} className="px-4 py-2">
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -89,12 +134,14 @@ export function PatientTable({
   onEdit,
   onDelete,
   onView,
+  onRowClick,
 }: {
   patients: PatientType[];
   isLoading?: boolean;
   onEdit?: (patient: PatientType) => void;
   onDelete?: (patient: PatientType) => void;
   onView?: (patient: PatientType) => void;
+  onRowClick?: (patient: PatientType) => void;
 }) {
   const columns = React.useMemo(
     () => [
@@ -120,7 +167,10 @@ export function PatientTable({
             <div className="flex space-x-2">
               {onView && (
                 <button
-                  onClick={() => onView(patient)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onView(patient);
+                  }}
                   className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   View
@@ -128,7 +178,10 @@ export function PatientTable({
               )}
               {onEdit && (
                 <button
-                  onClick={() => onEdit(patient)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onEdit(patient);
+                  }}
                   className="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
                 >
                   Edit
@@ -136,7 +189,10 @@ export function PatientTable({
               )}
               {onDelete && (
                 <button
-                  onClick={() => onDelete(patient)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onDelete(patient);
+                  }}
                   className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
                 >
                   Delete
@@ -186,7 +242,11 @@ export function PatientTable({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {table.getRowModel().rows.map(row => (
-            <tr key={row.id} className="hover:bg-gray-50">
+            <tr
+              key={row.id}
+              className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
+              onClick={() => onRowClick && onRowClick(row.original)}
+            >
               {row.getVisibleCells().map(cell => (
                 <td
                   key={cell.id}

@@ -13,19 +13,21 @@ export function EncounterTable({
   onEdit,
   onDelete,
   onView,
+  onRowClick,
 }: {
   encounters: EncounterType[];
   isLoading?: boolean;
   onEdit?: (encounter: EncounterType) => void;
   onDelete?: (encounter: EncounterType) => void;
   onView?: (encounter: EncounterType) => void;
+  onRowClick?: (encounter: EncounterType) => void;
 }) {
   const columns = React.useMemo(
     () => [
       { accessorKey: 'note_id', header: 'Note ID' },
       {
         accessorKey: 'date_created',
-        header: 'Date',
+        header: 'Visit Date',
         cell: (ctx: any) => {
           const value = ctx.getValue();
           return value ? new Date(value).toLocaleDateString() : '-';
@@ -81,7 +83,10 @@ export function EncounterTable({
             <div className="flex space-x-2">
               {onView && (
                 <button
-                  onClick={() => onView(encounter)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onView(encounter);
+                  }}
                   className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   View
@@ -89,7 +94,10 @@ export function EncounterTable({
               )}
               {onEdit && (
                 <button
-                  onClick={() => onEdit(encounter)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onEdit(encounter);
+                  }}
                   className="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
                 >
                   Edit
@@ -97,7 +105,10 @@ export function EncounterTable({
               )}
               {onDelete && (
                 <button
-                  onClick={() => onDelete(encounter)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onDelete(encounter);
+                  }}
                   className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
                 >
                   Delete
@@ -147,7 +158,11 @@ export function EncounterTable({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {table.getRowModel().rows.map(row => (
-            <tr key={row.id} className="hover:bg-gray-50">
+            <tr
+              key={row.id}
+              className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
+              onClick={() => onRowClick && onRowClick(row.original)}
+            >
               {row.getVisibleCells().map(cell => (
                 <td
                   key={cell.id}

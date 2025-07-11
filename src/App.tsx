@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import Joyride from 'react-joyride';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import './App.css';
 import Patient from './components/Patient';
 import PatientForm from './components/PatientForm';
-import PatientList from './components/PatientList';
 import { SearchResultsTable } from './components/PatientTable';
 import { usePatientSearch } from './hooks/usePatientSearch';
 import { tourSteps } from './onboarding/tourSteps';
+import { EncounterDetail } from './pages/EncounterDetail';
+import { PatientDetail } from './pages/PatientDetail';
+import { Patients } from './pages/Patients';
 
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -24,6 +26,7 @@ import {
 import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
+import { EncounterType, PatientType } from './types';
 
 function Home() {
   console.log('Home component rendered');
@@ -37,6 +40,7 @@ function Home() {
   const [runTour, setRunTour] = useState(!isTestMode);
 
   const { query, setQuery, results, loading } = usePatientSearch();
+  const navigate = useNavigate();
 
   // Get notification context
   const {
@@ -47,6 +51,17 @@ function Home() {
     clearNotification,
     clearAllNotifications,
   } = useNotificationContext();
+
+  const handleSearchResultClick = (item: PatientType | EncounterType) => {
+    if ('patient' in item && item.patient) {
+      // This is an encounter result - navigate to encounter detail
+      navigate(`/encounters/${item.note_id}`);
+    } else {
+      // This is a direct patient result - navigate to patient detail
+      const patient = item as PatientType;
+      navigate(`/patients/${patient.demographic_no}`);
+    }
+  };
 
   return (
     <div className="App app-container">
@@ -65,7 +80,10 @@ function Home() {
           onClearAll={clearAllNotifications}
         />
 
-        <SearchResultsTable rows={results} />
+        <SearchResultsTable
+          rows={results}
+          onRowClick={handleSearchResultClick}
+        />
 
         <div className="main-content">
           <main>
@@ -131,10 +149,12 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { path: 'about', element: <About /> },
       { path: 'contact', element: <Contact /> },
-      { path: 'patients', element: <PatientList /> },
+      { path: 'patients', element: <Patients /> },
       { path: 'patients/new', element: <PatientForm /> },
       { path: 'patients/:id', element: <Patient /> },
       { path: 'patients/:id/edit', element: <PatientForm /> },
+      { path: 'patients/:patientId', element: <PatientDetail /> },
+      { path: 'encounters/:encounterId', element: <EncounterDetail /> },
       { path: 'intake/:patientId', element: <PatientIntakeForm /> },
       { path: 'schedule', element: <Schedule /> },
       { path: 'messages', element: <Messages /> },
