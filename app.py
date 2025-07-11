@@ -66,6 +66,8 @@ def stream_events():
     print(f"SSE endpoint - Session: {dict(session)}")
     print(f"SSE endpoint - Session cookie: {request.cookies.get('session')}")
     print(f"SSE endpoint - All cookies: {dict(request.cookies)}")
+    print(f"SSE endpoint - Request URL: {request.url}")
+    print(f"SSE endpoint - Request args: {dict(request.args)}")
     
     # Handle preflight OPTIONS request
     if request.method == 'OPTIONS':
@@ -73,14 +75,13 @@ def stream_events():
         response = Response()
         origin = request.headers.get('Origin')
         print(f"OPTIONS Origin: {origin}")
-        if origin and ('localhost:3012' in origin or '127.0.0.1:3012' in origin or 'localhost:3000' in origin or '127.0.0.1:3000' in origin or 'localhost:3123' in origin or '127.0.0.1:3123' in origin):
-            response.headers['Access-Control-Allow-Origin'] = origin
-            print(f"Setting Access-Control-Allow-Origin to: {origin}")
-        else:
-            print(f"Origin {origin} not in allowed list")
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        # Always allow the origin for SSE
+        response.headers['Access-Control-Allow-Origin'] = origin or '*'
+        print(f"Setting Access-Control-Allow-Origin to: {origin or '*'}")
+        response.headers['Access-Control-Allow-Credentials'] = 'false'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept, Cache-Control'
         response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+        response.headers['Access-Control-Max-Age'] = '86400'
         print(f"OPTIONS response headers: {dict(response.headers)}")
         print("SSE endpoint - Returning OPTIONS response")
         return response
@@ -126,14 +127,12 @@ def stream_events():
     # Allow both localhost and 127.0.0.1 for development
     origin = request.headers.get('Origin')
     print(f"GET Origin: {origin}")
-    if origin and ('localhost:3012' in origin or '127.0.0.1:3012' in origin or 'localhost:3000' in origin or '127.0.0.1:3000' in origin or 'localhost:3123' in origin or '127.0.0.1:3123' in origin):
-        response.headers['Access-Control-Allow-Origin'] = origin
-        print(f"Setting GET Access-Control-Allow-Origin to: {origin}")
-    else:
-        print(f"GET Origin {origin} not in allowed list")
+    # Always allow the origin for SSE
+    response.headers['Access-Control-Allow-Origin'] = origin or '*'
+    print(f"Setting GET Access-Control-Allow-Origin to: {origin or '*'}")
     # Don't require credentials for SSE
     response.headers['Access-Control-Allow-Credentials'] = 'false'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept, Cache-Control'
     response.headers['Cache-Control'] = 'no-cache'
     response.headers['Connection'] = 'keep-alive'
     print(f"GET response headers: {dict(response.headers)}")
