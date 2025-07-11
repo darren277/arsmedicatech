@@ -4,6 +4,8 @@ import { EncounterForm } from '../components/EncounterForm';
 import { EncounterTable } from '../components/EncounterTable';
 import { PatientFormModal } from '../components/PatientFormModal';
 import { PatientTable } from '../components/PatientTable';
+import SearchBox from '../components/SearchBox';
+import { usePatientSearch } from '../hooks/usePatientSearch';
 import { encounterAPI, patientAPI } from '../services/api';
 import { EncounterType, PatientType } from '../types';
 
@@ -22,6 +24,14 @@ export function Patients() {
   const [activeTab, setActiveTab] = useState<'patients' | 'encounters'>(
     'patients'
   );
+
+  // Search functionality
+  const {
+    query,
+    setQuery,
+    results: searchResults,
+    loading: searchLoading,
+  } = usePatientSearch();
 
   // Load patients on component mount
   useEffect(() => {
@@ -208,12 +218,60 @@ export function Patients() {
     }
   };
 
+  // Determine which data to show based on search results
+  const getDisplayData = () => {
+    if (query.trim().length >= 2 && searchResults.length > 0) {
+      // Show search results
+      return searchResults;
+    }
+
+    // Show regular data based on active tab
+    if (activeTab === 'patients') {
+      return patients;
+    } else {
+      return encounters;
+    }
+  };
+
+  const isShowingSearchResults =
+    query.trim().length >= 2 && searchResults.length > 0;
+
+  // Get the appropriate data for the current tab
+  const getPatientsData = () => {
+    if (isShowingSearchResults) {
+      // Filter search results to only show patients
+      return searchResults.filter(
+        (item: any) => !('patient' in item && item.patient)
+      );
+    }
+    return patients;
+  };
+
+  const getEncountersData = () => {
+    if (isShowingSearchResults) {
+      // Filter search results to only show encounters
+      return searchResults.filter(
+        (item: any) => 'patient' in item && item.patient
+      );
+    }
+    return encounters;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
           Patient Management
         </h1>
+
+        {/* Search Box */}
+        <div className="mb-6">
+          <SearchBox
+            value={query}
+            onChange={setQuery}
+            loading={searchLoading}
+          />
+        </div>
 
         {/* Tab Navigation */}
         <div className="border-b border-gray-200 mb-6">
@@ -245,7 +303,7 @@ export function Patients() {
 
         {/* Action Buttons */}
         <div className="flex justify-between items-center mb-6">
-          {activeTab === 'patients' && (
+          {activeTab === 'patients' && !isShowingSearchResults && (
             <button
               onClick={() => {
                 setSelectedPatient(null);
@@ -257,7 +315,7 @@ export function Patients() {
             </button>
           )}
 
-          {activeTab === 'encounters' && (
+          {activeTab === 'encounters' && !isShowingSearchResults && (
             <div className="flex gap-2">
               <button
                 onClick={handleNewEncounter}
@@ -281,6 +339,13 @@ export function Patients() {
               )}
             </div>
           )}
+
+          {isShowingSearchResults && (
+            <div className="text-sm text-gray-600">
+              Showing {searchResults.length} search result
+              {searchResults.length !== 1 ? 's' : ''}
+            </div>
+          )}
         </div>
       </div>
 
@@ -288,8 +353,8 @@ export function Patients() {
       {activeTab === 'patients' && (
         <div>
           <PatientTable
-            patients={patients}
-            isLoading={isLoading}
+            patients={getPatientsData()}
+            isLoading={isLoading || searchLoading}
             onView={handlePatientView}
             onEdit={handlePatientEdit}
             onDelete={handleDeletePatient}
@@ -301,7 +366,7 @@ export function Patients() {
 
       {activeTab === 'encounters' && (
         <div>
-          {selectedPatient ? (
+          {selectedPatient && !isShowingSearchResults ? (
             <div className="mb-4 p-4 bg-blue-50 rounded-lg">
               <h3 className="text-lg font-semibold text-blue-900">
                 Encounters for {selectedPatient.first_name}{' '}
@@ -311,7 +376,7 @@ export function Patients() {
                 Patient ID: {selectedPatient.demographic_no}
               </p>
             </div>
-          ) : (
+          ) : !isShowingSearchResults ? (
             <div className="mb-4 p-4 bg-gray-50 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-900">
                 All Encounters
@@ -321,11 +386,11 @@ export function Patients() {
                 create new encounters
               </p>
             </div>
-          )}
+          ) : null}
 
           <EncounterTable
-            encounters={encounters}
-            isLoading={isLoading}
+            encounters={getEncountersData()}
+            isLoading={isLoading || searchLoading}
             onView={handleEncounterView}
             onEdit={handleEncounterEdit}
             onDelete={handleDeleteEncounter}

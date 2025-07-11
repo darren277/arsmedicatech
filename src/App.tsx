@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import Joyride from 'react-joyride';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import './App.css';
 import Patient from './components/Patient';
 import PatientForm from './components/PatientForm';
-import { SearchResultsTable } from './components/PatientTable';
-import { usePatientSearch } from './hooks/usePatientSearch';
 import { tourSteps } from './onboarding/tourSteps';
 import { EncounterDetail } from './pages/EncounterDetail';
 import { EncounterFormPage } from './pages/EncounterForm';
@@ -27,7 +25,6 @@ import {
 import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
-import { EncounterType, PatientType } from './types';
 
 function Home() {
   console.log('Home component rendered');
@@ -40,9 +37,6 @@ function Home() {
   const isTestMode = true;
   const [runTour, setRunTour] = useState(!isTestMode);
 
-  const { query, setQuery, results, loading } = usePatientSearch();
-  const navigate = useNavigate();
-
   // Get notification context
   const {
     unreadCount,
@@ -53,37 +47,17 @@ function Home() {
     clearAllNotifications,
   } = useNotificationContext();
 
-  const handleSearchResultClick = (item: PatientType | EncounterType) => {
-    if ('patient' in item && item.patient) {
-      // This is an encounter result - navigate to encounter detail
-      navigate(`/encounters/${item.note_id}`);
-    } else {
-      // This is a direct patient result - navigate to patient detail
-      const patient = item as PatientType;
-      navigate(`/patients/${patient.demographic_no}`);
-    }
-  };
-
   return (
     <div className="App app-container">
       <Sidebar />
       <div className="main-container">
         <Topbar
-          query={query}
-          onQueryChange={setQuery}
-          results={results}
-          loading={loading}
           unreadCount={unreadCount}
           recentNotifications={getRecentNotifications(5)}
           onMarkAsRead={markAsRead}
           onMarkAllAsRead={markAllAsRead}
           onClearNotification={clearNotification}
           onClearAll={clearAllNotifications}
-        />
-
-        <SearchResultsTable
-          rows={results}
-          onRowClick={handleSearchResultClick}
         />
 
         <div className="main-content">

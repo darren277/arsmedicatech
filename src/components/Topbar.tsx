@@ -3,16 +3,11 @@ import { Notification } from '../hooks/useNotifications';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import authService from '../services/auth';
 import NotificationIndicator from './NotificationIndicator';
-import SearchBox from './SearchBox';
 import SignupPopup from './SignupPopup';
 import './Topbar.css';
 import { useUser } from './UserContext';
 
 interface Props {
-  query: string;
-  onQueryChange(q: string): void;
-  results: any[];
-  loading: boolean;
   // Notification props
   unreadCount: number;
   recentNotifications: Notification[];
@@ -38,14 +33,6 @@ export default function Topbar(props: Props) {
   return (
     <>
       <header className="topbar">
-        <div className="search-container">
-          <SearchBox
-            value={props.query}
-            onChange={props.onQueryChange}
-            loading={props.loading}
-          />
-        </div>
-
         <div className="topbar-actions">
           {/* Notification Indicator */}
           {isAuthenticated && (
