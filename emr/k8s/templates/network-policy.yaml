@@ -1,0 +1,72 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: oscar-network-policy
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: oscar-web
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: {{ .Values.namespace }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.oscar.ports.web }}
+        - protocol: TCP
+          port: {{ .Values.oscar.ports.https }}
+    - from:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: {{ .Values.oscar.ports.web }}
+        - protocol: TCP
+          port: {{ .Values.oscar.ports.https }}
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: oscar-db
+      ports:
+        - protocol: TCP
+          port: 3306
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: oscar-db-network-policy
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: oscar-db
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: oscar-web
+      ports:
+        - protocol: TCP
+          port: 3306
+  egress:
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53 

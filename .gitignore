@@ -23,6 +23,8 @@ stuff/
 
 k8s/values.yaml
 
+emr/k8s/values.yaml
+
 dist/
 
 coverage/
