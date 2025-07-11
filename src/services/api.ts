@@ -246,4 +246,28 @@ export const patientAPI = {
     apiService.getAPI(`/patients/search?q=${encodeURIComponent(query)}`),
 };
 
+// Encounter CRUD operations
+export const encounterAPI = {
+  // Get all encounters
+  getAll: () => apiService.getAPI('/encounters'),
+
+  // Get encounters for a specific patient
+  getByPatient: (patientId: string) => 
+    apiService.getAPI(`/patients/${patientId}/encounters`),
+
+  // Get a specific encounter
+  getById: (id: string) => apiService.getAPI(`/encounters/${id}`),
+
+  // Create a new encounter for a patient
+  create: (patientId: string, encounterData: any) => 
+    apiService.postAPI(`/patients/${patientId}/encounters`, encounterData),
+
+  // Update an encounter
+  update: (id: string, encounterData: any) =>
+    apiService.putAPI(`/encounters/${id}`, encounterData),
+
+  // Delete an encounter
+  delete: (id: string) => apiService.deleteAPI(`/encounters/${id}`),
+};
+
 export default apiService;
