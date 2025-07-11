@@ -217,4 +217,4 @@ describe('usePatientSearch', () => {
 
     jest.useRealTimers();
   });
-}); 
+});

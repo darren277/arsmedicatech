@@ -118,7 +118,7 @@ export const mockFetch = (response: any, ok = true) => {
 // Mock localStorage helper
 export const mockLocalStorage = () => {
   const store: Record<string, string> = {};
-  
+
   return {
     getItem: jest.fn((key: string) => store[key] || null),
     setItem: jest.fn((key: string, value: string) => {
@@ -131,4 +131,4 @@ export const mockLocalStorage = () => {
       Object.keys(store).forEach(key => delete store[key]);
     }),
   };
-}; 
+};
