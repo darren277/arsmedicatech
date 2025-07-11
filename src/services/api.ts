@@ -127,6 +127,21 @@ class ApiService {
     return this.getAPI(`/patients/search?q=${encodeURIComponent(query)}`);
   }
 
+  async searchEncounters(query: string): Promise<any> {
+    return this.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`);
+  }
+
+  async searchPatientsAndEncounters(query: string): Promise<any> {
+    // Search both patients and encounters and combine results
+    const [patientResults, encounterResults] = await Promise.all([
+      this.searchPatients(query),
+      this.searchEncounters(query)
+    ]);
+    
+    // Combine and return results
+    return [...(patientResults || []), ...(encounterResults || [])];
+  }
+
   async getPatient(patientId: string): Promise<any> {
     return this.getAPI(`/patients/${patientId}`);
   }
@@ -244,6 +259,34 @@ export const patientAPI = {
   // Search patients
   search: (query: string) =>
     apiService.getAPI(`/patients/search?q=${encodeURIComponent(query)}`),
+};
+
+// Encounter CRUD operations
+export const encounterAPI = {
+  // Get all encounters
+  getAll: () => apiService.getAPI('/encounters'),
+
+  // Get encounters for a specific patient
+  getByPatient: (patientId: string) => 
+    apiService.getAPI(`/patients/${patientId}/encounters`),
+
+  // Get a specific encounter
+  getById: (id: string) => apiService.getAPI(`/encounters/${id}`),
+
+  // Create a new encounter for a patient
+  create: (patientId: string, encounterData: any) => 
+    apiService.postAPI(`/patients/${patientId}/encounters`, encounterData),
+
+  // Update an encounter
+  update: (id: string, encounterData: any) =>
+    apiService.putAPI(`/encounters/${id}`, encounterData),
+
+  // Delete an encounter
+  delete: (id: string) => apiService.deleteAPI(`/encounters/${id}`),
+
+  // Search encounters
+  search: (query: string) =>
+    apiService.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`),
 };
 
 export default apiService;

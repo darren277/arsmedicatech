@@ -2,6 +2,7 @@
 from typing import Tuple
 
 from lib.db.surreal import DbController
+from settings import logger
 
 
 class Patient:
@@ -44,12 +45,38 @@ class Patient:
 
 
 
+class SOAPNotes:
+    def __init__(self, subjective: str, objective: str, assessment: str, plan: str):
+        self.subjective = subjective
+        self.objective = objective
+        self.assessment = assessment
+        self.plan = plan
+
+    def serialize(self):
+        return dict(
+            subjective=self.subjective,
+            objective=self.objective,
+            assessment=self.assessment,
+            plan=self.plan
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            subjective=data.get('subjective'),
+            objective=data.get('objective'),
+            assessment=data.get('assessment'),
+            plan=data.get('plan')
+        )
+
+
 class Encounter:
-    def __init__(self, note_id, date_created, provider_id, note_text=None, diagnostic_codes=None):
+    def __init__(self, note_id, date_created, provider_id, soap_notes: SOAPNotes=None, additional_notes: str=None, diagnostic_codes=None):
         self.note_id = note_id
         self.date_created = date_created
         self.provider_id = provider_id
-        self.note_text = note_text
+        self.soap_notes = soap_notes
+        self.additional_notes = additional_notes
         self.diagnostic_codes = diagnostic_codes
         self.status = None  # e.g., locked, signed, etc.
 
@@ -142,11 +169,17 @@ def store_encounter(db, encounter: Encounter, patient_id: str):
     """
     record_id = f"encounter:{encounter.note_id}"
 
+    # Handle note_text properly - check if soap_notes is a SOAPNotes object or a string
+    if encounter.soap_notes and hasattr(encounter.soap_notes, 'serialize'):
+        note_text = encounter.soap_notes.serialize()
+    else:
+        note_text = encounter.additional_notes or str(encounter.soap_notes) if encounter.soap_notes else ""
+
     content_data = {
         "note_id": str(encounter.note_id),
         "date_created": str(encounter.date_created),
         "provider_id": str(encounter.provider_id),
-        "note_text": encounter.note_text,
+        "note_text": note_text,
         "diagnostic_codes": encounter.diagnostic_codes
     }
 
@@ -184,7 +217,7 @@ def add_some_placeholder_encounters(db, patient_id: str):
         note_text = f"This is a placeholder note text for encounter {i+1}."
         diagnostic_codes = [f"code-{random.randint(100, 999)}"]
 
-        encounter = Encounter(note_id, date_created.isoformat(), provider_id, note_text, diagnostic_codes)
+        encounter = Encounter(note_id, date_created.isoformat(), provider_id, additional_notes=note_text, diagnostic_codes=diagnostic_codes)
         store_encounter(db, encounter, patient_id)
 
 
@@ -227,6 +260,14 @@ def add_some_placeholder_patients(db):
 
 def serialize_patient(patient):
     from surrealdb import RecordID
+    
+    # Handle case where patient is a RecordID or other non-dict object
+    if not isinstance(patient, dict):
+        if isinstance(patient, RecordID):
+            return str(patient)
+        else:
+            return patient
+    
     # convert patient['id'] to string...
     for key in patient:
         print('key', key, patient[key])
@@ -240,6 +281,14 @@ def serialize_patient(patient):
 
 def serialize_encounter(encounter):
     from surrealdb import RecordID
+    
+    # Handle case where encounter is a RecordID or other non-dict object
+    if not isinstance(encounter, dict):
+        if isinstance(encounter, RecordID):
+            return str(encounter)
+        else:
+            return encounter
+    
     # convert patient['id'] to string...
     for key in encounter:
         print('key [encounter]', key, encounter[key])
@@ -279,6 +328,38 @@ def search_patient_history(search_term: str):
     try:
         results = db.query(query, params)
         # Assuming the first result list from the multi-statement response is what we need.
+        if results and isinstance(results, list) and len(results) > 0:
+            print("SEARCH RESULTS", results)
+            return [serialize_encounter(e) for e in results]
+        return []
+    except Exception as e:
+        logger.error(f"Error during search: {e}")
+        return []
+    finally:
+        db.close()
+
+def search_encounter_history(search_term: str):
+    """Performs a full-text search across all encounter notes."""
+    db = DbController()
+    db.connect()
+    
+    print("ATTEMPTING SEARCH", search_term)
+    
+    query = """
+        SELECT
+            search::score(0) AS score,
+            search::highlight('<b>', '</b>', 0) AS highlighted_note,
+            patient.*,
+            *
+        FROM encounter
+        WHERE note_text @0@ $query
+        ORDER BY score DESC
+        LIMIT 15;
+    """
+    params = {"query": search_term}
+
+    try:
+        results = db.query(query, params)
         if results and isinstance(results, list) and len(results) > 0:
             print("SEARCH RESULTS", results)
             return [serialize_encounter(e) for e in results]
@@ -511,6 +592,255 @@ def get_all_patients():
     except Exception as e:
         print(f"[DEBUG] Error getting all patients: {e}")
         return []
+    finally:
+        db.close()
+
+
+def get_all_encounters():
+    """Get all encounters from the database"""
+    db = DbController()
+    db.connect()
+    
+    try:
+        print("[DEBUG] Getting all encounters from database...")
+        results = db.select_many('encounter')
+        print(f"[DEBUG] Raw encounter results: {results}")
+        
+        # Handle different result structures
+        if results and isinstance(results, list) and len(results) > 0:
+            # If the first result has a 'result' key, extract the actual data
+            if isinstance(results[0], dict) and 'result' in results[0]:
+                encounters = results[0]['result']
+            else:
+                encounters = results
+            
+            print(f"[DEBUG] Processed encounters: {encounters}")
+            
+            if isinstance(encounters, list):
+                serialized_encounters = [serialize_encounter(encounter) for encounter in encounters]
+                print(f"[DEBUG] Serialized encounters: {serialized_encounters}")
+                return serialized_encounters
+            else:
+                print("[DEBUG] Encounters is not a list")
+                return []
+        else:
+            print("[DEBUG] No encounter results or empty results")
+            return []
+    except Exception as e:
+        print(f"[DEBUG] Error getting all encounters: {e}")
+        return []
+    finally:
+        db.close()
+
+
+def get_encounter_by_id(encounter_id: str):
+    """Get an encounter by its note_id"""
+    print(f"[DEBUG] Getting encounter by ID: {encounter_id}")
+    db = DbController()
+    db.connect()
+    
+    try:
+        query = "SELECT * FROM encounter WHERE note_id = $encounter_id"
+        params = {"encounter_id": encounter_id}
+        
+        print(f"[DEBUG] Executing encounter query: {query} with params: {params}")
+        result = db.query(query, params)
+        print(f"[DEBUG] Encounter query result: {result}")
+        
+        # Handle the result structure
+        if result and isinstance(result, list) and len(result) > 0:
+            encounter_data = result[0]
+            if isinstance(encounter_data, dict) and 'result' in encounter_data:
+                encounter_data = encounter_data['result'][0] if encounter_data['result'] else None
+            
+            if encounter_data:
+                serialized_result = serialize_encounter(encounter_data)
+                print(f"[DEBUG] Serialized encounter result: {serialized_result}")
+                return serialized_result
+            else:
+                print("[DEBUG] No encounter found in query result")
+                return None
+        else:
+            print("[DEBUG] No encounter found")
+            return None
+    except Exception as e:
+        print(f"[DEBUG] Error getting encounter: {e}")
+        return None
+    finally:
+        db.close()
+
+
+def get_encounters_by_patient(patient_id: str):
+    """Get all encounters for a specific patient"""
+    print(f"[DEBUG] Getting encounters for patient: {patient_id}")
+    db = DbController()
+    db.connect()
+    
+    try:
+        query = "SELECT * FROM encounter WHERE patient = $patient_id ORDER BY date_created DESC"
+        params = {"patient_id": f"patient:{patient_id}"}
+        
+        print(f"[DEBUG] Executing patient encounters query: {query} with params: {params}")
+        result = db.query(query, params)
+        print(f"[DEBUG] Patient encounters query result: {result}")
+        
+        # Handle the result structure
+        if result and isinstance(result, list) and len(result) > 0:
+            encounters_data = result[0]
+            if isinstance(encounters_data, dict) and 'result' in encounters_data:
+                encounters = encounters_data['result']
+            else:
+                encounters = result
+            
+            if isinstance(encounters, list):
+                serialized_encounters = [serialize_encounter(encounter) for encounter in encounters]
+                print(f"[DEBUG] Serialized patient encounters: {serialized_encounters}")
+                return serialized_encounters
+            else:
+                print("[DEBUG] Patient encounters is not a list")
+                return []
+        else:
+            print("[DEBUG] No patient encounters found")
+            return []
+    except Exception as e:
+        print(f"[DEBUG] Error getting patient encounters: {e}")
+        return []
+    finally:
+        db.close()
+
+
+def create_encounter(encounter_data: dict, patient_id: str):
+    """Create a new encounter record"""
+    print(f"[DEBUG] Creating encounter with data: {encounter_data}")
+    db = DbController()
+    db.connect()
+    
+    try:
+        # Generate a new note_id if not provided
+        if not encounter_data.get("note_id"):
+            print("[DEBUG] No note_id provided, generating new one...")
+            results = db.select_many('encounter')
+            if results and isinstance(results, list) and len(results) > 0:
+                existing_ids = [int(e.get('note_id', 0)) for e in results if e.get('note_id')]
+                new_id = max(existing_ids) + 1 if existing_ids else 1000
+            else:
+                new_id = 1000
+            encounter_data["note_id"] = str(new_id)
+            print(f"[DEBUG] Generated note_id: {new_id}")
+        
+        # Create Encounter object
+        encounter = Encounter(
+            note_id=encounter_data["note_id"],
+            date_created=encounter_data.get("date_created"),
+            provider_id=encounter_data.get("provider_id"),
+            additional_notes=encounter_data.get("note_text"),
+            diagnostic_codes=encounter_data.get("diagnostic_codes", [])
+        )
+        
+        print(f"[DEBUG] Created Encounter object: {encounter}")
+        result = store_encounter(db, encounter, f"patient:{patient_id}")
+        print(f"[DEBUG] Store encounter result: {result}")
+        
+        # Handle different result structures
+        if result and isinstance(result, list) and len(result) > 0:
+            if 'result' in result[0]:
+                final_result = serialize_encounter(result[0]['result'])
+            else:
+                final_result = serialize_encounter(result[0])
+        elif result and isinstance(result, dict):
+            final_result = serialize_encounter(result)
+        else:
+            final_result = None
+        
+        print(f"[DEBUG] Final encounter result: {final_result}")
+        return final_result
+    except Exception as e:
+        print(f"[DEBUG] Error creating encounter: {e}")
+        return None
+    finally:
+        db.close()
+
+
+def update_encounter(encounter_id: str, encounter_data: dict):
+    """Update an encounter record with only the provided fields"""
+    print(f"[DEBUG] Updating encounter with ID: {encounter_id}")
+    db = DbController()
+    db.connect()
+    
+    try:
+        # List of valid encounter fields
+        valid_fields = {
+            "date_created", "provider_id", "note_text", "diagnostic_codes", "status"
+        }
+
+        # Only include fields present in encounter_data and valid for the encounter
+        update_data = {k: v for k, v in encounter_data.items() if k in valid_fields and v is not None}
+
+        if not update_data:
+            print("[DEBUG] No valid fields to update for encounter.")
+            return None
+
+        set_clause = ", ".join([f"{k} = ${k}" for k in update_data.keys()])
+        query = f"UPDATE encounter SET {set_clause} WHERE note_id = $encounter_id RETURN *"
+        params = {**update_data, "encounter_id": encounter_id}
+        
+        print(f"[DEBUG] Executing encounter update query: {query} with params: {params}")
+        result = db.query(query, params)
+        print(f"[DEBUG] Encounter update result: {result}")
+        
+        # Handle the result structure
+        if result and isinstance(result, list) and len(result) > 0:
+            encounter_data = result[0]
+            if isinstance(encounter_data, dict) and 'result' in encounter_data:
+                encounter_data = encounter_data['result'][0] if encounter_data['result'] else None
+            
+            if encounter_data:
+                serialized_result = serialize_encounter(encounter_data)
+                print(f"[DEBUG] Serialized encounter update result: {serialized_result}")
+                return serialized_result
+            else:
+                print("[DEBUG] No encounter found in update result")
+                return None
+        else:
+            print("[DEBUG] Encounter update failed or no encounter found")
+            return None
+    except Exception as e:
+        print(f"[DEBUG] Error updating encounter: {e}")
+        return None
+    finally:
+        db.close()
+
+
+def delete_encounter(encounter_id: str):
+    """Delete an encounter record"""
+    print(f"[DEBUG] Deleting encounter with ID: {encounter_id}")
+    db = DbController()
+    db.connect()
+    
+    try:
+        query = "DELETE FROM encounter WHERE note_id = $encounter_id"
+        params = {"encounter_id": encounter_id}
+        
+        print(f"[DEBUG] Executing encounter delete query: {query} with params: {params}")
+        result = db.query(query, params)
+        print(f"[DEBUG] Encounter delete result: {result}")
+        
+        # Check if the delete was successful
+        if result and isinstance(result, list) and len(result) > 0:
+            delete_info = result[0]
+            if isinstance(delete_info, dict) and 'result' in delete_info:
+                deleted_count = len(delete_info['result']) if delete_info['result'] else 0
+                print(f"[DEBUG] Deleted {deleted_count} encounter records")
+                return deleted_count > 0
+            else:
+                print("[DEBUG] Encounter delete result structure unexpected")
+                return False
+        else:
+            print("[DEBUG] No encounter delete result")
+            return False
+    except Exception as e:
+        print(f"[DEBUG] Error deleting encounter: {e}")
+        return None
     finally:
         db.close()
 

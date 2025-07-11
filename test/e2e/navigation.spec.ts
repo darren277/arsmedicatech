@@ -56,9 +56,6 @@ test.describe('Navigation Tests', () => {
     // Check that main content area is present
     await expect(page.locator('main')).toBeVisible();
 
-    // Check that the "Create New" button is present
-    await expect(page.locator('.create-new-button')).toBeVisible();
-
     // Check for dashboard content by looking for common dashboard elements
     const dashboardContent = page
       .locator('h1, h2, .dashboard, [class*="dashboard"]')

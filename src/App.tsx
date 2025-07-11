@@ -2,12 +2,12 @@ import { useState } from 'react';
 import Joyride from 'react-joyride';
 import { Outlet } from 'react-router-dom';
 import './App.css';
-import Patient from './components/Patient';
 import PatientForm from './components/PatientForm';
-import PatientList from './components/PatientList';
-import { PatientTable } from './components/PatientTable';
-import { usePatientSearch } from './hooks/usePatientSearch';
 import { tourSteps } from './onboarding/tourSteps';
+import { EncounterDetail } from './pages/EncounterDetail';
+import { EncounterFormPage } from './pages/EncounterForm';
+import { PatientDetail } from './pages/PatientDetail';
+import { Patients } from './pages/Patients';
 
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -36,8 +36,6 @@ function Home() {
   const isTestMode = true;
   const [runTour, setRunTour] = useState(!isTestMode);
 
-  const { query, setQuery, results, loading } = usePatientSearch();
-
   // Get notification context
   const {
     unreadCount,
@@ -53,10 +51,6 @@ function Home() {
       <Sidebar />
       <div className="main-container">
         <Topbar
-          query={query}
-          onQueryChange={setQuery}
-          results={results}
-          loading={loading}
           unreadCount={unreadCount}
           recentNotifications={getRecentNotifications(5)}
           onMarkAsRead={markAsRead}
@@ -65,14 +59,11 @@ function Home() {
           onClearAll={clearAllNotifications}
         />
 
-        <PatientTable rows={results} />
-
         <div className="main-content">
           <main>
             {/* This is where the nested routes will render */}
             <Outlet />
           </main>
-          <button className="create-new-button">Create New</button>
           <Joyride
             steps={tourSteps}
             continuous={true} // let the user move from step to step seamlessly
@@ -131,10 +122,17 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { path: 'about', element: <About /> },
       { path: 'contact', element: <Contact /> },
-      { path: 'patients', element: <PatientList /> },
+      { path: 'patients', element: <Patients /> },
       { path: 'patients/new', element: <PatientForm /> },
-      { path: 'patients/:id', element: <Patient /> },
-      { path: 'patients/:id/edit', element: <PatientForm /> },
+      { path: 'patients/:patientId', element: <PatientDetail /> },
+      { path: 'patients/:patientId/edit', element: <PatientForm /> },
+      { path: 'encounters/:encounterId', element: <EncounterDetail /> },
+      { path: 'encounters/new', element: <EncounterFormPage /> },
+      { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
+      {
+        path: 'patients/:patientId/encounters/new',
+        element: <EncounterFormPage />,
+      },
       { path: 'intake/:patientId', element: <PatientIntakeForm /> },
       { path: 'schedule', element: <Schedule /> },
       { path: 'messages', element: <Messages /> },
