@@ -17,7 +17,9 @@ jest.mock('react-router-dom', () => ({
 
 // Mock the UserContext
 jest.mock('../components/UserContext', () => ({
-  UserProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="user-provider">{children}</div>,
+  UserProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="user-provider">{children}</div>
+  ),
 }));
 
 // Mock components that might cause issues in tests
