@@ -87,9 +87,7 @@ spec:
         name: oscar-db-data
       spec:
         accessModes: ["ReadWriteOnce"]
-        {{- if .Values.database.storage.storageClass }}
         storageClassName: {{ .Values.database.storage.storageClass }}
-        {{- end }}
         resources:
           requests:
             storage: {{ .Values.database.storage.size }}
