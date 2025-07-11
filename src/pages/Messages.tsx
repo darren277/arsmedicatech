@@ -64,12 +64,16 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
 ];
 
 const Messages = () => {
+  console.log('Messages component rendering');
+
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
   const { isModalOpen, showModal, hideModal } = useNewConversationModal();
   const [selectedMessages, setSelectedMessages] = useState<
     { sender: string; text: string }[]
   >([]);
+
+  console.log('Messages: isAuthenticated:', isAuthenticated);
 
   // Initialize notification system
   const {
@@ -102,8 +106,8 @@ const Messages = () => {
       console.log('Received new message notification:', data);
 
       // Add notification for new message
-      addNotification({
-        type: 'new_message',
+      const notification = {
+        type: 'new_message' as const,
         title: 'New Message',
         message: data.text,
         timestamp: data.timestamp,
@@ -111,7 +115,11 @@ const Messages = () => {
           sender: data.sender,
           conversation_id: data.conversation_id,
         },
-      });
+      };
+
+      console.log('Adding notification:', notification);
+      addNotification(notification);
+      console.log('Notification added successfully');
 
       // Update conversation list with new message
       setConversations(prevConversations =>
@@ -186,11 +194,13 @@ const Messages = () => {
   );
 
   // Initialize SSE connection
+  console.log('Messages: Setting up SSE connection with callbacks');
   useEvents({
     onNewMessage: handleNewMessage,
     onAppointmentReminder: handleAppointmentReminder,
     onSystemNotification: handleSystemNotification,
   });
+  console.log('Messages: SSE connection setup complete');
 
   // Fetch messages when a conversation is selected
   useEffect(() => {

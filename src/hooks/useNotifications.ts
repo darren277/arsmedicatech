@@ -23,13 +23,23 @@ const useNotifications = () => {
   // Add a new notification
   const addNotification = useCallback(
     (notification: Omit<Notification, 'id' | 'isRead'>) => {
+      console.log('useNotifications: Adding notification:', notification);
+
       const newNotification: Notification = {
         ...notification,
         id: Date.now().toString(),
         isRead: false,
       };
 
-      setNotifications(prev => [newNotification, ...prev]);
+      console.log(
+        'useNotifications: Created new notification:',
+        newNotification
+      );
+      setNotifications(prev => {
+        const updated = [newNotification, ...prev];
+        console.log('useNotifications: Updated notifications array:', updated);
+        return updated;
+      });
     },
     []
   );

@@ -28,6 +28,9 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"], "supports_credentials": True, "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization"]}})
 
 app.secret_key = FLASK_SECRET_KEY
+app.config['SESSION_COOKIE_SECURE'] = False  # Allow HTTP in development
+app.config['SESSION_COOKIE_HTTPONLY'] = False  # Allow JavaScript access
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow cross-site requests
 
 metrics = PrometheusMetrics(app)
 
@@ -41,19 +44,42 @@ sse_bp = Blueprint('sse', __name__)
 @sse_bp.route('/api/events/stream', methods=['OPTIONS'])
 #@jwt_required()
 def stream_events():
+    print(f"SSE endpoint called - Method: {request.method}")
+    print(f"SSE endpoint - Origin: {request.headers.get('Origin')}")
+    print(f"SSE endpoint - Headers: {dict(request.headers)}")
+    print(f"SSE endpoint - Session: {dict(session)}")
+    print(f"SSE endpoint - Session cookie: {request.cookies.get('session')}")
+    print(f"SSE endpoint - All cookies: {dict(request.cookies)}")
+    
     # Handle preflight OPTIONS request
     if request.method == 'OPTIONS':
+        print("SSE endpoint - Handling OPTIONS preflight request")
         response = Response()
         origin = request.headers.get('Origin')
         print(f"OPTIONS Origin: {origin}")
         if origin and ('localhost:3012' in origin or '127.0.0.1:3012' in origin or 'localhost:3000' in origin or '127.0.0.1:3000' in origin or 'localhost:3123' in origin or '127.0.0.1:3123' in origin):
             response.headers['Access-Control-Allow-Origin'] = origin
+            print(f"Setting Access-Control-Allow-Origin to: {origin}")
+        else:
+            print(f"Origin {origin} not in allowed list")
         response.headers['Access-Control-Allow-Credentials'] = 'true'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
         response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+        print(f"OPTIONS response headers: {dict(response.headers)}")
+        print("SSE endpoint - Returning OPTIONS response")
         return response
 
     user_id = session.get('user_id')
+    print(f"SSE endpoint - user_id from session: {user_id}")
+
+    # For testing, also try to get user_id from query parameter
+    if not user_id:
+        user_id = request.args.get('user_id')
+        print(f"SSE endpoint - user_id from query param: {user_id}")
+
+    if not user_id:
+        print("SSE endpoint - No user_id in session or query param, returning 401")
+        return Response("Unauthorized", status=401, mimetype="text/plain")
 
     redis = get_redis_connection()
     pubsub = redis.pubsub()
@@ -86,10 +112,15 @@ def stream_events():
     print(f"GET Origin: {origin}")
     if origin and ('localhost:3012' in origin or '127.0.0.1:3012' in origin or 'localhost:3000' in origin or '127.0.0.1:3000' in origin or 'localhost:3123' in origin or '127.0.0.1:3123' in origin):
         response.headers['Access-Control-Allow-Origin'] = origin
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
+        print(f"Setting GET Access-Control-Allow-Origin to: {origin}")
+    else:
+        print(f"GET Origin {origin} not in allowed list")
+    # Don't require credentials for SSE
+    response.headers['Access-Control-Allow-Credentials'] = 'false'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     response.headers['Cache-Control'] = 'no-cache'
     response.headers['Connection'] = 'keep-alive'
+    print(f"GET response headers: {dict(response.headers)}")
     return response
 
 
