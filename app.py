@@ -111,6 +111,24 @@ def sse():
 
     return jsonify({"message": "Event published successfully"}), 200
 
+@app.route('/api/test/appointment-reminder', methods=['POST'])
+def test_appointment_reminder():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.json
+    event_data = {
+        "type": "appointment_reminder",
+        "appointmentId": data.get('appointmentId', 'test-123'),
+        "time": data.get('time', str(time.time())),
+        "content": data.get('content', 'Test appointment reminder'),
+        "timestamp": str(time.time())
+    }
+    publish_event_with_buffer(user_id, event_data)
+
+    return jsonify({"message": "Appointment reminder sent successfully"}), 200
+
 
 
 @app.route('/api/', methods=['GET'])
