@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Install MariaDB Connector/C
+        run: sudo apt-get update && sudo apt-get install -y libmariadb-dev
+
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
