@@ -1,4 +1,5 @@
 module.exports = {
+  rootDir: '..',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   moduleNameMapper: {
@@ -19,7 +20,7 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: './babel.config.js' }],
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: './config/babel.config.js' }],
   },
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],

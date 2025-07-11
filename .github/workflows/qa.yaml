@@ -40,4 +40,4 @@ jobs:
         run: npm test
 
       - name: TypeScript type check
-        run: npx tsc --noEmit
+        run: npm run type-check
