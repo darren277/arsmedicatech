@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import apiService from '../services/api';
+import logger from '../services/logging';
 import EditProfile from './EditProfile';
 import Profile from './Profile';
 import './Settings.css';
@@ -76,12 +77,12 @@ const Settings: React.FC = () => {
 
   const loadProfile = async () => {
     try {
-      console.log('[DEBUG] loadProfile - Starting profile load');
+      logger.debug('loadProfile - Starting profile load');
       setProfileLoading(true);
 
-      console.log('[DEBUG] loadProfile - Making API request to /profile');
+      logger.debug('loadProfile - Making API request to /profile');
       const response = await apiService.getAPI('/profile');
-      console.log('[DEBUG] loadProfile - API response:', response);
+      logger.debug('loadProfile - API response:', response);
 
       if (response.success) {
         console.log(
@@ -97,7 +98,7 @@ const Settings: React.FC = () => {
       console.error('Error loading profile:', error);
       setMessage({ type: 'error', text: 'Failed to load profile' });
     } finally {
-      console.log('[DEBUG] loadProfile - Setting profileLoading to false');
+      logger.debug('loadProfile - Setting profileLoading to false');
       setProfileLoading(false);
     }
   };

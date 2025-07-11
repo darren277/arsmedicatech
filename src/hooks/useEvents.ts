@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import API_URL from '../env_vars';
+import logger from '../services/logging';
 
 interface EventCallbacks {
   onNewMessage?: (data: any) => void;
@@ -22,9 +23,9 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
     const user_id = user.id || 'test-user-id';
 
     const sseUrl = `${API_URL}/api/events/stream?since=${lastEventTimestampRef.current}&user_id=${user_id}`;
-    console.log('Connecting to SSE URL:', sseUrl);
-    console.log('API_URL:', API_URL);
-    console.log('User ID for SSE:', user_id);
+    logger.debug('Connecting to SSE URL:', sseUrl);
+    logger.debug('API_URL:', API_URL);
+    logger.debug('User ID for SSE:', user_id);
 
     // Try using fetch with streaming instead of EventSource
     fetch(sseUrl, {
@@ -35,8 +36,8 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
       },
     })
       .then(response => {
-        console.log('Fetch response status:', response.status);
-        console.log('Fetch response headers:', response.headers);
+        logger.debug('Fetch response status:', response.status);
+        logger.debug('Fetch response headers:', response.headers);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -47,19 +48,19 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
           throw new Error('No response body reader available');
         }
 
-        console.log('SSE connection opened successfully via fetch');
+        logger.debug('SSE connection opened successfully via fetch');
 
         const processStream = () => {
           reader
             .read()
             .then(({ done, value }) => {
               if (done) {
-                console.log('SSE stream ended');
+                logger.debug('SSE stream ended');
                 return;
               }
 
               const chunk = new TextDecoder().decode(value);
-              console.log('SSE chunk received:', chunk);
+              logger.debug('SSE chunk received:', chunk);
 
               // Process the chunk for SSE events
               const lines = chunk.split('\n');
@@ -68,20 +69,23 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
                   const data = line.slice(6);
                   try {
                     const eventData = JSON.parse(data);
-                    console.log('SSE event received:', eventData);
+                    logger.debug('SSE event received:', eventData);
 
                     switch (eventData.type) {
                       case 'new_message':
-                        console.log('Processing new_message event:', eventData);
+                        logger.debug(
+                          'Processing new_message event:',
+                          eventData
+                        );
                         if (callbacks.onNewMessage) {
-                          console.log('Calling onNewMessage callback');
+                          logger.debug('Calling onNewMessage callback');
                           callbacks.onNewMessage(eventData);
                         } else {
-                          console.log('No onNewMessage callback provided');
+                          logger.debug('No onNewMessage callback provided');
                         }
                         break;
                       case 'appointment_reminder':
-                        console.log(
+                        logger.debug(
                           'Processing appointment_reminder event:',
                           eventData
                         );
@@ -90,7 +94,7 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
                         }
                         break;
                       case 'system_notification':
-                        console.log(
+                        logger.debug(
                           'Processing system_notification event:',
                           eventData
                         );
@@ -99,12 +103,10 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
                         }
                         break;
                       default:
-                        console.log(
-                          'Unknown event type:',
-                          eventData.type,
-                          'with data:',
-                          eventData
-                        );
+                        logger.debug('Unknown event type:', {
+                          t: eventData.type,
+                          eventData,
+                        });
                     }
                   } catch (error) {
                     console.error('Error parsing SSE event:', error);
@@ -123,7 +125,7 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
                 clearTimeout(reconnectTimeoutRef.current);
               }
               reconnectTimeoutRef.current = setTimeout(() => {
-                console.log('Attempting to reconnect to SSE...');
+                logger.debug('Attempting to reconnect to SSE...');
                 connect();
               }, 5000);
             });
@@ -138,7 +140,7 @@ const useEvents = (callbacks: EventCallbacks = {}) => {
           clearTimeout(reconnectTimeoutRef.current);
         }
         reconnectTimeoutRef.current = setTimeout(() => {
-          console.log('Attempting to reconnect to SSE...');
+          logger.debug('Attempting to reconnect to SSE...');
           connect();
         }, 5000);
       });

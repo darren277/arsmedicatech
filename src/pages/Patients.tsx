@@ -7,6 +7,7 @@ import { PatientTable } from '../components/PatientTable';
 import SearchBox from '../components/SearchBox';
 import { usePatientSearch } from '../hooks/usePatientSearch';
 import { encounterAPI, patientAPI } from '../services/api';
+import logger from '../services/logging';
 import { EncounterType, PatientType } from '../types';
 
 export function Patients() {
@@ -40,16 +41,16 @@ export function Patients() {
 
   // Load encounters when switching to encounters tab, when patient selection changes, or on initial load
   useEffect(() => {
-    console.log('[DEBUG] Encounters useEffect triggered:', {
+    logger.debug('Encounters useEffect triggered:', {
       activeTab,
       selectedPatient,
     });
     if (activeTab === 'encounters') {
       if (selectedPatient?.demographic_no) {
-        console.log('[DEBUG] Loading encounters for selected patient');
+        logger.debug('Loading encounters for selected patient');
         loadPatientEncounters(selectedPatient.demographic_no);
       } else {
-        console.log('[DEBUG] Loading all encounters');
+        logger.debug('Loading all encounters');
         loadAllEncounters();
       }
     }
@@ -68,11 +69,11 @@ export function Patients() {
   };
 
   const loadAllEncounters = async () => {
-    console.log('[DEBUG] Loading all encounters...');
+    logger.debug('Loading all encounters...');
     setIsLoading(true);
     try {
       const data = await encounterAPI.getAll();
-      console.log('[DEBUG] Encounters loaded:', data);
+      logger.debug('Encounters loaded:', data);
       setEncounters(data);
     } catch (error) {
       console.error('Error loading all encounters:', error);
@@ -82,11 +83,11 @@ export function Patients() {
   };
 
   const loadPatientEncounters = async (patientId: string) => {
-    console.log('[DEBUG] Loading encounters for patient:', patientId);
+    logger.debug('Loading encounters for patient:', patientId);
     setIsLoading(true);
     try {
       const data = await encounterAPI.getByPatient(patientId);
-      console.log('[DEBUG] Patient encounters loaded:', data);
+      logger.debug('Patient encounters loaded:', data);
       setEncounters(data);
     } catch (error) {
       console.error('Error loading patient encounters:', error);

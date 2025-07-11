@@ -26,7 +26,7 @@ import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
 function Home() {
-  console.log('Home component rendered');
+  logger.debug('Home component rendered');
 
   // TODO: Make this more programmatically flexible...
   // [AMT-035] User Onboarding Flows
