@@ -9,13 +9,13 @@ from settings import logger
 
 def patch_intake_route(patient_id):
     payload = request.get_json()
-    print(f"[DEBUG] Patching patient {patient_id} with payload: {payload}")
+    logger.debug(f"Patching patient {patient_id} with payload: {payload}")
 
     # Map 'User:' to patient ID if needed
     patient_id = patient_id.replace('User:', '')
 
     result = update_patient(patient_id, payload)
-    print(f"[DEBUG] Update result: {result}")
+    logger.debug(f"Update result: {result}")
     if not result:
         logger.error(f"Failed to update patient {patient_id}: {result}")
         return jsonify({"error": "Failed to update patient"}), 400
@@ -50,14 +50,14 @@ def search_encounters_route():
 
 
 def patient_endpoint_route(patient_id):
-    print(f"[DEBUG] Patient endpoint called with patient_id: {patient_id}")
-    print(f"[DEBUG] Request method: {request.method}")
+    logger.debug(f"Patient endpoint called with patient_id: {patient_id}")
+    logger.debug(f"Request method: {request.method}")
 
     if request.method == 'GET':
         # Get a specific patient
-        print(f"[DEBUG] Getting patient with ID: {patient_id}")
+        logger.debug(f"Getting patient with ID: {patient_id}")
         patient = get_patient_by_id(patient_id)
-        print(f"[DEBUG] Patient result: {patient}")
+        logger.debug(f"Patient result: {patient}")
         if patient:
             return jsonify(patient)
         else:

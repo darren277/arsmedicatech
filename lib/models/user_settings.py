@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 from lib.services.encryption import get_encryption_service
 
+from settings import logger
+
 
 class UserSettings:
     """Model for user settings and preferences"""
@@ -31,17 +33,17 @@ class UserSettings:
     def get_openai_api_key(self) -> str:
         """Get decrypted OpenAI API key"""
         if not self.openai_api_key:
-            print("[DEBUG] No API key stored in settings")
+            logger.debug("No API key stored in settings")
             return ""
         
-        print(f"[DEBUG] Attempting to decrypt API key (stored length: {len(self.openai_api_key)})")
+        logger.debug(f"Attempting to decrypt API key (stored length: {len(self.openai_api_key)})")
         try:
             encryption_service = get_encryption_service()
             result = encryption_service.decrypt_api_key(self.openai_api_key)
-            print(f"[DEBUG] API key decryption result length: {len(result)}")
+            logger.debug(f"API key decryption result length: {len(result)}")
             return result
         except Exception as e:
-            print(f"[ERROR] Failed to decrypt OpenAI API key: {e}")
+            logger.error(f"Failed to decrypt OpenAI API key: {e}")
             return ""
     
     def has_openai_api_key(self) -> bool:
@@ -57,7 +59,7 @@ class UserSettings:
                 encryption_service = get_encryption_service()
                 encrypted_api_key = encryption_service.encrypt_api_key(self.openai_api_key)
             except Exception as e:
-                print(f"[ERROR] Failed to encrypt OpenAI API key: {e}")
+                logger.error(f"Failed to encrypt OpenAI API key: {e}")
         
         return {
             'user_id': self.user_id,

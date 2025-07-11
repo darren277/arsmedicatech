@@ -6,15 +6,17 @@ from lib.services.conversation_service import ConversationService
 from lib.services.user_service import UserService
 from lib.services.notifications import publish_event_with_buffer
 
+from settings import logger
+
 
 def create_conversation_route():
     """Create a new conversation"""
-    print(f"[DEBUG] ===== CONVERSATION CREATION ENDPOINT CALLED =====")
+    logger.debug(f"===== CONVERSATION CREATION ENDPOINT CALLED =====")
     current_user_id = get_current_user().user_id
     data = request.json
 
-    print(f"[DEBUG] Creating conversation - current user: {current_user_id}")
-    print(f"[DEBUG] Request data: {data}")
+    logger.debug(f"Creating conversation - current user: {current_user_id}")
+    logger.debug(f"Request data: {data}")
 
     if not data:
         return jsonify({"error": "No data provided"}), 400
@@ -22,14 +24,14 @@ def create_conversation_route():
     participants = data.get('participants', [])
     conversation_type = data.get('type', 'user_to_user')
 
-    print(f"[DEBUG] Participants: {participants}")
-    print(f"[DEBUG] Conversation type: {conversation_type}")
+    logger.debug(f"Participants: {participants}")
+    logger.debug(f"Conversation type: {conversation_type}")
 
     # Ensure current user is included in participants
     if current_user_id not in participants:
         participants.append(current_user_id)
 
-    print(f"[DEBUG] Final participants: {participants}")
+    logger.debug(f"Final participants: {participants}")
 
     if len(participants) < 2:
         return jsonify({"error": "At least 2 participants are required"}), 400
@@ -39,8 +41,8 @@ def create_conversation_route():
     try:
         success, message, conversation = conversation_service.create_conversation(participants, conversation_type)
 
-        print(f"[DEBUG] Conversation creation result - success: {success}, message: {message}")
-        print(f"[DEBUG] Conversation object: {conversation.to_dict() if conversation else None}")
+        logger.debug(f"Conversation creation result - success: {success}, message: {message}")
+        logger.debug(f"Conversation object: {conversation.to_dict() if conversation else None}")
 
         if success and conversation:
             return jsonify({
@@ -55,13 +57,13 @@ def create_conversation_route():
 
 def send_message_route(conversation_id):
     """Send a message in a conversation"""
-    print(f"[DEBUG] ===== SEND MESSAGE ENDPOINT CALLED =====")
+    logger.debug(f"===== SEND MESSAGE ENDPOINT CALLED =====")
     current_user_id = get_current_user().user_id
     data = request.json
 
-    print(f"[DEBUG] Sending message to conversation: {conversation_id}")
-    print(f"[DEBUG] Current user: {current_user_id}")
-    print(f"[DEBUG] Message data: {data}")
+    logger.debug(f"Sending message to conversation: {conversation_id}")
+    logger.debug(f"Current user: {current_user_id}")
+    logger.debug(f"Message data: {data}")
 
     if not data or 'text' not in data:
         return jsonify({"error": "Message text is required"}), 400
@@ -72,22 +74,22 @@ def send_message_route(conversation_id):
     conversation_service.connect()
     try:
         # Verify conversation exists and user is a participant
-        print(f"[DEBUG] Looking up conversation: {conversation_id}")
+        logger.debug(f"Looking up conversation: {conversation_id}")
         conversation = conversation_service.get_conversation_by_id(conversation_id)
         if not conversation:
-            print(f"[DEBUG] Conversation not found: {conversation_id}")
+            logger.debug(f"Conversation not found: {conversation_id}")
             return jsonify({"error": "Conversation not found"}), 404
 
-        print(f"[DEBUG] Found conversation: {conversation.id}")
+        logger.debug(f"Found conversation: {conversation.id}")
         if not conversation.is_participant(current_user_id):
             return jsonify({"error": "Access denied"}), 403
 
         # Add message
-        print(f"[DEBUG] Adding message to conversation")
+        logger.debug(f"Adding message to conversation")
         success, message, msg_obj = conversation_service.add_message(conversation_id, current_user_id, message_text)
 
         if success and msg_obj:
-            print(f"[DEBUG] Message sent successfully: {msg_obj.id}")
+            logger.debug(f"Message sent successfully: {msg_obj.id}")
             
             # Publish notification to all other participants
             for participant_id in conversation.participants:
@@ -116,7 +118,7 @@ def send_message_route(conversation_id):
                 "timestamp": msg_obj.created_at
             }), 200
         else:
-            print(f"[DEBUG] Failed to send message: {message}")
+            logger.debug(f"Failed to send message: {message}")
             return jsonify({"error": message}), 400
 
     finally:
@@ -172,15 +174,15 @@ def get_user_conversations_route():
     """Get all conversations for the current user"""
     current_user_id = get_current_user().user_id
 
-    print(f"[DEBUG] Getting conversations for user: {current_user_id}")
+    logger.debug(f"Getting conversations for user: {current_user_id}")
 
     conversation_service = ConversationService()
     conversation_service.connect()
     try:
         conversations = conversation_service.get_user_conversations(current_user_id)
-        print(f"[DEBUG] Found {len(conversations)} conversations")
+        logger.debug(f"Found {len(conversations)} conversations")
         for conv in conversations:
-            print(f"[DEBUG] Conversation: {conv.id} - {conv.participants} - {conv.conversation_type}")
+            logger.debug(f"Conversation: {conv.id} - {conv.participants} - {conv.conversation_type}")
 
         # Convert to frontend format
         conversation_list = []

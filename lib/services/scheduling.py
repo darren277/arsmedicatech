@@ -6,6 +6,8 @@ from typing import List, Optional, Tuple, Dict, Any
 from lib.db.surreal import DbController
 from lib.models.appointment import Appointment, AppointmentStatus, AppointmentType
 
+from settings import logger
+
 
 class SchedulingService:
     def __init__(self):
@@ -87,7 +89,7 @@ class SchedulingService:
                 return Appointment.from_dict(result)
             return None
         except Exception as e:
-            print(f"Error getting appointment: {e}")
+            logger.error(f"Error getting appointment: {e}")
             return None
     
     def get_appointments_by_date(self, date: str, provider_id: str = None) -> List[Appointment]:
@@ -112,7 +114,7 @@ class SchedulingService:
             
             return appointments
         except Exception as e:
-            print(f"Error getting appointments by date: {e}")
+            logger.error(f"Error getting appointments by date: {e}")
             return []
     
     def get_appointments_by_patient(self, patient_id: str) -> List[Appointment]:
@@ -133,7 +135,7 @@ class SchedulingService:
             
             return appointments
         except Exception as e:
-            print(f"Error getting appointments by patient: {e}")
+            logger.error(f"Error getting appointments by patient: {e}")
             return []
     
     def get_appointments_by_provider(self, provider_id: str, start_date: str = None, end_date: str = None) -> List[Appointment]:
@@ -159,52 +161,52 @@ class SchedulingService:
             
             return appointments
         except Exception as e:
-            print(f"Error getting appointments by provider: {e}")
+            logger.error(f"Error getting appointments by provider: {e}")
             return []
     
     def get_all_appointments(self) -> List[Appointment]:
         """Get all appointments (for debugging)"""
         try:
-            print("[DEBUG] get_all_appointments: Starting query...")
+            logger.debug("get_all_appointments: Starting query...")
             
             # First, let's see what tables exist
-            print("[DEBUG] Checking what tables exist...")
+            logger.debug("Checking what tables exist...")
             tables_query = "INFO FOR DB"
             tables_result = self.db.query(tables_query, {})
-            print(f"[DEBUG] Tables query result: {tables_result}")
+            logger.debug(f"Tables query result: {tables_result}")
             
             # Try a simple query to see what's in the appointment table
-            print("[DEBUG] Trying simple SELECT query...")
+            logger.debug("Trying simple SELECT query...")
             simple_query = "SELECT * FROM appointment"
             simple_result = self.db.query(simple_query, {})
-            print(f"[DEBUG] Simple query result: {simple_result}")
+            logger.debug(f"Simple query result: {simple_result}")
             
             # Now try the full query
             query = "SELECT * FROM appointment ORDER BY appointment_date, start_time"
-            print(f"[DEBUG] Executing query: {query}")
+            logger.debug(f"Executing query: {query}")
             results = self.db.query(query, {})
-            print(f"[DEBUG] Full query results: {results}")
+            logger.debug(f"Full query results: {results}")
             
             appointments = []
             
             for result in results:
-                print(f"[DEBUG] Processing result: {result}")
+                logger.debug(f"Processing result: {result}")
                 # The result is already the record, not nested under 'result'
                 if isinstance(result, dict):
-                    print(f"[DEBUG] Processing record: {result}")
+                    logger.debug(f"Processing record: {result}")
                     appointments.append(Appointment.from_dict(result))
                 elif result.get('result'):
                     # Fallback for nested structure
                     for record in result['result']:
-                        print(f"[DEBUG] Processing nested record: {record}")
+                        logger.debug(f"Processing nested record: {record}")
                         appointments.append(Appointment.from_dict(record))
             
-            print(f"[DEBUG] Final appointments list: {appointments}")
+            logger.debug(f"Final appointments list: {appointments}")
             return appointments
         except Exception as e:
-            print(f"Error getting all appointments: {e}")
+            logger.error(f"Error getting all appointments: {e}")
             import traceback
-            print(f"[ERROR] Traceback: {traceback.format_exc()}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return []
     
     def update_appointment(self, appointment_id: str, updates: Dict[str, Any]) -> Tuple[bool, str]:
@@ -336,7 +338,7 @@ class SchedulingService:
             return slots
             
         except Exception as e:
-            print(f"Error getting available slots: {e}")
+            logger.error(f"Error getting available slots: {e}")
             return []
     
     def _check_time_conflict(self, provider_id: str, date: str, start_time: str, end_time: str, exclude_id: str = None) -> Optional[str]:
@@ -357,7 +359,7 @@ class SchedulingService:
             return None
             
         except Exception as e:
-            print(f"Error checking time conflict: {e}")
+            logger.error(f"Error checking time conflict: {e}")
             return "Error checking availability"
     
     def _times_overlap(self, start1: str, end1: str, start2: str, end2: str) -> bool:

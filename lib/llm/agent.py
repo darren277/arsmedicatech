@@ -8,6 +8,9 @@ from openai import OpenAI
 from lib.llm.mcp_tools import fetch_mcp_tool_defs
 from lib.services.encryption import get_encryption_service
 
+from settings import logger
+
+
 DEFAULT_SYSTEM_PROMPT = """
 You are a clinical assistant that helps healthcare providers with patient care tasks.
 You can answer questions, provide information, and assist with various healthcare-related tasks.
@@ -32,8 +35,8 @@ async def process_tool_call(tool_call, tool_dict, session_id: str = None):
     arguments = json.loads(tool_call.function.arguments)
 
     for key, val in tool_dict.items():
-        print(f"[DEBUG] Tool: {key} -> {val}") # [DEBUG] Tool: _call -> <function fetch_mcp_tool_defs.<locals>.wrap.<locals>._call at 0x7f78720b23e0>
-        print(f"[DEBUG] Function: {function_name} -> {val.__name__}") # [DEBUG] Function: rag -> _call
+        logger.debug(f"Tool: {key} -> {val}") # [DEBUG] Tool: _call -> <function fetch_mcp_tool_defs.<locals>.wrap.<locals>._call at 0x7f78720b23e0>
+        logger.debug(f"Function: {function_name} -> {val.__name__}") # [DEBUG] Function: rag -> _call
 
     tool_function = tool_dict[function_name]
     if function_name in tools_with_keys:
@@ -123,7 +126,7 @@ class LLMAgent:
         agent = cls(api_key=api_key, **kwargs)
         for d in defs:
             name = d["function"]["name"]
-            print("[DEBUG] Adding tool:", d["function"]["name"], funcs[name], d)
+            logger.debug("Adding tool:", d["function"]["name"], funcs[name], d)
             agent.add_tool(name, funcs[name], d)
         return agent
 
@@ -133,8 +136,8 @@ class LLMAgent:
 
         api_key = get_encryption_service().encrypt_api_key(self.api_key)
 
-        print("[DEBUG] Sending request to OpenAI with model:", self.model.value)
-        print("[DEBUG] API Key:", api_key)
+        logger.debug("Sending request to OpenAI with model:", self.model.value)
+        logger.debug("API Key:", api_key)
 
         if not api_key:
             raise ValueError("API key is required for LLM access.")
@@ -154,7 +157,7 @@ class LLMAgent:
 
         # process tool calls if any...
         tool_calls = top_choice.tool_calls
-        print("Top choice:", top_choice)
+        logger.debug("Top choice:", top_choice)
 
         if tool_calls:
             await self.process_tool_calls(tool_calls)
@@ -170,8 +173,8 @@ class LLMAgent:
     async def process_tool_calls(self, tool_calls):
         api_key = get_encryption_service().encrypt_api_key(self.api_key)
 
-        print("[DEBUG] Sending request to OpenAI with model:", self.model.value)
-        print("[DEBUG] API Key:", api_key)
+        logger.debug("Sending request to OpenAI with model:", self.model.value)
+        logger.debug("API Key:", api_key)
 
         if not api_key: raise ValueError("API key is required for LLM access.")
 

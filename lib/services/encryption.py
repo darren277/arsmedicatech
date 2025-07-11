@@ -5,6 +5,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from typing import Optional
 
+from settings import logger
 
 class EncryptionService:
     """Service for encrypting and decrypting sensitive data like API keys"""
@@ -67,7 +68,7 @@ class EncryptionService:
             decrypted_data = self.cipher.decrypt(encrypted_bytes)
             return decrypted_data.decode()
         except Exception as e:
-            print(f"[ERROR] Failed to decrypt data: {e}")
+            logger.error(f"Failed to decrypt data: {e}")
             return ""
     
     def encrypt_api_key(self, api_key: str) -> str:

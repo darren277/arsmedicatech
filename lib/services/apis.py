@@ -2,6 +2,8 @@
 import time
 import requests
 
+from settings import logger
+
 icd10_codes = {
     'asthma': 'J45.40',
     'diabetes (type 2)': 'E11.9',
@@ -88,13 +90,13 @@ class NCBI:
     def fetch_ncbi_studies(self, query: str, debug: bool = False):
         hits, total_found = self.search_pubmed(query, max_records=10, with_abstract=True)
         if debug:
-            print(f"{total_found:,} articles in PubMed; showing {len(hits)} results:\n")
+            logger.debug(f"{total_found:,} articles in PubMed; showing {len(hits)} results:\n")
             for i, art in enumerate(hits, 1):
-                print(f"{i}. {art['title']}  ({art['journal']}, {art['pubdate']})")
-                print(f"   PMID: {art['pmid']}")
-                print(f"   Authors: {art['authors']}")
+                logger.debug(f"{i}. {art['title']}  ({art['journal']}, {art['pubdate']})")
+                logger.debug(f"   PMID: {art['pmid']}")
+                logger.debug(f"   Authors: {art['authors']}")
                 if 'abstract' in art:
-                    print(f"   Abstract (truncated): {art['abstract'][:300]}...\n")
+                    logger.debug(f"   Abstract (truncated): {art['abstract'][:300]}...\n")
         return hits
 
     def esearch(self, query, retmax=100):

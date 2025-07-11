@@ -7,6 +7,8 @@ from settings import SURREALDB_NAMESPACE, SURREALDB_ICD_DB
 from settings import SURREALDB_USER, SURREALDB_PASS
 from settings import SURREALDB_URL
 
+from settings import logger
+
 
 async def import_icd_codes(csv_file_path):
     db = AsyncSurreal(SURREALDB_URL)
@@ -18,16 +20,16 @@ async def import_icd_codes(csv_file_path):
         i = 0
         for row in reader:
             i += 1
-            print(row)
+            logger.debug(row)
             icd_code = row['CODE']
             short_description = row['SHORT DESCRIPTION (VALID ICD-10 FY2025)']
 
             await db.create(f"icd:{icd_code}", {"code": icd_code, "description": short_description})
 
             if i % 100 == 0:
-                print(f"{i} records inserted...")
+                logger.debug(f"{i} records inserted...")
 
-    print(f"{i} ICD codes imported successfully!")
+    logger.debug(f"{i} ICD codes imported successfully!")
     await db.close()
 
 
@@ -71,11 +73,11 @@ async def lookup_icd_code(icd_code):
     # Query the specific ICD code
     # TODO: Does not work?
     #result = await db.select(f"icd:{icd_code}")
-    #print("RESULT", result)
+    #logger.debug("RESULT", result)
 
     query = f"SELECT * FROM icd WHERE code = '{icd_code}';"
     result = await db.query(query)
-    print(f"Alternative query result: {result}")
+    logger.debug(f"Alternative query result: {result}")
 
     await db.close()
 
@@ -89,14 +91,14 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print("Usage:")
-        print("To migrate ICD data from CSV to SurrealDB: python lib/models/icd.py migrate <path_to_csv>")
-        print("To search for an ICD code: python lib/models/icd.py search <search_term> (ex: A000)")
+        logger.debug("Usage:")
+        logger.debug("To migrate ICD data from CSV to SurrealDB: python lib/models/icd.py migrate <path_to_csv>")
+        logger.debug("To search for an ICD code: python lib/models/icd.py search <search_term> (ex: A000)")
         sys.exit(1)
 
     if sys.argv[1] == "migrate":
         if len(sys.argv) < 3:
-            print("Please provide the path to the CSV file.")
+            logger.debug("Please provide the path to the CSV file.")
             sys.exit(1)
 
         path_to_csv = sys.argv[2]
@@ -111,4 +113,4 @@ if __name__ == "__main__":
         icd_code = sys.argv[2]
 
         result = asyncio.run(lookup_icd_code(icd_code))
-        print(result)
+        logger.debug(result)

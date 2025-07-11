@@ -1,4 +1,5 @@
 """"""
+from settings import logger
 
 class OptimalMetadata:
     def __init__(self, problem_id: str, solver: str, sense: str):
@@ -62,7 +63,7 @@ class OptimalService:
             timeout=30
         )
 
-        print(resp.status_code, resp.text)
+        logger.debug(resp.status_code, resp.text)
 
         if resp.status_code != 200:
             raise Exception(f"Optimal service error: {resp.status_code} - {resp.text}")

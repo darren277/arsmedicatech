@@ -3,6 +3,9 @@ from faker import Faker
 import factory
 from lib.models.patient import Patient
 
+from settings import logger
+
+
 fake = Faker()
 
 
@@ -50,8 +53,8 @@ def load_csv(path, n: int):
     return new_csv
 
 #new_csv = load_csv(path, 50)
-#print(len(new_csv))
-#print(new_csv)
+#logger.debug(len(new_csv))
+#logger.debug(new_csv)
 
 
 def save_csv(path, data):

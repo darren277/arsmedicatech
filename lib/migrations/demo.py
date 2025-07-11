@@ -3,6 +3,8 @@ from lib.db.surreal import DbController
 from lib.migrations.demo_utils import PatientFactory, EncounterFactory, select_n_random_rows_from_csv
 from lib.models.patient import create_schema, store_patient, store_encounter
 
+from settings import logger
+
 
 def create_n_patients(n):
     db = DbController(namespace='arsmedicatech', database='patients')
@@ -14,11 +16,11 @@ def create_n_patients(n):
         encounter = EncounterFactory()
         encounter.diagnostic_codes = select_n_random_rows_from_csv(path, 3)
 
-        print(patient.first_name, patient.last_name, patient.date_of_birth, patient.phone, patient.sex, patient.email)
-        print(patient.location)
-        print(encounter.note_id, encounter.date_created, encounter.provider_id, encounter.diagnostic_codes)
-        print(encounter.note_text)
-        print("------")
+        logger.debug(patient.first_name, patient.last_name, patient.date_of_birth, patient.phone, patient.sex, patient.email)
+        logger.debug(patient.location)
+        logger.debug(encounter.note_id, encounter.date_created, encounter.provider_id, encounter.diagnostic_codes)
+        logger.debug(encounter.note_text)
+        logger.debug("------")
 
         result = store_patient(db, patient)
 
@@ -61,7 +63,7 @@ def create_forms():
     }
 
     result = db.create('forms', patient_registration_form)
-    print(result)
+    logger.debug(result)
 
 
 

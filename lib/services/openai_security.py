@@ -3,6 +3,8 @@ from typing import Dict, Optional, Tuple
 from openai import OpenAI, AuthenticationError, RateLimitError
 from lib.services.user_service import UserService
 
+from settings import logger
+
 
 class OpenAISecurityService:
     """Service for managing OpenAI API security, validation, and rate limiting"""
@@ -26,9 +28,9 @@ class OpenAISecurityService:
         try:
             client = OpenAI(api_key=api_key)
             # Make a minimal test request to validate the key
-            print("About to validate API key")
+            logger.debug("About to validate API key")
             response = client.models.list()
-            print(f"[DEBUG] OpenAI API key validation response: {response}")
+            logger.debug(f"OpenAI API key validation response: {response}")
             return True, ""
         except AuthenticationError:
             return False, "Invalid API key"
@@ -128,7 +130,7 @@ class OpenAISecurityService:
         :param tokens_used: Number of tokens used
         """
         # TODO: Implement usage logging to database
-        print(f"[USAGE] User {user_id} used {model} with {tokens_used} tokens")
+        logger.debug(f"[USAGE] User {user_id} used {model} with {tokens_used} tokens")
     
     def get_usage_stats(self, user_id: str) -> Dict:
         """

@@ -1,4 +1,6 @@
 """"""
+from settings import logger
+
 
 # Synchronous version
 class DbController:
@@ -39,9 +41,9 @@ class DbController:
         """Connect to SurrealDB and authenticate"""
         from surrealdb import Surreal
 
-        print(f"[DEBUG] Connecting to SurrealDB at {self.url}")
-        print(f"[DEBUG] Using namespace: {self.namespace}, database: {self.database}")
-        print(f"[DEBUG] Username: {self.user}")
+        logger.debug(f"Connecting to SurrealDB at {self.url}")
+        logger.debug(f"Using namespace: {self.namespace}, database: {self.database}")
+        logger.debug(f"Username: {self.user}")
 
         # Initialize connection
         self.db = Surreal(self.url)
@@ -51,11 +53,11 @@ class DbController:
             "username": self.user,
             "password": self.password
         })
-        print(f"[DEBUG] Signin result: {signin_result}")
+        logger.debug(f"Signin result: {signin_result}")
 
         # Use namespace and database
         self.db.use(self.namespace, self.database)
-        print(f"[DEBUG] Set namespace and database")
+        logger.debug(f"Set namespace and database")
 
         return signin_result
 
@@ -69,12 +71,12 @@ class DbController:
         """
         if params is None:
             params = {}
-        print("[DEBUG] Executing Query:", statement, "with params:", params)
+        logger.debug("Executing Query:", statement, "with params:", params)
         return self.db.query(statement, params)
 
     def search(self, query: str, params: dict = None):
         #logging.info(f"Executing Query: {query} with params: {params}")
-        print(f"Executing Query: {query} with params: {params}")
+        logger.debug(f"Executing Query: {query} with params: {params}")
         # This mock will return plausible results for the search query.
         if "SEARCH" in query and params and params.get('query'):
             return [{
@@ -112,35 +114,35 @@ class DbController:
         :param data: Dictionary of data to update
         :return: Updated record
         """
-        print(f"[DEBUG] SurrealDB update record: {record}")
+        logger.debug(f"SurrealDB update record: {record}")
         try:
             result = self.db.update(record, data)
-            print(f"[DEBUG] SurrealDB update raw result: {result}")
-            print(f"[DEBUG] SurrealDB update result type: {type(result)}")
+            logger.debug(f"SurrealDB update raw result: {result}")
+            logger.debug(f"SurrealDB update result type: {type(result)}")
             
             # Handle tuple result (common with SurrealDB)
             if isinstance(result, tuple):
-                print(f"[DEBUG] Result is tuple with {len(result)} elements")
+                logger.debug(f"Result is tuple with {len(result)} elements")
                 result = result[0]  # Take first element
-                print(f"[DEBUG] After tuple unpacking: {result}")
+                logger.debug(f"After tuple unpacking: {result}")
             
             # Handle list result
             if isinstance(result, list) and len(result) > 0:
                 result = result[0]
-                print(f"[DEBUG] After list unpacking: {result}")
+                logger.debug(f"After list unpacking: {result}")
 
             # Handle record ID conversion
             if isinstance(result, dict) and 'id' in result:
                 _id = str(result.pop("id"))
                 final_result = {**result, 'id': _id}
-                print(f"[DEBUG] Final result: {final_result}")
+                logger.debug(f"Final result: {final_result}")
                 return final_result
             
-            print(f"[DEBUG] Final result: {result}")
+            logger.debug(f"Final result: {result}")
             return result
             
         except Exception as e:
-            print(f"[ERROR] Exception in update: {e}")
+            logger.error(f"Exception in update: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -162,7 +164,7 @@ class DbController:
                 return {**result, 'id': _id}
             return result
         except Exception as e:
-            print(f"ERROR creating record: {e}")
+            logger.error(f"Error creating record: {e}")
             return {}
 
     def select_many(self, table_name):
@@ -172,9 +174,9 @@ class DbController:
         :param table_name: Table name
         :return: List of records
         """
-        print(f"[DEBUG] Selecting many from table: {table_name}")
+        logger.debug(f"Selecting many from table: {table_name}")
         result = self.db.select(table_name)
-        print(f"[DEBUG] Select many raw result: {result}")
+        logger.debug(f"Select many raw result: {result}")
 
         # Process results
         if isinstance(result, list):
@@ -182,7 +184,7 @@ class DbController:
                 if isinstance(record, dict) and 'id' in record:
                     _id = str(record.pop("id"))
                     result[i] = {**record, 'id': _id}
-            print(f"[DEBUG] Select many processed result: {result}")
+            logger.debug(f"Select many processed result: {result}")
 
         return result
 
@@ -193,17 +195,17 @@ class DbController:
         :param record: Record ID string (e.g., "table:id")
         :return: Record data
         """
-        print(f"[DEBUG] Selecting record: {record}")
+        logger.debug(f"Selecting record: {record}")
         result = self.db.select(record)
-        print(f"[DEBUG] Select raw result: {result}")
+        logger.debug(f"Select raw result: {result}")
 
         # Handle record ID conversion
         if isinstance(result, dict) and 'id' in result:
             _id = str(result.pop("id"))
             final_result = {**result, 'id': _id}
-            print(f"[DEBUG] Final result: {final_result}")
+            logger.debug(f"Final result: {final_result}")
             return final_result
-        print(f"[DEBUG] Final result: {result}")
+        logger.debug(f"Final result: {result}")
         return result
 
     def delete(self, record):
@@ -320,7 +322,7 @@ class AsyncDbController:
                 return {**result, 'id': _id}
             return result
         except Exception as e:
-            print(f"ERROR creating record: {e}")
+            logger.error(f"Error creating record: {e}")
             return {}
 
     async def select_many(self, table_name):

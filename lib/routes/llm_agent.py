@@ -9,18 +9,20 @@ from lib.llm.agent import LLMAgent, LLMModel
 from lib.services.llm_chat_service import LLMChatService
 from lib.services.openai_security import get_openai_security_service
 
+from settings import logger
+
 
 def llm_agent_endpoint_route():
-    print('[DEBUG] /api/llm_chat called')
-    print('[DEBUG] Request headers:', dict(request.headers))
-    print('[DEBUG] Session:', dict(session))
+    logger.debug('[DEBUG] /api/llm_chat called')
+    logger.debug('[DEBUG] Request headers:', dict(request.headers))
+    logger.debug('[DEBUG] Session:', dict(session))
     current_user_id = None
     if hasattr(g, 'user') and g.user:
         current_user_id = g.user.user_id
     elif 'user_id' in session:
         current_user_id = session['user_id']
     else:
-        print('[DEBUG] Not authenticated in /api/llm_chat')
+        logger.debug('[DEBUG] Not authenticated in /api/llm_chat')
         return jsonify({"error": "Not authenticated"}), 401
 
     llm_chat_service = LLMChatService()
@@ -58,7 +60,7 @@ def llm_agent_endpoint_route():
             history = chat.messages
             # You may want to format this for your LLM
             response = asyncio.run(agent.complete(prompt, history=history))
-            print('response', type(response), response)
+            logger.debug('response', type(response), response)
 
             # Log API usage
             security_service.log_api_usage(current_user_id, str(LLMModel.GPT_4_1_NANO))

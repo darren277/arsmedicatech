@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 from enum import Enum
 
+from settings import logger
+
 
 class AppointmentStatus(Enum):
     SCHEDULED = "scheduled"
@@ -84,14 +86,14 @@ class Appointment:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Appointment':
         """Create appointment from dictionary"""
-        print(f"[DEBUG] Appointment.from_dict called with data: {data}")
+        logger.debug(f"Appointment.from_dict called with data: {data}")
         
         # Convert RecordID to string if it exists
         appointment_id = data.get('id')
         if hasattr(appointment_id, '__str__'):
             appointment_id = str(appointment_id)
         
-        print(f"[DEBUG] Converted appointment_id: {appointment_id}")
+        logger.debug(f"Converted appointment_id: {appointment_id}")
         
         try:
             appointment = cls(
@@ -108,12 +110,12 @@ class Appointment:
                 created_at=data.get('created_at'),
                 updated_at=data.get('updated_at')
             )
-            print(f"[DEBUG] Successfully created appointment object: {appointment.id}")
+            logger.debug(f"Successfully created appointment object: {appointment.id}")
             return appointment
         except Exception as e:
-            print(f"[ERROR] Failed to create appointment from dict: {e}")
+            logger.error(f"Failed to create appointment from dict: {e}")
             import traceback
-            print(f"[ERROR] Traceback: {traceback.format_exc()}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
             raise
     
     def get_duration_minutes(self) -> int:

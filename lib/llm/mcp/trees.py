@@ -9,6 +9,9 @@ from pydantic import Field
 
 from mcp_init import mcp
 
+from settings import logger
+
+
 compare_ops: dict[str, Callable[[Any, Any], bool]] = {}
 
 def register_compare_op(symbol: str, func: Callable[[Any, Any], bool]) -> None:
@@ -305,7 +308,7 @@ async def blood_pressure_decision_tree_lookup(
         A dictionary containing the final classification and the logical path taken.
     """
     #await ctx.info(f"Received systolic: {systolic_blood_pressure}, diastolic: {diastolic_blood_pressure}")
-    print(f"Received systolic: {systolic_blood_pressure}, diastolic: {diastolic_blood_pressure}")
+    logger.debug(f"Received systolic: {systolic_blood_pressure}, diastolic: {diastolic_blood_pressure}")
 
     result = await asyncio.to_thread(
         decision_tree_lookup,
@@ -317,7 +320,7 @@ async def blood_pressure_decision_tree_lookup(
     )
 
     #await ctx.info("Lookup complete")
-    print("Lookup complete")
+    logger.debug("Lookup complete")
 
     return result
 

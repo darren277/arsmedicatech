@@ -4,6 +4,8 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
+from settings import logger
+
 
 class User:
     def __init__(self, username: str, email: str, password: str = None, 
@@ -58,25 +60,25 @@ class User:
     def verify_password(self, password: str) -> bool:
         """Verify a password against the stored hash"""
         if not self.password_hash:
-            print(f"[DEBUG] No password hash stored for user")
+            logger.debug(f"No password hash stored for user")
             return False
         
         try:
-            print(f"[DEBUG] Stored password hash: {self.password_hash}")
-            print(f"[DEBUG] Attempting to verify password: {password}")
+            logger.debug(f"Stored password hash: {self.password_hash}")
+            logger.debug(f"Attempting to verify password: {password}")
             salt, hash_value = self.password_hash.split('$', 1)
-            print(f"[DEBUG] Extracted salt: {salt}")
-            print(f"[DEBUG] Extracted hash: {hash_value}")
+            logger.debug(f"Extracted salt: {salt}")
+            logger.debug(f"Extracted hash: {hash_value}")
             
             hash_obj = hashlib.sha256()
             hash_obj.update((password + salt).encode('utf-8'))
             computed_hash = hash_obj.hexdigest()
-            print(f"[DEBUG] Computed hash: {computed_hash}")
-            print(f"[DEBUG] Hash match: {computed_hash == hash_value}")
+            logger.debug(f"Computed hash: {computed_hash}")
+            logger.debug(f"Hash match: {computed_hash == hash_value}")
             
             return computed_hash == hash_value
         except (ValueError, AttributeError) as e:
-            print(f"[DEBUG] Password verification error: {e}")
+            logger.debug(f"Password verification error: {e}")
             return False
     
     def to_dict(self) -> Dict[str, Any]:

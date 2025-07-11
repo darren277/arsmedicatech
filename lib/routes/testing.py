@@ -69,8 +69,8 @@ def test_crud_route():
 
 def debug_session_route():
     """Debug endpoint to check session state"""
-    print(f"[DEBUG] Session data: {dict(session)}")
-    print(f"[DEBUG] Request headers: {dict(request.headers)}")
+    logger.debug(f"Session data: {dict(session)}")
+    logger.debug(f"Request headers: {dict(request.headers)}")
     return jsonify({
         "session": dict(session),
         "headers": dict(request.headers)

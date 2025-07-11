@@ -7,6 +7,8 @@ from lib.services.scheduling import SchedulingService
 from lib.services.user_service import UserService
 from lib.models.appointment import AppointmentStatus, AppointmentType
 
+from settings import logger
+
 
 def create_appointment_route():
     """Create a new appointment"""
@@ -74,7 +76,7 @@ def create_appointment_route():
             scheduling_service.close()
             
     except Exception as e:
-        print(f"[ERROR] Error creating appointment: {e}")
+        logger.error(f"Error creating appointment: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -86,7 +88,7 @@ def get_appointments_route():
         if not current_user:
             return jsonify({"error": "Authentication required"}), 401
         
-        print(f"[DEBUG] Getting appointments for user: {current_user.user_id}, role: {current_user.role}")
+        logger.debug(f"Getting appointments for user: {current_user.user_id}, role: {current_user.role}")
         
         # Get query parameters
         date = request.args.get('date')
@@ -94,7 +96,7 @@ def get_appointments_route():
         provider_id = request.args.get('provider_id', current_user.user_id)
         status = request.args.get('status')
         
-        print(f"[DEBUG] Query params - date: {date}, patient_id: {patient_id}, provider_id: {provider_id}, status: {status}")
+        logger.debug(f"Query params - date: {date}, patient_id: {patient_id}, provider_id: {provider_id}, status: {status}")
         
         scheduling_service = SchedulingService()
         scheduling_service.connect()
@@ -102,19 +104,19 @@ def get_appointments_route():
             appointments = []
             
             # For debugging, get ALL appointments regardless of provider
-            print("[DEBUG] Getting ALL appointments for debugging...")
+            logger.debug("Getting ALL appointments for debugging...")
             appointments = scheduling_service.get_all_appointments()
-            print(f"[DEBUG] Found {len(appointments)} total appointments")
+            logger.debug(f"Found {len(appointments)} total appointments")
             
             # Filter by status if specified
             if status:
                 appointments = [apt for apt in appointments if apt.status == status]
-                print(f"[DEBUG] After status filter: {len(appointments)} appointments")
+                logger.debug(f"After status filter: {len(appointments)} appointments")
             
             # Convert to JSON-serializable format
             appointment_list = []
             for appointment in appointments:
-                print(f"[DEBUG] Processing appointment: {appointment.id} - provider: {appointment.provider_id}, patient: {appointment.patient_id}")
+                logger.debug(f"Processing appointment: {appointment.id} - provider: {appointment.provider_id}, patient: {appointment.patient_id}")
                 appointment_list.append({
                     "id": appointment.id,
                     "patient_id": appointment.patient_id,
@@ -130,7 +132,7 @@ def get_appointments_route():
                     "updated_at": appointment.updated_at
                 })
             
-            print(f"[DEBUG] Returning {len(appointment_list)} appointments")
+            logger.debug(f"Returning {len(appointment_list)} appointments")
             return jsonify({
                 "success": True,
                 "appointments": appointment_list,
@@ -141,7 +143,7 @@ def get_appointments_route():
             scheduling_service.close()
             
     except Exception as e:
-        print(f"[ERROR] Error getting appointments: {e}")
+        logger.error(f"Error getting appointments: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -187,7 +189,7 @@ def get_appointment_route(appointment_id):
             scheduling_service.close()
             
     except Exception as e:
-        print(f"[ERROR] Error getting appointment: {e}")
+        logger.error(f"Error getting appointment: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -230,7 +232,7 @@ def update_appointment_route(appointment_id):
             scheduling_service.close()
             
     except Exception as e:
-        print(f"[ERROR] Error updating appointment: {e}")
+        logger.error(f"Error updating appointment: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -272,7 +274,7 @@ def cancel_appointment_route(appointment_id):
             scheduling_service.close()
             
     except Exception as e:
-        print(f"[ERROR] Error cancelling appointment: {e}")
+        logger.error(f"Error cancelling appointment: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -311,7 +313,7 @@ def confirm_appointment_route(appointment_id):
             scheduling_service.close()
             
     except Exception as e:
-        print(f"[ERROR] Error confirming appointment: {e}")
+        logger.error(f"Error confirming appointment: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -348,7 +350,7 @@ def get_available_slots_route():
             scheduling_service.close()
             
     except Exception as e:
-        print(f"[ERROR] Error getting available slots: {e}")
+        logger.error(f"Error getting available slots: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -369,7 +371,7 @@ def get_appointment_types_route():
         }), 200
         
     except Exception as e:
-        print(f"[ERROR] Error getting appointment types: {e}")
+        logger.error(f"Error getting appointment types: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -390,5 +392,5 @@ def get_appointment_statuses_route():
         }), 200
         
     except Exception as e:
-        print(f"[ERROR] Error getting appointment statuses: {e}")
+        logger.error(f"Error getting appointment statuses: {e}")
         return jsonify({"error": "Internal server error"}), 500 

@@ -5,6 +5,9 @@ from surrealdb import AsyncSurreal
 
 from settings import SURREALDB_NAMESPACE, SURREALDB_DATABASE, SURREALDB_HOST, SURREALDB_PORT, SURREALDB_PROTOCOL, SURREALDB_USER, SURREALDB_PASS
 
+from settings import logger
+
+
 DB_URL  = f"{SURREALDB_PROTOCOL}://{SURREALDB_HOST}:{SURREALDB_PORT}/rpc"
 
 knowledge_hsnw = """
@@ -95,10 +98,10 @@ class Vec:
         await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
 
         res = await db.query("INFO FOR DB;")
-        print("[DEBUG] Database info:", res)
+        logger.debug("Database info:", res)
 
         res = await db.query("INFO FOR TABLE knowledge;")
-        print("[DEBUG] Table info:", res)
+        logger.debug("Table info:", res)
 
         if data_type == 'jsonl':
             docs = [json.loads(l) for l in open(data_source, "r", encoding="utf-8") if l.strip()]
@@ -113,17 +116,17 @@ class Vec:
         for doc in docs:
             batch.append(doc)
             if len(batch) == chunk:
-                print(f"[SEED] Inserting {len(batch)} records...")
+                logger.debug(f"[SEED] Inserting {len(batch)} records...")
                 await self.insert(batch, db)
-                print("[SEED] Insert complete.")
+                logger.debug("[SEED] Insert complete.")
                 batch = []
         if batch:
-            print(f"[SEED] Inserting {len(batch)} records...")
+            logger.debug(f"[SEED] Inserting {len(batch)} records...")
             await self.insert(batch, db)
-            print("[SEED] Insert complete.")
+            logger.debug("[SEED] Insert complete.")
 
         res = await db.query("SELECT id, text FROM knowledge LIMIT 5;")
-        print("[DEBUG] Sample records:", res)
+        logger.debug("Sample records:", res)
 
     async def insert(self, batch, db):
         if not self.client:
@@ -136,22 +139,22 @@ class Vec:
         inserted = 0
         for i, (b, e) in enumerate(zip(batch, embeds)):
             record_id = f"knowledge:{b['id']}"
-            print(f"\n[DEBUG] RECORD {i} → {record_id}")
-            print(f"  → type(embedding): {type(e)}")
-            print(f"  → type(e[0]): {type(e[0]) if isinstance(e, list) and e else 'N/A'}")
-            print(f"  → len(embedding): {len(e) if isinstance(e, list) else 'N/A'}")
-            print(f"  → sample values: {e[:5] if isinstance(e, list) else 'N/A'}")
+            logger.debug(f"\n[DEBUG] RECORD {i} → {record_id}")
+            logger.debug(f"  → type(embedding): {type(e)}")
+            logger.debug(f"  → type(e[0]): {type(e[0]) if isinstance(e, list) and e else 'N/A'}")
+            logger.debug(f"  → len(embedding): {len(e) if isinstance(e, list) else 'N/A'}")
+            logger.debug(f"  → sample values: {e[:5] if isinstance(e, list) else 'N/A'}")
 
             # Surreal expects: array<float>
             if not isinstance(e, list):
-                print(f"[ERROR] Embedding is not a list.")
+                logger.error(f"Embedding is not a list.")
                 continue
             if not all(isinstance(x, float) for x in e):
                 bad_types = {type(x) for x in e}
-                print(f"[ERROR] Non-float types in embedding: {bad_types}")
+                logger.error(f"Non-float types in embedding: {bad_types}")
                 continue
             if len(e) != 1536:
-                print(f"[ERROR] Bad vector length: {len(e)}")
+                logger.error(f"Bad vector length: {len(e)}")
                 continue
 
             record = {
@@ -169,11 +172,11 @@ class Vec:
 
                 query = f"INSERT INTO knowledge [{value_tuples}];"
                 result = await db.query(query)
-                print(f"[OK] Inserted {record_id}")
-                print(f"SurrealDB result: {result}")
+                logger.debug(f"[OK] Inserted {record_id}")
+                logger.debug(f"SurrealDB result: {result}")
                 inserted += 1
             except Exception as ex:
-                print(f"[FAIL] {record_id}: {ex}")
+                logger.debug(f"[FAIL] {record_id}: {ex}")
 
     async def get_context(self, question, k=4):
         if not self.client:
@@ -189,9 +192,9 @@ class Vec:
 
         try:
             res = await db.query(q, {"vec": qvec})
-            print('[DEBUG] Raw SurrealDB result:', json.dumps(res, indent=2))
+            logger.debug('[DEBUG] Raw SurrealDB result:', json.dumps(res, indent=2))
         except Exception as e:
-            print('[ERROR] Exception while querying SurrealDB:', e)
+            logger.error('[ERROR] Exception while querying SurrealDB:', e)
             return None
         finally:
             await db.close()
@@ -222,5 +225,5 @@ def example_usage():
     client = AsyncOpenAI(api_key="your-openai-api-key")
     vec = Vec(client)
     msg = asyncio.run(vec.rag_chat("Some query..."))
-    print(msg)
+    logger.debug(msg)
 

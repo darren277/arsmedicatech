@@ -4,6 +4,7 @@ from typing import Optional
 from lib.services.user_service import UserService
 from lib.models.user import UserSession
 
+from settings import logger
 
 def require_auth(f):
     """Decorator to require authentication for a route"""
@@ -13,27 +14,27 @@ def require_auth(f):
         token = request.headers.get('Authorization')
         if token and token.startswith('Bearer '):
             token = token[7:]  # Remove 'Bearer ' prefix
-            print(f"[DEBUG] Got Bearer token: {token[:10]}...")
+            logger.debug(f"Got Bearer token: {token[:10]}...")
         
         if not token:
             token = session.get('auth_token')
-            print(f"[DEBUG] Got session token: {token[:10] if token else 'None'}...")
+            logger.debug(f"Got session token: {token[:10] if token else 'None'}...")
         
         if not token:
-            print("[DEBUG] No token found")
+            logger.debug("No token found")
             return jsonify({"error": "Authentication required"}), 401
         
         # Validate session
         user_service = UserService()
         user_service.connect()
         try:
-            print(f"[DEBUG] Validating session token: {token[:10]}...")
+            logger.debug(f"Validating session token: {token[:10]}...")
             user_session = user_service.validate_session(token)
             if not user_session:
-                print("[DEBUG] Session validation failed")
+                logger.debug("Session validation failed")
                 return jsonify({"error": "Invalid or expired session"}), 401
             
-            print(f"[DEBUG] Session validated for user: {user_session.username}")
+            logger.debug(f"Session validated for user: {user_session.username}")
             # Add user info to request context
             request.user_session = user_session
             request.user_id = user_session.user_id
