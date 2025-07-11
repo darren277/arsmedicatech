@@ -189,14 +189,20 @@ describe('LoginForm', () => {
 
   it('shows loading state during form submission', async () => {
     const user = userEvent.setup();
-    const mockLoginWithDelay = jest.fn().mockImplementation(() => 
-      new Promise(resolve => setTimeout(resolve, 100))
-    );
-    
+    let resolveLogin: (value: any) => void;
+    const loginPromise = new Promise<{
+      success: boolean;
+      data: { user: { id: string; username: string } };
+    }>(resolve => {
+      resolveLogin = resolve;
+    });
+    // Override the default mock for this specific test
+    jest.spyOn(authService, 'login').mockReturnValue(loginPromise);
+
     render(
-      <LoginForm 
-        onLogin={mockLoginWithDelay} 
-        onSwitchToRegister={mockOnSwitchToRegister} 
+      <LoginForm
+        onLogin={mockOnLogin}
+        onSwitchToRegister={mockOnSwitchToRegister}
         onClose={mockOnClose}
       />
     );
