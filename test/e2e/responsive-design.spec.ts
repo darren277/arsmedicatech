@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { waitForAppLoad } from './utils/test-helpers';
 
 test.describe('Responsive Design Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -19,6 +20,7 @@ test.describe('Responsive Design Tests', () => {
 
   test('should display correctly on desktop', async ({ page }) => {
     await page.goto('/');
+    await waitForAppLoad(page);
     
     // Set desktop viewport
     await page.setViewportSize({ width: 1920, height: 1080 });
@@ -36,6 +38,7 @@ test.describe('Responsive Design Tests', () => {
 
   test('should display correctly on tablet', async ({ page }) => {
     await page.goto('/');
+    await waitForAppLoad(page);
     
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
@@ -53,6 +56,7 @@ test.describe('Responsive Design Tests', () => {
 
   test('should display correctly on mobile', async ({ page }) => {
     await page.goto('/');
+    await waitForAppLoad(page);
     
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
@@ -75,6 +79,7 @@ test.describe('Responsive Design Tests', () => {
 
   test('should handle navigation on mobile', async ({ page }) => {
     await page.goto('/');
+    await waitForAppLoad(page);
     
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
@@ -101,6 +106,7 @@ test.describe('Responsive Design Tests', () => {
     for (const viewport of viewports) {
       await page.setViewportSize(viewport);
       await page.goto('/');
+      await waitForAppLoad(page);
       
       // Basic functionality should work on all screen sizes
       await expect(page.locator('.app-container')).toBeVisible();
@@ -113,6 +119,7 @@ test.describe('Responsive Design Tests', () => {
 
   test('should handle touch interactions on mobile', async ({ page }) => {
     await page.goto('/');
+    await waitForAppLoad(page);
     
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
