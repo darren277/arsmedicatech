@@ -127,6 +127,21 @@ class ApiService {
     return this.getAPI(`/patients/search?q=${encodeURIComponent(query)}`);
   }
 
+  async searchEncounters(query: string): Promise<any> {
+    return this.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`);
+  }
+
+  async searchPatientsAndEncounters(query: string): Promise<any> {
+    // Search both patients and encounters and combine results
+    const [patientResults, encounterResults] = await Promise.all([
+      this.searchPatients(query),
+      this.searchEncounters(query)
+    ]);
+    
+    // Combine and return results
+    return [...(patientResults || []), ...(encounterResults || [])];
+  }
+
   async getPatient(patientId: string): Promise<any> {
     return this.getAPI(`/patients/${patientId}`);
   }
@@ -268,6 +283,10 @@ export const encounterAPI = {
 
   // Delete an encounter
   delete: (id: string) => apiService.deleteAPI(`/encounters/${id}`),
+
+  // Search encounters
+  search: (query: string) =>
+    apiService.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`),
 };
 
 export default apiService;

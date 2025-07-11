@@ -11,7 +11,7 @@ from lib.routes.chat import create_conversation_route, send_message_route, get_c
 from lib.routes.llm_agent import llm_agent_endpoint_route
 from lib.routes.patients import patch_intake_route, search_patients_route, patient_endpoint_route, \
     patients_endpoint_route, get_all_encounters_route, get_encounters_by_patient_route, get_encounter_by_id_route, \
-    create_encounter_route, update_encounter_route, delete_encounter_route
+    create_encounter_route, update_encounter_route, delete_encounter_route, search_encounters_route
 from lib.routes.testing import test_surrealdb_route, test_crud_route, debug_session_route
 from lib.routes.users import search_users_route, check_users_exist_route, setup_default_admin_route, \
     activate_user_route, deactivate_user_route, get_all_users_route, change_password_route, get_current_user_info_route, \
@@ -306,6 +306,11 @@ def search_patients():
 @require_auth
 def get_all_encounters():
     return get_all_encounters_route()
+
+@app.route('/api/encounters/search', methods=['GET'])
+@require_auth
+def search_encounters():
+    return search_encounters_route()
 
 @app.route('/api/patients/<patient_id>/encounters', methods=['GET'])
 @require_auth

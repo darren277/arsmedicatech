@@ -38,7 +38,7 @@ export function Patients() {
     loadPatients();
   }, []);
 
-  // Load encounters when switching to encounters tab or when patient selection changes
+  // Load encounters when switching to encounters tab, when patient selection changes, or on initial load
   useEffect(() => {
     if (activeTab === 'encounters') {
       if (selectedPatient?.demographic_no) {

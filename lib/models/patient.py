@@ -315,6 +315,38 @@ def search_patient_history(search_term: str):
     finally:
         db.close()
 
+def search_encounter_history(search_term: str):
+    """Performs a full-text search across all encounter notes."""
+    db = DbController()
+    db.connect()
+    
+    print("ATTEMPTING SEARCH", search_term)
+    
+    query = """
+        SELECT
+            search::score(0) AS score,
+            search::highlight('<b>', '</b>', 0) AS highlighted_note,
+            patient.*,
+            *
+        FROM encounter
+        WHERE note_text @0@ $query
+        ORDER BY score DESC
+        LIMIT 15;
+    """
+    params = {"query": search_term}
+
+    try:
+        results = db.query(query, params)
+        if results and isinstance(results, list) and len(results) > 0:
+            print("SEARCH RESULTS", results)
+            return [serialize_encounter(e) for e in results]
+        return []
+    except Exception as e:
+        logger.error(f"Error during search: {e}")
+        return []
+    finally:
+        db.close()
+
 
 def get_patient_by_id(patient_id: str):
     """Get a patient by their demographic_no"""

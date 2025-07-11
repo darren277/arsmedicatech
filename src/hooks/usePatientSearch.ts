@@ -30,7 +30,8 @@ export function usePatientSearch(initialQuery = '') {
     (async () => {
       setLoading(true);
       try {
-        const data = await apiService.searchPatients(debouncedQuery);
+        const data =
+          await apiService.searchPatientsAndEncounters(debouncedQuery);
         if (!cancelled) setResults(data);
       } catch (error) {
         console.error('Search failed:', error);
