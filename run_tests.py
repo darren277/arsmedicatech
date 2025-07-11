@@ -64,8 +64,8 @@ def main():
     
     args = parser.parse_args()
     
-    # Base pytest command
-    cmd = ["python", "-m", "pytest"]
+    # Base pytest command - use sys.executable to ensure we use the current Python environment
+    cmd = [sys.executable, "-m", "pytest"]
     
     # Add test type specific options
     if args.test_type == "unit":
