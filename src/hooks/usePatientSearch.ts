@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import API_URL from '../env_vars';
+import apiService from '../services/api';
 
 // generic debounce – re-usable everywhere
 function useDebounce<T>(value: T, delay = 500) {
@@ -30,11 +30,11 @@ export function usePatientSearch(initialQuery = '') {
     (async () => {
       setLoading(true);
       try {
-        const res = await fetch(
-          `${API_URL}/patients/search?q=${debouncedQuery}`
-        );
-        const data = await res.json();
+        const data = await apiService.searchPatients(debouncedQuery);
         if (!cancelled) setResults(data);
+      } catch (error) {
+        console.error('Search failed:', error);
+        if (!cancelled) setResults([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
