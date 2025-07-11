@@ -24,3 +24,5 @@ stuff/
 k8s/values.yaml
 
 dist/
+
+coverage/
