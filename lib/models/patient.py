@@ -44,12 +44,38 @@ class Patient:
 
 
 
+class SOAPNotes:
+    def __init__(self, subjective: str, objective: str, assessment: str, plan: str):
+        self.subjective = subjective
+        self.objective = objective
+        self.assessment = assessment
+        self.plan = plan
+
+    def serialize(self):
+        return dict(
+            subjective=self.subjective,
+            objective=self.objective,
+            assessment=self.assessment,
+            plan=self.plan
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            subjective=data.get('subjective'),
+            objective=data.get('objective'),
+            assessment=data.get('assessment'),
+            plan=data.get('plan')
+        )
+
+
 class Encounter:
-    def __init__(self, note_id, date_created, provider_id, note_text=None, diagnostic_codes=None):
+    def __init__(self, note_id, date_created, provider_id, soap_notes: SOAPNotes=None, additional_notes: str=None, diagnostic_codes=None):
         self.note_id = note_id
         self.date_created = date_created
         self.provider_id = provider_id
-        self.note_text = note_text
+        self.soap_notes = soap_notes
+        self.additional_notes = additional_notes
         self.diagnostic_codes = diagnostic_codes
         self.status = None  # e.g., locked, signed, etc.
 
@@ -146,7 +172,7 @@ def store_encounter(db, encounter: Encounter, patient_id: str):
         "note_id": str(encounter.note_id),
         "date_created": str(encounter.date_created),
         "provider_id": str(encounter.provider_id),
-        "note_text": encounter.note_text,
+        "note_text": encounter.soap_notes.serialize() if encounter.soap_notes else encounter.additional_notes,
         "diagnostic_codes": encounter.diagnostic_codes
     }
 
