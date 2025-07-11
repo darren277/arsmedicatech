@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EncounterForm } from '../components/EncounterForm';
 import { EncounterTable } from '../components/EncounterTable';
@@ -15,30 +15,53 @@ export function PatientDetail() {
   const [selectedEncounter, setSelectedEncounter] =
     useState<EncounterType | null>(null);
 
-  useEffect(() => {
-    if (patientId) {
-      loadPatientData();
-    }
-  }, [patientId]);
+  console.log(
+    '[DEBUG] PatientDetail component mounted/rendered - patientId:',
+    patientId
+  );
 
-  const loadPatientData = async () => {
+  const loadPatientData = useCallback(async () => {
     if (!patientId) return;
 
+    console.log('[DEBUG] Loading patient data for ID:', patientId);
     setIsLoading(true);
     try {
-      const [patientData, encountersData] = await Promise.all([
-        patientAPI.getById(patientId),
-        encounterAPI.getByPatient(patientId),
-      ]);
-
+      // Load patient data first (no auth required)
+      const patientData = await patientAPI.getById(patientId);
+      console.log('[DEBUG] Patient data received:', patientData);
+      console.log('[DEBUG] About to setPatient with:', patientData);
       setPatient(patientData);
-      setEncounters(encountersData);
+      console.log('[DEBUG] setPatient called');
+
+      // Try to load encounters data (auth required, may fail)
+      try {
+        const encountersData = await encounterAPI.getByPatient(patientId);
+        console.log('[DEBUG] Encounters data received:', encountersData);
+        setEncounters(encountersData);
+      } catch (encounterError) {
+        console.warn(
+          'Failed to load encounters (auth may be required):',
+          encounterError
+        );
+        setEncounters([]); // Set empty encounters array
+      }
     } catch (error) {
       console.error('Error loading patient data:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [patientId]);
+
+  useEffect(() => {
+    console.log(
+      '[DEBUG] PatientDetail useEffect triggered - patientId:',
+      patientId
+    );
+    if (patientId) {
+      console.log('[DEBUG] PatientDetail useEffect calling loadPatientData');
+      loadPatientData();
+    }
+  }, [patientId, loadPatientData]);
 
   const handleCreateEncounter = async (encounterData: any) => {
     if (!patientId) return;
@@ -95,6 +118,13 @@ export function PatientDetail() {
     navigate(`/patients/${patientId}/encounters/new`);
   };
 
+  console.log(
+    '[DEBUG] PatientDetail render - isLoading:',
+    isLoading,
+    'patient:',
+    patient
+  );
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -104,6 +134,7 @@ export function PatientDetail() {
   }
 
   if (!patient) {
+    console.log('[DEBUG] PatientDetail render - patient is null/undefined');
     return (
       <div className="container mx-auto px-4 py-8">
         <p className="text-center text-red-600">Patient not found</p>
