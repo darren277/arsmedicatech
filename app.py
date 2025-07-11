@@ -10,7 +10,8 @@ from lib.routes.chat import create_conversation_route, send_message_route, get_c
     get_user_conversations_route
 from lib.routes.llm_agent import llm_agent_endpoint_route
 from lib.routes.patients import patch_intake_route, search_patients_route, patient_endpoint_route, \
-    patients_endpoint_route
+    patients_endpoint_route, get_all_encounters_route, get_encounters_by_patient_route, get_encounter_by_id_route, \
+    create_encounter_route, update_encounter_route, delete_encounter_route
 from lib.routes.testing import test_surrealdb_route, test_crud_route, debug_session_route
 from lib.routes.users import search_users_route, check_users_exist_route, setup_default_admin_route, \
     activate_user_route, deactivate_user_route, get_all_users_route, change_password_route, get_current_user_info_route, \
@@ -299,6 +300,37 @@ def patient_endpoint(patient_id):
 @require_auth
 def search_patients():
     return search_patients_route()
+
+# Encounter endpoints
+@app.route('/api/encounters', methods=['GET'])
+@require_auth
+def get_all_encounters():
+    return get_all_encounters_route()
+
+@app.route('/api/patients/<patient_id>/encounters', methods=['GET'])
+@require_auth
+def get_patient_encounters(patient_id):
+    return get_encounters_by_patient_route(patient_id)
+
+@app.route('/api/encounters/<encounter_id>', methods=['GET'])
+@require_auth
+def get_encounter(encounter_id):
+    return get_encounter_by_id_route(encounter_id)
+
+@app.route('/api/patients/<patient_id>/encounters', methods=['POST'])
+@require_auth
+def create_patient_encounter(patient_id):
+    return create_encounter_route(patient_id)
+
+@app.route('/api/encounters/<encounter_id>', methods=['PUT'])
+@require_auth
+def update_encounter(encounter_id):
+    return update_encounter_route(encounter_id)
+
+@app.route('/api/encounters/<encounter_id>', methods=['DELETE'])
+@require_auth
+def delete_encounter(encounter_id):
+    return delete_encounter_route(encounter_id)
 
 @app.route('/api/test_surrealdb', methods=['GET'])
 @require_admin
