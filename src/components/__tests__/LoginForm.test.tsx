@@ -127,6 +127,12 @@ describe('LoginForm', () => {
 
   it('calls onLogin with valid form data', async () => {
     const user = userEvent.setup();
+    // Override the default mock for this specific test
+    jest.spyOn(authService, 'login').mockResolvedValue({
+      success: true,
+      data: { user: { id: '1', username: 'testuser' } },
+    });
+
     render(
       <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
     );
@@ -142,8 +148,8 @@ describe('LoginForm', () => {
 
     await waitFor(() => {
       expect(mockOnLogin).toHaveBeenCalledWith({
+        id: '1',
         username: 'testuser',
-        password: 'TestPass123',
       });
     });
   });
