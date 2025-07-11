@@ -1,12 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import authService from '../../services/auth';
 import LoginForm from '../LoginForm';
-
-// Mock the auth service
-jest.mock('../../services/auth', () => ({
-  login: jest.fn(),
-}));
 
 describe('LoginForm', () => {
   const mockOnLogin = jest.fn();
@@ -15,6 +10,44 @@ describe('LoginForm', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Mock the auth service methods using jest.spyOn with proper return values
+    jest.spyOn(authService, 'login').mockResolvedValue({
+      success: true,
+      data: { user: { id: '1', username: 'testuser' } },
+    });
+    jest.spyOn(authService, 'register').mockResolvedValue({
+      success: true,
+      data: { user: { id: '1', username: 'testuser' } },
+    });
+    jest.spyOn(authService, 'logout').mockResolvedValue(undefined);
+    jest
+      .spyOn(authService, 'getCurrentUser')
+      .mockResolvedValue({ id: '1', username: 'testuser' });
+    jest.spyOn(authService, 'changePassword').mockResolvedValue({
+      success: true,
+      data: { message: 'Password changed successfully' },
+    });
+    jest.spyOn(authService, 'setupDefaultAdmin').mockResolvedValue({
+      success: true,
+      data: { message: 'Admin setup successfully' },
+    });
+    jest.spyOn(authService, 'isAuthenticated').mockReturnValue(true);
+    jest
+      .spyOn(authService, 'getUser')
+      .mockReturnValue({ id: '1', username: 'testuser' });
+    jest.spyOn(authService, 'getToken').mockReturnValue('mock-token');
+    jest.spyOn(authService, 'hasRole').mockReturnValue(true);
+    jest.spyOn(authService, 'isAdmin').mockReturnValue(false);
+    jest.spyOn(authService, 'isDoctor').mockReturnValue(false);
+    jest.spyOn(authService, 'isNurse').mockReturnValue(false);
+    jest.spyOn(authService, 'getAuthHeaders').mockReturnValue({
+      Authorization: 'Bearer mock-token',
+      'Content-Type': 'application/json',
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('renders login form with all required fields', () => {
