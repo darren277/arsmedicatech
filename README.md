@@ -320,3 +320,11 @@ Integration with External Data: To fill out a large knowledge graph, you can loo
 3. Navigate to the URL. Something like this: http://127.0.0.1:6274/#tools
 4. Enter the URL: http://127.0.0.1:9000/mcp.
 5. Click "Connect" to view the available tools.
+
+## API Integrations
+
+### Optimal
+
+[Optimal](https://optimal.apphosting.services) is an API for mathematical optimization-as-a-service. It is actually another project of mine.
+
+The use case implemented here is for individuals (patients or healthcare providers) to mathematically calculate an optimal diet for a particular condition. The first example provided is for managing hypertension.
