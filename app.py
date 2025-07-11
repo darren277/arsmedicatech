@@ -366,6 +366,9 @@ def get_appointment_statuses():
     return get_appointment_statuses_route()
 
 
+# Register the SSE blueprint
+app.register_blueprint(sse_bp)
+
 from asgiref.wsgi import WsgiToAsgi
 
 asgi_app = WsgiToAsgi(app)
