@@ -4,17 +4,22 @@ test.describe('Search Functionality Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the home page before each test
     await page.goto('/');
-    
+
     // Handle the React Joyride tour overlay if it appears
     try {
       await page.waitForSelector('[data-test-id="overlay"]', { timeout: 2000 });
-      const skipButton = page.locator('button:has-text("Skip"), button:has-text("Skip Tour"), [data-test-id="skip"]');
+      const skipButton = page.locator(
+        'button:has-text("Skip"), button:has-text("Skip Tour"), [data-test-id="skip"]'
+      );
       if (await skipButton.isVisible()) {
         await skipButton.click();
       } else {
         await page.keyboard.press('Escape');
       }
-      await page.waitForSelector('[data-test-id="overlay"]', { state: 'hidden', timeout: 3000 });
+      await page.waitForSelector('[data-test-id="overlay"]', {
+        state: 'hidden',
+        timeout: 3000,
+      });
     } catch (error) {
       // Tour might not be present, continue with test
     }
@@ -29,8 +34,12 @@ test.describe('Search Functionality Tests', () => {
   test('should allow typing in search field', async ({ page }) => {
     // Find the search input field and type in it
     // This test assumes there's a search input in the topbar
-    const searchInput = page.locator('input[type="text"], input[placeholder*="search"], input[placeholder*="Search"]').first();
-    
+    const searchInput = page
+      .locator(
+        'input[type="text"], input[placeholder*="search"], input[placeholder*="Search"]'
+      )
+      .first();
+
     if (await searchInput.isVisible()) {
       await searchInput.fill('test patient');
       await expect(searchInput).toHaveValue('test patient');
@@ -43,15 +52,23 @@ test.describe('Search Functionality Tests', () => {
   test('should show search results dropdown', async ({ page }) => {
     // This test would check if search results appear in a dropdown
     // Implementation depends on the actual search component structure
-    const searchInput = page.locator('input[type="text"], input[placeholder*="search"], input[placeholder*="Search"]').first();
-    
+    const searchInput = page
+      .locator(
+        'input[type="text"], input[placeholder*="search"], input[placeholder*="Search"]'
+      )
+      .first();
+
     if (await searchInput.isVisible()) {
       await searchInput.fill('test');
       // Wait for potential search results to appear
       await page.waitForTimeout(500);
-      
+
       // Check if any dropdown or results container appears
-      const resultsContainer = page.locator('.search-results, .dropdown, [data-testid*="search"], [data-testid*="results"]').first();
+      const resultsContainer = page
+        .locator(
+          '.search-results, .dropdown, [data-testid*="search"], [data-testid*="results"]'
+        )
+        .first();
       if (await resultsContainer.isVisible()) {
         await expect(resultsContainer).toBeVisible();
       }
@@ -63,12 +80,16 @@ test.describe('Search Functionality Tests', () => {
 
   test('should handle empty search gracefully', async ({ page }) => {
     // Test that the app handles empty search queries properly
-    const searchInput = page.locator('input[type="text"], input[placeholder*="search"], input[placeholder*="Search"]').first();
-    
+    const searchInput = page
+      .locator(
+        'input[type="text"], input[placeholder*="search"], input[placeholder*="Search"]'
+      )
+      .first();
+
     if (await searchInput.isVisible()) {
       await searchInput.fill('');
       await expect(searchInput).toHaveValue('');
-      
+
       // The app should still be functional with empty search
       await expect(page.locator('.app-container')).toBeVisible();
     } else {
@@ -79,17 +100,21 @@ test.describe('Search Functionality Tests', () => {
 
   test('should maintain search state during navigation', async ({ page }) => {
     // Test that search state is maintained when navigating between pages
-    const searchInput = page.locator('input[type="text"], input[placeholder*="search"], input[placeholder*="Search"]').first();
-    
+    const searchInput = page
+      .locator(
+        'input[type="text"], input[placeholder*="search"], input[placeholder*="Search"]'
+      )
+      .first();
+
     if (await searchInput.isVisible()) {
       await searchInput.fill('persistent search');
-      
+
       // Navigate to another page
       await page.goto('/patients');
-      
+
       // Navigate back
       await page.goto('/');
-      
+
       // Check if search value is maintained (this depends on implementation)
       // For now, just verify the page loads correctly
       await expect(page.locator('.app-container')).toBeVisible();
@@ -98,4 +123,4 @@ test.describe('Search Functionality Tests', () => {
       await expect(page.locator('body')).toBeVisible();
     }
   });
-}); 
+});
