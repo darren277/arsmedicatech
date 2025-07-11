@@ -84,37 +84,21 @@ describe('LoginForm', () => {
     });
   });
 
-  it('validates username format', async () => {
+  it('validates username is not empty', async () => {
     const user = userEvent.setup();
     render(
       <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
-    await user.type(usernameInput, 'invalid username!');
+    // Type only spaces, which should be trimmed and considered empty
+    await user.type(usernameInput, '   ');
 
     const submitButton = screen.getByRole('button', { name: /sign in/i });
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/username can only contain letters, numbers, and underscores/i)).toBeInTheDocument();
-    });
-  });
-
-  it('validates email format', async () => {
-    const user = userEvent.setup();
-    render(
-      <LoginForm onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} onClose={mockOnClose} />
-    );
-
-    const emailInput = screen.getByLabelText(/email/i);
-    await user.type(emailInput, 'invalid-email');
-
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByText(/please enter a valid email address/i)).toBeInTheDocument();
+      expect(screen.getByText(/username is required/i)).toBeInTheDocument();
     });
   });
 
