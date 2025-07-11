@@ -31,6 +31,9 @@ Object.defineProperty(window, 'matchMedia', {
   unobserve() {}
 };
 
+// Mock fetch
+(global as any).fetch = jest.fn();
+
 // Mock console methods to reduce noise in tests
 const originalError = console.error;
 const originalWarn = console.warn;
