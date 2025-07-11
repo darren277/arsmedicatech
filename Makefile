@@ -101,3 +101,22 @@ test-surrealdb:
 
 test-create-and-retrieve:
 	python test_create_and_retrieve.py
+
+# Playwright E2E Tests
+test-e2e:
+	npm run test:e2e
+
+test-e2e-ui:
+	npm run test:e2e:ui
+
+test-e2e-headed:
+	npm run test:e2e:headed
+
+test-e2e-debug:
+	npm run test:e2e:debug
+
+test-e2e-report:
+	npm run test:e2e:report
+
+test-e2e-install:
+	npm run test:e2e:install

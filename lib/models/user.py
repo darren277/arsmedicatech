@@ -1,15 +1,17 @@
 import hashlib
-import secrets
 import re
+import secrets
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 
 class User:
     def __init__(self, username: str, email: str, password: str = None, 
                  first_name: str = None, last_name: str = None, 
-                 role: str = "user", is_active: bool = True, 
-                 created_at: str = None, id: str = None):
+                 role: str = "patient", is_active: bool = True, 
+                 created_at: str = None, id: str = None,
+                 specialty: str = None, clinic_name: str = None, 
+                 clinic_address: str = None, phone: str = None):
         """
         Initialize a User object
         
@@ -18,10 +20,14 @@ class User:
         :param password: Plain text password (will be hashed)
         :param first_name: User's first name
         :param last_name: User's last name
-        :param role: User role (user, admin, doctor, nurse)
+        :param role: User role (patient, provider, admin)
         :param is_active: Whether the user account is active
         :param created_at: Creation timestamp
         :param id: Database record ID
+        :param specialty: Medical specialty (for providers)
+        :param clinic_name: Name of the clinic (for providers)
+        :param clinic_address: Address of the clinic (for providers)
+        :param phone: User's phone number
         """
         self.username = username
         self.email = email
@@ -31,6 +37,10 @@ class User:
         self.is_active = is_active
         self.created_at = created_at or datetime.utcnow().isoformat()
         self.id = id
+        self.specialty = specialty or ""
+        self.clinic_name = clinic_name or ""
+        self.clinic_address = clinic_address or ""
+        self.phone = phone or ""
         
         # Hash password if provided
         if password:
@@ -79,7 +89,11 @@ class User:
             'role': self.role,
             'is_active': self.is_active,
             'created_at': self.created_at,
-            'password_hash': self.password_hash
+            'password_hash': self.password_hash,
+            'specialty': self.specialty,
+            'clinic_name': self.clinic_name,
+            'clinic_address': self.clinic_address,
+            'phone': self.phone
         }
     
     @classmethod
@@ -95,10 +109,14 @@ class User:
             email=data.get('email'),
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
-            role=data.get('role', 'user'),
+            role=data.get('role', 'patient'),
             is_active=data.get('is_active', True),
             created_at=data.get('created_at'),
-            id=user_id
+            id=user_id,
+            specialty=data.get('specialty'),
+            clinic_name=data.get('clinic_name'),
+            clinic_address=data.get('clinic_address'),
+            phone=data.get('phone')
         )
         # Set password hash if it exists in the data
         if 'password_hash' in data:
@@ -143,6 +161,25 @@ class User:
             return False, "Password must contain at least one number"
         return True, ""
     
+    @staticmethod
+    def validate_phone(phone: str) -> tuple[bool, str]:
+        """Validate phone number format"""
+        if not phone:
+            return True, ""  # Phone is optional
+        # Basic phone validation - allows various formats
+        phone_pattern = r'^[\+]?[1-9][\d]{0,15}$'
+        if not re.match(phone_pattern, phone.replace(' ', '').replace('-', '').replace('(', '').replace(')', '')):
+            return False, "Invalid phone number format"
+        return True, ""
+    
+    @staticmethod
+    def validate_role(role: str) -> tuple[bool, str]:
+        """Validate user role"""
+        valid_roles = ['patient', 'provider', 'admin']
+        if role not in valid_roles:
+            return False, f"Role must be one of: {', '.join(valid_roles)}"
+        return True, ""
+    
     def get_full_name(self) -> str:
         """Get user's full name"""
         if self.first_name and self.last_name:
@@ -157,10 +194,9 @@ class User:
     def has_role(self, required_role: str) -> bool:
         """Check if user has the required role"""
         role_hierarchy = {
-            'user': 1,
-            'nurse': 2,
-            'doctor': 3,
-            'admin': 4
+            'patient': 1,
+            'provider': 2,
+            'admin': 3
         }
         
         user_level = role_hierarchy.get(self.role, 0)
@@ -172,13 +208,13 @@ class User:
         """Check if user is an admin"""
         return self.role == 'admin'
     
-    def is_doctor(self) -> bool:
-        """Check if user is a doctor or admin"""
-        return self.has_role('doctor')
+    def is_provider(self) -> bool:
+        """Check if user is a provider or admin"""
+        return self.has_role('provider')
     
-    def is_nurse(self) -> bool:
-        """Check if user is a nurse, doctor, or admin"""
-        return self.has_role('nurse')
+    def is_patient(self) -> bool:
+        """Check if user is a patient"""
+        return self.role == 'patient'
 
 
 class UserSession:

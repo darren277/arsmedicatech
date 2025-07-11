@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import NewConversationModal from '../components/NewConversationModal';
+import { useNotificationContext } from '../components/NotificationContext';
+import NotificationTest from '../components/NotificationTest';
 import SignupPopup from '../components/SignupPopup';
 import { Conversation, useChat } from '../hooks/useChat';
+import useEvents from '../hooks/useEvents';
 import { useNewConversationModal } from '../hooks/useNewConversationModal';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import apiService from '../services/api';
@@ -61,12 +64,28 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
 ];
 
 const Messages = () => {
+  console.log('Messages component rendering');
+
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
   const { isModalOpen, showModal, hideModal } = useNewConversationModal();
   const [selectedMessages, setSelectedMessages] = useState<
     { sender: string; text: string }[]
   >([]);
+
+  console.log('Messages: isAuthenticated:', isAuthenticated);
+
+  // Initialize notification system
+  const {
+    notifications,
+    unreadCount,
+    addNotification,
+    markAsRead,
+    markAllAsRead,
+    clearNotification,
+    clearAllNotifications,
+    getRecentNotifications,
+  } = useNotificationContext();
 
   const {
     conversations,
@@ -80,6 +99,108 @@ const Messages = () => {
     createNewConversation,
     isLoading,
   } = useChat(false); // Default to regular chat, will be overridden per conversation
+
+  // Handle real-time notifications
+  const handleNewMessage = useCallback(
+    (data: any) => {
+      console.log('Received new message notification:', data);
+
+      // Add notification for new message
+      const notification = {
+        type: 'new_message' as const,
+        title: 'New Message',
+        message: data.text,
+        timestamp: data.timestamp,
+        data: {
+          sender: data.sender,
+          conversation_id: data.conversation_id,
+        },
+      };
+
+      console.log('Adding notification:', notification);
+      addNotification(notification);
+      console.log('Notification added successfully');
+
+      // Update conversation list with new message
+      setConversations(prevConversations =>
+        prevConversations.map(conv => {
+          if (conv.id.toString() === data.conversation_id) {
+            return {
+              ...conv,
+              lastMessage: data.text,
+            };
+          }
+          return conv;
+        })
+      );
+
+      // If this conversation is currently selected, refresh messages
+      if (selectedConversationId?.toString() === data.conversation_id) {
+        // Refresh messages for the current conversation
+        const fetchMessages = async () => {
+          try {
+            const response = await apiService.getConversationMessages(
+              selectedConversationId.toString()
+            );
+            setSelectedMessages(
+              (response.messages || []).map((msg: any) => ({
+                sender: msg.sender,
+                text: msg.text,
+              }))
+            );
+          } catch (error) {
+            console.error('Error refreshing messages:', error);
+          }
+        };
+        fetchMessages();
+      }
+    },
+    [selectedConversationId, setConversations, addNotification]
+  );
+
+  const handleAppointmentReminder = useCallback(
+    (data: any) => {
+      console.log('Received appointment reminder:', data);
+
+      // Add notification for appointment reminder
+      addNotification({
+        type: 'appointment_reminder',
+        title: 'Appointment Reminder',
+        message: data.content,
+        timestamp: data.timestamp,
+        data: {
+          appointmentId: data.appointmentId,
+          time: data.time,
+        },
+      });
+    },
+    [addNotification]
+  );
+
+  const handleSystemNotification = useCallback(
+    (data: any) => {
+      console.log('Received system notification:', data);
+
+      // Add notification for system notification
+      addNotification({
+        type: 'system_notification',
+        title: 'System Notification',
+        message: data.content,
+        timestamp: data.timestamp,
+        data: data,
+      });
+    },
+    [addNotification]
+  );
+
+  // Initialize SSE connection
+  console.log('Messages: Setting up SSE connection with callbacks');
+  useEvents({
+    onNewMessage: handleNewMessage,
+    onAppointmentReminder: handleAppointmentReminder,
+    onSystemNotification: handleSystemNotification,
+  });
+  console.log('Messages: SSE connection setup complete');
 
   // Fetch messages when a conversation is selected
   useEffect(() => {
@@ -347,6 +468,10 @@ const Messages = () => {
           )}
         </div>
       </div>
+
+      {/* SSE Notification Test Component */}
+      <NotificationTest />
+
       <SignupPopup isOpen={isPopupOpen} onClose={hideSignupPopup} />
       <NewConversationModal
         isOpen={isModalOpen}

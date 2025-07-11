@@ -4,6 +4,7 @@ from flask import request, jsonify
 from lib.services.auth_decorators import get_current_user
 from lib.services.conversation_service import ConversationService
 from lib.services.user_service import UserService
+from lib.services.notifications import publish_event_with_buffer
 
 
 def create_conversation_route():
@@ -87,6 +88,28 @@ def send_message_route(conversation_id):
 
         if success and msg_obj:
             print(f"[DEBUG] Message sent successfully: {msg_obj.id}")
+            
+            # Publish notification to all other participants
+            for participant_id in conversation.participants:
+                if participant_id != current_user_id:
+                    # Get sender info for notification
+                    user_service = UserService()
+                    user_service.connect()
+                    try:
+                        sender = user_service.get_user_by_id(current_user_id)
+                        sender_name = sender.get_full_name() if sender else "Unknown User"
+                    finally:
+                        user_service.close()
+                    
+                    event_data = {
+                        "type": "new_message",
+                        "conversation_id": conversation_id,
+                        "sender": sender_name,
+                        "text": message_text,
+                        "timestamp": str(msg_obj.created_at)
+                    }
+                    publish_event_with_buffer(participant_id, event_data)
+            
             return jsonify({
                 "message": "Message sent successfully",
                 "message_id": msg_obj.id,
