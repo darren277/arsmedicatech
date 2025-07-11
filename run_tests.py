@@ -82,6 +82,8 @@ def main():
         description = "Quick Tests (excluding slow tests)"
     else:  # all
         description = "All Tests"
+        # We ignore the integration tests by default:
+        cmd.extend(["--ignore=test/integration"])
     
     # Add additional options
     if args.verbose:
