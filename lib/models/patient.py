@@ -2,6 +2,7 @@
 from typing import Tuple
 
 from lib.db.surreal import DbController
+from settings import logger
 
 
 class Patient:
@@ -168,11 +169,17 @@ def store_encounter(db, encounter: Encounter, patient_id: str):
     """
     record_id = f"encounter:{encounter.note_id}"
 
+    # Handle note_text properly - check if soap_notes is a SOAPNotes object or a string
+    if encounter.soap_notes and hasattr(encounter.soap_notes, 'serialize'):
+        note_text = encounter.soap_notes.serialize()
+    else:
+        note_text = encounter.additional_notes or str(encounter.soap_notes) if encounter.soap_notes else ""
+
     content_data = {
         "note_id": str(encounter.note_id),
         "date_created": str(encounter.date_created),
         "provider_id": str(encounter.provider_id),
-        "note_text": encounter.soap_notes.serialize() if encounter.soap_notes else encounter.additional_notes,
+        "note_text": note_text,
         "diagnostic_codes": encounter.diagnostic_codes
     }
 
@@ -210,7 +217,7 @@ def add_some_placeholder_encounters(db, patient_id: str):
         note_text = f"This is a placeholder note text for encounter {i+1}."
         diagnostic_codes = [f"code-{random.randint(100, 999)}"]
 
-        encounter = Encounter(note_id, date_created.isoformat(), provider_id, note_text, diagnostic_codes)
+        encounter = Encounter(note_id, date_created.isoformat(), provider_id, additional_notes=note_text, diagnostic_codes=diagnostic_codes)
         store_encounter(db, encounter, patient_id)
 
 
@@ -253,6 +260,14 @@ def add_some_placeholder_patients(db):
 
 def serialize_patient(patient):
     from surrealdb import RecordID
+    
+    # Handle case where patient is a RecordID or other non-dict object
+    if not isinstance(patient, dict):
+        if isinstance(patient, RecordID):
+            return str(patient)
+        else:
+            return patient
+    
     # convert patient['id'] to string...
     for key in patient:
         print('key', key, patient[key])
@@ -266,6 +281,14 @@ def serialize_patient(patient):
 
 def serialize_encounter(encounter):
     from surrealdb import RecordID
+    
+    # Handle case where encounter is a RecordID or other non-dict object
+    if not isinstance(encounter, dict):
+        if isinstance(encounter, RecordID):
+            return str(encounter)
+        else:
+            return encounter
+    
     # convert patient['id'] to string...
     for key in encounter:
         print('key [encounter]', key, encounter[key])
