@@ -266,6 +266,16 @@ def send_appointment_reminder():
     })
 ```
 
+### Running Redis Locally
+
+To run Redis locally, you can use Docker:
+
+```bash
+docker run --name redis -d -p 6379:6379 redis:latest
+```
+
+Then, you can connect to it using a Redis client library in your application.
+
 ## How to Use
 
 TBD...
