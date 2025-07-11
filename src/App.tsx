@@ -65,7 +65,6 @@ function Home() {
             {/* This is where the nested routes will render */}
             <Outlet />
           </main>
-          <button className="create-new-button">Create New</button>
           <Joyride
             steps={tourSteps}
             continuous={true} // let the user move from step to step seamlessly
