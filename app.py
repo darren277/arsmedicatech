@@ -19,13 +19,13 @@ from lib.routes.appointments import create_appointment_route, get_appointments_r
     update_appointment_route, cancel_appointment_route, confirm_appointment_route, get_available_slots_route, \
     get_appointment_types_route, get_appointment_statuses_route
 from lib.services.auth_decorators import require_auth, require_admin, optional_auth
-from lib.services.notifications import publish_event
+from lib.services.notifications import publish_event, publish_event_with_buffer
 from lib.services.redis_client import get_redis_connection
 from settings import PORT, DEBUG, HOST, FLASK_SECRET_KEY
 #from flask_jwt_extended import jwt_required, get_jwt_identity
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"], "supports_credentials": True}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"], "supports_credentials": True, "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization"]}})
 
 app.secret_key = FLASK_SECRET_KEY
 
@@ -38,9 +38,20 @@ sse_bp = Blueprint('sse', __name__)
 
 
 @sse_bp.route('/api/events/stream')
+@sse_bp.route('/api/events/stream', methods=['OPTIONS'])
 #@jwt_required()
 def stream_events():
-    user = session.get('user')
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        response = Response()
+        origin = request.headers.get('Origin')
+        print(f"OPTIONS Origin: {origin}")
+        if origin and ('localhost:3012' in origin or '127.0.0.1:3012' in origin or 'localhost:3000' in origin or '127.0.0.1:3000' in origin or 'localhost:3123' in origin or '127.0.0.1:3123' in origin):
+            response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+        return response
 
     user_id = user.get('id') if user else None
 
@@ -69,7 +80,17 @@ def stream_events():
             if message['type'] == 'message':
                 yield f"data: {message['data']}\n\n"
 
-    return Response(event_stream(), mimetype="text/event-stream")
+    response = Response(event_stream(), mimetype="text/event-stream")
+    # Allow both localhost and 127.0.0.1 for development
+    origin = request.headers.get('Origin')
+    print(f"GET Origin: {origin}")
+    if origin and ('localhost:3012' in origin or '127.0.0.1:3012' in origin or 'localhost:3000' in origin or '127.0.0.1:3000' in origin or 'localhost:3123' in origin or '127.0.0.1:3123' in origin):
+        response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['Connection'] = 'keep-alive'
+    return response
 
 
 @app.route('/api/sse', methods=['GET'])
@@ -81,11 +102,13 @@ def sse():
 
     # Example event data
     event_data = {
-        "event": "test_event",
-        "message": "This is a test message",
-        "timestamp": time.time()
+        "type": "new_message",
+        "conversation_id": "test-123",
+        "sender": "Test User",
+        "text": "This is a test message",
+        "timestamp": str(time.time())
     }
-    publish_event(user_id, event_data)
+    publish_event_with_buffer(user_id, event_data)
 
     return jsonify({"message": "Event published successfully"}), 200
 
