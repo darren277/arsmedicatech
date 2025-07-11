@@ -17,6 +17,10 @@ import Messages from './pages/Messages';
 import Schedule from './pages/Schedule';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  NotificationProvider,
+  useNotificationContext,
+} from './components/NotificationContext';
 import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
@@ -28,6 +32,16 @@ function Home() {
 
   const { query, setQuery, results, loading } = usePatientSearch();
 
+  // Get notification context
+  const {
+    unreadCount,
+    getRecentNotifications,
+    markAsRead,
+    markAllAsRead,
+    clearNotification,
+    clearAllNotifications,
+  } = useNotificationContext();
+
   return (
     <div className="App app-container">
       <Sidebar />
@@ -37,6 +51,12 @@ function Home() {
           onQueryChange={setQuery}
           results={results}
           loading={loading}
+          unreadCount={unreadCount}
+          recentNotifications={getRecentNotifications(5)}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
+          onClearNotification={clearNotification}
+          onClearAll={clearAllNotifications}
         />
 
         <PatientTable rows={results} />
@@ -121,7 +141,9 @@ const router = createBrowserRouter([
 function App() {
   return (
     <UserProvider>
-      <RouterProvider router={router} />
+      <NotificationProvider>
+        <RouterProvider router={router} />
+      </NotificationProvider>
     </UserProvider>
   );
 }
