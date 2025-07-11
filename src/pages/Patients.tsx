@@ -28,12 +28,16 @@ export function Patients() {
     loadPatients();
   }, []);
 
-  // Load encounters when a patient is selected
+  // Load encounters when switching to encounters tab or when patient selection changes
   useEffect(() => {
-    if (selectedPatient?.demographic_no) {
-      loadPatientEncounters(selectedPatient.demographic_no);
+    if (activeTab === 'encounters') {
+      if (selectedPatient?.demographic_no) {
+        loadPatientEncounters(selectedPatient.demographic_no);
+      } else {
+        loadAllEncounters();
+      }
     }
-  }, [selectedPatient]);
+  }, [activeTab, selectedPatient]);
 
   const loadPatients = async () => {
     setIsLoading(true);
@@ -42,6 +46,18 @@ export function Patients() {
       setPatients(data);
     } catch (error) {
       console.error('Error loading patients:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadAllEncounters = async () => {
+    setIsLoading(true);
+    try {
+      const data = await encounterAPI.getAll();
+      setEncounters(data);
+    } catch (error) {
+      console.error('Error loading all encounters:', error);
     } finally {
       setIsLoading(false);
     }
@@ -104,7 +120,11 @@ export function Patients() {
     try {
       await encounterAPI.create(selectedPatient.demographic_no, encounterData);
       setShowEncounterForm(false);
-      loadPatientEncounters(selectedPatient.demographic_no);
+      if (selectedPatient?.demographic_no) {
+        loadPatientEncounters(selectedPatient.demographic_no);
+      } else {
+        loadAllEncounters();
+      }
     } catch (error) {
       console.error('Error creating encounter:', error);
     }
@@ -118,6 +138,8 @@ export function Patients() {
       setShowEncounterForm(false);
       if (selectedPatient?.demographic_no) {
         loadPatientEncounters(selectedPatient.demographic_no);
+      } else {
+        loadAllEncounters();
       }
     } catch (error) {
       console.error('Error updating encounter:', error);
@@ -132,6 +154,8 @@ export function Patients() {
         await encounterAPI.delete(encounter.note_id);
         if (selectedPatient?.demographic_no) {
           loadPatientEncounters(selectedPatient.demographic_no);
+        } else {
+          loadAllEncounters();
         }
       } catch (error) {
         console.error('Error deleting encounter:', error);
@@ -152,17 +176,36 @@ export function Patients() {
     navigate(`/patients/${patient.demographic_no}`);
   };
 
+  const handlePatientSelect = (patient: PatientType) => {
+    setSelectedPatient(patient);
+  };
+
   const handleEncounterView = (encounter: EncounterType) => {
     navigate(`/encounters/${encounter.note_id}`);
   };
 
   const handleEncounterEdit = (encounter: EncounterType) => {
-    setSelectedEncounter(encounter);
-    setShowEncounterForm(true);
+    // Navigate to the dedicated encounter edit page
+    navigate(`/encounters/${encounter.note_id}/edit`);
   };
 
   const handleEncounterRowClick = (encounter: EncounterType) => {
     navigate(`/encounters/${encounter.note_id}`);
+  };
+
+  const clearPatientSelection = () => {
+    setSelectedPatient(null);
+  };
+
+  const handleNewEncounter = () => {
+    if (selectedPatient?.demographic_no) {
+      // Navigate to the dedicated encounter creation page for the selected patient
+      navigate(`/patients/${selectedPatient.demographic_no}/encounters/new`);
+    } else {
+      // No patient selected - show a message and switch to patients tab
+      alert('Please select a patient first to create an encounter.');
+      setActiveTab('patients');
+    }
   };
 
   return (
@@ -187,12 +230,11 @@ export function Patients() {
             </button>
             <button
               onClick={() => setActiveTab('encounters')}
-              disabled={!selectedPatient}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'encounters'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } ${!selectedPatient ? 'opacity-50 cursor-not-allowed' : ''}`}
+              }`}
             >
               Encounters{' '}
               {selectedPatient &&
@@ -215,16 +257,29 @@ export function Patients() {
             </button>
           )}
 
-          {activeTab === 'encounters' && selectedPatient && (
-            <button
-              onClick={() => {
-                setSelectedEncounter(null);
-                setShowEncounterForm(true);
-              }}
-              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-            >
-              Add New Encounter
-            </button>
+          {activeTab === 'encounters' && (
+            <div className="flex gap-2">
+              <button
+                onClick={handleNewEncounter}
+                className={`px-4 py-2 rounded-md ${
+                  selectedPatient
+                    ? 'bg-green-500 text-white hover:bg-green-600'
+                    : 'bg-yellow-500 text-white hover:bg-yellow-600'
+                }`}
+              >
+                {selectedPatient
+                  ? 'Add New Encounter'
+                  : 'Select Patient to Create Encounter'}
+              </button>
+              {selectedPatient && (
+                <button
+                  onClick={clearPatientSelection}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                >
+                  View All Encounters
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -239,21 +294,34 @@ export function Patients() {
             onEdit={handlePatientEdit}
             onDelete={handleDeletePatient}
             onRowClick={handlePatientRowClick}
+            onSelect={handlePatientSelect}
           />
         </div>
       )}
 
-      {activeTab === 'encounters' && selectedPatient && (
+      {activeTab === 'encounters' && (
         <div>
-          <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-lg font-semibold text-blue-900">
-              Encounters for {selectedPatient.first_name}{' '}
-              {selectedPatient.last_name}
-            </h3>
-            <p className="text-blue-700">
-              Patient ID: {selectedPatient.demographic_no}
-            </p>
-          </div>
+          {selectedPatient ? (
+            <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-blue-900">
+                Encounters for {selectedPatient.first_name}{' '}
+                {selectedPatient.last_name}
+              </h3>
+              <p className="text-blue-700">
+                Patient ID: {selectedPatient.demographic_no}
+              </p>
+            </div>
+          ) : (
+            <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900">
+                All Encounters
+              </h3>
+              <p className="text-gray-700">
+                Select a patient from the Patients tab to filter encounters or
+                create new encounters
+              </p>
+            </div>
+          )}
 
           <EncounterTable
             encounters={encounters}

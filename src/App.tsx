@@ -8,6 +8,7 @@ import { SearchResultsTable } from './components/PatientTable';
 import { usePatientSearch } from './hooks/usePatientSearch';
 import { tourSteps } from './onboarding/tourSteps';
 import { EncounterDetail } from './pages/EncounterDetail';
+import { EncounterFormPage } from './pages/EncounterForm';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
 
@@ -155,6 +156,12 @@ const router = createBrowserRouter([
       { path: 'patients/:id/edit', element: <PatientForm /> },
       { path: 'patients/:patientId', element: <PatientDetail /> },
       { path: 'encounters/:encounterId', element: <EncounterDetail /> },
+      { path: 'encounters/new', element: <EncounterFormPage /> },
+      { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
+      {
+        path: 'patients/:patientId/encounters/new',
+        element: <EncounterFormPage />,
+      },
       { path: 'intake/:patientId', element: <PatientIntakeForm /> },
       { path: 'schedule', element: <Schedule /> },
       { path: 'messages', element: <Messages /> },

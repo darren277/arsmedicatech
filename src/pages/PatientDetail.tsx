@@ -82,12 +82,17 @@ export function PatientDetail() {
   };
 
   const handleEncounterEdit = (encounter: EncounterType) => {
-    setSelectedEncounter(encounter);
-    setShowEncounterForm(true);
+    // Navigate to the dedicated encounter edit page
+    navigate(`/encounters/${encounter.note_id}/edit`);
   };
 
   const handleEncounterRowClick = (encounter: EncounterType) => {
     navigate(`/encounters/${encounter.note_id}`);
+  };
+
+  const handleNewEncounter = () => {
+    // Navigate to the dedicated encounter creation page
+    navigate(`/patients/${patientId}/encounters/new`);
   };
 
   if (isLoading) {
@@ -125,12 +130,20 @@ export function PatientDetail() {
               Patient ID: {patient.demographic_no}
             </p>
           </div>
-          <button
-            onClick={() => navigate('/patients')}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            Back to Patients
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleNewEncounter}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              New Encounter
+            </button>
+            <button
+              onClick={() => navigate('/patients')}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            >
+              Back to Patients
+            </button>
+          </div>
         </div>
       </div>
 
@@ -175,10 +188,7 @@ export function PatientDetail() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Encounters</h2>
           <button
-            onClick={() => {
-              setSelectedEncounter(null);
-              setShowEncounterForm(true);
-            }}
+            onClick={handleNewEncounter}
             className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
           >
             Add New Encounter
@@ -194,7 +204,7 @@ export function PatientDetail() {
         />
       </div>
 
-      {/* Encounter Form Modal */}
+      {/* Encounter Form Modal - keeping for backward compatibility */}
       {showEncounterForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">

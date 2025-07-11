@@ -135,6 +135,7 @@ export function PatientTable({
   onDelete,
   onView,
   onRowClick,
+  onSelect,
 }: {
   patients: PatientType[];
   isLoading?: boolean;
@@ -142,6 +143,7 @@ export function PatientTable({
   onDelete?: (patient: PatientType) => void;
   onView?: (patient: PatientType) => void;
   onRowClick?: (patient: PatientType) => void;
+  onSelect?: (patient: PatientType) => void;
 }) {
   const columns = React.useMemo(
     () => [
@@ -165,6 +167,17 @@ export function PatientTable({
           const patient = ctx.row.original;
           return (
             <div className="flex space-x-2">
+              {onSelect && (
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    onSelect(patient);
+                  }}
+                  className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                >
+                  Select
+                </button>
+              )}
               {onView && (
                 <button
                   onClick={e => {
@@ -203,7 +216,7 @@ export function PatientTable({
         },
       },
     ],
-    [onEdit, onDelete, onView]
+    [onEdit, onDelete, onView, onSelect]
   );
 
   const table = useReactTable({
