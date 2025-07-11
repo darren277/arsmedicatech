@@ -1,6 +1,7 @@
 """"""
+import json
 import time
-from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify, request, session, Response, Blueprint
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
@@ -18,7 +19,10 @@ from lib.routes.appointments import create_appointment_route, get_appointments_r
     update_appointment_route, cancel_appointment_route, confirm_appointment_route, get_available_slots_route, \
     get_appointment_types_route, get_appointment_statuses_route
 from lib.services.auth_decorators import require_auth, require_admin, optional_auth
+from lib.services.notifications import publish_event
+from lib.services.redis_client import get_redis_connection
 from settings import PORT, DEBUG, HOST, FLASK_SECRET_KEY
+#from flask_jwt_extended import jwt_required, get_jwt_identity
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"], "supports_credentials": True}})
@@ -28,6 +32,64 @@ app.secret_key = FLASK_SECRET_KEY
 metrics = PrometheusMetrics(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
+
+
+sse_bp = Blueprint('sse', __name__)
+
+
+@sse_bp.route('/api/events/stream')
+#@jwt_required()
+def stream_events():
+    user = session.get('user')
+
+    user_id = user.get('id') if user else None
+
+    redis = get_redis_connection()
+    pubsub = redis.pubsub()
+    pubsub.subscribe(f"user:{user_id}")
+
+    # Optionally: get last known timestamp or event ID
+    # For simplicity, we assume the frontend sends ?since=timestamp
+    since = request.args.get('since')
+
+    def event_stream():
+        # Replay missed events
+        key = f"user:{user_id}:events"
+        past_events = redis.lrange(key, 0, -1)
+
+        for raw in past_events:
+            try:
+                event = json.loads(raw)
+                if not since or event.get("timestamp") > since:
+                    yield f"data: {json.dumps(event)}\n\n"
+            except Exception as e:
+                print("Error parsing replay event:", e)
+
+        for message in pubsub.listen():
+            if message['type'] == 'message':
+                yield f"data: {message['data']}\n\n"
+
+    return Response(event_stream(), mimetype="text/event-stream")
+
+
+@app.route('/api/sse', methods=['GET'])
+def sse():
+    user = session.get('user')
+    user_id = user.get('id') if user else None
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    # Example event data
+    event_data = {
+        "event": "test_event",
+        "message": "This is a test message",
+        "timestamp": time.time()
+    }
+    publish_event(user_id, event_data)
+
+    return jsonify({"message": "Event published successfully"}), 200
+
+
 
 @app.route('/api/', methods=['GET'])
 def hello_world():
