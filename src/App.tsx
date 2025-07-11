@@ -28,7 +28,13 @@ import { UserProvider } from './components/UserContext';
 function Home() {
   console.log('Home component rendered');
 
-  const [runTour, setRunTour] = useState(true);
+  // TODO: Make this more programmatically flexible...
+  // [AMT-035] User Onboarding Flows
+  // This should load when the user first logs in and then update the state to not run again
+  // And during e2e testing, it should always be disabled.
+  //const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_TOUR === 'true';
+  const isTestMode = true;
+  const [runTour, setRunTour] = useState(!isTestMode);
 
   const { query, setQuery, results, loading } = usePatientSearch();
 

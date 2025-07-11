@@ -84,6 +84,8 @@ def main():
         description = "All Tests"
         # We ignore the integration tests by default:
         cmd.extend(["--ignore=test/integration"])
+        # Playwright frontend e2e tests folder:
+        cmd.extend(["--ignore=test/e2e"])
     
     # Add additional options
     if args.verbose:
