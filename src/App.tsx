@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Joyride from 'react-joyride';
 import { Outlet } from 'react-router-dom';
 import './App.css';
-import Patient from './components/Patient';
 import PatientForm from './components/PatientForm';
 import { tourSteps } from './onboarding/tourSteps';
 import { EncounterDetail } from './pages/EncounterDetail';
@@ -125,9 +124,8 @@ const router = createBrowserRouter([
       { path: 'contact', element: <Contact /> },
       { path: 'patients', element: <Patients /> },
       { path: 'patients/new', element: <PatientForm /> },
-      { path: 'patients/:id', element: <Patient /> },
-      { path: 'patients/:id/edit', element: <PatientForm /> },
       { path: 'patients/:patientId', element: <PatientDetail /> },
+      { path: 'patients/:patientId/edit', element: <PatientForm /> },
       { path: 'encounters/:encounterId', element: <EncounterDetail /> },
       { path: 'encounters/new', element: <EncounterFormPage /> },
       { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
