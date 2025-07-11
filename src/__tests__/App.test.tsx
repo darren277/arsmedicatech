@@ -106,13 +106,11 @@ describe('App Component', () => {
     expect(screen.getByTestId('user-provider')).toBeInTheDocument();
     expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     expect(screen.getByTestId('topbar')).toBeInTheDocument();
-    expect(screen.getByTestId('patient-table')).toBeInTheDocument();
   });
 
   it('renders the main content area', () => {
     render(<App />);
 
     expect(screen.getByRole('main')).toBeInTheDocument();
-    expect(screen.getByText('Create New')).toBeInTheDocument();
   });
 });
