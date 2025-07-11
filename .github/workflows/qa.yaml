@@ -34,7 +34,7 @@ jobs:
 
       - name: Install Node.js dependencies
         run: |
-          if [ -f package.json ]; then npm ci; fi
+          if [ -f package.json ]; then npm install; fi
 
       - name: Run Python tests
         run: python run_tests.py all
