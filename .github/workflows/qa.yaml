@@ -10,6 +10,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || "test-encryption-key-for-ci-123456789" }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
