@@ -2,10 +2,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1.5rem;
     background-color: #ffffff;
     border-bottom: 1px solid #e2e8f0;
     font-family: sans-serif;
+    min-height: 60px;
+    max-height: 60px;
 }
 
 .search-container {
@@ -93,38 +95,60 @@
     color: #a0aec0;
 }
 
-.profile-section {
+.profile-container {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    font-size: 13px;
+    height: fit-content;
+    max-height: 100%;
 }
 
-.customize-profile {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #4a5568;
+.profile-container .user-name {
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+}
+
+.profile-container .user-role {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.profile-container .logout-button {
+    background: none;
+    border: none;
+    color: #666;
     cursor: pointer;
-}
-
-.user-profile {
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 3px;
+    font-size: 11px;
+    height: 24px;
 }
 
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #cbd5e0;
-    background-image: url('https://placehold.co/40x40/E2E8F0/4A5568?text=DC');
+.profile-container .logout-button:hover {
+    background-color: #e9ecef;
+    color: #333;
+}
+
+.profile-container .logout-icon {
+    width: 12px;
+    height: 12px;
 }
 
 .topbar-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
 }
 
 .auth-status {

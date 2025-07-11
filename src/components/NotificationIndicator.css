@@ -56,16 +56,16 @@
 }
 
 .notification-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 400px;
-  max-height: 500px;
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  width: 350px;
+  max-height: 400px;
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  z-index: 100;
   overflow: hidden;
 }
 

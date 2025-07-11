@@ -1,10 +1,11 @@
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { Notification } from '../hooks/useNotifications';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import authService from '../services/auth';
 import NotificationIndicator from './NotificationIndicator';
-import { ProfilePanel } from './ProfilePanel';
 import SearchBox from './SearchBox';
 import SignupPopup from './SignupPopup';
+import './Topbar.css';
 import { useUser } from './UserContext';
 
 interface Props {
@@ -60,15 +61,17 @@ export default function Topbar(props: Props) {
 
           <div className="auth-status">
             {isAuthenticated && user ? (
-              <ProfilePanel
-                user={{
-                  name:
-                    `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
-                    user.username,
-                  role: user.role,
-                }}
-                onLogout={handleLogout}
-              />
+              <div className="profile-container">
+                <span className="user-name">
+                  {`${user.first_name || ''} ${user.last_name || ''}`.trim() ||
+                    user.username}
+                </span>
+                <span className="user-role">{user.role}</span>
+                <button onClick={handleLogout} className="logout-button">
+                  <ArrowRightOnRectangleIcon className="logout-icon" />
+                  Logout
+                </button>
+              </div>
             ) : (
               <div className="guest-auth">
                 <span className="guest-label">Guest User</span>
