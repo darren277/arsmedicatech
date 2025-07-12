@@ -396,3 +396,17 @@ Integration with External Data: To fill out a large knowledge graph, you can loo
 [Optimal](https://optimal.apphosting.services) is an API for mathematical optimization-as-a-service. It is actually another project of mine.
 
 The use case implemented here is for individuals (patients or healthcare providers) to mathematically calculate an optimal diet for a particular condition. The first example provided is for managing hypertension.
+
+## Documentation
+
+To generate docs: `sphinx-apidoc -o docs/source/api lib`.
+To build the docs: `sphinx-build -b html docs/source docs/_build/html`.
+
+To test before build: `sphinx-build -v -b html docs docs/_build/html`.
+
+### TODO
+
+WARNING: autodoc: failed to import module 'mcp_server' from module 'llm.mcp'; the following exception was raised:
+No module named 'trees' [autodoc.import_object]
+WARNING: autodoc: failed to import module 'trees' from module 'llm.mcp'; the following exception was raised:
+No module named 'mcp_init' [autodoc.import_object]
