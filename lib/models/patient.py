@@ -1,13 +1,38 @@
-""""""
+"""
+Patient and Encounter Models for SurrealDB
+"""
 from typing import Tuple
 
-from lib.db.surreal import DbController
+from lib.db.surreal import DbController, AsyncDbController
 from settings import logger
 
 
 class Patient:
-    def __init__(self, demographic_no, first_name: str = None, last_name: str  = None, date_of_birth: str = None,
-                 location: Tuple[str, str, str, str] = None, sex: chr = None, phone: str = None, email: str = None):
+    """
+    Represents a patient in the system.
+    """
+    def __init__(
+            self,
+            demographic_no: str,
+            first_name: str = None,
+            last_name: str  = None,
+            date_of_birth: str = None,
+            location: Tuple[str, str, str, str] = None,
+            sex: chr = None,
+            phone: str = None,
+            email: str = None
+    ) -> None:
+        """
+        Initializes a Patient instance.
+        :param demographic_no: Unique identifier for the patient.
+        :param first_name: Patient's first name.
+        :param last_name: Patient's last name.
+        :param date_of_birth: Patient's date of birth in ISO format (YYYY-MM-DD).
+        :param location: Tuple containing (city, province, country, postal code).
+        :param sex: Patient's sex
+        :param phone: Patient's phone number.
+        :param email: Patient's email address.
+        """
         self.demographic_no = demographic_no
         self.first_name = first_name
         self.last_name = last_name
@@ -24,10 +49,14 @@ class Patient:
         self.cpp_issues = []          # Summaries from casemgmt_cpp or casemgmt_issue
         self.ticklers = []           # Tickler (reminders/follow-up tasks)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Patient: {self.first_name} {self.last_name} (ID: {self.demographic_no})>"
 
-    def schema(self):
+    def schema(self) -> list:
+        """
+        Defines the schema for the Patient table in SurrealDB.
+        :return: list of schema definition statements.
+        """
         statements = []
         statements.append('DEFINE TABLE patient SCHEMAFULL;')
         statements.append('DEFINE FIELD demographic_no ON patient TYPE string ASSERT $value != none;')
@@ -46,13 +75,28 @@ class Patient:
 
 
 class SOAPNotes:
-    def __init__(self, subjective: str, objective: str, assessment: str, plan: str):
+    """
+    Represents SOAP notes for an encounter.
+    """
+    def __init__(self, subjective: str, objective: str, assessment: str, plan: str) -> None:
+        """
+        Initializes a SOAPNotes instance.
+        :param subjective: Subjective observations from the patient.
+        :param objective: Objective findings from the examination.
+        :param assessment: Assessment of the patient's condition.
+        :param plan: Plan for treatment or follow-up.
+        :return: None
+        """
         self.subjective = subjective
         self.objective = objective
         self.assessment = assessment
         self.plan = plan
 
-    def serialize(self):
+    def serialize(self) -> dict:
+        """
+        Serializes the SOAPNotes instance to a dictionary.
+        :return: dict containing the SOAP notes.
+        """
         return dict(
             subjective=self.subjective,
             objective=self.objective,
@@ -61,7 +105,12 @@ class SOAPNotes:
         )
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict) -> 'SOAPNotes':
+        """
+        Creates a SOAPNotes instance from a dictionary.
+        :param data: dict containing SOAP notes fields.
+        :return: SOAPNotes instance
+        """
         return cls(
             subjective=data.get('subjective'),
             objective=data.get('objective'),
@@ -71,7 +120,28 @@ class SOAPNotes:
 
 
 class Encounter:
-    def __init__(self, note_id, date_created, provider_id, soap_notes: SOAPNotes=None, additional_notes: str=None, diagnostic_codes=None):
+    """
+    Represents an encounter note in the system.
+    """
+    def __init__(
+            self,
+            note_id,
+            date_created,
+            provider_id,
+            soap_notes: SOAPNotes = None,
+            additional_notes: str = None,
+            diagnostic_codes: [str] = None
+    ) -> None:
+        """
+        Initializes an Encounter instance.
+        :param note_id: Unique identifier for the encounter note.
+        :param date_created: Date when the encounter note was created (ISO format).
+        :param provider_id: Unique identifier for the healthcare provider.
+        :param soap_notes: SOAPNotes object containing the structured notes.
+        :param additional_notes: Additional notes or comments for the encounter.
+        :param diagnostic_codes: List of diagnostic codes associated with the encounter.
+        :return: None
+        """
         self.note_id = note_id
         self.date_created = date_created
         self.provider_id = provider_id
@@ -80,10 +150,14 @@ class Encounter:
         self.diagnostic_codes = diagnostic_codes
         self.status = None  # e.g., locked, signed, etc.
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Encounter note_id={self.note_id}, date={self.date_created}>"
 
-    def schema(self):
+    def schema(self) -> list:
+        """
+        Defines the schema for the Encounter table in SurrealDB.
+        :return: list of schema definition statements.
+        """
         statements = []
 
         # Define a standard analyzer for medical text.
@@ -116,11 +190,15 @@ class Encounter:
         return statements
 
 
-def create_schema():
+def create_schema() -> None:
+    """
+    Creates the schema for Patient and Encounter tables in SurrealDB.
+    :return: None
+    """
     db = DbController(namespace='arsmedicatech', database='patients')
     db.connect()
 
-    patient = Patient(None)
+    patient = Patient("")
     encounter = Encounter(None, None, None)
 
     for stmt in patient.schema():
@@ -132,9 +210,13 @@ def create_schema():
     db.close()
 
 
-def store_patient(db, patient: Patient):
+def store_patient(db: DbController or AsyncDbController, patient: Patient) -> dict:
     """
     Stores a Patient instance in SurrealDB as patient:<demographic_no>.
+
+    :param db: DbController instance connected to SurrealDB.
+    :param patient: Patient instance to store.
+    :return: Result of the store operation.
     """
     record_id = f"patient:{patient.demographic_no}"
 
@@ -162,10 +244,15 @@ def store_patient(db, patient: Patient):
 
     return result
 
-def store_encounter(db, encounter: Encounter, patient_id: str):
+def store_encounter(db, encounter: Encounter, patient_id: str) -> dict:
     """
     Stores an Encounter instance in SurrealDB as encounter:<note_id>,
     referencing the given patient_id (e.g., 'patient:12345').
+
+    :param db: DbController instance connected to SurrealDB.
+    :param encounter: Encounter instance to store.
+    :param patient_id: Patient ID in the format 'patient:<demographic_no>'.
+    :return: Result of the store operation.
     """
     record_id = f"encounter:{encounter.note_id}"
 
@@ -202,9 +289,13 @@ def store_encounter(db, encounter: Encounter, patient_id: str):
     return result
 
 
-def add_some_placeholder_encounters(db, patient_id: str):
+def add_some_placeholder_encounters(db: DbController or AsyncDbController, patient_id: str) -> None:
     """
     Adds some placeholder encounters for testing purposes.
+
+    :param db: DbController instance connected to SurrealDB.
+    :param patient_id: Patient ID in the format 'patient:<demographic_no>'.
+    :return: None
     """
     from datetime import datetime, timedelta
     import random
@@ -221,11 +312,11 @@ def add_some_placeholder_encounters(db, patient_id: str):
         store_encounter(db, encounter, patient_id)
 
 
-def add_some_placeholder_patients(db):
+def add_some_placeholder_patients(db: DbController or AsyncDbController) -> None:
     """
     Adds some placeholder patients for testing purposes.
-    :param db:
-    :return:
+    :param db: DbController instance connected to SurrealDB.
+    :return: None
     """
     from datetime import datetime
     import random
@@ -242,7 +333,7 @@ def add_some_placeholder_patients(db):
         email = "patient1@gmail.com"
 
         patient = Patient(
-            demographic_no=demographic_no,
+            demographic_no=str(demographic_no),
             first_name=first_name,
             last_name=last_name,
             date_of_birth=date_of_birth,
@@ -258,7 +349,12 @@ def add_some_placeholder_patients(db):
         add_some_placeholder_encounters(db, f"patient:{demographic_no}")
 
 
-def serialize_patient(patient):
+def serialize_patient(patient: dict) -> dict:
+    """
+    Serializes a patient dictionary to ensure all IDs are strings and handles RecordID types.
+    :param patient: dict - The patient data to serialize.
+    :return: dict - The serialized patient data with all IDs as strings.
+    """
     from surrealdb import RecordID
     
     # Handle case where patient is a RecordID or other non-dict object
@@ -279,7 +375,12 @@ def serialize_patient(patient):
             patient[key] = str(patient[key])
     return patient
 
-def serialize_encounter(encounter):
+def serialize_encounter(encounter: dict) -> dict:
+    """
+    Serializes an encounter dictionary to ensure all IDs are strings and handles RecordID types.
+    :param encounter: dict - The encounter data to serialize.
+    :return: dict - The serialized encounter data with all IDs as strings.
+    """
     from surrealdb import RecordID
     
     # Handle case where encounter is a RecordID or other non-dict object
@@ -302,8 +403,13 @@ def serialize_encounter(encounter):
             encounter['patient'] = serialize_patient(encounter['patient'])
     return encounter
 
-def search_patient_history(search_term: str):
-    """Performs a full-text search across all encounter notes."""
+def search_patient_history(search_term: str) -> list:
+    """
+    Performs a full-text search across all encounter notes.
+
+    :param search_term: The term to search for in the encounter notes.
+    :return: List of Encounter objects that match the search term.
+    """
     db = DbController()
     db.connect()
 
@@ -338,8 +444,13 @@ def search_patient_history(search_term: str):
     finally:
         db.close()
 
-def search_encounter_history(search_term: str):
-    """Performs a full-text search across all encounter notes."""
+def search_encounter_history(search_term: str) -> list:
+    """
+    Performs a full-text search across all encounter notes.
+
+    :param search_term: The term to search for in the encounter notes.
+    :return: List of Encounter objects that match the search term.
+    """
     db = DbController()
     db.connect()
     
@@ -371,8 +482,13 @@ def search_encounter_history(search_term: str):
         db.close()
 
 
-def get_patient_by_id(patient_id: str):
-    """Get a patient by their demographic_no"""
+def get_patient_by_id(patient_id: str) -> dict:
+    """
+    Get a patient by their demographic_no
+
+    :param patient_id: The demographic_no of the patient to retrieve.
+    :return: Serialized patient data or None if not found.
+    """
     logger.debug(f"Getting patient by ID: {patient_id}")
     db = DbController()
     db.connect()
@@ -399,19 +515,25 @@ def get_patient_by_id(patient_id: str):
                 return serialized_result
             else:
                 logger.debug("No patient found in query result")
-                return None
+                return {}
         else:
             logger.debug("No patient found")
-            return None
+            return {}
     except Exception as e:
         logger.debug(f"Error getting patient: {e}")
-        return None
+        return {}
     finally:
         db.close()
 
 
-def update_patient(patient_id: str, patient_data: dict):
-    """Update a patient record with only the provided fields, supporting PATCH/partial updates."""
+def update_patient(patient_id: str, patient_data: dict) -> dict:
+    """
+    Update a patient record with only the provided fields, supporting PATCH/partial updates.
+
+    :param patient_id: The demographic_no of the patient to update.
+    :param patient_data: A dictionary containing the fields to update.
+    :return: Serialized updated patient data or None if not found or no valid fields to update.
+    """
     logger.debug(f"Updating patient with ID: {patient_id}")
     db = DbController()
     db.connect()
@@ -434,7 +556,7 @@ def update_patient(patient_id: str, patient_data: dict):
 
         if not update_data:
             logger.debug("No valid fields to update.")
-            return None
+            return {}
 
         set_clause = ", ".join([f"{k} = ${k}" for k in update_data.keys()])
         query = f"UPDATE patient SET {set_clause} WHERE demographic_no = $patient_id RETURN *"
@@ -456,19 +578,24 @@ def update_patient(patient_id: str, patient_data: dict):
                 return serialized_result
             else:
                 logger.debug("No patient found in update result")
-                return None
+                return {}
         else:
             logger.debug("Update failed or no patient found")
-            return None
+            return {}
     except Exception as e:
         logger.debug(f"Error updating patient: {e}")
-        return None
+        return {}
     finally:
         db.close()
 
 
-def delete_patient(patient_id: str):
-    """Delete a patient record"""
+def delete_patient(patient_id: str) -> bool:
+    """
+    Delete a patient record
+
+    :param patient_id: The demographic_no of the patient to delete.
+    :return: True if the patient was deleted, False if not found or deletion failed, None if an error occurred.
+    """
     logger.debug(f"Deleting patient with ID: {patient_id}")
     db = DbController()
     db.connect()
@@ -498,13 +625,18 @@ def delete_patient(patient_id: str):
             return False
     except Exception as e:
         logger.debug(f"Error deleting patient: {e}")
-        return None
+        return False
     finally:
         db.close()
 
 
-def create_patient(patient_data: dict):
-    """Create a new patient record"""
+def create_patient(patient_data: dict) -> dict:
+    """
+    Create a new patient record
+
+    :param patient_data: A dictionary containing patient information.
+    :return: Serialized patient data or None if creation failed.
+    """
     logger.debug(f"Creating patient with data: {patient_data}")
     db = DbController()
     db.connect()
@@ -554,13 +686,19 @@ def create_patient(patient_data: dict):
         return final_result
     except Exception as e:
         logger.debug(f"Error creating patient: {e}")
-        return None
+        return {}
     finally:
         db.close()
 
 
-def get_all_patients():
-    """Get all patients from the database"""
+# TODO: Implement pagination.
+
+def get_all_patients() -> list:
+    """
+    Get all patients from the database
+
+    :return: List of serialized Patient objects or an empty list if no patients found.
+    """
     db = DbController()
     db.connect()
     
@@ -596,8 +734,12 @@ def get_all_patients():
         db.close()
 
 
-def get_all_encounters():
-    """Get all encounters from the database"""
+def get_all_encounters() -> list:
+    """
+    Get all encounters from the database
+
+    :return: List of serialized Encounter objects or an empty list if no encounters found.
+    """
     db = DbController()
     db.connect()
     
@@ -633,8 +775,13 @@ def get_all_encounters():
         db.close()
 
 
-def get_encounter_by_id(encounter_id: str):
-    """Get an encounter by its note_id"""
+def get_encounter_by_id(encounter_id: str) -> dict:
+    """
+    Get an encounter by its note_id
+
+    :param encounter_id: The note_id of the encounter to retrieve.
+    :return: Serialized encounter data or None if not found.
+    """
     logger.debug(f"Getting encounter by ID: {encounter_id}")
     db = DbController()
     db.connect()
@@ -659,19 +806,24 @@ def get_encounter_by_id(encounter_id: str):
                 return serialized_result
             else:
                 logger.debug("No encounter found in query result")
-                return None
+                return {}
         else:
             logger.debug("No encounter found")
-            return None
+            return {}
     except Exception as e:
         logger.debug(f"Error getting encounter: {e}")
-        return None
+        return {}
     finally:
         db.close()
 
 
-def get_encounters_by_patient(patient_id: str):
-    """Get all encounters for a specific patient"""
+def get_encounters_by_patient(patient_id: str) -> list:
+    """
+    Get all encounters for a specific patient
+
+    :param patient_id: The demographic_no of the patient to retrieve encounters for.
+    :return: List of serialized Encounter objects or an empty list if no encounters found.
+    """
     logger.debug(f"Getting encounters for patient: {patient_id}")
     db = DbController()
     db.connect()
@@ -709,8 +861,14 @@ def get_encounters_by_patient(patient_id: str):
         db.close()
 
 
-def create_encounter(encounter_data: dict, patient_id: str):
-    """Create a new encounter record"""
+def create_encounter(encounter_data: dict, patient_id: str) -> dict:
+    """
+    Create a new encounter record
+
+    :param encounter_data: A dictionary containing encounter information.
+    :param patient_id: The demographic_no of the patient to associate with the encounter.
+    :return: Serialized encounter data or None if creation failed.
+    """
     logger.debug(f"Creating encounter with data: {encounter_data}")
     db = DbController()
     db.connect()
@@ -756,13 +914,19 @@ def create_encounter(encounter_data: dict, patient_id: str):
         return final_result
     except Exception as e:
         logger.debug(f"Error creating encounter: {e}")
-        return None
+        return {}
     finally:
         db.close()
 
 
-def update_encounter(encounter_id: str, encounter_data: dict):
-    """Update an encounter record with only the provided fields"""
+def update_encounter(encounter_id: str, encounter_data: dict) -> dict:
+    """
+    Update an encounter record with only the provided fields
+
+    :param encounter_id: The note_id of the encounter to update.
+    :param encounter_data: A dictionary containing the fields to update.
+    :return: Serialized updated encounter data or None if not found or no valid fields to update.
+    """
     logger.debug(f"Updating encounter with ID: {encounter_id}")
     db = DbController()
     db.connect()
@@ -778,7 +942,7 @@ def update_encounter(encounter_id: str, encounter_data: dict):
 
         if not update_data:
             logger.debug("No valid fields to update for encounter.")
-            return None
+            return {}
 
         set_clause = ", ".join([f"{k} = ${k}" for k in update_data.keys()])
         query = f"UPDATE encounter SET {set_clause} WHERE note_id = $encounter_id RETURN *"
@@ -800,19 +964,24 @@ def update_encounter(encounter_id: str, encounter_data: dict):
                 return serialized_result
             else:
                 logger.debug("No encounter found in update result")
-                return None
+                return {}
         else:
             logger.debug("Encounter update failed or no encounter found")
-            return None
+            return {}
     except Exception as e:
         logger.debug(f"Error updating encounter: {e}")
-        return None
+        return {}
     finally:
         db.close()
 
 
-def delete_encounter(encounter_id: str):
-    """Delete an encounter record"""
+def delete_encounter(encounter_id: str) -> bool:
+    """
+    Delete an encounter record
+
+    :param encounter_id: The note_id of the encounter to delete.
+    :return: True if the encounter was deleted, False if not found or deletion failed, None if an error occurred.
+    """
     logger.debug(f"Deleting encounter with ID: {encounter_id}")
     db = DbController()
     db.connect()
@@ -840,7 +1009,7 @@ def delete_encounter(encounter_id: str):
             return False
     except Exception as e:
         logger.debug(f"Error deleting encounter: {e}")
-        return None
+        return False
     finally:
         db.close()
 

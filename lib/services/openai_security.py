@@ -1,3 +1,6 @@
+"""
+OpenAI Security Service
+"""
 import time
 from typing import Dict, Optional, Tuple
 from openai import OpenAI, AuthenticationError, RateLimitError
@@ -7,9 +10,14 @@ from settings import logger
 
 
 class OpenAISecurityService:
-    """Service for managing OpenAI API security, validation, and rate limiting"""
+    """
+    Service for managing OpenAI API security, validation, and rate limiting
+    """
     
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Initialize the OpenAI security service
+        """
         self.rate_limit_cache: Dict[str, Dict] = {}
         self.api_key_cache: Dict[str, Dict] = {}
         self.rate_limit_window = 3600  # 1 hour
@@ -121,13 +129,14 @@ class OpenAISecurityService:
         finally:
             user_service.close()
     
-    def log_api_usage(self, user_id: str, model: str, tokens_used: int = 0):
+    def log_api_usage(self, user_id: str, model: str, tokens_used: int = 0) -> None:
         """
         Log API usage for monitoring and billing
         
         :param user_id: User ID
         :param model: Model used
         :param tokens_used: Number of tokens used
+        :return: None
         """
         # TODO: Implement usage logging to database
         logger.debug(f"[USAGE] User {user_id} used {model} with {tokens_used} tokens")
@@ -159,7 +168,10 @@ _openai_security_service = None
 
 
 def get_openai_security_service() -> OpenAISecurityService:
-    """Get the global OpenAI security service instance"""
+    """
+    Get the global OpenAI security service instance
+    :return: OpenAISecurityService instance
+    """
     global _openai_security_service
     if _openai_security_service is None:
         _openai_security_service = OpenAISecurityService()

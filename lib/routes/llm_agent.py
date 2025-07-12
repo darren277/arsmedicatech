@@ -1,7 +1,9 @@
-""""""
+"""
+LLM Agent Endpoint
+"""
 import asyncio
 
-from flask import request, jsonify, session, g
+from flask import request, jsonify, session, g, Response
 
 from settings import MCP_URL
 
@@ -12,7 +14,11 @@ from lib.services.openai_security import get_openai_security_service
 from settings import logger
 
 
-def llm_agent_endpoint_route():
+def llm_agent_endpoint_route() -> Response:
+    """
+    Route for the LLM agent endpoint.
+    :return: Response object with JSON data or error message.
+    """
     logger.debug('[DEBUG] /api/llm_chat called')
     logger.debug('[DEBUG] Request headers:', dict(request.headers))
     logger.debug('[DEBUG] Session:', dict(session))
@@ -23,7 +29,7 @@ def llm_agent_endpoint_route():
         current_user_id = session['user_id']
     else:
         logger.debug('[DEBUG] Not authenticated in /api/llm_chat')
-        return jsonify({"error": "Not authenticated"}), 401
+        return jsonify({"error": "Not authenticated"}, 401)
 
     llm_chat_service = LLMChatService()
     llm_chat_service.connect()
@@ -36,14 +42,14 @@ def llm_agent_endpoint_route():
             assistant_id = data.get('assistant_id', 'ai-assistant')
             prompt = data.get('prompt')
             if not prompt:
-                return jsonify({"error": "No prompt provided"}), 400
+                return jsonify({"error": "No prompt provided"}, 400)
 
             # Get user's OpenAI API key with security validation
             security_service = get_openai_security_service()
             openai_api_key, error = security_service.get_user_api_key_with_validation(current_user_id)
             
             if not openai_api_key:
-                return jsonify({"error": error}), 400
+                return jsonify({"error": error}, 400)
 
             # Add user message to persistent chat
             chat = llm_chat_service.add_message(current_user_id, assistant_id, 'Me', prompt)

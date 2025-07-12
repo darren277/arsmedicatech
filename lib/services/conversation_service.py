@@ -1,3 +1,6 @@
+"""
+Conversation Service
+"""
 from typing import List, Optional, Tuple
 
 from lib.db.surreal import DbController
@@ -6,15 +9,36 @@ from lib.models.conversation import Conversation, Message
 from settings import logger
 
 class ConversationService:
-    def __init__(self, db_controller: DbController = None):
+    """
+    Service for managing conversations and messages
+    """
+    def __init__(self, db_controller: DbController = None) -> None:
+        """
+        Initialize the ConversationService
+        :param db_controller: Optional DbController instance
+        If not provided, a new DbController will be created.
+        :return: None
+        """
         self.db = db_controller or DbController()
     
-    def connect(self):
-        """Connect to database"""
-        self.db.connect()
+    def connect(self) -> None:
+        """
+        Connect to database
+
+        :return: None
+        """
+        try:
+            self.db.connect()
+        except Exception as e:
+            logger.error(f"Error connecting to database: {e}")
+            raise e
     
-    def close(self):
-        """Close database connection"""
+    def close(self) -> None:
+        """
+        Close database connection
+
+        :return: None
+        """
         self.db.close()
     
     def create_conversation(self, participants: List[str], conversation_type: str = "user_to_user") -> Tuple[bool, str, Optional[Conversation]]:
@@ -82,7 +106,12 @@ class ConversationService:
             return False, f"Error creating conversation: {str(e)}", None
     
     def get_conversation_by_id(self, conversation_id: str) -> Optional[Conversation]:
-        """Get conversation by ID"""
+        """
+        Get conversation by ID
+
+        :param conversation_id: ID of the conversation
+        :return: Conversation object or None if not found
+        """
         try:
             # Extract the record_id part from the conversation_id
             if conversation_id.startswith('Conversation:'):
@@ -112,7 +141,12 @@ class ConversationService:
             return None
     
     def get_conversation_by_participants(self, participants: List[str]) -> Optional[Conversation]:
-        """Get conversation by participants (for user-to-user conversations)"""
+        """
+        Get conversation by participants (for user-to-user conversations)
+
+        :param participants: List of user IDs participating in the conversation
+        :return: Conversation object or None if not found
+        """
         try:
             # Sort participants to ensure consistent ordering
             sorted_participants = sorted(participants)
@@ -132,7 +166,12 @@ class ConversationService:
             return None
     
     def get_user_conversations(self, user_id: str) -> List[Conversation]:
-        """Get all conversations for a user"""
+        """
+        Get all conversations for a user
+
+        :param user_id: ID of the user
+        :return: List of Conversation objects
+        """
         try:
             result = self.db.query(
                 "SELECT * FROM Conversation WHERE $user_id IN participants",
@@ -204,7 +243,13 @@ class ConversationService:
             return False, f"Error sending message: {str(e)}", None
     
     def get_conversation_messages(self, conversation_id: str, limit: int = 50) -> List[Message]:
-        """Get messages for a conversation"""
+        """
+        Get messages for a conversation
+
+        :param conversation_id: ID of the conversation
+        :param limit: Maximum number of messages to retrieve
+        :return: List of Message objects
+        """
         try:
             result = self.db.query(
                 "SELECT * FROM Message WHERE conversation_id = $conversation_id ORDER BY created_at DESC LIMIT $limit",
@@ -226,7 +271,13 @@ class ConversationService:
             return []
     
     def mark_messages_as_read(self, conversation_id: str, user_id: str) -> bool:
-        """Mark all messages in a conversation as read for a user"""
+        """
+        Mark all messages in a conversation as read for a user
+
+        :param conversation_id: ID of the conversation
+        :param user_id: ID of the user marking messages as read
+        :return: True if successful, False otherwise
+        """
         try:
             result = self.db.query(
                 "UPDATE Message SET is_read = true WHERE conversation_id = $conversation_id AND sender_id != $user_id",
@@ -239,7 +290,13 @@ class ConversationService:
             return False
     
     def delete_conversation(self, conversation_id: str, user_id: str) -> Tuple[bool, str]:
-        """Delete a conversation (only if user is a participant)"""
+        """
+        Delete a conversation (only if user is a participant)
+
+        :param conversation_id: ID of the conversation to delete
+        :param user_id: ID of the user requesting the deletion
+        :return: (success, message)
+        """
         try:
             conversation = self.get_conversation_by_id(conversation_id)
             if not conversation:

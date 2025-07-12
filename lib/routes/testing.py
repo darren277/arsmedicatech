@@ -1,5 +1,7 @@
-""""""
-from flask import jsonify, session, request
+"""
+Testing routes for CRUD operations and database interactions.
+"""
+from flask import jsonify, session, request, Response
 
 from lib.db.surreal import DbController
 from lib.models.patient import add_some_placeholder_patients, create_patient, get_patient_by_id, update_patient, \
@@ -7,7 +9,11 @@ from lib.models.patient import add_some_placeholder_patients, create_patient, ge
 from settings import logger
 
 
-def test_surrealdb_route():
+def test_surrealdb_route() -> Response:
+    """
+    Test route to interact with SurrealDB.
+    :return: Response object with test results.
+    """
     db = DbController()
     db.connect()
 
@@ -20,7 +26,11 @@ def test_surrealdb_route():
     return jsonify({"message": "Test completed."})
 
 
-def test_crud_route():
+def test_crud_route() -> Response:
+    """
+    Test CRUD operations for patient management.
+    :return: Response object with results of CRUD operations.
+    """
     try:
         # Test creating a patient
         test_patient_data = {
@@ -35,25 +45,25 @@ def test_crud_route():
 
         created_patient = create_patient(test_patient_data)
         if not created_patient:
-            return jsonify({"error": "Failed to create patient"}), 500
+            return jsonify({"error": "Failed to create patient"}, 500)
 
         patient_id = created_patient.get('demographic_no')
 
         # Test reading the patient
         read_patient = get_patient_by_id(patient_id)
         if not read_patient:
-            return jsonify({"error": "Failed to read patient"}), 500
+            return jsonify({"error": "Failed to read patient"}, 500)
 
         # Test updating the patient
         update_data = {"phone": "555-5678"}
         updated_patient = update_patient(patient_id, update_data)
         if not updated_patient:
-            return jsonify({"error": "Failed to update patient"}), 500
+            return jsonify({"error": "Failed to update patient"}, 500)
 
         # Test deleting the patient
         delete_result = delete_patient(patient_id)
         if not delete_result:
-            return jsonify({"error": "Failed to delete patient"}), 500
+            return jsonify({"error": "Failed to delete patient"}, 500)
 
         return jsonify({
             "message": "CRUD operations test completed successfully",
@@ -65,10 +75,14 @@ def test_crud_route():
 
     except Exception as e:
         logger.error(f"CRUD test failed: {e}")
-        return jsonify({"error": f"CRUD test failed: {str(e)}"}), 500
+        return jsonify({"error": f"CRUD test failed: {str(e)}"}, 500)
 
-def debug_session_route():
-    """Debug endpoint to check session state"""
+def debug_session_route() -> Response:
+    """
+    Debug endpoint to check session state
+
+    :return: JSON response with session data and request headers.
+    """
     logger.debug(f"Session data: {dict(session)}")
     logger.debug(f"Request headers: {dict(request.headers)}")
     return jsonify({

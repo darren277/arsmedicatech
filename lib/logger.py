@@ -1,7 +1,12 @@
-""""""
+"""
+Custom Logger with Colored Output
+"""
 import logging
 
 class CustomFormatter(logging.Formatter):
+    """
+    Custom formatter to add colors to log messages based on their severity level.
+    """
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
     green = "\x1b[32;20m"
@@ -20,13 +25,27 @@ class CustomFormatter(logging.Formatter):
         logging.CRITICAL: bold_red + format + reset
     }
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
+        """
+        Format the log record with the appropriate color based on its level.
+        :param record: logging.LogRecord
+        :return: str
+        """
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
 class Logger:
-    def __init__(self, name: str = 'logger', level: int = logging.WARN):
+    """
+    Custom logger class that uses the standard logging library with a custom formatter.
+    """
+    def __init__(self, name: str = 'logger', level: int = logging.WARN) -> None:
+        """
+        Initialize the logger with a name and logging level.
+        :param name: The name of the logger.
+        :param level: The logging level (default is logging.WARN).
+        :return: None
+        """
         logging.basicConfig()
         self._name = name
         self._level = level
@@ -38,16 +57,63 @@ class Logger:
 
         self.configure()
 
-    def configure(self):
+    def configure(self) -> None:
+        """
+        Configure the logger with a custom formatter and set the logging level.
+        :return: None
+        """
         #formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         self._handler.setFormatter(CustomFormatter())
         self._logger.handlers = [self._handler]
         self._logger.setLevel(self._level)
         logging.basicConfig(level=self._level, format='%(message)s')
 
-    def debug(self, msg: str, *args, **kwargs): self._logger.debug(msg, *args, **kwargs)
-    def info(self, msg: str, *args, **kwargs): self._logger.info(msg, *args, **kwargs)
-    def warning(self, msg: str, *args, **kwargs): self._logger.warning(msg, *args, **kwargs)
-    def warn(self, msg: str, *args, **kwargs): self._logger.warning(msg, *args, **kwargs)
-    def error(self, msg: str, *args, **kwargs): self._logger.error(msg, *args, **kwargs)
+    def debug(self, msg: str, *args, **kwargs) -> None:
+        """
+        Log a debug message.
+        :param msg: The message to log.
+        :param args: Additional arguments to format the message.
+        :param kwargs: Additional keyword arguments for logging.
+        :return: None
+        """
+        self._logger.debug(msg, *args, **kwargs)
 
+    def info(self, msg: str, *args, **kwargs) -> None:
+        """
+        Log a debug message.
+        :param msg: The message to log.
+        :param args: Additional arguments to format the message.
+        :param kwargs: Additional keyword arguments for logging.
+        :return: None
+        """
+        self._logger.info(msg, *args, **kwargs)
+
+    def warning(self, msg: str, *args, **kwargs) -> None:
+        """
+        Log a debug message.
+        :param msg: The message to log.
+        :param args: Additional arguments to format the message.
+        :param kwargs: Additional keyword arguments for logging.
+        :return: None
+        """
+        self._logger.warning(msg, *args, **kwargs)
+
+    def warn(self, msg: str, *args, **kwargs) -> None:
+        """
+        Log a debug message.
+        :param msg: The message to log.
+        :param args: Additional arguments to format the message.
+        :param kwargs: Additional keyword arguments for logging.
+        :return: None
+        """
+        self._logger.warning(msg, *args, **kwargs)
+
+    def error(self, msg: str, *args, **kwargs) -> None:
+        """
+        Log a debug message.
+        :param msg: The message to log.
+        :param args: Additional arguments to format the message.
+        :param kwargs: Additional keyword arguments for logging.
+        :return: None
+        """
+        self._logger.error(msg, *args, **kwargs)

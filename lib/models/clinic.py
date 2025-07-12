@@ -1,4 +1,6 @@
-""""""
+"""
+This module defines a Clinic class and provides functions to interact with a SurrealDB database.
+"""
 import json
 
 from surrealdb import Surreal
@@ -12,7 +14,16 @@ class Clinic:
     """
     Represents a medical clinic with its address and geospatial location.
     """
-    def __init__(self, name: str, street: str, city: str, state: str, zip_code: str, longitude: float, latitude: float):
+    def __init__(
+            self,
+            name: str,
+            street: str,
+            city: str,
+            state: str,
+            zip_code: str,
+            longitude: float,
+            latitude: float
+    ) -> None:
         """
         Initializes a Clinic object.
 
@@ -37,13 +48,15 @@ class Clinic:
         """
         Converts the clinic's location to a GeoJSON Point dictionary.
         Note: GeoJSON specifies longitude, then latitude.
+
+        :return: A dictionary representing the clinic's location in GeoJSON format.
         """
         return {
             "type": "Point",
             "coordinates": [self.longitude, self.latitude]
         }
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Provides a string representation of the Clinic object.
         """
@@ -186,7 +199,7 @@ async def get_clinic_by_id(clinic_id: str):
     return result[0] if result else None
 
 
-async def get_all_clinics():
+async def get_all_clinics() -> list:
     """
     Asynchronously retrieves all clinic records from the database.
 
@@ -274,11 +287,19 @@ def km_m(meters: float) -> float:
     return meters * 1000
 
 
-def test():
+def test() -> None:
+    """
+    Test function to demonstrate the functionality of the Clinic class and database operations.
+    :return: None
+    """
     import asyncio
     import random
 
-    async def run_tests():
+    async def run_tests() -> None:
+        """
+        Runs a series of tests to demonstrate the functionality of the Clinic class and database operations.
+        :return: None
+        """
         await client.connect()
 
         random_name = f"Clinic {random.randint(1, 1000)}"

@@ -1,4 +1,6 @@
-""""""
+"""
+Decision trees for various applications, including loan eligibility and medical classifications.
+"""
 import asyncio
 import re
 from typing import Any, Callable, Dict, Tuple, Union, Iterable, Annotated
@@ -33,10 +35,18 @@ BranchKey = Union[Tuple[str, Any], Callable[[Any], bool], Any]
 
 def _choose_branch(
         branches: Dict[BranchKey, Any],
-       arg: Any,
-       subterm: str,
-       path: list[str]
+        arg: Any,
+        subterm: str,
+        path: list[str]
     ) -> Tuple[Any | None, list[str]]:
+    """
+    Choose a branch from the decision tree based on the provided argument.
+    :param branches: A dictionary mapping branch keys to their target values.
+    :param arg: The argument to match against the branches.
+    :param subterm: A descriptive term for the argument, used in logging.
+    :param path: A list to accumulate the logical path taken through the tree.
+    :return: A tuple containing the matched key (or None if no match) and the updated path.
+    """
 
     for key, target in branches.items():
         # a)  Callable predicate
@@ -65,8 +75,10 @@ def decision_tree_lookup(tree: Dict[str, Any], **kwargs) -> Dict[str, Any]:
     """
     Looks up a decision from a deterministic decision tree.
 
-    Returns:
-        A dictionary containing the final decision and the logical path taken.
+    :param tree: The decision tree structure, where each node is a dictionary with 'question' and 'branches'.
+    :param kwargs: Keyword arguments representing the answers to the questions in the tree.
+    :type kwargs: Dict[str, Any]
+    :return: A dictionary containing the final decision and the logical path taken.
     """
     path_taken: list[str] = []
     current_node = tree
@@ -177,6 +189,9 @@ tool_definition = {
 # Example: using Enum + membership tests
 # ────────────────────────────────────────────────────────────
 class Purpose(enum.Enum):
+    """
+    Enum for loan purposes with descriptive values.
+    """
     HOME       = "home"
     CAR        = "car"
     EDUCATION  = "education"

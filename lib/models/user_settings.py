@@ -1,3 +1,6 @@
+"""
+User Settings Model
+"""
 from datetime import datetime
 from typing import Dict, Any, Optional
 from lib.services.encryption import get_encryption_service
@@ -6,10 +9,18 @@ from settings import logger
 
 
 class UserSettings:
-    """Model for user settings and preferences"""
+    """
+    Model for user settings and preferences
+    """
     
-    def __init__(self, user_id: str, openai_api_key: str = None, 
-                 created_at: str = None, updated_at: str = None, id: str = None):
+    def __init__(
+            self,
+            user_id: str,
+            openai_api_key: str = None,
+            created_at: str = None,
+            updated_at: str = None,
+            id: str = None
+    ) -> None:
         """
         Initialize user settings
         
@@ -25,13 +36,28 @@ class UserSettings:
         self.updated_at = updated_at or datetime.utcnow().isoformat()
         self.id = id
     
-    def set_openai_api_key(self, api_key: str):
-        """Set OpenAI API key (will be encrypted)"""
+    def set_openai_api_key(self, api_key: str) -> None:
+        """
+        Set OpenAI API key (will be encrypted)
+
+        :param api_key: OpenAI API key to set
+        :raises ValueError: If the API key is invalid
+        :return: None
+        """
+        if not api_key:
+            raise ValueError("OpenAI API key cannot be empty")
+        is_valid, error_message = self.validate_openai_api_key(api_key)
+        if not is_valid:
+            raise ValueError(f"Invalid OpenAI API key: {error_message}")
         self.openai_api_key = api_key
         self.updated_at = datetime.utcnow().isoformat()
     
     def get_openai_api_key(self) -> str:
-        """Get decrypted OpenAI API key"""
+        """
+        Get decrypted OpenAI API key
+
+        :return: Decrypted OpenAI API key, or empty string if not set
+        """
         if not self.openai_api_key:
             logger.debug("No API key stored in settings")
             return ""
@@ -47,11 +73,19 @@ class UserSettings:
             return ""
     
     def has_openai_api_key(self) -> bool:
-        """Check if user has a valid OpenAI API key"""
+        """
+        Check if user has a valid OpenAI API key
+
+        :return: True if OpenAI API key is set and valid, False otherwise
+        """
         return bool(self.get_openai_api_key())
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert settings to dictionary for database storage"""
+        """
+        Convert settings to dictionary for database storage
+
+        :return: Dictionary representation of user settings
+        """
         # Encrypt API key before storing
         encrypted_api_key = ""
         if self.openai_api_key:
@@ -70,7 +104,12 @@ class UserSettings:
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'UserSettings':
-        """Create settings from dictionary"""
+        """
+        Create settings from dictionary
+
+        :param data: Dictionary containing user settings data
+        :return: UserSettings instance
+        """
         # Convert RecordID to string if it exists
         settings_id = data.get('id')
         if hasattr(settings_id, '__str__'):
@@ -91,7 +130,12 @@ class UserSettings:
     
     @staticmethod
     def validate_openai_api_key(api_key: str) -> tuple[bool, str]:
-        """Validate OpenAI API key format"""
+        """
+        Validate OpenAI API key format
+
+        :param api_key: OpenAI API key to validate
+        :return: Tuple (is_valid: bool, error_message: str)
+        """
         if not api_key:
             return False, "OpenAI API key is required"
         

@@ -1,4 +1,6 @@
-""""""
+"""
+ArsMedicaTech MCP Server Initialization
+"""
 import json
 from fastmcp import FastMCP
 from fastmcp.server.middleware.timing import TimingMiddleware
@@ -22,25 +24,34 @@ mcp.add_middleware(LoggingMiddleware())
 
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(request: Request) -> PlainTextResponse:
+    """
+    Health check endpoint to verify server status.
+    :param request: Request object containing client information.
+    :return: PlainTextResponse indicating server health.
+    """
     logger.debug(f'Health check received from {request.client.host}')
     logger.debug(request.__dir__())
     return PlainTextResponse("OK")
+
 
 @mcp.tool
 def hello(name: str = "world") -> str:
     """
     Return a greeting.
+    :param name: Name to greet, defaults to "world".
+    :return: JSON string containing the greeting message.
     """
     return json.dumps(dict(msg=f"Hello, {name}!"))
 
-#register_openai_tool(mcp, blood_pressure_decision_tree_lookup, tool_definition_bp)
+# register_openai_tool(mcp, blood_pressure_decision_tree_lookup, tool_definition_bp)
+
 
 @mcp.tool
 async def rag(query: str) -> str:
     """
     Perform a retrieval-augmented generation (RAG) query.
-    :param query:
-    :return:
+    :param query: The query string to search for relevant information.
+    :return: JSON string containing the response message.
     """
     req: Request = get_http_request()
 

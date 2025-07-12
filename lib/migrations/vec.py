@@ -1,4 +1,6 @@
-""""""
+"""
+Vector database migration script.
+"""
 import asyncio
 
 from openai import AsyncOpenAI
@@ -9,15 +11,27 @@ from settings import MIGRATION_OPENAI_API_KEY
 from settings import logger
 
 
-def init_vec():
+def init_vec() -> None:
+    """
+    Initialize and seed the vector database with documents.
+    :return: None
+    """
     client = AsyncOpenAI(api_key=MIGRATION_OPENAI_API_KEY)
     vec = Vec(client)
 
     logger.debug("Initializing vector database...")
-    asyncio.run(vec.init())
+    try:
+        asyncio.run(vec.init())
+    except Exception as e:
+        logger.error(f"Failed to initialize vector database: {e}")
+        return
 
     logger.debug("Seeding vector database with documents...")
-    asyncio.run(vec.seed("lib/migrations/rag_docs.json"))
+    try:
+        asyncio.run(vec.seed("lib/migrations/rag_docs.json"))
+    except Exception as e:
+        logger.error(f"Failed to seed vector database: {e}")
+        return
 
     logger.debug("Vector database initialized and seeded successfully.")
 

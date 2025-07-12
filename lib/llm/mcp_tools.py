@@ -1,4 +1,8 @@
-""""""
+"""
+Fetch and convert MCP tool definitions to OpenAI function format.
+"""
+from typing import Callable
+
 import httpx
 from fastmcp.client import Client
 
@@ -6,10 +10,23 @@ from settings import logger
 
 
 class CustomHeaderAuth(httpx.Auth):
-    def __init__(self, headers: dict[str, str]):
+    def __init__(self, headers: dict[str, str]) -> None:
+        """
+        Custom authentication class to add headers to HTTP requests.
+        :param headers: Dictionary of headers to include in the request.
+        :type headers: dict[str, str]
+        :return: None
+        """
         self.headers = headers
 
-    def auth_flow(self, request):
+    def auth_flow(self, request: httpx.Request) -> httpx.Request:
+        """
+        Add custom headers to the request.
+        :param request: The HTTP request to modify.
+        :type request: httpx.Request
+        :return: The modified request with custom headers.
+        :rtype: httpx.Request
+        """
         for key, value in self.headers.items():
             request.headers[key] = value
         yield request
@@ -21,6 +38,11 @@ async def fetch_mcp_tool_defs(mcp_url: str) -> tuple[list[dict], dict]:
     • Pull the tool list from an MCP server
     • Convert each tool's JSON-Schema → OpenAI 'tool' format
     • Return (openai_tool_defs, {tool_name: call_function})
+
+    :param mcp_url: URL of the MCP server to fetch tools from.
+    :type mcp_url: str
+    :return: A tuple containing a list of OpenAI tool definitions and a dictionary mapping tool names to their call functions.
+    :rtype: tuple[list[dict], dict]
     """
     async with Client(mcp_url) as c:
         logger.debug('Fetching tools from MCP server:', mcp_url)
@@ -33,7 +55,12 @@ async def fetch_mcp_tool_defs(mcp_url: str) -> tuple[list[dict], dict]:
     func_lookup: dict[str, callable] = {}
 
     # Per‑tool wrapper that calls MCP via the Python client
-    def wrap(tool_name):
+    def wrap(tool_name: str) -> Callable:
+        """
+        Create a wrapper function for calling a specific tool.
+        :param tool_name: Name of the tool to wrap.
+        :return: Callable function that takes session_id and other arguments to call the tool.
+        """
         async def _call(*, session_id: str, **kwargs):
             custom_auth = CustomHeaderAuth({
                 "x-user-id": "optional to add later...",

@@ -14,8 +14,15 @@ from settings import SURREALDB_NAMESPACE, SURREALDB_DATABASE
 from settings import logger
 
 
-def setup_user_settings_schema():
-    """Set up UserSettings table schema in SurrealDB"""
+def setup_user_settings_schema() -> bool:
+    """
+    Set up UserSettings table schema in SurrealDB
+
+    This function connects to the SurrealDB instance, defines the UserSettings table schema,
+    and creates a test record to verify the schema setup.
+    Returns:
+        bool: True if schema setup is successful, False otherwise.
+    """
     logger.debug("🔧 Setting up UserSettings table schema...")
     
     try:
@@ -87,8 +94,14 @@ def setup_user_settings_schema():
         traceback.print_exc()
         return False
 
-def check_existing_schema():
-    """Check if UserSettings table already exists"""
+def check_existing_schema() -> bool:
+    """
+    Check if UserSettings table already exists
+
+    This function attempts to query the UserSettings table to see if it exists.
+    Returns:
+        bool: True if the table exists, False otherwise.
+    """
     logger.debug("🔍 Checking existing UserSettings schema...")
     
     try:
@@ -106,8 +119,15 @@ def check_existing_schema():
         logger.debug(f"⚠️  UserSettings table may not exist: {e}")
         return False
 
-def main():
-    """Main migration function"""
+def main() -> bool:
+    """
+    Main migration function
+
+    This function orchestrates the migration process by checking for existing schema
+    and setting up the UserSettings schema if it does not exist.
+    Returns:
+        bool: True if migration is successful, False otherwise.
+    """
     logger.debug("🚀 UserSettings Database Migration")
     logger.debug("=" * 50)
     

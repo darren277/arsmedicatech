@@ -1,4 +1,6 @@
-""""""
+"""
+Graph Schema for SurrealDB
+"""
 from lib.db.surreal import DbController
 from lib.db.surreal_graph import GraphController
 from settings import SURREALDB_URL, SURREALDB_NAMESPACE, SURREALDB_USER, SURREALDB_PASS
@@ -38,10 +40,24 @@ graph_db = GraphController(db)
 
 """ NODES """
 
-def create_node(node_type: str, node_id: str, node_name: str, **fields):
+def create_node(node_type: str, node_id: str, node_name: str, **fields) -> None:
+    """
+    Create a node in the graph database.
+    :param node_type: str - Type of the node (e.g., 'symptom', 'diagnosis', 'medication').
+    :param node_id: str - Unique identifier for the node.
+    :param node_name: str - Name of the node.
+    :param fields: dict - Additional fields to set on the node.
+    :return: None
+    """
     db.create(f'{node_type}:{node_id}', dict(name=node_name, **fields))
 
-def query_node(node_type: str, node_id: str):
+def query_node(node_type: str, node_id: str) -> dict:
+    """
+    Query a single node in the graph database.
+    :param node_type: str - Type of the node (e.g., 'symptom', 'diagnosis', 'medication').
+    :param node_id: str - Unique identifier for the node.
+    :return: dict - The node record from the database.
+    """
     return db.query(f"SELECT * FROM {node_type}:{node_id}")
 
 
@@ -127,7 +143,14 @@ logger.debug(diagnoses)
 # Query a single edge (just to verify that it exists - or to get its attributes)
 
 # SELECT * FROM ->HAS_SYMPTOM->symptom:loss_of_appetite
-def query_edges(from_node: str, from_id: str, edge_name: str):
+def query_edges(from_node: str, from_id: str, edge_name: str) -> dict:
+    """
+    Query a single edge in the graph database.
+    :param from_node: str - Type of the node (e.g., 'diagnosis', 'symptom').
+    :param from_id: str - Unique identifier for the node.
+    :param edge_name: str - Name of the edge (e.g., 'HAS_SYMPTOM').
+    :return: dict - The edge record from the database.
+    """
     return db.query(f'SELECT ->{edge_name}.* FROM {from_node}:{from_id}')[0]
 
 edge = query_edges('diagnosis', 'depression', 'HAS_SYMPTOM')

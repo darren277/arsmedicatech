@@ -1,10 +1,22 @@
-""""""
+"""
+Synchronous and Asynchronous SurrealDB Controller
+"""
 from settings import logger
 
 
 # Synchronous version
 class DbController:
-    def __init__(self, url=None, namespace=None, database=None, user=None, password=None):
+    """
+    Synchronous DB controller for SurrealDB
+    """
+    def __init__(
+            self,
+            url: str = None,
+            namespace: str = None,
+            database: str = None,
+            user: str = None,
+            password: str = None
+    ) -> None:
         """
         Initialize a synchronous DB controller for SurrealDB
 
@@ -37,8 +49,11 @@ class DbController:
         self.password = password
         self.db = None
 
-    def connect(self):
-        """Connect to SurrealDB and authenticate"""
+    def connect(self) -> str:
+        """
+        Connect to SurrealDB and authenticate
+        :return: Signin result
+        """
         from surrealdb import Surreal
 
         logger.debug(f"Connecting to SurrealDB at {self.url}")
@@ -61,7 +76,7 @@ class DbController:
 
         return signin_result
 
-    def query(self, statement, params=None):
+    def query(self, statement: str, params: dict = None) -> list:
         """
         Execute a SurrealQL query
 
@@ -74,7 +89,13 @@ class DbController:
         logger.debug("Executing Query:", statement, "with params:", params)
         return self.db.query(statement, params)
 
-    def search(self, query: str, params: dict = None):
+    def search(self, query: str, params: dict = None) -> list:
+        """
+        Execute a search query
+        :param query: SurrealQL search query
+        :param params: Optional parameters for the query
+        :return: List of search results
+        """
         #logging.info(f"Executing Query: {query} with params: {params}")
         logger.debug(f"Executing Query: {query} with params: {params}")
         # This mock will return plausible results for the search query.
@@ -106,7 +127,7 @@ class DbController:
         # Mock response for schema creation
         return [{"status": "OK"}]
 
-    def update(self, record, data):
+    def update(self, record: str, data: dict) -> dict:
         """
         Update a record
 
@@ -145,9 +166,9 @@ class DbController:
             logger.error(f"Exception in update: {e}")
             import traceback
             traceback.print_exc()
-            return None
+            return {}
 
-    def create(self, table_name, data):
+    def create(self, table_name: str, data: dict) -> dict:
         """
         Create a new record
 
@@ -167,7 +188,7 @@ class DbController:
             logger.error(f"Error creating record: {e}")
             return {}
 
-    def select_many(self, table_name):
+    def select_many(self, table_name: str) -> list:
         """
         Select all records from a table
 
@@ -188,7 +209,7 @@ class DbController:
 
         return result
 
-    def select(self, record):
+    def select(self, record: str) -> dict:
         """
         Select a specific record
 
@@ -208,7 +229,7 @@ class DbController:
         logger.debug(f"Final result: {result}")
         return result
 
-    def delete(self, record):
+    def delete(self, record: str) -> dict:
         """
         Delete a record
 
@@ -217,8 +238,11 @@ class DbController:
         """
         return self.db.delete(record)
 
-    def close(self):
-        """Close the connection (not needed with new API, but kept for compatibility)"""
+    def close(self) -> None:
+        """
+        Close the connection (not needed with new API, but kept for compatibility)
+        :return: None
+        """
         # The new API doesn't seem to have an explicit close method
         # This is kept for backwards compatibility
         pass
@@ -226,7 +250,16 @@ class DbController:
 
 # Asynchronous version
 class AsyncDbController:
-    def __init__(self, url=None, namespace=None, database=None, user=None, password=None):
+    """
+    Asynchronous DB controller for SurrealDB
+    """
+    def __init__(self,
+                 url: str = None,
+                 namespace: str = None,
+                 database: str = None,
+                 user: str = None,
+                 password: str = None
+         ) -> None:
         """
         Initialize an asynchronous DB controller for SurrealDB
 
@@ -259,8 +292,11 @@ class AsyncDbController:
         self.password = password
         self.db = None
 
-    async def connect(self):
-        """Connect to SurrealDB and authenticate"""
+    async def connect(self) -> str:
+        """
+        Connect to SurrealDB and authenticate
+        :return: Signin result
+        """
         from surrealdb import AsyncSurreal
 
         # Initialize connection
@@ -277,7 +313,7 @@ class AsyncDbController:
 
         return signin_result
 
-    async def query(self, statement, params=None):
+    async def query(self, statement: str, params: dict = None) -> list:
         """
         Execute a SurrealQL query
 
@@ -289,7 +325,7 @@ class AsyncDbController:
             params = {}
         return await self.db.query(statement, params)
 
-    async def update(self, record, data):
+    async def update(self, record: str, data: dict) -> dict:
         """
         Update a record
 
@@ -305,7 +341,7 @@ class AsyncDbController:
             return {**result, 'id': _id}
         return result
 
-    async def create(self, table_name, data):
+    async def create(self, table_name: str, data: dict) -> dict:
         """
         Create a new record
 
@@ -325,7 +361,7 @@ class AsyncDbController:
             logger.error(f"Error creating record: {e}")
             return {}
 
-    async def select_many(self, table_name):
+    async def select_many(self, table_name: str) -> list:
         """
         Select all records from a table
 
@@ -343,7 +379,7 @@ class AsyncDbController:
 
         return result
 
-    async def select(self, record):
+    async def select(self, record: str) -> dict:
         """
         Select a specific record
 
@@ -358,7 +394,7 @@ class AsyncDbController:
             return {**result, 'id': _id}
         return result
 
-    async def delete(self, record):
+    async def delete(self, record: str) -> dict:
         """
         Delete a record
 
@@ -367,8 +403,11 @@ class AsyncDbController:
         """
         return await self.db.delete(record)
 
-    async def close(self):
-        """Close the connection (not needed with new API, but kept for compatibility)"""
+    async def close(self) -> None:
+        """
+        Close the connection (not needed with new API, but kept for compatibility)
+        :return: None
+        """
         # The new API doesn't seem to have an explicit close method
         # This is kept for backwards compatibility
         pass

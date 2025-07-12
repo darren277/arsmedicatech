@@ -1,3 +1,6 @@
+"""
+User Service for managing user accounts, authentication, and settings.
+"""
 from typing import Optional, Dict, Any, List
 from lib.models.user import User, UserSession
 from lib.models.user_settings import UserSettings
@@ -7,12 +10,26 @@ from settings import logger
 
 
 class UserService:
-    def __init__(self, db_controller: DbController = None):
+    """
+    Service for managing user accounts, authentication, and settings.
+    """
+    def __init__(self, db_controller: DbController = None) -> None:
+        """
+        Initialize UserService with a database controller.
+        :param db_controller: Optional DbController instance. If None, a default DbController will be used.
+        :type db_controller: DbController
+        :return: None
+        """
         self.db = db_controller or DbController()
         self.active_sessions: Dict[str, UserSession] = {}
     
-    def connect(self):
-        """Connect to database"""
+    def connect(self) -> None:
+        """
+        Connect to database
+        This method attempts to connect to the database using the provided DbController.
+        If the DbController does not have a connect method, it will log a message and continue in mock mode.
+        :return: None
+        """
         logger.debug("Connecting to database...")
         try:
             logger.debug(f"Database controller type: {type(self.db)}")
@@ -28,15 +45,33 @@ class UserService:
             logger.debug("Continuing with mock database mode")
             # Don't raise the exception, continue with mock mode
     
-    def close(self):
-        """Close database connection"""
+    def close(self) -> None:
+        """
+        Close database connection
+        This method attempts to close the database connection using the provided DbController.
+        If the DbController does not have a close method, it will log a message and continue in mock mode.
+        :return: None
+        """
         self.db.close()
     
-    def create_user(self, username: str, email: str, password: str, 
-                   first_name: str = None, last_name: str = None, 
-                   role: str = "patient") -> tuple[bool, str, Optional[User]]:
+    def create_user(
+            self,
+            username: str,
+            email: str,
+            password: str,
+            first_name: str = None,
+            last_name: str = None,
+            role: str = "patient"
+    ) -> tuple[bool, str, Optional[User]]:
         """
         Create a new user account
+
+        :param username: Username for the new user
+        :param email: Email address for the new user
+        :param password: Password for the new user
+        :param first_name: First name of the user (optional)
+        :param last_name: Last name of the user (optional)
+        :param role: Role of the user (default is "patient")
         
         :return: (success, message, user_object)
         """
@@ -135,9 +170,9 @@ class UserService:
                 logger.debug(f"Testing immediate user retrieval...")
                 test_user = self.get_user_by_id(user.id)
                 if test_user:
-                    logger.debug(f"✅ User can be retrieved immediately: {test_user.username}")
+                    logger.debug(f"User can be retrieved immediately: {test_user.username}")
                 else:
-                    logger.debug(f"❌ User cannot be retrieved immediately")
+                    logger.debug(f"User cannot be retrieved immediately")
                 
                 # If the user is a patient, create a corresponding Patient record
                 if user.role == "patient" and user.id:
@@ -179,6 +214,9 @@ class UserService:
     def authenticate_user(self, username: str, password: str) -> tuple[bool, str, Optional[UserSession]]:
         """
         Authenticate a user with username and password
+
+        :param username: Username of the user
+        :param password: Password of the user
         
         :return: (success, message, session_object)
         """
@@ -229,7 +267,11 @@ class UserService:
             return False, f"Authentication error: {str(e)}", None
     
     def get_user_by_username(self, username: str) -> Optional[User]:
-        """Get user by username"""
+        """
+        Get user by username
+        :param username: Username of the user to retrieve
+        :return: User object if found, None otherwise
+        """
         try:
             logger.debug(f"get_user_by_username - username: {username}")
 
@@ -249,7 +291,12 @@ class UserService:
             return None
     
     def get_user_by_email(self, email: str) -> Optional[User]:
-        """Get user by email"""
+        """
+        Get user by email
+
+        :param email: Email address of the user to retrieve
+        :return: User object if found, None otherwise
+        """
         try:
             result = self.db.query(
                 "SELECT * FROM User WHERE email = $email",
@@ -267,7 +314,11 @@ class UserService:
             return None
     
     def get_user_by_id(self, user_id: str) -> Optional[User]:
-        """Get user by ID"""
+        """
+        Get user by ID
+        :param user_id: ID of the user to retrieve
+        :return: User object if found, None otherwise
+        """
         try:
             logger.debug(f"get_user_by_id - user_id: {user_id}")
             logger.debug(f"get_user_by_id - user_id type: {type(user_id)}")
@@ -291,7 +342,11 @@ class UserService:
             return None
     
     def validate_session(self, token: str) -> Optional[UserSession]:
-        """Validate session token and return session if valid"""
+        """
+        Validate session token and return session if valid
+        :param token: Session token to validate
+        :return: UserSession object if valid, None otherwise
+        """
         logger.debug(f"validate_session - token: {token[:10] if token else 'None'}...")
         
         # First check memory cache
@@ -332,7 +387,11 @@ class UserService:
         return None
     
     def logout(self, token: str) -> bool:
-        """Logout user by removing session"""
+        """
+        Logout user by removing session
+        :param token: Session token to remove
+        :return: True if logout successful, False otherwise
+        """
         # Remove from memory
         if token in self.active_sessions:
             del self.active_sessions[token]
@@ -354,7 +413,10 @@ class UserService:
         return True
     
     def get_all_users(self) -> List[User]:
-        """Get all users (admin only)"""
+        """
+        Get all users (admin only)
+        :return: List of User objects
+        """
         try:
             logger.debug("Getting all users from database...")
             results = self.db.select_many('User')
@@ -373,7 +435,12 @@ class UserService:
             return []
     
     def update_user(self, user_id: str, updates: Dict[str, Any]) -> tuple[bool, str]:
-        """Update user information"""
+        """
+        Update user information
+        :param user_id: ID of the user to update
+        :param updates: Dictionary of fields to update
+        :return: (success, message)
+        """
         try:
             # Remove sensitive fields that shouldn't be updated directly
             updates.pop('password_hash', None)
@@ -390,7 +457,14 @@ class UserService:
             return False, f"Error updating user: {str(e)}"
     
     def change_password(self, user_id: str, current_password: str, new_password: str) -> tuple[bool, str]:
-        """Change user password"""
+        """
+        Change user password
+
+        :param user_id: ID of the user whose password is to be changed
+        :param current_password: Current password of the user
+        :param new_password: New password to set for the user
+        :return: (success, message)
+        """
         try:
             # Get user
             user = self.get_user_by_id(user_id)
@@ -420,7 +494,11 @@ class UserService:
             return False, f"Error changing password: {str(e)}"
     
     def deactivate_user(self, user_id: str) -> tuple[bool, str]:
-        """Deactivate a user account"""
+        """
+        Deactivate a user account
+        :param user_id: ID of the user to deactivate
+        :return: (success, message)
+        """
         try:
             result = self.db.update(f"User:{user_id}", {"is_active": False})
             if result:
@@ -432,7 +510,12 @@ class UserService:
             return False, f"Error deactivating user: {str(e)}"
     
     def activate_user(self, user_id: str) -> tuple[bool, str]:
-        """Activate a user account"""
+        """
+        Activate a user account
+
+        :param user_id: ID of the user to activate
+        :return: (success, message)
+        """
         try:
             result = self.db.update(f"User:{user_id}", {"is_active": True})
             if result:
@@ -444,7 +527,11 @@ class UserService:
             return False, f"Error activating user: {str(e)}"
     
     def create_default_admin(self) -> tuple[bool, str]:
-        """Create a default admin user if no users exist"""
+        """
+        Create a default admin user if no users exist
+
+        :return: (success, message)
+        """
         try:
             # Check if any users exist
             users = self.get_all_users()
@@ -470,7 +557,12 @@ class UserService:
             return False, f"Error creating default admin: {str(e)}"
     
     def get_user_settings(self, user_id: str) -> Optional[UserSettings]:
-        """Get user settings"""
+        """
+        Get user settings
+
+        :param user_id: ID of the user whose settings to retrieve
+        :return: UserSettings object if found, None otherwise
+        """
         try:
             result = self.db.query(
                 "SELECT * FROM UserSettings WHERE user_id = $user_id",
@@ -489,7 +581,13 @@ class UserService:
             return None
     
     def save_user_settings(self, user_id: str, settings: UserSettings) -> tuple[bool, str]:
-        """Save user settings"""
+        """
+        Save user settings
+
+        :param user_id: ID of the user whose settings to save
+        :param settings: UserSettings object containing the settings to save
+        :return: (success, message)
+        """
         try:
             logger.debug(f"Saving settings for user: {user_id}")
             
@@ -535,7 +633,13 @@ class UserService:
             return False, f"Error saving settings: {str(e)}"
     
     def update_openai_api_key(self, user_id: str, api_key: str) -> tuple[bool, str]:
-        """Update user's OpenAI API key"""
+        """
+        Update user's OpenAI API key
+
+        :param user_id: ID of the user whose API key to update
+        :param api_key: New OpenAI API key to set for the user
+        :return: (success, message)
+        """
         try:
             # Allow empty string to remove API key
             if api_key == "":
@@ -570,7 +674,12 @@ class UserService:
             return False, f"Error updating API key: {str(e)}"
     
     def get_openai_api_key(self, user_id: str) -> str:
-        """Get user's decrypted OpenAI API key"""
+        """
+        Get user's decrypted OpenAI API key
+
+        :param user_id: ID of the user whose API key to retrieve
+        :return: OpenAI API key if found, empty string otherwise
+        """
         try:
             settings = self.get_user_settings(user_id)
             if settings:
@@ -581,7 +690,12 @@ class UserService:
             return ""
     
     def has_openai_api_key(self, user_id: str) -> bool:
-        """Check if user has a valid OpenAI API key"""
+        """
+        Check if user has a valid OpenAI API key
+
+        :param user_id: ID of the user to check
+        :return: True if user has a valid OpenAI API key, False otherwise
+        """
         try:
             settings = self.get_user_settings(user_id)
             if settings:

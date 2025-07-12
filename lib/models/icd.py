@@ -1,8 +1,11 @@
-""""""
+"""
+ICD Code Management with SurrealDB
+"""
 import csv
 import asyncio
 from surrealdb import AsyncSurreal
 
+from lib.services.apis import ICD10Code
 from settings import SURREALDB_NAMESPACE, SURREALDB_ICD_DB
 from settings import SURREALDB_USER, SURREALDB_PASS
 from settings import SURREALDB_URL
@@ -10,7 +13,25 @@ from settings import SURREALDB_URL
 from settings import logger
 
 
-async def import_icd_codes(csv_file_path):
+async def import_icd_codes(csv_file_path: str) -> None:
+    """
+    Imports ICD codes from a CSV file into SurrealDB.
+    The CSV file should have the following columns:
+    - CODE
+    - SHORT DESCRIPTION (VALID ICD-10 FY2025)
+    The function connects to SurrealDB, reads the CSV file, and inserts each ICD code
+    with its description into the `icd` table.
+    The `icd` table is expected to have a structure like:
+    {
+        "code": "ICD_CODE",
+        "description": "SHORT_DESCRIPTION"
+    }
+    The function also logs the progress of the import operation.
+    It creates a new record for each ICD code in the format `icd:ICD_CODE`.
+    The function does not return any value but logs the number of records inserted.
+    :param csv_file_path: str - Path to the CSV file containing ICD codes and descriptions.
+    :return: None
+    """
     db = AsyncSurreal(SURREALDB_URL)
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
     await db.signin({'username': SURREALDB_USER, 'password': SURREALDB_PASS})
@@ -33,7 +54,11 @@ async def import_icd_codes(csv_file_path):
     await db.close()
 
 
-async def define_index():
+async def define_index() -> None:
+    """
+    Defines an index on the `icd` table for the `code` column.
+    :return: None
+    """
     q = "DEFINE INDEX code_idx ON TABLE icd COLUMNS code;"
 
     db = AsyncSurreal(SURREALDB_URL)
@@ -47,7 +72,12 @@ async def define_index():
 
 
 
-async def search_icd_by_description(search_term):
+async def search_icd_by_description(search_term: str) -> list:
+    """
+    Searches for ICD codes by description using a case-sensitive search.
+    :param search_term: str - The term to search for in the ICD descriptions.
+    :return: list - A list of ICD records that match the search term.
+    """
     db = AsyncSurreal(SURREALDB_URL)
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
     await db.signin({'username': SURREALDB_USER, 'password': SURREALDB_PASS})
@@ -65,7 +95,20 @@ async def search_icd_by_description(search_term):
         return []
 
 
-async def lookup_icd_code(icd_code):
+async def lookup_icd_code(icd_code: ICD10Code) -> dict | None:
+    """
+    Looks up an ICD code in the SurrealDB database.
+    :param icd_code: ICD10Code - The ICD code to look up.
+    :return: dict | None - The ICD record if found, otherwise None.
+    """
+    if not icd_code:
+        logger.debug("No ICD code provided for lookup.")
+        return None
+
+    if not icd_code.validate():
+        logger.debug(f"Invalid ICD code: {icd_code}")
+        return None
+
     db = AsyncSurreal(SURREALDB_URL)
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
     await db.signin({'username': SURREALDB_USER, 'password': SURREALDB_PASS})

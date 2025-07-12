@@ -1,4 +1,6 @@
-""""""
+"""
+MCP server entry point.
+"""
 import datetime
 from trees import mcp
 
