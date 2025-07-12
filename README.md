@@ -410,3 +410,21 @@ WARNING: autodoc: failed to import module 'mcp_server' from module 'llm.mcp'; th
 No module named 'trees' [autodoc.import_object]
 WARNING: autodoc: failed to import module 'trees' from module 'llm.mcp'; the following exception was raised:
 No module named 'mcp_init' [autodoc.import_object]
+
+## MyPy
+
+mypy --explicit-package-bases lib settings.py
+
+### Some Notes on Edge Cases
+
+I tried to limit my use of `# type: ignore` as much as possible, but I encountered a few edge cases that were more trouble than the static typing was worth (for the time being, at least).
+
+Some of those cases:
+* SurrealDB controller methods with ambiguous signatures.
+* Flask `session` object.
+* The `Faker` library.
+* And a few other very isolated cases.
+
+If time permits, I will return to these, but there is so much more value to be gained elsewhere.
+
+As for `disable_error_code = no-any-return`, this one I will likely be returning to sooner than later.
