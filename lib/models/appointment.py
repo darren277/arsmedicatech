@@ -1,9 +1,9 @@
 """
 Appointment model for scheduling functionality
 """
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any, List
+from datetime import datetime, timedelta, timezone
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from settings import logger
 
@@ -73,25 +73,6 @@ class Appointment:
         if not patient_id or not provider_id or not appointment_date or not start_time or not end_time:
             raise ValueError("Missing required fields: patient_id, provider_id, appointment_date, start_time, end_time")
 
-        if not isinstance(patient_id, str) or not isinstance(provider_id, str):
-            raise TypeError("patient_id and provider_id must be strings")
-        if not isinstance(appointment_date, str) or not isinstance(start_time, str) or not isinstance(end_time, str):
-            raise TypeError("appointment_date, start_time, and end_time must be strings")
-        if appointment_type and not isinstance(appointment_type, str):
-            raise TypeError("appointment_type must be a string")
-        if status and not isinstance(status, str):
-            raise TypeError("status must be a string")
-        if notes and not isinstance(notes, str):
-            raise TypeError("notes must be a string")
-        if location and not isinstance(location, str):
-            raise TypeError("location must be a string")
-        if id and not isinstance(id, str):
-            raise TypeError("id must be a string")
-        if created_at and not isinstance(created_at, str):
-            raise TypeError("created_at must be a string")
-        if updated_at and not isinstance(updated_at, str):
-            raise TypeError("updated_at must be a string")
-
         self.patient_id = patient_id
         self.provider_id = provider_id
         self.appointment_date = appointment_date
@@ -102,8 +83,8 @@ class Appointment:
         self.notes = notes or ""
         self.location = location or ""
         self.id = id
-        self.created_at = created_at or datetime.utcnow().isoformat()
-        self.updated_at = updated_at or datetime.utcnow().isoformat()
+        self.created_at = created_at or datetime.now(timezone.utc).isoformat()
+        self.updated_at = updated_at or datetime.now(timezone.utc).isoformat()
     
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -213,8 +194,8 @@ class Appointment:
             AppointmentStatus.SCHEDULED.value,
             AppointmentStatus.CONFIRMED.value
         ]
-    
-    def get_datetime(self) -> datetime or None:
+
+    def get_datetime(self) -> Optional[datetime]:
         """
         Get full datetime of appointment start
 
@@ -269,7 +250,7 @@ class Appointment:
 
         :return: List of SQL statements to define the appointment table and fields
         """
-        statements = []
+        statements: List[str] = []
         statements.append('DEFINE TABLE appointment SCHEMAFULL;')
         statements.append('DEFINE FIELD patient_id ON appointment TYPE record<patient> ASSERT $value != none;')
         statements.append('DEFINE FIELD provider_id ON appointment TYPE record<user> ASSERT $value != none;')

@@ -45,7 +45,7 @@ def search_patients_route() -> Tuple[Response, int]:
         return jsonify({"message": "Please provide a search term with at least 2 characters."}), 400
 
     results = search_patient_history(search_term)
-    return jsonify(results)
+    return jsonify(results), 200
 
 def search_encounters_route() -> Tuple[Response, int]:
     """
@@ -60,7 +60,7 @@ def search_encounters_route() -> Tuple[Response, int]:
         return jsonify({"message": "Please provide a search term with at least 2 characters."}), 400
     
     results = search_encounter_history(search_term)
-    return jsonify(results)
+    return jsonify(results), 200
 
 
 def patient_endpoint_route(patient_id: PatientID) -> Tuple[Response, int]:
@@ -78,7 +78,7 @@ def patient_endpoint_route(patient_id: PatientID) -> Tuple[Response, int]:
         patient = get_patient_by_id(patient_id)
         logger.debug(f"Patient result: {patient}")
         if patient:
-            return jsonify(patient)
+            return jsonify(patient), 200
         else:
             return jsonify({"error": "Patient not found"}), 404
 
@@ -90,7 +90,7 @@ def patient_endpoint_route(patient_id: PatientID) -> Tuple[Response, int]:
 
         patient = update_patient(patient_id, data)
         if patient:
-            return jsonify(patient)
+            return jsonify(patient), 200
         else:
             return jsonify({"error": "Patient not found or update failed"}), 404
 
@@ -98,7 +98,7 @@ def patient_endpoint_route(patient_id: PatientID) -> Tuple[Response, int]:
         # Delete a patient
         result = delete_patient(patient_id)
         if result:
-            return jsonify({"message": "Patient deleted successfully"})
+            return jsonify({"message": "Patient deleted successfully"}), 200
         else:
             return jsonify({"error": "Patient not found or delete failed"}), 404
 
@@ -111,7 +111,7 @@ def patients_endpoint_route() -> Tuple[Response, int]:
     if request.method == 'GET':
         # Get all patients
         patients = get_all_patients()
-        return jsonify(patients)
+        return jsonify(patients), 200
     elif request.method == 'POST':
         # Create a new patient
         data = request.json
@@ -139,7 +139,7 @@ def get_all_encounters_route() -> Tuple[Response, int]:
     """
     try:
         encounters = get_all_encounters()
-        return jsonify(encounters)
+        return jsonify(encounters), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -153,7 +153,7 @@ def get_encounters_by_patient_route(patient_id: PatientID) -> Tuple[Response, in
     """
     try:
         encounters = get_encounters_by_patient(patient_id)
-        return jsonify(encounters)
+        return jsonify(encounters), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -168,7 +168,7 @@ def get_encounter_by_id_route(encounter_id: str) -> Tuple[Response, int]:
     try:
         encounter = get_encounter_by_id(encounter_id)
         if encounter:
-            return jsonify(encounter)
+            return jsonify(encounter), 200
         else:
             return jsonify({"error": "Encounter not found"}), 404
     except Exception as e:
@@ -219,7 +219,7 @@ def update_encounter_route(encounter_id: str) -> Tuple[Response, int]:
         
         encounter = update_encounter(encounter_id, data)
         if encounter:
-            return jsonify(encounter)
+            return jsonify(encounter), 200
         else:
             return jsonify({"error": "Encounter not found or update failed"}), 404
     except Exception as e:
@@ -236,7 +236,7 @@ def delete_encounter_route(encounter_id: str) -> Tuple[Response, int]:
     try:
         success = delete_encounter(encounter_id)
         if success:
-            return jsonify({"message": "Encounter deleted successfully"})
+            return jsonify({"message": "Encounter deleted successfully"}), 200
         else:
             return jsonify({"error": "Encounter not found or delete failed"}), 404
     except Exception as e:

@@ -2,35 +2,37 @@
 ArsMedicaTech MCP Server Initialization
 """
 import json
-from fastmcp import FastMCP
-from fastmcp.server.middleware.timing import TimingMiddleware
-from fastmcp.server.middleware.logging import LoggingMiddleware
-from openai import AsyncOpenAI
-from starlette.responses import PlainTextResponse
-from starlette.requests import Request
+
+from fastmcp import Context, FastMCP
 from fastmcp.server.dependencies import get_http_request
+from fastmcp.server.middleware.logging import LoggingMiddleware
+from fastmcp.server.middleware.timing import TimingMiddleware
+from openai import AsyncOpenAI
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse
 
 from lib.services.encryption import get_encryption_service
-
 from settings import logger
 
-
-mcp = FastMCP("ArsMedicaTech MCP Server")
+mcp: FastMCP[Context] = FastMCP("ArsMedicaTech MCP Server")
 
 # plug‑in generic middleware
 mcp.add_middleware(TimingMiddleware())
 mcp.add_middleware(LoggingMiddleware())
 
 
-@mcp.custom_route("/health", methods=["GET"])
+@mcp.custom_route("/health", methods=["GET"])  # type: ignore[misc]
 async def health_check(request: Request) -> PlainTextResponse:
     """
     Health check endpoint to verify server status.
     :param request: Request object containing client information.
     :return: PlainTextResponse indicating server health.
     """
-    logger.debug(f'Health check received from {request.client.host}')
-    logger.debug(request.__dir__())
+    client_host: str = "unknown"
+    if request.client is not None:
+        client_host = request.client.host
+    logger.debug(f'Health check received from {client_host}')
+    logger.debug(str(request.__dir__()))
     return PlainTextResponse("OK")
 
 

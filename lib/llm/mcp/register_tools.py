@@ -1,10 +1,12 @@
 """
 Register OpenAI-style tools with FastMCP.
 """
-from typing import Callable
+from typing import Any, Callable, Dict
+
 from fastmcp import FastMCP
 
-def register_openai_tool(mcp: FastMCP, fn: Callable, openai_tool_def: dict) -> None:
+
+def register_openai_tool(mcp: FastMCP[Any], fn: Callable[..., Any], openai_tool_def: Dict[str, Any]) -> None:
     """
     NOTE: CURRENTLY DOES NOT WORK DUE TO COMPLICATIONS WITH INJECTING CONTEXT (`ctx`).
 

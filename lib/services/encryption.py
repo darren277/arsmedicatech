@@ -3,12 +3,14 @@ Encryption Service for Sensitive Data
 """
 import base64
 import os
+from typing import Optional
+
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from typing import Optional
 
 from settings import logger
+
 
 class EncryptionService:
     """

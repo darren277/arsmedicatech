@@ -1,16 +1,15 @@
 """
 ICD Code Management with SurrealDB
 """
-import csv
 import asyncio
-from surrealdb import AsyncSurreal
+import csv
+from typing import Any, Dict, List
+
+from surrealdb import AsyncSurreal  # type: ignore
 
 from lib.services.apis import ICD10Code
-from settings import SURREALDB_NAMESPACE, SURREALDB_ICD_DB
-from settings import SURREALDB_USER, SURREALDB_PASS
-from settings import SURREALDB_URL
-
-from settings import logger
+from settings import (SURREALDB_ICD_DB, SURREALDB_NAMESPACE, SURREALDB_PASS,
+                      SURREALDB_URL, SURREALDB_USER, logger)
 
 
 async def import_icd_codes(csv_file_path: str) -> None:
@@ -33,15 +32,21 @@ async def import_icd_codes(csv_file_path: str) -> None:
     :return: None
     """
     db = AsyncSurreal(SURREALDB_URL)
+    if not SURREALDB_NAMESPACE or not SURREALDB_ICD_DB:
+        raise ValueError("SURREALDB_NAMESPACE and SURREALDB_ICD_DB must not be empty")
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
-    await db.signin({'username': SURREALDB_USER, 'password': SURREALDB_PASS})
+    if SURREALDB_USER is None or SURREALDB_PASS is None:
+        raise ValueError("SURREALDB_USER and SURREALDB_PASS must not be None")
+    
+    credentials: Dict[str, Any] = {'username': SURREALDB_USER, 'password': SURREALDB_PASS}
+    await db.signin(credentials)
 
     with open(csv_file_path, 'r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         i = 0
         for row in reader:
             i += 1
-            logger.debug(row)
+            logger.debug(str(row))
             icd_code = row['CODE']
             short_description = row['SHORT DESCRIPTION (VALID ICD-10 FY2025)']
 
@@ -62,6 +67,8 @@ async def define_index() -> None:
     q = "DEFINE INDEX code_idx ON TABLE icd COLUMNS code;"
 
     db = AsyncSurreal(SURREALDB_URL)
+    if not SURREALDB_NAMESPACE or not SURREALDB_ICD_DB:
+        raise ValueError("SURREALDB_NAMESPACE and SURREALDB_ICD_DB must not be empty")
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
     await db.signin({'username': SURREALDB_USER, 'password': SURREALDB_PASS})
 
@@ -72,13 +79,15 @@ async def define_index() -> None:
 
 
 
-async def search_icd_by_description(search_term: str) -> list:
+async def search_icd_by_description(search_term: str) -> List[Dict[str, Any]]:
     """
     Searches for ICD codes by description using a case-sensitive search.
     :param search_term: str - The term to search for in the ICD descriptions.
     :return: list - A list of ICD records that match the search term.
     """
     db = AsyncSurreal(SURREALDB_URL)
+    if not SURREALDB_NAMESPACE or not SURREALDB_ICD_DB:
+        raise ValueError("SURREALDB_NAMESPACE and SURREALDB_ICD_DB must not be empty")
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
     await db.signin({'username': SURREALDB_USER, 'password': SURREALDB_PASS})
 
@@ -110,6 +119,8 @@ async def lookup_icd_code(icd_code: ICD10Code) -> dict | None:
         return None
 
     db = AsyncSurreal(SURREALDB_URL)
+    if not SURREALDB_NAMESPACE or not SURREALDB_ICD_DB:
+        raise ValueError("SURREALDB_NAMESPACE and SURREALDB_ICD_DB must not be empty")
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
     await db.signin({'username': SURREALDB_USER, 'password': SURREALDB_PASS})
 

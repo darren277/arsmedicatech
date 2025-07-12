@@ -1,10 +1,14 @@
 """
 Patient and Encounter Models for SurrealDB
 """
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List, Union
 
 from lib.db.surreal import DbController, AsyncDbController
 from settings import logger
+
+PatientDict = dict[str, str | int | list | None]  # Define a type for patient dictionaries
+
+EncounterDict = dict[str, str | int | list | None]  # Define a type for encounter dictionaries
 
 
 class Patient:
@@ -349,7 +353,7 @@ def add_some_placeholder_patients(db: DbController or AsyncDbController) -> None
         add_some_placeholder_encounters(db, f"patient:{demographic_no}")
 
 
-def serialize_patient(patient: dict) -> dict:
+def serialize_patient(patient: dict) -> Union[str, dict]:
     """
     Serializes a patient dictionary to ensure all IDs are strings and handles RecordID types.
     :param patient: dict - The patient data to serialize.
@@ -375,7 +379,7 @@ def serialize_patient(patient: dict) -> dict:
             patient[key] = str(patient[key])
     return patient
 
-def serialize_encounter(encounter: dict) -> dict:
+def serialize_encounter(encounter: dict) -> Union[EncounterDict, str]:
     """
     Serializes an encounter dictionary to ensure all IDs are strings and handles RecordID types.
     :param encounter: dict - The encounter data to serialize.
@@ -656,12 +660,14 @@ def create_patient(patient_data: dict) -> dict:
             logger.debug(f"Generated demographic_no: {new_id}")
         
         # Create Patient object
+        loc = patient_data.get("location", [])
+
         patient = Patient(
             demographic_no=patient_data["demographic_no"],
             first_name=patient_data.get("first_name"),
             last_name=patient_data.get("last_name"),
             date_of_birth=patient_data.get("date_of_birth"),
-            location=tuple(patient_data.get("location", [])),
+            location=tuple(loc),
             sex=patient_data.get("sex"),
             phone=patient_data.get("phone"),
             email=patient_data.get("email")
@@ -693,7 +699,7 @@ def create_patient(patient_data: dict) -> dict:
 
 # TODO: Implement pagination.
 
-def get_all_patients() -> list:
+def get_all_patients() -> List[PatientDict]:
     """
     Get all patients from the database
 
@@ -734,7 +740,7 @@ def get_all_patients() -> list:
         db.close()
 
 
-def get_all_encounters() -> list:
+def get_all_encounters() -> List[EncounterDict]:
     """
     Get all encounters from the database
 
@@ -775,7 +781,7 @@ def get_all_encounters() -> list:
         db.close()
 
 
-def get_encounter_by_id(encounter_id: str) -> dict:
+def get_encounter_by_id(encounter_id: str) -> EncounterDict:
     """
     Get an encounter by its note_id
 
@@ -817,7 +823,7 @@ def get_encounter_by_id(encounter_id: str) -> dict:
         db.close()
 
 
-def get_encounters_by_patient(patient_id: str) -> list:
+def get_encounters_by_patient(patient_id: str) -> List[EncounterDict]:
     """
     Get all encounters for a specific patient
 
@@ -861,7 +867,7 @@ def get_encounters_by_patient(patient_id: str) -> list:
         db.close()
 
 
-def create_encounter(encounter_data: dict, patient_id: str) -> dict:
+def create_encounter(encounter_data: dict, patient_id: str) -> EncounterDict:
     """
     Create a new encounter record
 
@@ -919,7 +925,7 @@ def create_encounter(encounter_data: dict, patient_id: str) -> dict:
         db.close()
 
 
-def update_encounter(encounter_id: str, encounter_data: dict) -> dict:
+def update_encounter(encounter_id: str, encounter_data: dict) -> EncounterDict:
     """
     Update an encounter record with only the provided fields
 

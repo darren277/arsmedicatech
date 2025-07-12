@@ -2,7 +2,7 @@
 Vector database for RAG (retrieval‑augmented generation) with SurrealDB.
 """
 import json, asyncio
-from typing import List
+from typing import List, Optional
 
 from openai import AsyncOpenAI
 from surrealdb import AsyncSurreal
@@ -126,7 +126,7 @@ class Vec:
 
     def __init__(
             self,
-            openai_client: AsyncOpenAI or None = None,
+            openai_client: Optional[AsyncOpenAI] = None,
             db_url: str = DB_URL,
             system_prompt: str = DEFAULT_SYSTEM_PROMPT,
             embed_model: str = "text-embedding-3-small",

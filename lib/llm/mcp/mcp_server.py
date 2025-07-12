@@ -2,10 +2,10 @@
 MCP server entry point.
 """
 import datetime
+
 from trees import mcp
 
 from settings import logger
-
 
 # --- import side‑effect modules that register tools ---
 #from tools import ...

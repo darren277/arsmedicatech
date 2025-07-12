@@ -2,16 +2,16 @@
 Authentication decorators for Flask routes.
 """
 from functools import wraps
-from flask import request, jsonify, session
-from typing import Optional, Callable, TypeVar, Any
-from lib.services.user_service import UserService
-from lib.models.user import UserSession
+from typing import Any, Callable, Optional, TypeVar
 
+from flask import g, jsonify, request, session
+
+from lib.models.user import UserSession
+from lib.services.user_service import UserService
 from settings import logger
 
-F = TypeVar("F", bound=Callable[..., Any])
 
-def require_auth(f: Callable) -> Callable[[F], F]:
+def require_auth(f: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator to require authentication for a route
 
@@ -38,6 +38,7 @@ def require_auth(f: Callable) -> Callable[[F], F]:
         
         if not token:
             token = session.get('auth_token')
+            token = str(token) if token is not None else None
             logger.debug(f"Got session token: {token[:10] if token else 'None'}...")
         
         if not token:
@@ -49,16 +50,19 @@ def require_auth(f: Callable) -> Callable[[F], F]:
         user_service.connect()
         try:
             logger.debug(f"Validating session token: {token[:10]}...")
-            user_session = user_service.validate_session(token)
+            if not isinstance(token, str):
+                logger.debug("Token is not a string, cannot validate session")
+                return jsonify({"error": "Invalid token format"}), 401
+            user_session = user_service.validate_session(str(token))
             if not user_session:
                 logger.debug("Session validation failed")
                 return jsonify({"error": "Invalid or expired session"}), 401
             
             logger.debug(f"Session validated for user: {user_session.username}")
             # Add user info to request context
-            request.user_session = user_session
-            request.user_id = user_session.user_id
-            request.user_role = user_session.role
+            g.user_session = user_session
+            g.user_id = user_session.user_id
+            g.user_role = user_session.role
             
             return f(*args, **kwargs)
         finally:
@@ -66,6 +70,8 @@ def require_auth(f: Callable) -> Callable[[F], F]:
     
     return decorated_function
 
+
+F = TypeVar('F', bound=Callable[..., Any])
 
 def require_role(required_role: str) -> Callable[[F], F]:
     """
@@ -96,7 +102,7 @@ def require_role(required_role: str) -> Callable[[F], F]:
                 return auth_result
             
             # Then check role
-            user_session = getattr(request, 'user_session', None)
+            user_session = getattr(g, 'user_session', None)
             if not user_session:
                 return jsonify({"error": "Authentication required"}), 401
             
@@ -112,11 +118,10 @@ def require_role(required_role: str) -> Callable[[F], F]:
             finally:
                 user_service.close()
         
-        return decorated_function
+        return decorated_function  # type: ignore
     return decorator
 
-
-def require_admin(f: Callable) -> Callable:
+def require_admin(f: F) -> F:
     """
     Decorator to require admin role
 
@@ -128,7 +133,7 @@ def require_admin(f: Callable) -> Callable:
     return require_role('admin')(f)
 
 
-def require_provider(f: Callable) -> Callable:
+def require_provider(f: F) -> F:
     """
     Decorator to require provider role
 
@@ -140,7 +145,7 @@ def require_provider(f: Callable) -> Callable:
     return require_role('provider')(f)
 
 
-def require_patient(f: Callable) -> Callable:
+def require_patient(f: F) -> F:
     """
     Decorator to require patient role
 
@@ -152,7 +157,7 @@ def require_patient(f: Callable) -> Callable:
     return require_role('patient')(f)
 
 
-def optional_auth(f: Callable) -> Callable:
+def optional_auth(f: F) -> F:
     """
     Decorator to optionally authenticate user (doesn't fail if no auth)
 
@@ -163,12 +168,12 @@ def optional_auth(f: Callable) -> Callable:
     :return: The decorated function that checks for optional authentication.
     """
     @wraps(f)
-    def decorated_function(*args, **kwargs) -> Optional[Callable]:
+    def decorated_function(*args, **kwargs) -> Any:
         """
         Decorated function that checks for optional authentication.
         :param args: Args passed to the decorated function.
         :param kwargs: Keyword args passed to the decorated function.
-        :return: Optional[Callable]: The original function if authentication is successful, otherwise proceeds without user info.
+        :return: Any: The original function result, regardless of authentication.
         """
         # Get token from request headers or session
         token = request.headers.get('Authorization')
@@ -205,7 +210,7 @@ def get_current_user() -> Optional[UserSession]:
     If no user session is found, it returns None.
     :return: Optional[UserSession]: The current user session if available, otherwise None.
     """
-    return getattr(request, 'user_session', None)
+    return getattr(g, 'user_session', None)
 
 
 def get_current_user_id() -> Optional[str]:
@@ -216,7 +221,7 @@ def get_current_user_id() -> Optional[str]:
     If no user ID is found, it returns None.
     :return: Optional[str]: The current user ID if available, otherwise None.
     """
-    return getattr(request, 'user_id', None)
+    return getattr(g, 'user_id', None)
 
 
 def get_current_user_role() -> Optional[str]:
@@ -227,4 +232,4 @@ def get_current_user_role() -> Optional[str]:
     If no user role is found, it returns None.
     :return: Optional[str]: The current user role if available, otherwise None.
     """
-    return getattr(request, 'user_role', None)
+    return getattr(g, 'user_role', None)

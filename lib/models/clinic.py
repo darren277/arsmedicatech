@@ -168,7 +168,7 @@ if __name__ == '__main__':
 client = AsyncDbController()
 
 
-async def create_clinic(clinic: Clinic):
+async def create_clinic(clinic: Clinic) -> str:
     """
     Asynchronously creates a clinic record in the SurrealDB database.
 
@@ -184,7 +184,7 @@ async def create_clinic(clinic: Clinic):
     return result[0]['id'] if result else None
 
 
-async def get_clinic_by_id(clinic_id: str):
+async def get_clinic_by_id(clinic_id: str) -> dict:
     """
     Asynchronously retrieves a clinic record by its ID.
 
@@ -211,7 +211,7 @@ async def get_all_clinics() -> list:
     return result if result else []
 
 
-async def search_clinics_by_location(longitude: float, latitude: float, radius: float = 5000):
+async def search_clinics_by_location(longitude: float, latitude: float, radius: float = 5000) -> list:
     """
     Asynchronously searches for clinics within a specified radius of a given location.
 
@@ -232,7 +232,7 @@ async def search_clinics_by_location(longitude: float, latitude: float, radius: 
     return result if result else []
 
 
-async def update_clinic(clinic_id: str, clinic: Clinic):
+async def update_clinic(clinic_id: str, clinic: Clinic) -> bool:
     """
     Asynchronously updates a clinic record in the database.
 
@@ -259,7 +259,7 @@ async def update_clinic(clinic_id: str, clinic: Clinic):
     return len(result) > 0
 
 
-async def delete_clinic(clinic_id: str):
+async def delete_clinic(clinic_id: str) -> bool:
     """
     Asynchronously deletes a clinic record from the database.
 

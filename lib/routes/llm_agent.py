@@ -11,6 +11,7 @@ from settings import MCP_URL
 from lib.llm.agent import LLMAgent, LLMModel
 from lib.services.llm_chat_service import LLMChatService
 from lib.services.openai_security import get_openai_security_service
+from lib.data_types import UserID
 
 from settings import logger
 
@@ -36,7 +37,7 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
     llm_chat_service.connect()
     try:
         if request.method == 'GET':
-            chats = llm_chat_service.get_llm_chats_for_user(current_user_id)
+            chats = llm_chat_service.get_llm_chats_for_user(UserID(current_user_id))
             return jsonify([chat.to_dict() for chat in chats]), 200
         elif request.method == 'POST':
             data: Optional[Dict[str, Any]] = request.json
@@ -56,13 +57,13 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
                 return jsonify({"error": error}), 400
 
             # Add user message to persistent chat
-            chat = llm_chat_service.add_message(current_user_id, assistant_id, 'Me', prompt)
+            chat = llm_chat_service.add_message(UserID(current_user_id), assistant_id, 'Me', prompt)
 
             agent = asyncio.run(
                 LLMAgent.from_mcp(
                     mcp_url=MCP_URL,
                     api_key=openai_api_key,
-                    model=LLMModel.GPT_4_1_NANO.value,  # Pass the string value instead of enum
+                    model=LLMModel.GPT_4_1_NANO.value,  # Pass as keyword argument
                 )
             )
 
@@ -76,7 +77,7 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
             security_service.log_api_usage(current_user_id, str(LLMModel.GPT_4_1_NANO))
 
             # Add assistant response to persistent chat
-            chat = llm_chat_service.add_message(current_user_id, assistant_id, 'AI Assistant',
+            chat = llm_chat_service.add_message(UserID(current_user_id), assistant_id, 'AI Assistant',
                                                 response.get('response', ''))
 
             # Save updated agent state to session

@@ -3,11 +3,13 @@ LLM Agent Module
 """
 import enum
 import json
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Any, Union, cast
 
 import openai
 from openai import OpenAI
 from openai.types.beta.threads.runs import ToolCall
+from openai.types.chat import ChatCompletionMessageToolCall
+from openai.types.chat.chat_completion import ChatCompletionMessage
 
 from lib.llm.mcp_tools import fetch_mcp_tool_defs
 from lib.services.encryption import get_encryption_service
@@ -23,7 +25,7 @@ Your responses should be accurate, concise, and helpful.
 
 tools_with_keys = ['rag']
 
-ToolDefinition = dict
+ToolDefinition = Dict[str, Any]
 
 class LLMModel(enum.Enum):
     """
@@ -38,7 +40,7 @@ class LLMModel(enum.Enum):
 
 async def process_tool_call(
         tool_call: ToolCall,
-        tool_dict: Dict[str, Callable],
+        tool_dict: Dict[str, Callable[..., Any]],
         session_id: Optional[str] = None
     ) -> Dict[str, str]:
     """
@@ -48,6 +50,10 @@ async def process_tool_call(
     :param session_id: Optional session ID for tools that require it.
     :return: Dict containing the role, function name, and result content.
     """
+    # Check if tool_call has function attribute (FunctionToolCall)
+    if not hasattr(tool_call, 'function'):
+        raise ValueError("Tool call does not have function attribute")
+    
     function_name = tool_call.function.name
     arguments = json.loads(tool_call.function.arguments)
 
@@ -92,8 +98,8 @@ class LLMAgent:
         self.system_prompt = system_prompt
         self.params = params
 
-        self.tool_definitions = []
-        self.tool_func_dict = dict()
+        self.tool_definitions: List[ToolDefinition] = []
+        self.tool_func_dict: Dict[str, Callable[..., Any]] = {}
 
         self.message_history = self.fetch_history()
 
@@ -105,7 +111,7 @@ class LLMAgent:
 
         self.client = OpenAI(api_key=self.api_key)
 
-    def add_tool(self, tool_name: str, tool: Callable, tool_def: ToolDefinition) -> None:
+    def add_tool(self, tool_name: str, tool: Callable[..., Any], tool_def: ToolDefinition) -> None:
         """
         Add a tool to the agent.
         :param tool_name: Name of the tool to add.
@@ -118,7 +124,7 @@ class LLMAgent:
         self.tool_definitions.append(tool_def)
         self.tool_func_dict[tool_name] = tool
 
-    def fetch_history(self) -> list:
+    def fetch_history(self) -> List[Dict[str, str]]:
         """
         Fetch history from database.
         This method should be overridden to fetch conversation history from a database or other storage.
@@ -127,7 +133,7 @@ class LLMAgent:
         # TODO.
         return [{"role": "system", "content": self.system_prompt}]
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> Dict[str, Any]:
         """
         Serialize the agent state to a dictionary for Flask session storage.
         :return: Dictionary containing the agent's state.
@@ -150,10 +156,10 @@ class LLMAgent:
     @classmethod
     def from_dict(
             cls,
-            data: Dict[str, str],
+            data: Dict[str, Any],
             api_key: Optional[str] = None,
-            tool_definitions: List[ToolDefinition] = None,
-            tool_func_dict: Dict[str, Callable] = None
+            tool_definitions: Optional[List[ToolDefinition]] = None,
+            tool_func_dict: Optional[Dict[str, Callable[..., Any]]] = None
     ) -> 'LLMAgent':
         """
         Create an agent instance from serialized data.
@@ -163,15 +169,22 @@ class LLMAgent:
         :param tool_func_dict: Dictionary mapping tool names to their callable functions.
         :return: An instance of LLMAgent with restored state.
         """
+        model_value = data.get('model', LLMModel.GPT_4_1.value)
+        model = LLMModel(model_value)
+        
         agent = cls(
-            model=LLMModel(data.get('model', LLMModel.GPT_4_1)),
+            model=model,
             api_key=api_key,
             system_prompt=data.get('system_prompt', DEFAULT_SYSTEM_PROMPT),
             **data.get('params', {})
         )
         
         # Restore message history
-        agent.message_history = data.get('message_history', [{"role": "system", "content": "You are a helpful assistant."}])
+        message_history = data.get('message_history', [{"role": "system", "content": "You are a helpful assistant."}])
+        if isinstance(message_history, list):
+            agent.message_history = message_history
+        else:
+            agent.message_history = [{"role": "system", "content": "You are a helpful assistant."}]
         
         # Restore tools if provided
         if tool_definitions and tool_func_dict:
@@ -192,15 +205,27 @@ class LLMAgent:
         # 1) Discover tools from MCP
         defs, funcs = await fetch_mcp_tool_defs(mcp_url)
 
-        # 2) Instantiate the agent
-        agent = cls(api_key=api_key, **kwargs)
+        # 2) Instantiate the agent with explicit parameters
+        # Extract model from kwargs if present, otherwise use default
+        model = kwargs.pop('model', LLMModel.GPT_4_1_NANO.value)
+        if isinstance(model, str):
+            model = LLMModel(model)
+        
+        agent = cls(
+            custom_llm_endpoint=None,
+            model=model,
+            api_key=api_key,
+            system_prompt=kwargs.pop('system_prompt', DEFAULT_SYSTEM_PROMPT),
+            **kwargs
+        )
+        
         for d in defs:
             name = d["function"]["name"]
             logger.debug("Adding tool:", d["function"]["name"], funcs[name], d)
             agent.add_tool(name, funcs[name], d)
         return agent
 
-    async def complete(self, prompt: str or None, **kwargs: Dict[str, str]) -> Dict[str, str]:
+    async def complete(self, prompt: Optional[str], **kwargs: Dict[str, str]) -> Dict[str, str]:
         """
         Complete a prompt using the LLM, processing any tool calls if necessary.
         :param prompt: The user prompt to send to the LLM. If None, uses the existing message history.
@@ -210,6 +235,9 @@ class LLMAgent:
         if prompt:
             self.message_history.append({"role": "user", "content": prompt})
 
+        if not self.api_key:
+            raise ValueError("API key is required for LLM access.")
+            
         api_key = get_encryption_service().encrypt_api_key(self.api_key)
 
         logger.debug("Sending request to OpenAI with model:", self.model.value)
@@ -218,9 +246,12 @@ class LLMAgent:
         if not api_key:
             raise ValueError("API key is required for LLM access.")
 
+        # Cast message_history to the expected type for OpenAI API
+        messages: List[ChatCompletionMessage] = cast(List[ChatCompletionMessage], self.message_history)
+
         completion = self.client.chat.completions.create(
             model=self.model.value,
-            messages=self.message_history,
+            messages=messages,
             tools=self.tool_definitions,
             #tool_choice="auto",
             #tool_choice='required',
@@ -242,24 +273,31 @@ class LLMAgent:
             return await self.complete(None, **kwargs)
         else:
             # Add assistant response to message history
-            self.message_history.append({"role": "assistant", "content": top_choice.content})
+            content = top_choice.content or ""
+            self.message_history.append({"role": "assistant", "content": content})
 
-        return {"response": top_choice.content}
+        return {"response": top_choice.content or ""}
 
-    async def process_tool_calls(self, tool_calls: List[ToolCall]) -> None:
+    async def process_tool_calls(self, tool_calls: List[ChatCompletionMessageToolCall]) -> None:
         """
         Process a list of tool calls by executing the corresponding functions.
         :param tool_calls: List of ToolCall objects to process.
         :return: None
         """
+        if not self.api_key:
+            raise ValueError("API key is required for LLM access.")
+            
         api_key = get_encryption_service().encrypt_api_key(self.api_key)
 
         logger.debug("Sending request to OpenAI with model:", self.model.value)
         logger.debug("API Key:", api_key)
 
-        if not api_key: raise ValueError("API key is required for LLM access.")
+        if not api_key: 
+            raise ValueError("API key is required for LLM access.")
 
         for tool_call in tool_calls:
-            result = await process_tool_call(tool_call, self.tool_func_dict, session_id=api_key)
+            # Cast ChatCompletionMessageToolCall to ToolCall for compatibility
+            tool_call_cast = cast(ToolCall, tool_call)
+            result = await process_tool_call(tool_call_cast, self.tool_func_dict, session_id=api_key)
             self.message_history.append(result)
 

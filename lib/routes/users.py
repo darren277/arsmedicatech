@@ -458,6 +458,10 @@ def register_route() -> Tuple[Response, int]:
 
         logger.debug(f"User creation result - success: {success}, message: {message}")
         if success:
+            if not user:
+                logger.error("User creation succeeded but returned user is None")
+                return jsonify({"error": "User creation failed"}), 500
+
             logger.debug(f"User created successfully: {user.id}")
             return jsonify({
                 "message": message,

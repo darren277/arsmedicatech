@@ -1,7 +1,7 @@
 """
 Synchronous and Asynchronous SurrealDB Controller
 """
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from settings import logger
 
@@ -66,19 +66,24 @@ class DbController:
         self.db = Surreal(self.url)
 
         # Authenticate and set namespace/database
-        signin_result = self.db.signin({
+        from typing import Any, Dict
+        credentials: Dict[str, Any] = {
             "username": self.user,
             "password": self.password
-        })
+        }
+        signin_result = self.db.signin(credentials)
         logger.debug(f"Signin result: {signin_result}")
 
         # Use namespace and database
+        if self.namespace is None or self.database is None:
+            raise ValueError("Namespace and database must not be None.")
         self.db.use(self.namespace, self.database)
         logger.debug(f"Set namespace and database")
 
         return signin_result
 
-    def query(self, statement: str, params: dict = None) -> list:
+    
+    def query(self, statement: str, params: dict[str, Any] = None) -> list:
         """
         Execute a SurrealQL query
 
@@ -156,6 +161,7 @@ class DbController:
 
             # Handle record ID conversion
             if isinstance(result, dict) and 'id' in result:
+                result = dict(result)  # Ensure result is a dict[str, Any]
                 _id = str(result.pop("id"))
                 final_result = {**result, 'id': _id}
                 logger.debug(f"Final result: {final_result}")
@@ -170,7 +176,7 @@ class DbController:
             traceback.print_exc()
             return {}
 
-    def create(self, table_name: str, data: dict) -> dict:
+    def create(self, table_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create a new record
 
@@ -396,14 +402,28 @@ class AsyncDbController:
             return {**result, 'id': _id}
         return result
 
-    async def delete(self, record: str) -> dict:
+    async def delete(self, record: str) -> Dict[str, Any]:
         """
         Delete a record
 
         :param record: Record ID string (e.g., "table:id")
         :return: Result of deletion
         """
-        return await self.db.delete(record)
+        result = await self.db.delete(record)
+        if isinstance(result, list) and len(result) > 0:
+            return result[0]
+        elif isinstance(result, dict):
+            return result
+        else:
+            return {}
+
+    async def close(self) -> None:
+        """
+        Close the database connection
+        :return: None
+        """
+        result = await self.db.close()
+        return result
 
     async def close(self) -> None:
         """

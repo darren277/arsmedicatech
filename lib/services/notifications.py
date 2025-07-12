@@ -2,9 +2,10 @@
 Notifications Service
 """
 import json
+from typing import Any
 
+from lib.data_types import EventData, UserID
 from lib.services.redis_client import get_redis_connection
-from lib.data_types import UserID, EventData
 
 
 def publish_event(user_id: UserID, event_data: EventData) -> None:
@@ -14,8 +15,10 @@ def publish_event(user_id: UserID, event_data: EventData) -> None:
     :param event_data: EventData - The data of the event to be published.
     :return: None
     """
-    redis = get_redis_connection()
-    redis.publish(f"user:{user_id}", json.dumps(event_data))
+    redis: Any = get_redis_connection()
+    channel: str = f"user:{user_id}"
+    message: str = json.dumps(event_data)
+    redis.publish(channel, message)
 
 def store_event(user_id: UserID, event_data: EventData) -> None:
     """
@@ -36,6 +39,6 @@ def publish_event_with_buffer(user_id: UserID, event_data: EventData) -> None:
     :param event_data: EventData - The data of the event to be published and stored.
     :return: None
     """
-    redis = get_redis_connection()
+    redis: Any = get_redis_connection()
     redis.publish(f"user:{user_id}", json.dumps(event_data))
     store_event(user_id, event_data)

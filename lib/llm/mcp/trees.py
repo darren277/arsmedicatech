@@ -2,17 +2,15 @@
 Decision trees for various applications, including loan eligibility and medical classifications.
 """
 import asyncio
-import re
-from typing import Any, Callable, Dict, Tuple, Union, Iterable, Annotated
 import enum
+import re
+from typing import Annotated, Any, Callable, Dict, Tuple, Union
 
 from fastmcp import Context
+from mcp_init import mcp
 from pydantic import Field
 
-from mcp_init import mcp
-
 from settings import logger
-
 
 compare_ops: dict[str, Callable[[Any, Any], bool]] = {}
 
@@ -71,7 +69,7 @@ def _choose_branch(
     return None, path
 
 
-def decision_tree_lookup(tree: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+def decision_tree_lookup(tree: Dict[str, Any], **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     """
     Looks up a decision from a deterministic decision tree.
 
@@ -81,12 +79,13 @@ def decision_tree_lookup(tree: Dict[str, Any], **kwargs) -> Dict[str, Any]:
     :return: A dictionary containing the final decision and the logical path taken.
     """
     path_taken: list[str] = []
-    current_node = tree
+    current_node: Dict[str, Any] = tree
 
     # Loop until we reach a final decision (a string)
-    while isinstance(current_node, dict):
-        question: str = current_node['question']
-        branches: Dict[BranchKey, Any] = current_node['branches']
+    while isinstance(current_node, dict) and 'question' in current_node and 'branches' in current_node:
+        question = str(current_node.get('question', ''))
+        branches = current_node['branches']
+        branches: Dict[BranchKey, Any] = branches  # type: ignore
         matched = False
 
         for kw_name, value in kwargs.items():
@@ -119,7 +118,7 @@ def decision_tree_lookup(tree: Dict[str, Any], **kwargs) -> Dict[str, Any]:
 
 ## EXAMPLE WITH INTEGER COMPARISONS ##
 
-LOAN_DECISION_TREE = {
+LOAN_DECISION_TREE: Dict[str, Any] = {
     'question': 'What is your credit score?',
     'branches': {
         ('<', 640): 'Declined - Credit score too low',
@@ -139,7 +138,7 @@ LOAN_DECISION_TREE = {
     }
 }
 
-def loan_decision_tree_lookup(credit_score: int, income: int, requested_amount: int) -> dict:
+def loan_decision_tree_lookup(credit_score: int, income: int, requested_amount: int) -> Dict[str, Any]:
     """
     Looks up a loan decision from a deterministic decision tree.
 
@@ -158,7 +157,7 @@ def loan_decision_tree_lookup(credit_score: int, income: int, requested_amount: 
         requested_amount=requested_amount
     )
 
-tool_definition = {
+tool_definition: Dict[str, Any] = {
     "type": "function",
     "function": {
         "name": "decision_tree_lookup",
@@ -196,7 +195,7 @@ class Purpose(enum.Enum):
     CAR        = "car"
     EDUCATION  = "education"
 
-ENHANCED_TREE = {
+ENHANCED_TREE: Dict[str, Any] = {
     "question": "What is the loan purpose?",
     "branches": {
         Purpose.HOME: "Declined - Mortgages not offered",
@@ -218,7 +217,7 @@ ENHANCED_TREE = {
     }
 }
 
-def enhanced_tree_lookup(purpose: Purpose, credit_score: int, country: str) -> dict:
+def enhanced_tree_lookup(purpose: Purpose, credit_score: int, country: str) -> Dict[str, Any]:
     """
     Looks up a loan decision from an enhanced decision tree using Enum and membership tests.
 
@@ -237,7 +236,7 @@ def enhanced_tree_lookup(purpose: Purpose, credit_score: int, country: str) -> d
         country=country
     )
 
-tool_definition_enhanced = {
+tool_definition_enhanced: Dict[str, Any] = {
     "type": "function",
     "function": {
         "name": "enhanced_tree_lookup",
@@ -274,7 +273,7 @@ tool_definition_enhanced = {
 #  Proof‑of‑concept decision tree: Blood‑pressure categories
 #  (adapted from ACC/AHA 2017 guideline levels)
 # ───────────────────────────────────────────────────────────
-BP_DECISION_TREE = {
+BP_DECISION_TREE: Dict[str, Any] = {
     "question": "What is your diastolic blood pressure?",
     "branches": {
         # Hypertensive crisis if DBP ≥120 mm Hg regardless of SBP
@@ -311,7 +310,7 @@ async def blood_pressure_decision_tree_lookup(
             int, Field(description="The patient's diastolic blood pressure, e.g., 78")
         ],
         ctx: Context,
-) -> dict:
+) -> Dict[str, Any]:
     """
     Looks up a blood pressure classification from a decision tree.
 
@@ -339,7 +338,7 @@ async def blood_pressure_decision_tree_lookup(
 
     return result
 
-tool_definition_bp = {
+tool_definition_bp: Dict[str, Any] = {
     "type": "function",
     "function": {
         "name": "blood_pressure_decision_tree_lookup",

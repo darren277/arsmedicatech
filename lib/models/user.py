@@ -4,7 +4,7 @@ User and UserSession Models
 import hashlib
 import re
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 from settings import logger
@@ -54,7 +54,7 @@ class User:
         self.last_name = last_name or ""
         self.role = role
         self.is_active = is_active
-        self.created_at = created_at or datetime.utcnow().isoformat()
+        self.created_at = created_at or datetime.now(timezone.utc).isoformat()
         self.id = id
         self.specialty = specialty or ""
         self.clinic_name = clinic_name or ""
@@ -351,10 +351,10 @@ class UserSession:
             except ValueError:
                 raise ValueError("expires_at must be in ISO format")
         else:
-            expires_at = (datetime.utcnow() + timedelta(hours=24)).isoformat()
+            expires_at = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
 
-        self.created_at = created_at or datetime.utcnow().isoformat()
-        self.expires_at = expires_at or (datetime.utcnow() + timedelta(hours=24)).isoformat()
+        self.created_at = created_at or datetime.now(timezone.utc).isoformat()
+        self.expires_at = expires_at or (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
 
         try:
             self.token = secrets.token_urlsafe(32)
@@ -369,7 +369,7 @@ class UserSession:
         """
         try:
             expires = datetime.fromisoformat(self.expires_at)
-            return datetime.utcnow() > expires
+            return datetime.now(timezone.utc) > expires
         except (ValueError, TypeError):
             return True
     
@@ -397,9 +397,9 @@ class UserSession:
         :return: UserSession object
         """
         session = cls(
-            user_id=data.get('user_id'),
-            username=data.get('username'),
-            role=data.get('role'),
+            user_id=str(data.get('user_id', '')),
+            username=str(data.get('username', '')),
+            role=str(data.get('role', 'patient')),
             created_at=data.get('created_at'),
             expires_at=data.get('expires_at')
         )

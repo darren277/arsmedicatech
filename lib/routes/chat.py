@@ -51,7 +51,12 @@ def create_conversation_route() -> Tuple[Response, int]:
     :return: JSON response with success message and conversation ID or error message.
     """
     logger.debug(f"===== CONVERSATION CREATION ENDPOINT CALLED =====")
-    current_user_id = get_current_user().user_id
+    current_user = get_current_user()
+    if not current_user:
+        logger.debug("Unauthorized access - no current user found")
+        return jsonify({"error": "Unauthorized"}), 403
+
+    current_user_id = current_user.user_id
     data = request.json
 
     logger.debug(f"Creating conversation - current user: {current_user_id}")

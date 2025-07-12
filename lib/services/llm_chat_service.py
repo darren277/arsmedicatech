@@ -2,9 +2,10 @@
 LLM Chat Service
 """
 from typing import List, Optional
+
+from lib.data_types import UserID
 from lib.db.surreal import DbController
 from lib.models.llm_chat import LLMChat
-from lib.data_types import UserID
 from settings import logger
 
 

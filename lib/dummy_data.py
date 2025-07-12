@@ -4,7 +4,12 @@ Dummy data for testing purposes
 
 id, name, lastMessage, avatar, messages, sender, text = 'id', 'name', 'lastMessage', 'avatar', 'messages', 'sender', 'text'
 
-DUMMY_CONVERSATIONS = [
+from typing import Any, Dict, List
+
+Message = Dict[str, Any]
+
+
+DUMMY_CONVERSATIONS: List[Message] = [
   {
     "id": 1,
     "name": "Jane Smith",

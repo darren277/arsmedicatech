@@ -7,7 +7,6 @@ from faker import Faker
 import factory
 from lib.models.patient import Patient
 
-from settings import logger
 
 
 fake = Faker()
@@ -129,7 +128,7 @@ def select_n_random_rows_from_csv(path: str, n: int) -> List[List[str]]:
     with open(path, 'r') as f:
         reader = csv.reader(f)
         rows = [row for row in reader]
-        return fake.random_elements(elements=rows, length=n)
+        return list(fake.random_elements(elements=rows, length=n))
 
 
 class EncounterFactory(factory.Factory):

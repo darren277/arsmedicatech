@@ -1,11 +1,11 @@
 """
 User Service for managing user accounts, authentication, and settings.
 """
-from typing import Optional, Dict, Any, List
+from typing import Any, Dict, List, Optional
+
+from lib.db.surreal import DbController
 from lib.models.user import User, UserSession
 from lib.models.user_settings import UserSettings
-from lib.db.surreal import DbController
-
 from settings import logger
 
 
@@ -13,7 +13,7 @@ class UserService:
     """
     Service for managing user accounts, authentication, and settings.
     """
-    def __init__(self, db_controller: DbController = None) -> None:
+    def __init__(self, db_controller: Optional[DbController] = None) -> None:
         """
         Initialize UserService with a database controller.
         :param db_controller: Optional DbController instance. If None, a default DbController will be used.

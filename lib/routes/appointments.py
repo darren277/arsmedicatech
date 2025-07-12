@@ -1,14 +1,12 @@
 """
 Appointment routes for scheduling functionality
 """
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
-from flask import jsonify, request, Response
-from lib.services.auth_decorators import get_current_user, get_current_user_id
+from flask import Response, jsonify, request
+
+from lib.services.auth_decorators import get_current_user
 from lib.services.scheduling import SchedulingService
-from lib.services.user_service import UserService
-from lib.models.appointment import AppointmentStatus, AppointmentType
-
 from settings import logger
 
 
@@ -188,7 +186,7 @@ def get_appointments_route() -> Tuple[Response, int]:
                 logger.debug(f"After status filter: {len(appointments)} appointments")
             
             # Convert to JSON-serializable format
-            appointment_list = []
+            appointment_list: list[Dict[str, Any]] = []
             for appointment in appointments:
                 logger.debug(f"Processing appointment: {appointment.id} - provider: {appointment.provider_id}, patient: {appointment.patient_id}")
                 appointment_list.append({
@@ -414,7 +412,7 @@ def cancel_appointment_route(appointment_id: str) -> Tuple[Response, int]:
     :return: JSON response with success message or error details
     """
     try:
-        data = request.json or {}
+        data: Dict[str, Any] = request.json or {}
         reason = data.get('reason')
         
         # Get current user

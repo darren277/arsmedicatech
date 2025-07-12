@@ -3,6 +3,7 @@ Custom Logger with Colored Output
 """
 import logging
 
+
 class CustomFormatter(logging.Formatter):
     """
     Custom formatter to add colors to log messages based on their severity level.
@@ -14,15 +15,15 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+    log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
 
     FORMATS = {
-        #logging.DEBUG: green + format + reset,
-        logging.DEBUG: black + format + reset,
-        logging.INFO: grey + format + reset,
-        logging.WARNING: yellow + format + reset,
-        logging.ERROR: red + format + reset,
-        logging.CRITICAL: bold_red + format + reset
+        #logging.DEBUG: green + log_format + reset,
+        logging.DEBUG: black + log_format + reset,
+        logging.INFO: grey + log_format + reset,
+        logging.WARNING: yellow + log_format + reset,
+        logging.ERROR: red + log_format + reset,
+        logging.CRITICAL: bold_red + log_format + reset
     }
 
     def format(self, record: logging.LogRecord) -> str:
@@ -68,7 +69,7 @@ class Logger:
         self._logger.setLevel(self._level)
         logging.basicConfig(level=self._level, format='%(message)s')
 
-    def debug(self, msg: str, *args, **kwargs) -> None:
+    def debug(self, msg: str, *args: object, **kwargs: object) -> None:
         """
         Log a debug message.
         :param msg: The message to log.
@@ -78,9 +79,9 @@ class Logger:
         """
         self._logger.debug(msg, *args, **kwargs)
 
-    def info(self, msg: str, *args, **kwargs) -> None:
+    def info(self, msg: str, *args: object, **kwargs: object) -> None:
         """
-        Log a debug message.
+        Log an info message.
         :param msg: The message to log.
         :param args: Additional arguments to format the message.
         :param kwargs: Additional keyword arguments for logging.
@@ -88,9 +89,9 @@ class Logger:
         """
         self._logger.info(msg, *args, **kwargs)
 
-    def warning(self, msg: str, *args, **kwargs) -> None:
+    def warning(self, msg: str, *args: object, **kwargs: object) -> None:
         """
-        Log a debug message.
+        Log a warning message.
         :param msg: The message to log.
         :param args: Additional arguments to format the message.
         :param kwargs: Additional keyword arguments for logging.
@@ -98,9 +99,9 @@ class Logger:
         """
         self._logger.warning(msg, *args, **kwargs)
 
-    def warn(self, msg: str, *args, **kwargs) -> None:
+    def warn(self, msg: str, *args: object, **kwargs: object) -> None:
         """
-        Log a debug message.
+        Log a warning message.
         :param msg: The message to log.
         :param args: Additional arguments to format the message.
         :param kwargs: Additional keyword arguments for logging.
@@ -108,9 +109,9 @@ class Logger:
         """
         self._logger.warning(msg, *args, **kwargs)
 
-    def error(self, msg: str, *args, **kwargs) -> None:
+    def error(self, msg: str, *args: object, **kwargs: object) -> None:
         """
-        Log a debug message.
+        Log an error message.
         :param msg: The message to log.
         :param args: Additional arguments to format the message.
         :param kwargs: Additional keyword arguments for logging.

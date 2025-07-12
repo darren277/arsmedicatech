@@ -5,14 +5,14 @@ from typing import List, Optional, Tuple
 
 from lib.db.surreal import DbController
 from lib.models.conversation import Conversation, Message
-
 from settings import logger
+
 
 class ConversationService:
     """
     Service for managing conversations and messages
     """
-    def __init__(self, db_controller: DbController = None) -> None:
+    def __init__(self, db_controller: Optional[DbController] = None) -> None:
         """
         Initialize the ConversationService
         :param db_controller: Optional DbController instance
@@ -71,7 +71,7 @@ class ConversationService:
             # Save to database
             result = self.db.create('Conversation', conversation.to_dict())
             logger.debug(f"Database create result: {result}")
-            if result and isinstance(result, dict):
+            if result:
                 conversation.id = result.get('id')
                 logger.debug(f"Set conversation ID to: {conversation.id}")
                 

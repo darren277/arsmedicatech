@@ -1,8 +1,8 @@
 """
 LLM Chat Model
 """
-from datetime import datetime
-from typing import List, Dict, Any, Optional
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
 
 from lib.data_types import UserID
 
@@ -31,7 +31,7 @@ class LLMChat:
         self.user_id = user_id
         self.assistant_id = assistant_id
         self.messages = messages or []
-        self.created_at = created_at or datetime.utcnow().isoformat()
+        self.created_at = created_at or datetime.now(timezone.utc).isoformat()
         self.id = id
 
     def to_dict(self) -> Dict[str, Any]:
@@ -56,8 +56,11 @@ class LLMChat:
         chat_id = data.get('id')
         if hasattr(chat_id, '__str__'):
             chat_id = str(chat_id)
+        user_id = data.get('user_id')
+        if user_id is None:
+            raise ValueError("user_id is required and cannot be None")
         return cls(
-            user_id=data.get('user_id'),
+            user_id=user_id,
             assistant_id=data.get('assistant_id', 'ai-assistant'),
             messages=data.get('messages', []),
             created_at=data.get('created_at'),
@@ -74,5 +77,5 @@ class LLMChat:
         self.messages.append({
             "sender": sender,
             "text": text,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }) 

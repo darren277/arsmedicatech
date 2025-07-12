@@ -1,8 +1,8 @@
 """
 This module defines the Conversation and Message classes for managing conversations and messages
 """
-from datetime import datetime
-from typing import Dict, Any, List, Optional
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
 
 
 class Conversation:
@@ -28,7 +28,7 @@ class Conversation:
         """
         self.participants = participants
         self.conversation_type = conversation_type
-        self.created_at = created_at or datetime.utcnow().isoformat()
+        self.created_at = created_at or datetime.now(timezone.utc).isoformat()
         self.last_message_at = last_message_at or self.created_at
         self.id = id
     
@@ -126,7 +126,7 @@ class Message:
         self.conversation_id = conversation_id
         self.sender_id = sender_id
         self.text = text
-        self.created_at = created_at or datetime.utcnow().isoformat()
+        self.created_at = created_at or datetime.now(timezone.utc).isoformat()
         self.is_read = is_read
         self.id = id
     
@@ -158,9 +158,9 @@ class Message:
             msg_id = str(msg_id)
         
         return cls(
-            conversation_id=data.get('conversation_id'),
-            sender_id=data.get('sender_id'),
-            text=data.get('text'),
+            conversation_id=data.get('conversation_id', '') or '',
+            sender_id=data.get('sender_id', '') or '',
+            text=data.get('text', '') or '',
             created_at=data.get('created_at'),
             id=msg_id,
             is_read=data.get('is_read', False)

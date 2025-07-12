@@ -51,7 +51,7 @@ def create_node(node_type: str, node_id: str, node_name: str, **fields) -> None:
     """
     db.create(f'{node_type}:{node_id}', dict(name=node_name, **fields))
 
-def query_node(node_type: str, node_id: str) -> dict:
+def query_node(node_type: str, node_id: str) -> list:
     """
     Query a single node in the graph database.
     :param node_type: str - Type of the node (e.g., 'symptom', 'diagnosis', 'medication').

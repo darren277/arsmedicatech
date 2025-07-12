@@ -6,9 +6,7 @@ import asyncio
 from openai import AsyncOpenAI
 
 from lib.db.vec import Vec
-from settings import MIGRATION_OPENAI_API_KEY
-
-from settings import logger
+from settings import MIGRATION_OPENAI_API_KEY, logger
 
 
 def init_vec() -> None:

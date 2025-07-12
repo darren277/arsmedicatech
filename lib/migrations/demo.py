@@ -1,10 +1,12 @@
 """
 Some demo code to create patients and encounters in the database.
 """
-from lib.db.surreal import DbController
-from lib.migrations.demo_utils import PatientFactory, EncounterFactory, select_n_random_rows_from_csv
-from lib.models.patient import create_schema, store_patient, store_encounter
+from typing import Any, Dict
 
+from lib.db.surreal import DbController
+from lib.migrations.demo_utils import (EncounterFactory, PatientFactory,
+                                       select_n_random_rows_from_csv)
+from lib.models.patient import create_schema, store_encounter, store_patient
 from settings import logger
 
 
@@ -29,10 +31,15 @@ def create_n_patients(n: int = 5) -> None:
         logger.debug(encounter.note_text)
         logger.debug("------")
 
-        result = store_patient(db, patient)
+        result: list[dict[str, Any]] = store_patient(db, patient)
 
         result = result[0]['result'][0]
-        patient_id = str(result['id'])
+        if isinstance(result, dict):
+            patient_id = str(result.get('id', ''))
+        elif hasattr(result, '__str__'):
+            patient_id = str(result)
+        else:
+            patient_id = ''
 
         store_encounter(db, encounter, patient_id)
 
@@ -53,7 +60,7 @@ def create_forms() -> None:
     db = DbController(namespace='arsmedicatech', database='patients')
     db.connect()
 
-    patient_registration_form_structure = {
+    patient_registration_form_structure: Dict[str, Any] = {
         "form_name": "Patient Registration",
         "form_fields": [
             {"field_id": "first_name", "field_name": "First Name", "field_type": "text", "required": True},
@@ -63,7 +70,9 @@ def create_forms() -> None:
         ]
     }
 
-    patient_registration_form = {
+    print("Creating patient registration form structure...", patient_registration_form_structure)
+
+    patient_registration_form: Dict[str, Any] = {
         "form_name": "patient_registration",
         "form_data": {
             "first_name": "Richard",
@@ -74,7 +83,7 @@ def create_forms() -> None:
     }
 
     result = db.create('forms', patient_registration_form)
-    logger.debug(result)
+    logger.debug(str(result))
 
 
 

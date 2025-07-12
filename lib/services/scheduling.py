@@ -2,10 +2,10 @@
 Scheduling service for managing appointments
 """
 from datetime import datetime, timedelta
-from typing import List, Optional, Tuple, Dict, Any
-from lib.db.surreal import DbController
-from lib.models.appointment import Appointment, AppointmentStatus, AppointmentType
+from typing import Any, Dict, List, Optional, Tuple
 
+from lib.db.surreal import DbController
+from lib.models.appointment import Appointment, AppointmentStatus
 from settings import logger
 
 

@@ -1,10 +1,10 @@
 """
 User Settings Model
 """
-from datetime import datetime
-from typing import Dict, Any, Optional
-from lib.services.encryption import get_encryption_service
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional
 
+from lib.services.encryption import get_encryption_service
 from settings import logger
 
 
@@ -32,8 +32,8 @@ class UserSettings:
         """
         self.user_id = user_id
         self.openai_api_key = openai_api_key
-        self.created_at = created_at or datetime.utcnow().isoformat()
-        self.updated_at = updated_at or datetime.utcnow().isoformat()
+        self.created_at = created_at or datetime.now(timezone.utc).isoformat()
+        self.updated_at = updated_at or datetime.now(timezone.utc).isoformat()
         self.id = id
     
     def set_openai_api_key(self, api_key: str) -> None:
@@ -50,7 +50,7 @@ class UserSettings:
         if not is_valid:
             raise ValueError(f"Invalid OpenAI API key: {error_message}")
         self.openai_api_key = api_key
-        self.updated_at = datetime.utcnow().isoformat()
+        self.updated_at = datetime.now(timezone.utc).isoformat()
     
     def get_openai_api_key(self) -> str:
         """
@@ -115,8 +115,11 @@ class UserSettings:
         if hasattr(settings_id, '__str__'):
             settings_id = str(settings_id)
         
+        user_id = data.get('user_id')
+        if user_id is None:
+            raise ValueError("user_id is required and cannot be None")
         settings = cls(
-            user_id=data.get('user_id'),
+            user_id=user_id,
             created_at=data.get('created_at'),
             updated_at=data.get('updated_at'),
             id=settings_id

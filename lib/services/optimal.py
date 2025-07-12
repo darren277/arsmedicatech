@@ -3,7 +3,10 @@ Optimal Service Module
 
 Optimal is an API for solving optimization problems using various solvers.
 """
+from typing import Any, Dict, List, Tuple
+
 from settings import logger
+
 
 class OptimalMetadata:
     """
@@ -20,7 +23,7 @@ class OptimalMetadata:
         self.solver = solver
         self.sense = sense
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """
         Converts the metadata to a dictionary format.
         :return: dict: A dictionary representation of the metadata.
@@ -36,7 +39,15 @@ class OptimalSchema:
     """
     Schema for the optimization problem to be sent to the Optimal service.
     """
-    def __init__(self, meta: OptimalMetadata, variables: list, parameters: dict, objective: dict, constraints: list, initial_guess: list) -> None:
+    def __init__(
+            self,
+            meta: OptimalMetadata,
+            variables: List[str],
+            parameters: Dict[str, Any],
+            objective: Dict[str, Any],
+            constraints: List[Dict[str, Any]],
+            initial_guess: List[float]
+        ) -> None:
         """
         Initializes the schema for the optimization problem.
         :param meta: OptimalMetadata: Metadata for the optimization problem.
@@ -54,7 +65,7 @@ class OptimalSchema:
         self.constraints = constraints
         self.initial_guess = initial_guess
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """
         Converts the schema to a dictionary format.
         :return: dict: A dictionary representation of the optimization schema.
@@ -85,7 +96,7 @@ class OptimalService:
         self.schema = schema
 
     @property
-    def payload(self) -> dict:
+    def payload(self) -> Dict[str, Any]:
         """
         Constructs the payload to be sent to the Optimal service.
         :return: dict: The payload containing the schema and metadata.
@@ -93,7 +104,7 @@ class OptimalService:
         return self.schema.to_dict()
 
     @property
-    def headers(self) -> dict:
+    def headers(self) -> Dict[str, str]:
         """
         Constructs the headers for the HTTP request to the Optimal service.
         :raises ValueError: If the API key is not provided.
@@ -106,7 +117,7 @@ class OptimalService:
             'x-api-key': self.api_key
         }
 
-    def send(self) -> dict:
+    def send(self) -> Dict[str, Any]:
         """
         Sends the optimization problem to the Optimal service and returns the response.
         :return: dict: The response from the Optimal service containing the optimization results.
@@ -120,7 +131,7 @@ class OptimalService:
             timeout=30
         )
 
-        logger.debug(resp.status_code, resp.text)
+        logger.debug(f"Status code: {resp.status_code}, Response text: {resp.text}")
 
         if resp.status_code != 200:
             raise Exception(f"Optimal service error: {resp.status_code} - {resp.text}")

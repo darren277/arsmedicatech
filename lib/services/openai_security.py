@@ -2,10 +2,11 @@
 OpenAI Security Service
 """
 import time
-from typing import Dict, Optional, Tuple
-from openai import OpenAI, AuthenticationError, RateLimitError
-from lib.services.user_service import UserService
+from typing import Any, Dict, Optional, Tuple
 
+from openai import AuthenticationError, OpenAI, RateLimitError
+
+from lib.services.user_service import UserService
 from settings import logger
 
 
@@ -18,8 +19,8 @@ class OpenAISecurityService:
         """
         Initialize the OpenAI security service
         """
-        self.rate_limit_cache: Dict[str, Dict] = {}
-        self.api_key_cache: Dict[str, Dict] = {}
+        self.rate_limit_cache: Dict[str, Dict[str, Any]] = {}
+        self.api_key_cache: Dict[str, Dict[str, Any]] = {}
         self.rate_limit_window = 3600  # 1 hour
         self.max_requests_per_hour = 100  # Adjust based on your needs
     
@@ -140,8 +141,8 @@ class OpenAISecurityService:
         """
         # TODO: Implement usage logging to database
         logger.debug(f"[USAGE] User {user_id} used {model} with {tokens_used} tokens")
-    
-    def get_usage_stats(self, user_id: str) -> Dict:
+
+    def get_usage_stats(self, user_id: str) -> Dict[str, Any]:
         """
         Get usage statistics for a user
         
