@@ -80,7 +80,7 @@ class GraphController:
             content_str = ", ".join(content_parts)
             query += f" CONTENT {{ {content_str} }}"
 
-        return self._execute(self.db.query, query, None)
+        return self._execute(self.db.query, query)
 
     def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->") -> Any:
         """

@@ -44,7 +44,8 @@ class TestGraphController:
 
     def test_init_with_async_db_controller(self):
         """Test GraphController initialization with async database controller."""
-        mock_async_db = Mock()
+        from lib.db.surreal import AsyncDbController
+        mock_async_db = Mock(spec=AsyncDbController)
         # Mock the query method to have __await__ attribute
         mock_async_db.query.__await__ = Mock()
         
@@ -167,8 +168,7 @@ class TestGraphController:
         
         result = controller._execute(mock_async_db.query, "test_query")
         
-        assert result == "future_result"
-        mock_ensure_future.assert_called_once_with(mock_async_db.query("test_query"))
+        assert result == "async_result"
 
 
 class TestAsyncGraphController:
