@@ -4,7 +4,7 @@ LLM Chat Model
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-from lib.types import UserID
+from lib.data_types import UserID
 
 
 class LLMChat:

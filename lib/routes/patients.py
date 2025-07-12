@@ -6,7 +6,7 @@ from flask import request, jsonify, Response
 from lib.models.patient import update_patient, search_patient_history, get_patient_by_id, delete_patient, \
     get_all_patients, create_patient, get_all_encounters, get_encounters_by_patient, get_encounter_by_id, \
     create_encounter, update_encounter, delete_encounter, search_encounter_history
-from lib.types import PatientID
+from lib.data_types import PatientID
 from settings import logger
 
 

@@ -4,7 +4,7 @@ Notifications Service
 import json
 
 from lib.services.redis_client import get_redis_connection
-from lib.types import UserID, EventData
+from lib.data_types import UserID, EventData
 
 
 def publish_event(user_id: UserID, event_data: EventData) -> None:
