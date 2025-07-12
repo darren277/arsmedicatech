@@ -492,7 +492,7 @@ class UserService:
                 return True, "Users already exist, skipping default admin creation"
             
             # Create default admin
-            success, message, user = self.create_user(
+            success, message, _ = self.create_user(
                 username="admin",
                 email="admin@arsmedicatech.com",
                 password="Admin123!",

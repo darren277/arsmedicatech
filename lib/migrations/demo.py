@@ -6,7 +6,7 @@ from typing import Any, Dict
 from lib.db.surreal import DbController
 from lib.migrations.demo_utils import (EncounterFactory, PatientFactory,
                                        select_n_random_rows_from_csv)
-from lib.models.patient import create_schema, store_encounter, store_patient
+from lib.models.patient import store_encounter, store_patient
 from settings import logger
 
 
@@ -19,24 +19,20 @@ def create_n_patients(n: int = 5) -> None:
     db = DbController(namespace='arsmedicatech', database='patients')
 
     path = r'section111validicd10-jan2025_0_sample.csv'
-    for i in range(n):
-        patient = PatientFactory()
+    for _ in range(n):
+        patient = PatientFactory(factory_class=None)  # Replace None with the appropriate class if needed
 
-        encounter = EncounterFactory()
-        encounter.diagnostic_codes = select_n_random_rows_from_csv(path, 3)
+        encounter = EncounterFactory(factory_class=None)  # Replace None with the appropriate class if needed
+        encounter.diagnostic_codes = select_n_random_rows_from_csv(path, 3) # type: ignore
 
         logger.debug(patient.first_name, patient.last_name, patient.date_of_birth, patient.phone, patient.sex, patient.email)
-        logger.debug(patient.location)
-        logger.debug(encounter.note_id, encounter.date_created, encounter.provider_id, encounter.diagnostic_codes)
-        logger.debug(encounter.note_text)
-        logger.debug("------")
 
-        result: Dict[str, Any] = store_patient(db, patient)
+        result: Dict[str, Any] = store_patient(db, patient) # type: ignore
 
-        result = result[0]['result'][0]
+        result = result['result'][0]
         patient_id = str(result.get('id', ''))
 
-        store_encounter(db, encounter, patient_id)
+        store_encounter(db, encounter, patient_id) # type: ignore
 
     db.close()
 

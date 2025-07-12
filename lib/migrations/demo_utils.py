@@ -1,35 +1,49 @@
 """
 Utility functions and factories for generating demo data for encounters and patients.
 """
-from typing import List, Optional
+from typing import Any, List, Optional
 
+import factory  # type: ignore
 from faker import Faker
-import factory
+
 from lib.models.patient import Patient
-
-
 
 fake = Faker()
 
 
-class PatientFactory(factory.Factory):
+class FactoryWrapper:
+    def __init__(self, factory_class: Any) -> None:
+        self.factory_class = factory_class
+
+
+f = lambda *args, **kwargs: factory.Faker(*args, **kwargs) # type: ignore
+
+class PatientFactory(FactoryWrapper):
+    demographic_no: int
+    first_name: str
+    last_name: str
+    date_of_birth: str
+    phone: str
+    email: str
+    sex: str
+
     class Meta:
         """
         Meta class for PatientFactory.
         """
         model = Patient
 
-    demographic_no = factory.Faker('random_int')
-    first_name = factory.Faker('first_name')
-    last_name = factory.Faker('last_name')
-    date_of_birth = factory.Faker('date_of_birth', minimum_age=18, maximum_age=65)
+    demographic_no = f('random_int') # type: ignore
+    first_name = f('first_name') # type: ignore
+    last_name = f('last_name') # type: ignore
+    date_of_birth = f('date_of_birth', minimum_age=18, maximum_age=65) # type: ignore
 
-    phone = factory.Faker('phone_number')
-    email = factory.Faker('email')
-    sex = factory.Faker('random_element', elements=('M', 'F'))
+    phone = f('phone_number') # type: ignore
+    email = f('email') # type: ignore
+    sex = f('random_element', elements=('M', 'F')) # type: ignore
 
     # For later use:
-    location = factory.Faker('local_latlng', country_code='CA')
+    location = f('local_latlng', country_code='CA') # type: ignore
 
 
 '''
@@ -50,14 +64,14 @@ path = r'section111validicd10-jan2025_0.csv'
 import csv
 
 
-def load_csv(path: str, n: int) -> list:
+def load_csv(path: str, n: int) -> List[List[str]]:
     """
     Load a CSV file and return every nth row with only the first two columns.
     :param path: The path to the CSV file.
     :param n: The step size for selecting rows (e.g., every nth row).
     :return: A list of lists, where each inner list contains the first two columns of the selected rows.
     """
-    new_csv = []
+    new_csv: List[List[str]] = []
     with open(path, 'r') as f:
         reader = csv.reader(f)
         for i, row in enumerate(reader):
@@ -70,7 +84,7 @@ def load_csv(path: str, n: int) -> list:
 #logger.debug(new_csv)
 
 
-def save_csv(path: str, data: List[list]) -> None:
+def save_csv(path: str, data: List[List[str]]) -> None:
     """
     Save a list of lists to a CSV file.
     :param path: The path where the CSV file will be saved.
@@ -96,7 +110,7 @@ class Encounter:
             date_created: str,
             provider_id: int,
             note_text: Optional[str] = None,
-            diagnostic_codes: List[str] = None,
+            diagnostic_codes: Optional[List[str]] = None,
     ) -> None:
         """
         Initialize an encounter note.
@@ -131,7 +145,7 @@ def select_n_random_rows_from_csv(path: str, n: int) -> List[List[str]]:
         return list(fake.random_elements(elements=rows, length=n))
 
 
-class EncounterFactory(factory.Factory):
+class EncounterFactory(FactoryWrapper):
     """
     Factory for generating encounter notes with Faker.
     """
@@ -141,10 +155,10 @@ class EncounterFactory(factory.Factory):
         """
         model = Encounter
 
-    note_id = factory.Faker('random_int')
-    date_created = factory.Faker('date_of_birth', minimum_age=1, maximum_age=20)
-    provider_id = factory.Faker('random_int', min=1, max=10)
+    note_id = f('random_int') # type: ignore
+    date_created = f('date_of_birth', minimum_age=1, maximum_age=20) # type: ignore
+    provider_id = f('random_int', min=1, max=10) # type: ignore
 
     # Lorem ipsum for now...
     # TODO: Substitute with an (older, less expensive) LLM endpoint...
-    note_text = factory.Faker('text', max_nb_chars=160)
+    note_text = f('text', max_nb_chars=160) # type: ignore

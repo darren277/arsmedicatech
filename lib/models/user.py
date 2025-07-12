@@ -62,12 +62,14 @@ class User:
         self.phone = phone or ""
         
         # Hash password if provided
+        self.password_hash: Optional[str] = None
         if password:
-            self.password_hash = self._hash_password(password)
+            self.password_hash = self.hash_password(password)
         else:
             self.password_hash = None
     
-    def _hash_password(self, password: str) -> str:
+    @staticmethod
+    def hash_password(password: str) -> str:
         """
         Hash a password using SHA-256 with salt
 
@@ -143,8 +145,8 @@ class User:
             user_id = str(user_id)
         
         user = cls(
-            username=data.get('username'),
-            email=data.get('email'),
+            username=str(data.get('username') or ""),
+            email=str(data.get('email') or ""),
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
             role=data.get('role', 'patient'),
@@ -346,7 +348,7 @@ class UserSession:
         if expires_at:
             try:
                 expires = datetime.fromisoformat(expires_at)
-                if expires < datetime.fromisoformat(created_at or datetime.utcnow().isoformat()):
+                if expires < datetime.fromisoformat(created_at or datetime.now(timezone.utc).isoformat()):
                     raise ValueError("expires_at must be after created_at")
             except ValueError:
                 raise ValueError("expires_at must be in ISO format")

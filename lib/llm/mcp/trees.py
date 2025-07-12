@@ -46,43 +46,43 @@ def _choose_branch(
     :return: A tuple containing the matched key (or None if no match) and the updated path.
     """
 
-    for key, target in branches.items():
+    for key in branches:
         # a)  Callable predicate
         if callable(key):
             if key(arg):
                 path.append(f"Checked {subterm}: predicate {key.__name__} → True")
                 return key, path
         # b)  (‘<op>’, reference)
-        elif isinstance(key, tuple) and len(key) == 2:
-            op, ref = key
+        elif isinstance(key, tuple) and len(key) == 2: # type: ignore
+            op, ref = key # type: ignore
             if op not in compare_ops:
                 raise ValueError(f"Unsupported operator {op!r}. Register it first.")
             if compare_ops[op](arg, ref):
                 path.append(f"Checked {subterm}: {arg!r} {op} {ref!r}")
-                return key, path
+                return key, path # type: ignore
         # c)  Literal / Enum → equality
         else:
             if arg == key:
                 path.append(f"Checked {subterm}: {arg!r} == {key!r}")
-                return key, path
+                return key, path # type: ignore
     # no match
     return None, path
 
 
-def decision_tree_lookup(tree: Dict[str, Any], **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+def decision_tree_lookup(tree: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
     """
     Looks up a decision from a deterministic decision tree.
 
     :param tree: The decision tree structure, where each node is a dictionary with 'question' and 'branches'.
     :param kwargs: Keyword arguments representing the answers to the questions in the tree.
-    :type kwargs: Dict[str, Any]
+    :type kwargs: Any
     :return: A dictionary containing the final decision and the logical path taken.
     """
     path_taken: list[str] = []
     current_node: Dict[str, Any] = tree
 
     # Loop until we reach a final decision (a string)
-    while isinstance(current_node, dict) and 'question' in current_node and 'branches' in current_node:
+    while 'question' in current_node and 'branches' in current_node:
         question = str(current_node.get('question', ''))
         branches = current_node['branches']
         branches: Dict[BranchKey, Any] = branches  # type: ignore

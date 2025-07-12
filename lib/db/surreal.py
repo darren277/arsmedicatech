@@ -1,9 +1,95 @@
 """
 Synchronous and Asynchronous SurrealDB Controller
 """
+# mypy: disable-error-code=reportUnknownMemberType
+
 from typing import Any, Dict, List, Optional
 
 from settings import logger
+
+
+class SurrealWrapper:
+    def __init__(self, r: Any) -> None:
+        self._client = r
+
+    def signin(self, vars: Dict[str, Any]) -> str:
+        return self._client.signin(vars)
+
+    def query(self, sql: str, vars: dict[str, Any] = {}) -> list[Any]:
+        return self._client.query(sql, vars)
+
+    def update(self, record: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Update a record in the database.
+        
+        :param record: Record ID string (e.g., "table:id")
+        :param data: Dictionary of data to update
+        :return: Updated record
+        """
+        return self._client.update(record, data)
+    
+    def create(self, table_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Create a new record in the database.
+        
+        :param table_name: Table name
+        :param data: Dictionary of data for the new record
+        :return: Created record
+        """
+        return self._client.create(table_name, data)
+    
+    def select(self, record: str) -> Dict[str, Any]:
+        """
+        Select a specific record from the database.
+        
+        :param record: Record ID string (e.g., "table:id")
+        :return: Record data
+        """
+        return self._client.select(record)
+    
+    def delete(self, record: str) -> Dict[str, Any]:
+        """
+        Delete a record from the database.
+        
+        :param record: Record ID string (e.g., "table:id")
+        :return: Result of deletion
+        """
+        return self._client.delete(record)
+    
+    def use(self, namespace: str, database: str) -> None:
+        """
+        Set the namespace and database for the current session.
+        
+        :param namespace: SurrealDB namespace
+        :param database: SurrealDB database
+        :return: None
+        """
+        self._client.use(namespace, database)
+
+class AsyncSurrealWrapper:
+    def __init__(self, r: Any) -> None:
+        self._client = r
+
+    async def signin(self, vars: Dict[str, Any]) -> str:
+        return await self._client.signin(vars)
+
+    async def query(self, sql: str, vars: dict[str, Any] = {}) -> list[Any]:
+        return await self._client.query(sql, vars)
+
+    async def update(self, record: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        return await self._client.update(record, data)
+    
+    async def create(self, table_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        return await self._client.create(table_name, data)
+    
+    async def select(self, record: str) -> Dict[str, Any]:
+        return await self._client.select(record)
+    
+    async def delete(self, record: str) -> Dict[str, Any]:
+        return await self._client.delete(record)
+    
+    async def use(self, namespace: str, database: str) -> None:
+        await self._client.use(namespace, database)
 
 
 # Synchronous version
@@ -11,6 +97,8 @@ class DbController:
     """
     Synchronous DB controller for SurrealDB
     """
+    db: Optional[SurrealWrapper] = None
+
     def __init__(
             self,
             url: Optional[str] = None,
@@ -56,14 +144,14 @@ class DbController:
         Connect to SurrealDB and authenticate
         :return: Signin result
         """
-        from surrealdb import Surreal
+        from surrealdb import Surreal  # type: ignore
 
         logger.debug(f"Connecting to SurrealDB at {self.url}")
         logger.debug(f"Using namespace: {self.namespace}, database: {self.database}")
         logger.debug(f"Username: {self.user}")
 
         # Initialize connection
-        self.db = Surreal(self.url)
+        self.db = SurrealWrapper(Surreal(self.url))
 
         # Authenticate and set namespace/database
         from typing import Any, Dict
@@ -71,7 +159,8 @@ class DbController:
             "username": self.user,
             "password": self.password
         }
-        signin_result = self.db.signin(credentials)
+
+        signin_result = str(self.db.signin(credentials))
         logger.debug(f"Signin result: {signin_result}")
 
         # Use namespace and database
@@ -94,6 +183,8 @@ class DbController:
         if params is None:
             params = {}
         logger.debug("Executing Query:", statement, "with params:", params)
+        if self.db is None:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         return self.db.query(statement, params)
 
     def search(self, query: str, params: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -144,26 +235,16 @@ class DbController:
         """
         logger.debug(f"SurrealDB update record: {record}")
         try:
-            result = self.db.update(record, data)
+            if self.db is None:
+                raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
+            result: Dict[str, Any] = self.db.update(record, data)
             logger.debug(f"SurrealDB update raw result: {result}")
-            logger.debug(f"SurrealDB update result type: {type(result)}")
-            
-            # Handle tuple result (common with SurrealDB)
-            if isinstance(result, tuple):
-                logger.debug(f"Result is tuple with {len(result)} elements")
-                result = result[0]  # Take first element
-                logger.debug(f"After tuple unpacking: {result}")
-            
-            # Handle list result
-            if isinstance(result, list) and len(result) > 0:
-                result = result[0]
-                logger.debug(f"After list unpacking: {result}")
 
             # Handle record ID conversion
-            if isinstance(result, dict) and 'id' in result:
+            if 'id' in result:
                 result = dict(result)  # Ensure result is a dict[str, Any]
                 _id = str(result.pop("id"))
-                final_result = {**result, 'id': _id}
+                final_result: Dict[str, Any] = {**result, 'id': _id}
                 logger.debug(f"Final result: {final_result}")
                 return final_result
             
@@ -185,10 +266,10 @@ class DbController:
         :return: Created record
         """
         try:
-            result = self.db.create(table_name, data)
+            result = self.db.create(table_name, data) # type: ignore
 
             # Handle result formatting
-            if isinstance(result, dict) and 'id' in result:
+            if 'id' in result:
                 _id = str(result.pop("id"))
                 return {**result, 'id': _id}
             return result
@@ -203,6 +284,8 @@ class DbController:
         :param table_name: Table name
         :return: List of records
         """
+        if self.db is None:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         logger.debug(f"Selecting many from table: {table_name}")
         result = self.db.select(table_name)
         logger.debug(f"Select many raw result: {result}")
@@ -224,12 +307,14 @@ class DbController:
         :param record: Record ID string (e.g., "table:id")
         :return: Record data
         """
+        if self.db is None:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         logger.debug(f"Selecting record: {record}")
         result = self.db.select(record)
         logger.debug(f"Select raw result: {result}")
 
         # Handle record ID conversion
-        if isinstance(result, dict) and 'id' in result:
+        if 'id' in result:
             _id = str(result.pop("id"))
             final_result = {**result, 'id': _id}
             logger.debug(f"Final result: {final_result}")
@@ -244,6 +329,8 @@ class DbController:
         :param record: Record ID string (e.g., "table:id")
         :return: Result of deletion
         """
+        if self.db is None:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         return self.db.delete(record)
 
     def close(self) -> None:
@@ -261,6 +348,8 @@ class AsyncDbController:
     """
     Asynchronous DB controller for SurrealDB
     """
+    db: Optional[AsyncSurrealWrapper] = None
+
     def __init__(self,
                  url: Optional[str] = None,
                  namespace: Optional[str] = None,
@@ -305,10 +394,10 @@ class AsyncDbController:
         Connect to SurrealDB and authenticate
         :return: Signin result
         """
-        from surrealdb import AsyncSurreal
+        from surrealdb import AsyncSurreal  # type: ignore
 
         # Initialize connection
-        self.db = AsyncSurreal(self.url)
+        self.db = AsyncSurrealWrapper(AsyncSurreal(self.url))
 
         # Authenticate and set namespace/database
         signin_result = await self.db.signin({
@@ -316,7 +405,12 @@ class AsyncDbController:
             "password": self.password
         })
 
+        if not self.db:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
+
         # Use namespace and database
+        if self.namespace is None or self.database is None:
+            raise ValueError("Namespace and database must not be None.")
         await self.db.use(self.namespace, self.database)
 
         return signin_result
@@ -329,6 +423,8 @@ class AsyncDbController:
         :param params: Optional parameters for the query
         :return: Query results
         """
+        if self.db is None:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         if params is None:
             params = {}
         return await self.db.query(statement, params)
@@ -341,10 +437,12 @@ class AsyncDbController:
         :param data: Dictionary of data to update
         :return: Updated record
         """
+        if self.db is None:
+                raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         result = await self.db.update(record, data)
 
         # Handle record ID conversion
-        if isinstance(result, dict) and 'id' in result:
+        if 'id' in result:
             _id = str(result.pop("id"))
             return {**result, 'id': _id}
         return result
@@ -358,10 +456,12 @@ class AsyncDbController:
         :return: Created record
         """
         try:
+            if self.db is None:
+                raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
             result = await self.db.create(table_name, data)
 
             # Handle result formatting
-            if isinstance(result, dict) and 'id' in result:
+            if 'id' in result:
                 _id = str(result.pop("id"))
                 return {**result, 'id': _id}
             return result
@@ -376,6 +476,8 @@ class AsyncDbController:
         :param table_name: Table name
         :return: List of records
         """
+        if self.db is None:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         result = await self.db.select(table_name)
 
         # Process results
@@ -394,10 +496,12 @@ class AsyncDbController:
         :param record: Record ID string (e.g., "table:id")
         :return: Record data
         """
+        if self.db is None:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         result = await self.db.select(record)
 
         # Handle record ID conversion
-        if isinstance(result, dict) and 'id' in result:
+        if 'id' in result:
             _id = str(result.pop("id"))
             return {**result, 'id': _id}
         return result
@@ -409,19 +513,20 @@ class AsyncDbController:
         :param record: Record ID string (e.g., "table:id")
         :return: Result of deletion
         """
+        if self.db is None:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         result = await self.db.delete(record)
         if isinstance(result, list) and len(result) > 0:
             return result[0]
-        elif isinstance(result, dict):
-            return result
-        else:
-            return {}
+        return result
 
     async def close(self) -> None:
         """
         Close the database connection
         :return: None
         """
+        if self.db is None:
+            raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         result = await self.db.close()
         return result
 

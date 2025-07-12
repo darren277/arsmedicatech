@@ -2,6 +2,7 @@
 Custom Logger with Colored Output
 """
 import logging
+from typing import Any
 
 
 class CustomFormatter(logging.Formatter):
@@ -69,7 +70,7 @@ class Logger:
         self._logger.setLevel(self._level)
         logging.basicConfig(level=self._level, format='%(message)s')
 
-    def debug(self, msg: str, *args: object, **kwargs: object) -> None:
+    def debug(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log a debug message.
         :param msg: The message to log.
@@ -79,7 +80,7 @@ class Logger:
         """
         self._logger.debug(msg, *args, **kwargs)
 
-    def info(self, msg: str, *args: object, **kwargs: object) -> None:
+    def info(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log an info message.
         :param msg: The message to log.
@@ -89,7 +90,7 @@ class Logger:
         """
         self._logger.info(msg, *args, **kwargs)
 
-    def warning(self, msg: str, *args: object, **kwargs: object) -> None:
+    def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log a warning message.
         :param msg: The message to log.
@@ -99,7 +100,7 @@ class Logger:
         """
         self._logger.warning(msg, *args, **kwargs)
 
-    def warn(self, msg: str, *args: object, **kwargs: object) -> None:
+    def warn(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log a warning message.
         :param msg: The message to log.
@@ -109,7 +110,7 @@ class Logger:
         """
         self._logger.warning(msg, *args, **kwargs)
 
-    def error(self, msg: str, *args: object, **kwargs: object) -> None:
+    def error(self, msg: str, *args: Any, **kwargs: Any) -> None:
         """
         Log an error message.
         :param msg: The message to log.
