@@ -1,6 +1,8 @@
 """
 User management routes for the application.
 """
+from typing import Tuple
+
 from flask import jsonify, request, session, Response
 
 from lib.models.user import User
@@ -11,7 +13,7 @@ from lib.services.openai_security import get_openai_security_service
 from settings import logger
 
 
-def search_users_route() -> Response:
+def search_users_route() -> Tuple[Response, int]:
     """
     Search for users (authenticated users only)
 
@@ -75,12 +77,12 @@ def search_users_route() -> Response:
         return jsonify({
             "users": filtered_users,
             "total": len(filtered_users)
-        }, 200)
+        }), 200
 
     finally:
         user_service.close()
 
-def check_users_exist_route() -> Response:
+def check_users_exist_route() -> Tuple[Response, int]:
     """
     Check if any users exist (public endpoint)
 
@@ -108,7 +110,7 @@ def check_users_exist_route() -> Response:
         user_service.close()
 
 
-def setup_default_admin_route() -> Response:
+def setup_default_admin_route() -> Tuple[Response, int]:
     """
     Setup default admin user (only works if no users exist)
 
@@ -128,13 +130,13 @@ def setup_default_admin_route() -> Response:
     try:
         success, message = user_service.create_default_admin()
         if success:
-            return jsonify({"message": message}, 200)
+            return jsonify({"message": message}), 200
         else:
-            return jsonify({"error": message}, 400)
+            return jsonify({"error": message}), 400
     finally:
         user_service.close()
 
-def activate_user_route(user_id: str) -> Response:
+def activate_user_route(user_id: str) -> Tuple[Response, int]:
     """
     Activate a user account (admin only)
 
@@ -156,13 +158,13 @@ def activate_user_route(user_id: str) -> Response:
     try:
         success, message = user_service.activate_user(user_id)
         if success:
-            return jsonify({"message": message}, 200)
+            return jsonify({"message": message}), 200
         else:
-            return jsonify({"error": message}, 400)
+            return jsonify({"error": message}), 400
     finally:
         user_service.close()
 
-def deactivate_user_route(user_id: str) -> Response:
+def deactivate_user_route(user_id: str) -> Tuple[Response, int]:
     """
     Deactivate a user account (admin only)
 
@@ -184,13 +186,13 @@ def deactivate_user_route(user_id: str) -> Response:
     try:
         success, message = user_service.deactivate_user(user_id)
         if success:
-            return jsonify({"message": message}, 200)
+            return jsonify({"message": message}), 200
         else:
-            return jsonify({"error": message}, 400)
+            return jsonify({"error": message}), 400
     finally:
         user_service.close()
 
-def get_all_users_route() -> Response:
+def get_all_users_route() -> Tuple[Response, int]:
     """
     Get all users (admin only)
 
@@ -222,11 +224,11 @@ def get_all_users_route() -> Response:
                 }
                 for user in users
             ]
-        }, 200)
+        }), 200
     finally:
         user_service.close()
 
-def change_password_route() -> Response:
+def change_password_route() -> Tuple[Response, int]:
     """
     Change user password
     This endpoint allows the authenticated user to change their password.
@@ -247,13 +249,13 @@ def change_password_route() -> Response:
     """
     data = request.json
     if not data:
-        return jsonify({"error": "No data provided"}, 400)
+        return jsonify({"error": "No data provided"}), 400
 
     current_password = data.get('current_password')
     new_password = data.get('new_password')
 
     if not all([current_password, new_password]):
-        return jsonify({"error": "Current password and new password are required"}, 400)
+        return jsonify({"error": "Current password and new password are required"}), 400
 
     user_service = UserService()
     user_service.connect()
@@ -265,13 +267,13 @@ def change_password_route() -> Response:
         )
 
         if success:
-            return jsonify({"message": message}, 200)
+            return jsonify({"message": message}), 200
         else:
-            return jsonify({"error": message}, 400)
+            return jsonify({"error": message}), 400
     finally:
         user_service.close()
 
-def get_current_user_info_route() -> Response:
+def get_current_user_info_route() -> Tuple[Response, int]:
     """
     Get current authenticated user information
 
@@ -301,13 +303,13 @@ def get_current_user_info_route() -> Response:
                     "is_active": user.is_active,
                     "created_at": user.created_at
                 }
-            }, 200)
+            }), 200
         else:
-            return jsonify({"error": "User not found"}, 404)
+            return jsonify({"error": "User not found"}), 404
     finally:
         user_service.close()
 
-def logout_route() -> Response:
+def logout_route() -> Tuple[Response, int]:
     """
     Logout user and invalidate session
 
@@ -333,9 +335,9 @@ def logout_route() -> Response:
             user_service.close()
 
     session.pop('auth_token', None)
-    return jsonify({"message": "Logged out successfully"}, 200)
+    return jsonify({"message": "Logged out successfully"}), 200
 
-def login_route() -> Response:
+def login_route() -> Tuple[Response, int]:
     """
     Authenticate user and create session
 
@@ -357,7 +359,7 @@ def login_route() -> Response:
     logger.debug("Login request received")
     data = request.json
     if not data:
-        return jsonify({"error": "No data provided"}, 400)
+        return jsonify({"error": "No data provided"}), 400
 
     username = data.get('username')
     password = data.get('password')
@@ -365,7 +367,7 @@ def login_route() -> Response:
     logger.debug(f"Login attempt for username: {username}")
 
     if not all([username, password]):
-        return jsonify({"error": "Username and password are required"}, 400)
+        return jsonify({"error": "Username and password are required"}), 400
 
     user_service = UserService()
     user_service.connect()
@@ -389,13 +391,13 @@ def login_route() -> Response:
                     "username": user_session.username,
                     "role": user_session.role
                 }
-            }, 200)
+            }), 200
         else:
-            return jsonify({"error": message}, 401)
+            return jsonify({"error": message}), 401
     finally:
         user_service.close()
 
-def register_route() -> Response:
+def register_route() -> Tuple[Response, int]:
     """
     Register a new user account
 
@@ -415,7 +417,7 @@ def register_route() -> Response:
     data = request.json
     logger.debug(f"Registration data: {data}")
     if not data:
-        return jsonify({"error": "No data provided"}, 400)
+        return jsonify({"error": "No data provided"}), 400
 
     username = data.get('username')
     email = data.get('email')
@@ -427,7 +429,7 @@ def register_route() -> Response:
         f"[DEBUG] Registration fields - username: {username}, email: {email}, first_name: {first_name}, last_name: {last_name}, role: {role}")
 
     if not all([username, email, password]):
-        return jsonify({"error": "Username, email, and password are required"}, 400)
+        return jsonify({"error": "Username, email, and password are required"}), 400
 
     user_service = UserService()
     user_service.connect()
@@ -455,16 +457,16 @@ def register_route() -> Response:
                     "last_name": user.last_name,
                     "role": user.role
                 }
-            }, 201)
+            }), 201
         else:
             logger.debug(f"User creation failed: {message}")
-            return jsonify({"error": message}, 400)
+            return jsonify({"error": message}), 400
     finally:
         user_service.close()
 
 
 
-def settings_route() -> Response:
+def settings_route() -> Tuple[Response, int]:
     """
     Handle settings requests
 
@@ -497,10 +499,10 @@ def settings_route() -> Response:
     elif request.method == 'POST':
         return update_user_settings()
     else:
-        return jsonify({"error": "Method not allowed"}, 405)
+        return jsonify({"error": "Method not allowed"}), 405
 
 
-def get_user_settings() -> Response:
+def get_user_settings() -> Tuple[Response, int]:
     """
     Get current user's settings
 
@@ -525,14 +527,14 @@ def get_user_settings() -> Response:
     try:
         user_id = get_current_user_id()
         if not user_id:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
 
         user_service = UserService()
         user_service.connect()
         try:
             settings = user_service.get_user_settings(user_id)
             if not settings:
-                return jsonify({"error": "Failed to load settings"}, 500)
+                return jsonify({"error": "Failed to load settings"}), 500
 
             # Return settings without exposing the API key
             return jsonify({
@@ -543,16 +545,16 @@ def get_user_settings() -> Response:
                     "created_at": settings.created_at,
                     "updated_at": settings.updated_at
                 }
-            })
+            }), 200
         finally:
             user_service.close()
 
     except Exception as e:
         logger.error(f"Error getting user settings: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def update_user_settings() -> Response:
+def update_user_settings() -> Tuple[Response, int]:
     """
     Update user settings
 
@@ -575,11 +577,11 @@ def update_user_settings() -> Response:
     try:
         user_id = get_current_user_id()
         if not user_id:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
 
         data = request.get_json()
         if not data:
-            return jsonify({"error": "No data provided"}, 400)
+            return jsonify({"error": "No data provided"}), 400
 
         logger.debug(f"Updating settings for user: {user_id}")
         logger.debug(f"Request data: {data}")
@@ -601,21 +603,21 @@ def update_user_settings() -> Response:
                     return jsonify({
                         "success": True,
                         "message": "OpenAI API key updated successfully"
-                    })
+                    }), 200
                 else:
-                    return jsonify({"error": message}, 400)
+                    return jsonify({"error": message}), 400
 
-            return jsonify({"error": "No valid settings to update"}, 400)
+            return jsonify({"error": "No valid settings to update"}), 400
 
         finally:
             user_service.close()
 
     except Exception as e:
         logger.error(f"Error updating user settings: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def get_api_usage_route() -> Response:
+def get_api_usage_route() -> Tuple[Response, int]:
     """
     Get current user's API usage statistics
 
@@ -639,7 +641,7 @@ def get_api_usage_route() -> Response:
     try:
         user_id = get_current_user_id()
         if not user_id:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
 
         security_service = get_openai_security_service()
         usage_stats = security_service.get_usage_stats(user_id)
@@ -647,14 +649,14 @@ def get_api_usage_route() -> Response:
         return jsonify({
             "success": True,
             "usage": usage_stats
-        })
+        }), 200
 
     except Exception as e:
         logger.error(f"Error getting API usage: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def get_user_profile_route() -> Response:
+def get_user_profile_route() -> Tuple[Response, int]:
     """
     Get current user's profile information
 
@@ -673,7 +675,7 @@ def get_user_profile_route() -> Response:
         logger.debug(f"get_user_profile_route - user_id: {user_id}")
         if not user_id:
             logger.debug("No user_id found")
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
 
         user_service = UserService()
         user_service.connect()
@@ -683,7 +685,7 @@ def get_user_profile_route() -> Response:
             logger.debug(f"User lookup result: {user}")
             if not user:
                 logger.debug("User not found")
-                return jsonify({"error": "User not found"}, 404)
+                return jsonify({"error": "User not found"}), 404
 
             profile_data = {
                 "id": user.id,
@@ -704,16 +706,16 @@ def get_user_profile_route() -> Response:
             return jsonify({
                 "success": True,
                 "profile": profile_data
-            }, 200)
+            }), 200
         finally:
             user_service.close()
 
     except Exception as e:
         logger.error(f"Error getting user profile: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def update_user_profile_route() -> Response:
+def update_user_profile_route() -> Tuple[Response, int]:
     """
     Update current user's profile information
 
@@ -743,11 +745,11 @@ def update_user_profile_route() -> Response:
     try:
         user_id = get_current_user_id()
         if not user_id:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
 
         data = request.get_json()
         if not data:
-            return jsonify({"error": "No data provided"}, 400)
+            return jsonify({"error": "No data provided"}), 400
 
         logger.debug(f"Updating profile for user: {user_id}")
         logger.debug(f"Request data: {data}")
@@ -767,7 +769,7 @@ def update_user_profile_route() -> Response:
                 # Validate phone number
                 valid, msg = User.validate_phone(data['phone'])
                 if not valid:
-                    return jsonify({"error": msg}, 400)
+                    return jsonify({"error": msg}), 400
                 updates['phone'] = data['phone']
             
             # Provider-specific fields
@@ -782,15 +784,15 @@ def update_user_profile_route() -> Response:
             if 'role' in data:
                 current_user = user_service.get_user_by_id(user_id)
                 if not current_user or not current_user.is_admin():
-                    return jsonify({"error": "Only admins can change roles"}, 403)
+                    return jsonify({"error": "Only admins can change roles"}), 403
                 
                 valid, msg = User.validate_role(data['role'])
                 if not valid:
-                    return jsonify({"error": msg}, 400)
+                    return jsonify({"error": msg}), 400
                 updates['role'] = data['role']
 
             if not updates:
-                return jsonify({"error": "No valid fields to update"}, 400)
+                return jsonify({"error": "No valid fields to update"}), 400
 
             success, message = user_service.update_user(user_id, updates)
             logger.debug(f"Update result: success={success}, message={message}")
@@ -799,13 +801,13 @@ def update_user_profile_route() -> Response:
                 return jsonify({
                     "success": True,
                     "message": "Profile updated successfully"
-                })
+                }), 200
             else:
-                return jsonify({"error": message}, 400)
+                return jsonify({"error": message}), 400
 
         finally:
             user_service.close()
 
     except Exception as e:
         logger.error(f"Error updating user profile: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500

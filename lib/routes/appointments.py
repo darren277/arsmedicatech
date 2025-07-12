@@ -1,6 +1,8 @@
 """
 Appointment routes for scheduling functionality
 """
+from typing import Tuple
+
 from flask import jsonify, request, Response
 from lib.services.auth_decorators import get_current_user, get_current_user_id
 from lib.services.scheduling import SchedulingService
@@ -10,7 +12,7 @@ from lib.models.appointment import AppointmentStatus, AppointmentType
 from settings import logger
 
 
-def create_appointment_route() -> Response:
+def create_appointment_route() -> Tuple[Response, int]:
     """
     Create a new appointment
 
@@ -48,12 +50,12 @@ def create_appointment_route() -> Response:
     try:
         data = request.json
         if not data:
-            return jsonify({"error": "No data provided"}, 400)
+            return jsonify({"error": "No data provided"}), 400
         
         # Get current user
         current_user = get_current_user()
         if not current_user:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
         
         # Extract appointment data
         patient_id = data.get('patient_id')
@@ -67,7 +69,7 @@ def create_appointment_route() -> Response:
         
         # Validate required fields
         if not all([patient_id, appointment_date, start_time, end_time]):
-            return jsonify({"error": "Missing required fields"}, 400)
+            return jsonify({"error": "Missing required fields"}), 400
         
         # Create appointment
         scheduling_service = SchedulingService()
@@ -101,19 +103,19 @@ def create_appointment_route() -> Response:
                         "location": appointment.location,
                         "created_at": appointment.created_at
                     }
-                }, 201)
+                }), 201
             else:
-                return jsonify({"error": message}, 400)
+                return jsonify({"error": message}), 400
                 
         finally:
             scheduling_service.close()
             
     except Exception as e:
         logger.error(f"Error creating appointment: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def get_appointments_route() -> Response:
+def get_appointments_route() -> Tuple[Response, int]:
     """
     Get appointments based on filters
 
@@ -156,7 +158,7 @@ def get_appointments_route() -> Response:
         # Get current user
         current_user = get_current_user()
         if not current_user:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
         
         logger.debug(f"Getting appointments for user: {current_user.user_id}, role: {current_user.role}")
         
@@ -207,17 +209,17 @@ def get_appointments_route() -> Response:
                 "success": True,
                 "appointments": appointment_list,
                 "total": len(appointment_list)
-            }, 200)
+            }), 200
             
         finally:
             scheduling_service.close()
             
     except Exception as e:
         logger.error(f"Error getting appointments: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def get_appointment_route(appointment_id: str) -> Response:
+def get_appointment_route(appointment_id: str) -> Tuple[Response, int]:
     """
     Get a specific appointment
 
@@ -259,7 +261,7 @@ def get_appointment_route(appointment_id: str) -> Response:
         # Get current user
         current_user = get_current_user()
         if not current_user:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
         
         scheduling_service = SchedulingService()
         scheduling_service.connect()
@@ -267,11 +269,11 @@ def get_appointment_route(appointment_id: str) -> Response:
             appointment = scheduling_service.get_appointment(appointment_id)
             
             if not appointment:
-                return jsonify({"error": "Appointment not found"}, 404)
+                return jsonify({"error": "Appointment not found"}), 404
             
             # Check if user has access to this appointment
             if appointment.provider_id != current_user.user_id and appointment.patient_id != current_user.user_id:
-                return jsonify({"error": "Access denied"}, 403)
+                return jsonify({"error": "Access denied"}), 403
             
             return jsonify({
                 "success": True,
@@ -289,17 +291,17 @@ def get_appointment_route(appointment_id: str) -> Response:
                     "created_at": appointment.created_at,
                     "updated_at": appointment.updated_at
                 }
-            }, 200)
+            }), 200
             
         finally:
             scheduling_service.close()
             
     except Exception as e:
         logger.error(f"Error getting appointment: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def update_appointment_route(appointment_id: str) -> Response:
+def update_appointment_route(appointment_id: str) -> Tuple[Response, int]:
     """
     Update an appointment
 
@@ -340,12 +342,12 @@ def update_appointment_route(appointment_id: str) -> Response:
     try:
         data = request.json
         if not data:
-            return jsonify({"error": "No data provided"}, 400)
+            return jsonify({"error": "No data provided"}), 400
         
         # Get current user
         current_user = get_current_user()
         if not current_user:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
         
         scheduling_service = SchedulingService()
         scheduling_service.connect()
@@ -353,11 +355,11 @@ def update_appointment_route(appointment_id: str) -> Response:
             # Get current appointment to check access
             appointment = scheduling_service.get_appointment(appointment_id)
             if not appointment:
-                return jsonify({"error": "Appointment not found"}, 404)
+                return jsonify({"error": "Appointment not found"}), 404
             
             # Check if user has access to this appointment
             if appointment.provider_id != current_user.user_id and appointment.patient_id != current_user.user_id:
-                return jsonify({"error": "Access denied"}, 403)
+                return jsonify({"error": "Access denied"}), 403
             
             # Update appointment
             success, message = scheduling_service.update_appointment(appointment_id, data)
@@ -366,19 +368,19 @@ def update_appointment_route(appointment_id: str) -> Response:
                 return jsonify({
                     "success": True,
                     "message": message
-                }, 200)
+                }), 200
             else:
-                return jsonify({"error": message}, 400)
+                return jsonify({"error": message}), 400
                 
         finally:
             scheduling_service.close()
             
     except Exception as e:
         logger.error(f"Error updating appointment: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def cancel_appointment_route(appointment_id: str) -> Response:
+def cancel_appointment_route(appointment_id: str) -> Tuple[Response, int]:
     """
     Cancel an appointment
 
@@ -416,7 +418,7 @@ def cancel_appointment_route(appointment_id: str) -> Response:
         # Get current user
         current_user = get_current_user()
         if not current_user:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
         
         scheduling_service = SchedulingService()
         scheduling_service.connect()
@@ -424,11 +426,11 @@ def cancel_appointment_route(appointment_id: str) -> Response:
             # Get current appointment to check access
             appointment = scheduling_service.get_appointment(appointment_id)
             if not appointment:
-                return jsonify({"error": "Appointment not found"}, 404)
+                return jsonify({"error": "Appointment not found"}), 404
             
             # Check if user has access to this appointment
             if appointment.provider_id != current_user.user_id and appointment.patient_id != current_user.user_id:
-                return jsonify({"error": "Access denied"}, 403)
+                return jsonify({"error": "Access denied"}), 403
             
             # Cancel appointment
             success, message = scheduling_service.cancel_appointment(appointment_id, reason)
@@ -437,19 +439,19 @@ def cancel_appointment_route(appointment_id: str) -> Response:
                 return jsonify({
                     "success": True,
                     "message": message
-                }, 200)
+                }), 200
             else:
-                return jsonify({"error": message}, 400)
+                return jsonify({"error": message}), 400
                 
         finally:
             scheduling_service.close()
             
     except Exception as e:
         logger.error(f"Error cancelling appointment: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def confirm_appointment_route(appointment_id: str) -> Response:
+def confirm_appointment_route(appointment_id: str) -> Tuple[Response, int]:
     """
     Confirm an appointment
 
@@ -479,7 +481,7 @@ def confirm_appointment_route(appointment_id: str) -> Response:
         # Get current user
         current_user = get_current_user()
         if not current_user:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
         
         scheduling_service = SchedulingService()
         scheduling_service.connect()
@@ -487,11 +489,11 @@ def confirm_appointment_route(appointment_id: str) -> Response:
             # Get current appointment to check access
             appointment = scheduling_service.get_appointment(appointment_id)
             if not appointment:
-                return jsonify({"error": "Appointment not found"}, 404)
+                return jsonify({"error": "Appointment not found"}), 404
             
             # Check if user has access to this appointment
             if appointment.provider_id != current_user.user_id and appointment.patient_id != current_user.user_id:
-                return jsonify({"error": "Access denied"}, 403)
+                return jsonify({"error": "Access denied"}), 403
             
             # Confirm appointment
             success, message = scheduling_service.confirm_appointment(appointment_id)
@@ -500,19 +502,19 @@ def confirm_appointment_route(appointment_id: str) -> Response:
                 return jsonify({
                     "success": True,
                     "message": message
-                }, 200)
+                }), 200
             else:
-                return jsonify({"error": message}, 400)
+                return jsonify({"error": message}), 400
                 
         finally:
             scheduling_service.close()
             
     except Exception as e:
         logger.error(f"Error confirming appointment: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def get_available_slots_route() -> Response:
+def get_available_slots_route() -> Tuple[Response, int]:
     """
     Get available time slots for a provider on a specific date
 
@@ -545,7 +547,7 @@ def get_available_slots_route() -> Response:
         # Get current user
         current_user = get_current_user()
         if not current_user:
-            return jsonify({"error": "Authentication required"}, 401)
+            return jsonify({"error": "Authentication required"}), 401
         
         # Get query parameters
         date = request.args.get('date')
@@ -553,7 +555,7 @@ def get_available_slots_route() -> Response:
         duration = request.args.get('duration', 30, type=int)
         
         if not date:
-            return jsonify({"error": "Date parameter is required"}, 400)
+            return jsonify({"error": "Date parameter is required"}), 400
         
         scheduling_service = SchedulingService()
         scheduling_service.connect()
@@ -566,17 +568,17 @@ def get_available_slots_route() -> Response:
                 "provider_id": provider_id,
                 "duration_minutes": duration,
                 "available_slots": slots
-            }, 200)
+            }), 200
             
         finally:
             scheduling_service.close()
             
     except Exception as e:
         logger.error(f"Error getting available slots: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def get_appointment_types_route() -> Response:
+def get_appointment_types_route() -> Tuple[Response, int]:
     """
     Get available appointment types
 
@@ -614,14 +616,14 @@ def get_appointment_types_route() -> Response:
         return jsonify({
             "success": True,
             "appointment_types": types
-        }, 200)
+        }), 200
         
     except Exception as e:
         logger.error(f"Error getting appointment types: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500
 
 
-def get_appointment_statuses_route() -> Response:
+def get_appointment_statuses_route() -> Tuple[Response, int]:
     """
     Get available appointment statuses
 
@@ -659,8 +661,8 @@ def get_appointment_statuses_route() -> Response:
         return jsonify({
             "success": True,
             "appointment_statuses": statuses
-        }, 200)
+        }), 200
         
     except Exception as e:
         logger.error(f"Error getting appointment statuses: {e}")
-        return jsonify({"error": "Internal server error"}, 500)
+        return jsonify({"error": "Internal server error"}), 500

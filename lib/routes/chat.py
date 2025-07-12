@@ -1,6 +1,8 @@
 """
 Chat routes for managing conversations and messages.
 """
+from typing import Tuple
+
 from flask import request, jsonify, Response
 
 from lib.services.auth_decorators import get_current_user
@@ -11,7 +13,7 @@ from lib.services.notifications import publish_event_with_buffer
 from settings import logger
 
 
-def create_conversation_route() -> Response:
+def create_conversation_route() -> Tuple[Response, int]:
     """
     Create a new conversation
 
@@ -56,7 +58,7 @@ def create_conversation_route() -> Response:
     logger.debug(f"Request data: {data}")
 
     if not data:
-        return jsonify({"error": "No data provided"}, 400)
+        return jsonify({"error": "No data provided"}), 400
 
     participants = data.get('participants', [])
     conversation_type = data.get('type', 'user_to_user')
@@ -71,7 +73,7 @@ def create_conversation_route() -> Response:
     logger.debug(f"Final participants: {participants}")
 
     if len(participants) < 2:
-        return jsonify({"error": "At least 2 participants are required"}, 400)
+        return jsonify({"error": "At least 2 participants are required"}), 400
 
     conversation_service = ConversationService()
     conversation_service.connect()
@@ -85,14 +87,14 @@ def create_conversation_route() -> Response:
             return jsonify({
                 "message": "Conversation created successfully",
                 "conversation_id": conversation.id
-            }, 201)
+            }), 201
         else:
-            return jsonify({"error": message}, 400)
+            return jsonify({"error": message}), 400
 
     finally:
         conversation_service.close()
 
-def send_message_route(conversation_id: str) -> Response:
+def send_message_route(conversation_id: str) -> Tuple[Response, int]:
     """
     Send a message in a conversation
 
@@ -145,7 +147,7 @@ def send_message_route(conversation_id: str) -> Response:
     logger.debug(f"Message data: {data}")
 
     if not data or 'text' not in data:
-        return jsonify({"error": "Message text is required"}, 400)
+        return jsonify({"error": "Message text is required"}), 400
 
     message_text = data['text']
 
@@ -157,11 +159,11 @@ def send_message_route(conversation_id: str) -> Response:
         conversation = conversation_service.get_conversation_by_id(conversation_id)
         if not conversation:
             logger.debug(f"Conversation not found: {conversation_id}")
-            return jsonify({"error": "Conversation not found"}, 404)
+            return jsonify({"error": "Conversation not found"}), 404
 
         logger.debug(f"Found conversation: {conversation.id}")
         if not conversation.is_participant(current_user_id):
-            return jsonify({"error": "Access denied"}, 403)
+            return jsonify({"error": "Access denied"}), 403
 
         # Add message
         logger.debug(f"Adding message to conversation")
@@ -195,15 +197,15 @@ def send_message_route(conversation_id: str) -> Response:
                 "message": "Message sent successfully",
                 "message_id": msg_obj.id,
                 "timestamp": msg_obj.created_at
-            }, 200)
+            }), 200
         else:
             logger.debug(f"Failed to send message: {message}")
-            return jsonify({"error": message}, 400)
+            return jsonify({"error": message}), 400
 
     finally:
         conversation_service.close()
 
-def get_conversation_messages_route(conversation_id: str) -> Response:
+def get_conversation_messages_route(conversation_id: str) -> Tuple[Response, int]:
     """
     Get messages for a specific conversation
 
@@ -249,10 +251,10 @@ def get_conversation_messages_route(conversation_id: str) -> Response:
         # Verify user is a participant in this conversation
         conversation = conversation_service.get_conversation_by_id(conversation_id)
         if not conversation:
-            return jsonify({"error": "Conversation not found"}, 404)
+            return jsonify({"error": "Conversation not found"}), 404
 
         if not conversation.is_participant(current_user_id):
-            return jsonify({"error": "Access denied"}, 403)
+            return jsonify({"error": "Access denied"}), 403
 
         # Get messages
         messages = conversation_service.get_conversation_messages(conversation_id, limit=100)
@@ -280,12 +282,12 @@ def get_conversation_messages_route(conversation_id: str) -> Response:
                 "is_read": msg.is_read
             })
 
-        return jsonify({"messages": message_list}, 200)
+        return jsonify({"messages": message_list}), 200
 
     finally:
         conversation_service.close()
 
-def get_user_conversations_route() -> Response:
+def get_user_conversations_route() -> Tuple[Response, int]:
     """
     Get all conversations for the current user
 
@@ -367,7 +369,7 @@ def get_user_conversations_route() -> Response:
                 "last_message_at": conv.last_message_at
             })
 
-        return jsonify(conversation_list, 200)
+        return jsonify(conversation_list), 200
 
     finally:
         conversation_service.close()
