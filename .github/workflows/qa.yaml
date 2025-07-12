@@ -41,6 +41,11 @@ jobs:
       - name: Run Python tests
         run: python run_tests.py all
 
+      - name: Run mypy
+        run: |
+          if [ -f requirements.txt ]; then pip install mypy; fi
+          mypy --config-file ./mypy.ini .
+
       - name: Run npm tests
         run: npm test
 
