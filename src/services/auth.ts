@@ -6,7 +6,17 @@ class AuthService {
 
   constructor() {
     this.token = localStorage.getItem('auth_token');
-    this.user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    // Safely parse user data from localStorage
+    try {
+      const userData = localStorage.getItem('user');
+      this.user = userData ? JSON.parse(userData) : null;
+    } catch (error) {
+      console.warn('Failed to parse user data from localStorage:', error);
+      this.user = null;
+      // Clean up invalid data
+      localStorage.removeItem('user');
+    }
   }
 
   async login(username: string, password: string) {
