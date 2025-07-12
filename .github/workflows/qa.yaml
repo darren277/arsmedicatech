@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ENCRYPTION_KEY: "test-encryption-key-for-ci-123456789"
+      SENTRY_DSN: "test-sentry-dsn-for-ci-123456789"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
