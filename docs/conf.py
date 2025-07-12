@@ -50,6 +50,11 @@ exclude_patterns = [
     'venv/*',
 ]
 
+for p in exclude_patterns:
+    exclude_patterns.append(f'**/{p}') # Ensure all patterns are recursive
+    exclude_patterns.append(f'../**/{p}')
+    exclude_patterns.append(f'../../**/{p}')
+
 
 
 # -- Options for HTML output -------------------------------------------------
