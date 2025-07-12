@@ -13,7 +13,7 @@ class LLMChatService:
     """
     Service for managing LLM chats, including creating, retrieving, and updating chats.
     """
-    def __init__(self, db_controller: DbController = None) -> None:
+    def __init__(self, db_controller: Optional[DbController] = None) -> None:
         """
         Initialize the LLMChatService with a database controller.
         :param db_controller: Optional[DbController] - The database controller to use. If None, a new DbController instance is created.
@@ -102,5 +102,9 @@ class LLMChatService:
             chat = self.create_llm_chat(user_id, assistant_id)
         chat.add_message(sender, text)
         # Save updated chat
-        self.db.update(f"LLMChat:{chat.id.split(':', 1)[1]}", chat.to_dict())
+        chat_id: str = chat.id or ""
+        if not chat_id:
+            raise ValueError("Chat ID is not set")
+        
+        self.db.update(f"LLMChat:{chat_id.split(':', 1)[1]}", chat.to_dict())
         return chat 

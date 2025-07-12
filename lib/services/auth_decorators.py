@@ -2,13 +2,15 @@
 Authentication decorators for Flask routes.
 """
 from functools import wraps
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar, cast
 
 from flask import g, jsonify, request, session
 
 from lib.models.user import UserSession
 from lib.services.user_service import UserService
 from settings import logger
+
+F = TypeVar('F', bound=Callable[..., Any])
 
 
 def require_auth(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -37,8 +39,8 @@ def require_auth(f: Callable[..., Any]) -> Callable[..., Any]:
             logger.debug(f"Got Bearer token: {token[:10]}...")
         
         if not token:
-            token = session.get('auth_token')
-            token = str(token) if token is not None else None
+            token = session.get('auth_token') # type: ignore
+            token = str(token) if token is not None else None # type: ignore
             logger.debug(f"Got session token: {token[:10] if token else 'None'}...")
         
         if not token:
@@ -65,10 +67,8 @@ def require_auth(f: Callable[..., Any]) -> Callable[..., Any]:
         finally:
             user_service.close()
     
-    return decorated_function
+    return cast(Callable[..., Any], decorated_function)
 
-
-F = TypeVar('F', bound=Callable[..., Any])
 
 def require_role(required_role: str) -> Callable[[F], F]:
     """
@@ -178,14 +178,14 @@ def optional_auth(f: F) -> F:
             token = token[7:]  # Remove 'Bearer ' prefix
         
         if not token:
-            token = session.get('auth_token')
+            token = session.get('auth_token') # type: ignore
         
         if token:
             # Try to validate session
             user_service = UserService()
             user_service.connect()
             try:
-                user_session = user_service.validate_session(token)
+                user_session = user_service.validate_session(token) # type: ignore
                 if user_session:
                     # Add user info to request context
                     g.user_session = user_session
@@ -193,10 +193,10 @@ def optional_auth(f: F) -> F:
                     g.user_role = user_session.role
             finally:
                 user_service.close()
-        
-        return f(*args, **kwargs)
-    
-    return decorated_function
+
+        return cast(F, decorated_function)
+
+    return cast(F, decorated_function)
 
 
 def get_current_user() -> Optional[UserSession]:

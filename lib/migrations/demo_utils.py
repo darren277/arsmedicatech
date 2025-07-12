@@ -33,17 +33,17 @@ class PatientFactory(FactoryWrapper):
         """
         model = Patient
 
-    demographic_no = f('random_int') # type: ignore
-    first_name = f('first_name') # type: ignore
-    last_name = f('last_name') # type: ignore
-    date_of_birth = f('date_of_birth', minimum_age=18, maximum_age=65) # type: ignore
+    demographic_no = f('random_int') # type: ignore[no-untyped-call]
+    first_name = f('first_name') # type: ignore[no-untyped-call]
+    last_name = f('last_name') # type: ignore[no-untyped-call]
+    date_of_birth = f('date_of_birth', minimum_age=18, maximum_age=65) # type: ignore[no-untyped-call]
 
-    phone = f('phone_number') # type: ignore
-    email = f('email') # type: ignore
-    sex = f('random_element', elements=('M', 'F')) # type: ignore
+    phone = f('phone_number') # type: ignore[no-untyped-call]
+    email = f('email') # type: ignore[no-untyped-call]
+    sex = f('random_element', elements=('M', 'F')) # type: ignore[no-untyped-call]
 
     # For later use:
-    location = f('local_latlng', country_code='CA') # type: ignore
+    location = f('local_latlng', country_code='CA') # type: ignore[no-untyped-call]
 
 
 '''
@@ -155,10 +155,10 @@ class EncounterFactory(FactoryWrapper):
         """
         model = Encounter
 
-    note_id = f('random_int') # type: ignore
-    date_created = f('date_of_birth', minimum_age=1, maximum_age=20) # type: ignore
-    provider_id = f('random_int', min=1, max=10) # type: ignore
+    note_id = f('random_int') # type: ignore[no-untyped-call]
+    date_created = f('date_of_birth', minimum_age=1, maximum_age=20) # type: ignore[no-untyped-call]
+    provider_id = f('random_int', min=1, max=10) # type: ignore[no-untyped-call]
 
     # Lorem ipsum for now...
     # TODO: Substitute with an (older, less expensive) LLM endpoint...
-    note_text = f('text', max_nb_chars=160) # type: ignore
+    note_text = f('text', max_nb_chars=160) # type: ignore[no-untyped-call]

@@ -3,7 +3,7 @@ MCP server entry point.
 """
 import datetime
 
-from trees import mcp
+from trees import mcp # type: ignore
 
 from settings import logger
 

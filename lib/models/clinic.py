@@ -2,11 +2,11 @@
 This module defines a Clinic class and provides functions to interact with a SurrealDB database.
 """
 import json
+from typing import Any, Dict, List
 
-from surrealdb import Surreal
+from surrealdb import Surreal  # type: ignore
 
 from lib.db.surreal import AsyncDbController
-
 from settings import logger
 
 
@@ -44,7 +44,7 @@ class Clinic:
         self.longitude = longitude
         self.latitude = latitude
 
-    def to_geojson_point(self) -> dict:
+    def to_geojson_point(self) -> Dict[str, Any]:
         """
         Converts the clinic's location to a GeoJSON Point dictionary.
         Note: GeoJSON specifies longitude, then latitude.
@@ -74,7 +74,7 @@ def generate_surrealql_create_query(clinic: Clinic, table_name: str = "clinic") 
         str: A SurrealQL CREATE statement string.
     """
     # Using a dictionary to build the SET clause for clarity and easier JSON conversion
-    data_to_set = {
+    data_to_set: Dict[str, Any] = {
         "name": clinic.name,
         "address": {
             "street": clinic.street,
@@ -168,7 +168,10 @@ if __name__ == '__main__':
 client = AsyncDbController()
 
 
-async def create_clinic(clinic: Clinic) -> str:
+from typing import Optional
+
+
+async def create_clinic(clinic: Clinic) -> Optional[str]:
     """
     Asynchronously creates a clinic record in the SurrealDB database.
 
@@ -176,7 +179,7 @@ async def create_clinic(clinic: Clinic) -> str:
         clinic (Clinic): The clinic object to be created in the database.
 
     Returns:
-        str: The ID of the created clinic record.
+        Optional[str]: The ID of the created clinic record, or None if creation failed.
     """
     query = generate_surrealql_create_query(clinic)
     result = await client.query(query)
@@ -184,7 +187,7 @@ async def create_clinic(clinic: Clinic) -> str:
     return result[0]['id'] if result else None
 
 
-async def get_clinic_by_id(clinic_id: str) -> dict:
+async def get_clinic_by_id(clinic_id: str) -> Optional[Dict[str, Any]]:
     """
     Asynchronously retrieves a clinic record by its ID.
 
@@ -199,7 +202,7 @@ async def get_clinic_by_id(clinic_id: str) -> dict:
     return result[0] if result else None
 
 
-async def get_all_clinics() -> list:
+async def get_all_clinics() -> List[Dict[str, Any]]:
     """
     Asynchronously retrieves all clinic records from the database.
 
@@ -211,7 +214,7 @@ async def get_all_clinics() -> list:
     return result if result else []
 
 
-async def search_clinics_by_location(longitude: float, latitude: float, radius: float = 5000) -> list:
+async def search_clinics_by_location(longitude: float, latitude: float, radius: float = 5000) -> List[Dict[str, Any]]:
     """
     Asynchronously searches for clinics within a specified radius of a given location.
 
@@ -321,7 +324,9 @@ def test() -> None:
         logger.debug(f"Created clinic with ID: {clinic_id}")
 
         # Retrieve the clinic by ID
-        retrieved_clinic = await get_clinic_by_id(clinic_id)
+        retrieved_clinic = None
+        if clinic_id is not None:
+            retrieved_clinic = await get_clinic_by_id(clinic_id)
         logger.debug(f"Retrieved clinic: {retrieved_clinic}")
 
         # Update the clinic

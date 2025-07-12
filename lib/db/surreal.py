@@ -1,8 +1,6 @@
 """
 Synchronous and Asynchronous SurrealDB Controller
 """
-# mypy: disable-error-code=reportUnknownMemberType
-
 from typing import Any, Dict, List, Optional
 
 from settings import logger
@@ -38,7 +36,7 @@ class SurrealWrapper:
         """
         return self._client.create(table_name, data)
     
-    def select(self, record: str) -> Dict[str, Any]:
+    def select(self, record: str) -> List[Dict[str, Any]]:
         """
         Select a specific record from the database.
         
@@ -65,6 +63,14 @@ class SurrealWrapper:
         :return: None
         """
         self._client.use(namespace, database)
+    
+    def close(self) -> None:
+        """
+        Close the connection to the database.
+        
+        :return: None
+        """
+        self._client.close()
 
 class AsyncSurrealWrapper:
     def __init__(self, r: Any) -> None:
@@ -82,7 +88,7 @@ class AsyncSurrealWrapper:
     async def create(self, table_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
         return await self._client.create(table_name, data)
     
-    async def select(self, record: str) -> Dict[str, Any]:
+    async def select(self, record: str) -> List[Dict[str, Any]]:
         return await self._client.select(record)
     
     async def delete(self, record: str) -> Dict[str, Any]:
@@ -90,6 +96,14 @@ class AsyncSurrealWrapper:
     
     async def use(self, namespace: str, database: str) -> None:
         await self._client.use(namespace, database)
+    
+    async def close(self) -> None:
+        """
+        Close the connection to the database.
+        
+        :return: None
+        """
+        await self._client.close()
 
 
 # Synchronous version
@@ -287,16 +301,16 @@ class DbController:
         if self.db is None:
             raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
         logger.debug(f"Selecting many from table: {table_name}")
-        result = self.db.select(table_name)
+        result: List[Dict[str, Any]] = self.db.select(table_name)
         logger.debug(f"Select many raw result: {result}")
 
         # Process results
-        if isinstance(result, list):
-            for i, record in enumerate(result):
-                if isinstance(record, dict) and 'id' in record:
-                    _id = str(record.pop("id"))
-                    result[i] = {**record, 'id': _id}
-            logger.debug(f"Select many processed result: {result}")
+        for i, record in enumerate(result):
+            if 'id' in record:
+                _id = str(record.pop("id"))
+                result[i] = {**record, 'id': _id}
+        
+        logger.debug(f"Select many processed result: {result}")
 
         return result
 
@@ -313,14 +327,22 @@ class DbController:
         result = self.db.select(record)
         logger.debug(f"Select raw result: {result}")
 
-        # Handle record ID conversion
-        if 'id' in result:
+        # Handle record ID conversion - result might be a list or dict
+        if isinstance(result, list) and len(result) > 0:
+            record_data = result[0]
+            if isinstance(record_data, dict) and 'id' in record_data:
+                _id = str(record_data.pop("id"))
+                final_result = {**record_data, 'id': _id}
+                logger.debug(f"Final result: {final_result}")
+                return final_result
+            return record_data if isinstance(record_data, dict) else {}
+        elif isinstance(result, dict) and 'id' in result:
             _id = str(result.pop("id"))
             final_result = {**result, 'id': _id}
             logger.debug(f"Final result: {final_result}")
             return final_result
         logger.debug(f"Final result: {result}")
-        return result
+        return result if isinstance(result, dict) else {}
 
     def delete(self, record: str) -> Dict[str, Any]:
         """
@@ -478,14 +500,13 @@ class AsyncDbController:
         """
         if self.db is None:
             raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
-        result = await self.db.select(table_name)
+        result: List[Dict[str, Any]] = await self.db.select(table_name)
 
         # Process results
-        if isinstance(result, list):
-            for i, record in enumerate(result):
-                if isinstance(record, dict) and 'id' in record:
-                    _id = str(record.pop("id"))
-                    result[i] = {**record, 'id': _id}
+        for i, record in enumerate(result):
+            if 'id' in record:
+                _id = str(record.pop("id"))
+                result[i] = {**record, 'id': _id}
 
         return result
 
@@ -498,13 +519,16 @@ class AsyncDbController:
         """
         if self.db is None:
             raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
-        result = await self.db.select(record)
+        result: List[Dict[str, Any]] = await self.db.select(record)
 
-        # Handle record ID conversion
-        if 'id' in result:
-            _id = str(result.pop("id"))
-            return {**result, 'id': _id}
-        return result
+        # Handle record ID conversion - result is a list, so we need to handle it properly
+        if result and len(result) > 0:
+            record_data = result[0]
+            if isinstance(record_data, dict) and 'id' in record_data:
+                _id = str(record_data.pop("id"))
+                return {**record_data, 'id': _id}
+            return record_data if isinstance(record_data, dict) else {}
+        return {}
 
     async def delete(self, record: str) -> Dict[str, Any]:
         """
@@ -527,14 +551,4 @@ class AsyncDbController:
         """
         if self.db is None:
             raise RuntimeError("Database connection is not established. Call connect() before performing operations.")
-        result = await self.db.close()
-        return result
-
-    async def close(self) -> None:
-        """
-        Close the connection (not needed with new API, but kept for compatibility)
-        :return: None
-        """
-        # The new API doesn't seem to have an explicit close method
-        # This is kept for backwards compatibility
-        pass
+        await self.db.close()

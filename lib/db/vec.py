@@ -2,10 +2,13 @@
 Vector database for RAG (retrieval‑augmented generation) with SurrealDB.
 """
 import json
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from openai import AsyncOpenAI
-from surrealdb import AsyncSurreal
+from openai.types.chat import ChatCompletionMessageParam
+
+# Import surrealdb with type ignore since it lacks proper stubs
+from surrealdb import AsyncSurreal  # type: ignore[import-untyped]
 
 from settings import (SURREALDB_DATABASE, SURREALDB_HOST, SURREALDB_NAMESPACE,
                       SURREALDB_PASS, SURREALDB_PORT, SURREALDB_PROTOCOL,
@@ -150,31 +153,31 @@ class Vec:
         :raises Exception: If the connection or query fails.
         :return: None
         """
-        db = AsyncSurreal(self.db_url)
+        db = AsyncSurreal(self.db_url)  # type: ignore[no-untyped-call]
         try:
-            await db.connect()
+            await db.connect()  # type: ignore[no-untyped-call]
         except Exception as e:
             logger.error(f"[ERROR] Failed to connect to SurrealDB: {e}")
             raise
         try:
-            await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})
+            await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})  # type: ignore[no-untyped-call]
         except Exception as e:
             logger.error(f"[ERROR] Failed to sign in to SurrealDB: {e}")
             raise
         try:
             if SURREALDB_NAMESPACE is None or SURREALDB_DATABASE is None:
                 raise ValueError("SURREALDB_NAMESPACE and SURREALDB_DATABASE must not be None.")
-            await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
+            await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)  # type: ignore[no-untyped-call]
         except Exception as e:
             logger.error(f"[ERROR] Failed to use namespace/database: {e}")
             raise
         try:
-            await db.query(knowledge_hsnw_v2)
+            await db.query(knowledge_hsnw_v2)  # type: ignore[no-untyped-call]
         except Exception as e:
             logger.error(f"[ERROR] Failed to create knowledge table: {e}")
             raise
         try:
-            await db.close()
+            await db.close()  # type: ignore[no-untyped-call]
         except Exception as e:
             logger.error(f"[ERROR] Failed to close SurrealDB connection: {e}")
             raise
@@ -186,49 +189,51 @@ class Vec:
         :param data_type: Type of the data source file ('json' or 'jsonl').
         :return: None
         """
-        db = AsyncSurreal(DB_URL)
-        await db.connect()
-        await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})
+        db = AsyncSurreal(DB_URL)  # type: ignore[no-untyped-call]
+        await db.connect()  # type: ignore[no-untyped-call]
+        await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})  # type: ignore[no-untyped-call]
         if SURREALDB_NAMESPACE is None or SURREALDB_DATABASE is None:
                 raise ValueError("SURREALDB_NAMESPACE and SURREALDB_DATABASE must not be None.")
-        await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
+        await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)  # type: ignore[no-untyped-call]
 
-        res = await db.query("INFO FOR DB;")
+        res = await db.query("INFO FOR DB;")  # type: ignore[no-untyped-call]
         logger.debug("Database info:", res)
 
-        res = await db.query("INFO FOR TABLE knowledge;")
+        res = await db.query("INFO FOR TABLE knowledge;")  # type: ignore[no-untyped-call]
         logger.debug("Table info:", res)
 
         if data_type == 'jsonl':
-            docs = [json.loads(l) for l in open(data_source, "r", encoding="utf-8") if l.strip()]
+            docs: List[Dict[str, Any]] = [json.loads(l) for l in open(data_source, "r", encoding="utf-8") if l.strip()]
         elif data_type == 'json':
             with open(data_source, "r", encoding="utf-8") as f:
                 docs = json.load(f)
         else:
             raise ValueError(f"Unsupported data type: {data_type}. Supported types are 'jsonl' and 'json'.")
 
-        chunk, batch = 96, []
+        chunk = 96
+        batch: List[Dict[str, Any]] = []
+        batch_data: List[Dict[str, str]] = []
 
         for doc in docs:
             batch.append(doc)
             if len(batch) == chunk:
                 logger.debug(f"[SEED] Inserting {len(batch)} records...")
-                batch_data = [{"id": d["id"], "text": d["text"]} for d in batch]
-                batch = BatchList([BatchItem(**d) for d in batch_data])
-                await self.insert(batch, db)
+                batch_data = [{"id": str(d["id"]), "text": str(d["text"])} for d in batch]
+                batch_list = BatchList([BatchItem(**d) for d in batch_data])
+                await self.insert(batch_list, db)
                 logger.debug("[SEED] Insert complete.")
                 batch = []
         if batch:
             logger.debug(f"[SEED] Inserting {len(batch)} records...")
-            batch_data = [{"id": d["id"], "text": d["text"]} for d in batch]
-            batch = BatchList([BatchItem(**d) for d in batch_data])
-            await self.insert(batch, db)
+            batch_data = [{"id": str(d["id"]), "text": str(d["text"])} for d in batch]
+            batch_list = BatchList([BatchItem(**d) for d in batch_data])
+            await self.insert(batch_list, db)
             logger.debug("[SEED] Insert complete.")
 
-        res = await db.query("SELECT id, text FROM knowledge LIMIT 5;")
+        res = await db.query("SELECT id, text FROM knowledge LIMIT 5;")  # type: ignore[no-untyped-call]
         logger.debug("Sample records:", res)
 
-    async def insert(self, batch: BatchList, db: AsyncSurreal) -> None:
+    async def insert(self, batch: BatchList, db: Any) -> None:
         """
         Insert a batch of records into the knowledge table.
         :param batch: A list of dictionaries, each containing 'id' and 'text' keys.
@@ -277,7 +282,7 @@ class Vec:
                 )
 
                 query = f"INSERT INTO knowledge [{value_tuples}];"
-                result = await db.query(query)
+                result = await db.query(query)  # type: ignore[no-untyped-call]
                 logger.debug(f"[OK] Inserted {record_id}")
                 logger.debug(f"SurrealDB result: {result}")
                 inserted += 1
@@ -294,24 +299,24 @@ class Vec:
         if not self.client:
             raise ValueError("This function requires an OpenAI client to be initialized.")
         qvec = (await self.client.embeddings.create(model=self.embed_model, input=[question])).data[0].embedding
-        db   = AsyncSurreal(DB_URL)
-        await db.connect()
-        await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})
+        db   = AsyncSurreal(DB_URL)  # type: ignore[no-untyped-call]
+        await db.connect()  # type: ignore[no-untyped-call]
+        await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})  # type: ignore[no-untyped-call]
         if SURREALDB_NAMESPACE is None or SURREALDB_DATABASE is None:
             raise ValueError("SURREALDB_NAMESPACE and SURREALDB_DATABASE must not be None.")
-        await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
+        await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)  # type: ignore[no-untyped-call]
 
         # SurrealQL k‑NN syntax: <k, COSINE|> $vector
         q = f"SELECT text FROM knowledge WHERE embedding <|{k}, COSINE|> $vec;"
 
         try:
-            res = await db.query(q, {"vec": qvec})
+            res = await db.query(q, {"vec": qvec})  # type: ignore[no-untyped-call]
             logger.debug('[DEBUG] Raw SurrealDB result:', json.dumps(res, indent=2))
         except Exception as e:
             logger.error('[ERROR] Exception while querying SurrealDB:', e)
             return None
         finally:
-            await db.close()
+            await db.close()  # type: ignore[no-untyped-call]
 
         # Ensure 'res' is a list of dicts containing 'text'
         if isinstance(res, list):
@@ -336,11 +341,21 @@ class Vec:
         if not context:
             return "I don't have enough information to answer that question."
 
+        # Convert messages to proper ChatCompletionMessageParam format
+        def to_message_param(role: str, content: str) -> ChatCompletionMessageParam:
+            if role == "system":
+                return cast(ChatCompletionMessageParam, {"role": "system", "content": content})
+            elif role == "user":
+                return cast(ChatCompletionMessageParam, {"role": "user", "content": content})
+            else:
+                raise ValueError(f"Unknown role: {role}")
+
         messages = [
-            {"role": "system", "content": self.system_prompt},
-            {"role": "system", "content": "Context:\n" + "\n".join(f"- {c}" for c in context)},
-            {"role": "user",   "content": question},
+            to_message_param("system", self.system_prompt),
+            to_message_param("system", "Context:\n" + "\n".join(f"- {c}" for c in context)),
+            to_message_param("user", question),
         ]
+        
         answer = (await self.client.chat.completions.create(
             model=self.model, messages=messages, max_tokens=max_tokens
         )).choices[0].message.content

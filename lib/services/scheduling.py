@@ -130,9 +130,14 @@ class SchedulingService:
         :return: Appointment object if found, None otherwise
         """
         try:
-            result = self.db.get('appointment', appointment_id)
-            if result:
-                return Appointment.from_dict(result)
+            query = "SELECT * FROM appointment WHERE id = $id"
+            params = {"id": appointment_id}
+            results = self.db.query(query, params)
+            if results:
+                for result in results:
+                    if result.get('result'):
+                        for record in result['result']:
+                            return Appointment.from_dict(record)
             return None
         except Exception as e:
             logger.error(f"Error getting appointment: {e}")

@@ -1,9 +1,11 @@
 """
 Hypertension Diet Optimization Module
 """
-import pandas as pd
+from typing import Any, Dict
 
-from lib.services.optimal import OptimalSchema, OptimalMetadata
+import pandas as pd  # type: ignore
+
+from lib.services.optimal import OptimalMetadata, OptimalSchema
 
 
 def create_food_data_pd() -> pd.DataFrame:
@@ -22,26 +24,26 @@ def create_food_data_pd() -> pd.DataFrame:
     })
 
     # Convert to numpy arrays
-    sodium = food_data["sodium_mg"].values
-    potassium = food_data["potassium_mg"].values
-    fiber = food_data["fiber_g"].values
-    sat_fat = food_data["saturated_fat_g"].values
-    calories = food_data["calories"].values
-    allergy = food_data["allergy"].values
+    # sodium = food_data["sodium_mg"].values
+    # potassium = food_data["potassium_mg"].values
+    # fiber = food_data["fiber_g"].values
+    # sat_fat = food_data["saturated_fat_g"].values
+    # calories = food_data["calories"].values
+    # allergy = food_data["allergy"].values
 
     # Number of food items
-    n = len(food_data)
+    # n = len(food_data)
 
     return food_data
 
 
-def build_hypertension_payload(df: pd.DataFrame) -> dict:
+def build_hypertension_payload(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Build a payload for the hypertension diet optimization problem.
     :param df: pd.DataFrame
     :return: dict
     """
-    payload = {
+    payload: Dict[str, Any] = {
         "meta": {"problem_id": "htn-diet-v1", "solver": "scipy_slsqp", "sense": "minimize"},
         "variables": [{"name": f"x{i}", "lower": 0, "upper": 10} for i in range(len(df))],
         "parameters": {col: df[col].astype(float).tolist()

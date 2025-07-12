@@ -21,11 +21,11 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
     logger.debug('[DEBUG] /api/llm_chat called')
     logger.debug('[DEBUG] Request headers: %s', str(dict(request.headers)))
     current_user_id: Optional[str] = None
-    session: Dict[str, Any]  # Explicitly define this for type-checking
+    
     if hasattr(g, 'user') and g.user:
         current_user_id = g.user.user_id
-    elif 'user_id' in session: # type: ignore
-        user_id: Optional[str] = cast(Optional[str], session.get("user_id")) # type: ignore
+    elif hasattr(request, 'session') and 'user_id' in request.session: # type: ignore[attr-defined]
+        user_id: Optional[str] = cast(Optional[str], request.session.get("user_id")) # type: ignore[attr-defined]
         if not user_id:
             logger.debug('[DEBUG] No user_id in session')
             return jsonify({"error": "Not authenticated"}), 401
@@ -64,7 +64,7 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
                 LLMAgent.from_mcp(
                     mcp_url=MCP_URL,
                     api_key=openai_api_key,
-                    model={"name": LLMModel.GPT_4_1_NANO.value},  # Pass as keyword argument
+                    model=LLMModel.GPT_4_1_NANO,
                 )
             )
 
@@ -86,7 +86,7 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
                                                 response.get('response', ''))
 
             # Save updated agent state to session
-            session['agent_data'] = agent.to_dict() # type: ignore
+            session['agent_data'] = agent.to_dict()
 
             return jsonify(chat.to_dict()), 200
         else:

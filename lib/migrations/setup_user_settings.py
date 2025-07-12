@@ -8,7 +8,7 @@ import sys
 # Add the lib directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from db.surreal import DbController
+from db.surreal import DbController # type: ignore
 from settings import SURREALDB_NAMESPACE, SURREALDB_DATABASE
 
 from settings import logger

@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 
 from surrealdb import AsyncSurreal  # type: ignore
 
+from lib.db.surreal import AsyncSurrealWrapper
 from lib.services.apis import ICD10Code
 from settings import (SURREALDB_ICD_DB, SURREALDB_NAMESPACE, SURREALDB_PASS,
                       SURREALDB_URL, SURREALDB_USER, logger)
@@ -31,7 +32,7 @@ async def import_icd_codes(csv_file_path: str) -> None:
     :param csv_file_path: str - Path to the CSV file containing ICD codes and descriptions.
     :return: None
     """
-    db = AsyncSurreal(SURREALDB_URL)
+    db = AsyncSurrealWrapper(SURREALDB_URL)
     if not SURREALDB_NAMESPACE or not SURREALDB_ICD_DB:
         raise ValueError("SURREALDB_NAMESPACE and SURREALDB_ICD_DB must not be empty")
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
@@ -66,7 +67,7 @@ async def define_index() -> None:
     """
     q = "DEFINE INDEX code_idx ON TABLE icd COLUMNS code;"
 
-    db = AsyncSurreal(SURREALDB_URL)
+    db = AsyncSurrealWrapper(SURREALDB_URL)
     if not SURREALDB_NAMESPACE or not SURREALDB_ICD_DB:
         raise ValueError("SURREALDB_NAMESPACE and SURREALDB_ICD_DB must not be empty")
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
@@ -85,7 +86,7 @@ async def search_icd_by_description(search_term: str) -> List[Dict[str, Any]]:
     :param search_term: str - The term to search for in the ICD descriptions.
     :return: list - A list of ICD records that match the search term.
     """
-    db = AsyncSurreal(SURREALDB_URL)
+    db = AsyncSurrealWrapper(SURREALDB_URL)
     if not SURREALDB_NAMESPACE or not SURREALDB_ICD_DB:
         raise ValueError("SURREALDB_NAMESPACE and SURREALDB_ICD_DB must not be empty")
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)
@@ -121,7 +122,7 @@ async def lookup_icd_code(icd_code: ICD10Code) -> Optional[Dict[str, Any]]:
         logger.debug(f"Invalid ICD code: {icd_code}")
         return None
 
-    db = AsyncSurreal(SURREALDB_URL)
+    db = AsyncSurrealWrapper(SURREALDB_URL)
     if not SURREALDB_NAMESPACE or not SURREALDB_ICD_DB:
         raise ValueError("SURREALDB_NAMESPACE and SURREALDB_ICD_DB must not be empty")
     await db.use(SURREALDB_NAMESPACE, SURREALDB_ICD_DB)

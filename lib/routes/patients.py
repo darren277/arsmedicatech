@@ -3,12 +3,16 @@ Routes for patient and encounter management in a healthcare application.
 """
 from typing import Tuple
 
-from flask import request, jsonify, Response
+from flask import Response, jsonify, request
 
-from lib.models.patient import update_patient, search_patient_history, get_patient_by_id, delete_patient, \
-    get_all_patients, create_patient, get_all_encounters, get_encounters_by_patient, get_encounter_by_id, \
-    create_encounter, update_encounter, delete_encounter, search_encounter_history
 from lib.data_types import PatientID
+from lib.models.patient import (create_encounter, create_patient,
+                                delete_encounter, delete_patient,
+                                get_all_encounters, get_all_patients,
+                                get_encounter_by_id, get_encounters_by_patient,
+                                get_patient_by_id, search_encounter_history,
+                                search_patient_history, update_encounter,
+                                update_patient)
 from settings import logger
 
 
@@ -22,7 +26,7 @@ def patch_intake_route(patient_id: PatientID) -> Tuple[Response, int]:
     logger.debug(f"Patching patient {patient_id} with payload: {payload}")
 
     # Map 'User:' to patient ID if needed
-    patient_id = patient_id.replace('User:', '')
+    patient_id = PatientID(patient_id.replace('User:', ''))
 
     result = update_patient(patient_id, payload)
     logger.debug(f"Update result: {result}")
@@ -102,6 +106,10 @@ def patient_endpoint_route(patient_id: PatientID) -> Tuple[Response, int]:
         else:
             return jsonify({"error": "Patient not found or delete failed"}), 404
 
+    else:
+        logger.error(f"Unknown method {request.method} for patient endpoint")
+        return jsonify({"error": "Method not allowed"}), 405
+
 
 def patients_endpoint_route() -> Tuple[Response, int]:
     """
@@ -129,6 +137,9 @@ def patients_endpoint_route() -> Tuple[Response, int]:
             return jsonify(patient), 201
         else:
             return jsonify({"error": "Failed to create patient"}), 500
+    else:
+        logger.error(f"Unknown method {request.method} for patients endpoint")
+        return jsonify({"error": "Method not allowed"}), 405
 
 
 def get_all_encounters_route() -> Tuple[Response, int]:

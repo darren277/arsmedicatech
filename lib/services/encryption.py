@@ -31,10 +31,10 @@ class EncryptionService:
             # Try to get from settings first, then environment variable
             try:
                 from settings import ENCRYPTION_KEY as settings_key
-                self.master_key = settings_key
+                self.master_key = settings_key or ""
             except ImportError:
                 # Fallback to environment variable
-                self.master_key = os.getenv('ENCRYPTION_KEY')
+                self.master_key = os.getenv('ENCRYPTION_KEY') or ""
             
             if not self.master_key:
                 raise ValueError("ENCRYPTION_KEY must be set in settings.py or environment variable")

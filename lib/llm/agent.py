@@ -3,13 +3,11 @@ LLM Agent Module
 """
 import enum
 import json
-from typing import Any, Callable, Dict, List, Optional, Union, cast
+from typing import Any, Callable, Dict, List, Optional, cast
 
-import openai
 from openai import OpenAI
 from openai.types.beta.threads.runs import ToolCall
-from openai.types.chat import (ChatCompletionMessage,
-                               ChatCompletionMessageToolCall)
+from openai.types.chat import ChatCompletionMessageToolCall
 
 from lib.llm.mcp_tools import fetch_mcp_tool_defs
 from lib.services.encryption import get_encryption_service
@@ -54,9 +52,8 @@ async def process_tool_call(
     if not hasattr(tool_call, 'function'):
         raise ValueError("Tool call does not have function attribute")
     
-    function_name = tool_call.function.name
-    arguments = json.loads(tool_call.function.arguments)
-
+    function_name = tool_call.function.name # type: ignore
+    arguments = json.loads(tool_call.function.arguments) # type: ignore
     for key, val in tool_dict.items():
         logger.debug(f"Tool: {key} -> {val}") # [DEBUG] Tool: _call -> <function fetch_mcp_tool_defs.<locals>.wrap.<locals>._call at 0x7f78720b23e0>
         logger.debug(f"Function: {function_name} -> {val.__name__}") # [DEBUG] Function: rag -> _call
@@ -96,12 +93,10 @@ class LLMAgent:
         self.model = model
         self.api_key = api_key
         self.system_prompt = system_prompt
-        self.tool_definitions: List[ChatCompletionToolParam] = []
-        self.tool_func_dict: Dict[str, Callable[..., Any]] = {}
+        self.params = params  # Store additional parameters
+
         self.tool_definitions: List[ToolDefinition] = []
         self.tool_func_dict: Dict[str, Callable[..., Any]] = {}
-
-        self.params = params  # Store additional parameters
 
         self.message_history = self.fetch_history()
 
@@ -196,11 +191,12 @@ class LLMAgent:
         return agent
 
     @classmethod
-    async def from_mcp(cls, mcp_url: str, api_key: str, **kwargs: Dict[str, str]) -> 'LLMAgent':
+    async def from_mcp(cls, mcp_url: str, api_key: str, model: Optional[LLMModel] = None, **kwargs: Dict[str, Any]) -> 'LLMAgent':
         """
         Build an LLMAgent that proxies every tool call to the given MCP server.
         :param mcp_url: URL of the MCP server to fetch tool definitions from.
         :param api_key: API key for accessing the LLM service.
+        :param model: LLMModel enum value representing the model to use.
         :param kwargs: Additional parameters for the agent.
         :return: An instance of LLMAgent with tools fetched from the MCP server.
         """
@@ -208,30 +204,24 @@ class LLMAgent:
         defs, funcs = await fetch_mcp_tool_defs(mcp_url)
 
         # 2) Instantiate the agent with explicit parameters
-        # Extract model from kwargs if present, otherwise use default
-        model = kwargs.pop('model', LLMModel.GPT_4_1_NANO.value)
-        if isinstance(model, str):
-            model = LLMModel(model)
+        model_str = model.value if model else LLMModel.GPT_4_1_NANO.value
         
-        # Ensure model is an instance of LLMModel
-        if not isinstance(model, LLMModel):
-            if isinstance(model, str):
-                model = LLMModel(model)
-            else:
-                model = LLMModel.GPT_4_1_NANO
-
+        system_prompt = kwargs.pop('system_prompt', DEFAULT_SYSTEM_PROMPT)
+        if isinstance(system_prompt, dict):
+            system_prompt = DEFAULT_SYSTEM_PROMPT
+        
         agent = cls(
             custom_llm_endpoint=None,
-            model=model,
+            model=LLMModel(model_str),
             api_key=api_key,
-            system_prompt=str(kwargs.pop('system_prompt', DEFAULT_SYSTEM_PROMPT)) if not isinstance(kwargs.get('system_prompt', DEFAULT_SYSTEM_PROMPT), dict) else DEFAULT_SYSTEM_PROMPT,
+            system_prompt=system_prompt,
             **kwargs
         )
         
         for d in defs:
             name = d["function"]["name"]
             logger.debug("Adding tool:", d["function"]["name"], funcs[name], d)
-            agent.add_tool(name, funcs[name], d)
+            agent.add_tool(name, funcs[name], cast(ToolDefinition, d))
         return agent
 
     async def complete(self, prompt: Optional[str], **kwargs: Dict[str, str]) -> Dict[str, Any]:

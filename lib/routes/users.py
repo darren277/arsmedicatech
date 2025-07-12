@@ -295,7 +295,12 @@ def get_current_user_info_route() -> Tuple[Response, int]:
     user_service = UserService()
     user_service.connect()
     try:
-        user_id = get_current_user().user_id
+        current_user = get_current_user()
+
+        if not current_user:
+            return jsonify({"error": "Authentication required"}), 401
+
+        user_id = current_user.user_id
         if not user_id:
             return jsonify({"error": "Authentication required"}), 401
 

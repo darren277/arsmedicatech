@@ -144,7 +144,13 @@ def send_message_route(conversation_id: str) -> Tuple[Response, int]:
     :return: JSON response with success message and message details or error message.
     """
     logger.debug(f"===== SEND MESSAGE ENDPOINT CALLED =====")
-    current_user_id = get_current_user().user_id
+    current_user = get_current_user()
+
+    if not current_user:
+        logger.debug("Unauthorized access - no current user found")
+        return jsonify({"error": "Unauthorized"}), 403
+
+    current_user_id = current_user.user_id
     data = request.json
 
     logger.debug(f"Sending message to conversation: {conversation_id}")
@@ -251,7 +257,13 @@ def get_conversation_messages_route(conversation_id: str) -> Tuple[Response, int
     :param conversation_id: The ID of the conversation to retrieve messages from.
     :return: JSON response with a list of messages or an error message.
     """
-    current_user_id = get_current_user().user_id
+    logger.debug(f"===== GET CONVERSATION MESSAGES ENDPOINT CALLED =====")
+    current_user = get_current_user()
+    if not current_user:
+        logger.debug("Unauthorized access - no current user found")
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    current_user_id = current_user.user_id
 
     conversation_service = ConversationService()
     conversation_service.connect()

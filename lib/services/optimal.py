@@ -42,7 +42,7 @@ class OptimalSchema:
     def __init__(
             self,
             meta: OptimalMetadata,
-            variables: List[str],
+            variables: List[dict[str, str | int]],
             parameters: Dict[str, Any],
             objective: Dict[str, Any],
             constraints: List[Dict[str, Any]],

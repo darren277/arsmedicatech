@@ -1,7 +1,7 @@
 """
 Conversation Service
 """
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from lib.db.surreal import DbController
 from lib.models.conversation import Conversation, Message
@@ -212,15 +212,18 @@ class ConversationService:
             message = Message(conversation_id, sender_id, text)
             
             # Save message to database
-            result: Optional[Dict[str, Any]] = self.db.create('Message', message.to_dict())
+            result: Optional[Union[Dict[str, Any], List[Any], Tuple[Any, ...]]] = self.db.create('Message', message.to_dict())
             logger.debug(f"Message create result: {result}")
-            if isinstance(result, tuple):
-                result = result[0]
-            if isinstance(result, list) and len(result) > 0:
-                result = result[0]
             if result:
-                message.id = result.get('id')
-                
+                # Handle different result types safely
+                if isinstance(result, list) and len(result) > 0:
+                    first_result = cast(Dict[str, Any], result[0])
+                    message.id = first_result.get('id')  # type: ignore[assignment]
+                elif isinstance(result, dict):
+                    message.id = result.get('id')  # type: ignore[assignment]
+                else:
+                    logger.warning(f"Unexpected result type: {type(result)}")
+
                 # Merge update: fetch full conversation, update last_message_at, write back
                 conv_data = self.db.select(f"Conversation:{conversation_id}")
                 logger.debug(f"Conversation data before update: {conv_data}")
@@ -228,10 +231,6 @@ class ConversationService:
                     conv_data["last_message_at"] = message.created_at
                     update_result = self.db.update(f"Conversation:{conversation_id}", conv_data)
                     logger.debug(f"Conversation update result: {update_result}")
-                    if isinstance(update_result, tuple):
-                        update_result = update_result[0]
-                    if isinstance(update_result, list) and len(update_result) > 0:
-                        update_result = update_result[0]
                 else:
                     logger.debug(f"Could not fetch conversation for safe update, skipping merge update.")
                 
