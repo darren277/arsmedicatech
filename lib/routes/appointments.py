@@ -87,6 +87,8 @@ def create_appointment_route() -> Tuple[Response, int]:
             )
             
             if success:
+                assert appointment is not None, "Appointment should not be None"
+
                 return jsonify({
                     "success": True,
                     "message": message,

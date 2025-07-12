@@ -1,7 +1,7 @@
 """
 This module provides a controller for graph operations in SurrealDB.
 """
-from typing import Callable
+from typing import Callable, Any
 
 from lib.db.surreal import DbController, AsyncDbController
 
@@ -21,7 +21,7 @@ class GraphController:
         self.db = db_controller
         self._is_async = hasattr(db_controller.query, "__await__")
 
-    def _execute(self, func: Callable, *args, **kwargs) -> any:
+    def _execute(self, func: Callable, *args, **kwargs) -> Any:
         """
         Helper method to handle sync/async execution
         :param func: The function to execute (e.g., db.query)
@@ -40,7 +40,7 @@ class GraphController:
             edge_table: str,  # e.g., "order"
             to_record: str,  # e.g., "product:456"
             edge_data: dict | None = None  # Optional data for the edge
-    ) -> any:
+    ) -> Any:
         """
         Create a relationship between two records
 
@@ -73,7 +73,7 @@ class GraphController:
 
         return self._execute(self.db.query, query)
 
-    def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->") -> any:
+    def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->") -> Any:
         """
         Get records connected via outgoing relationships
 
@@ -87,7 +87,7 @@ class GraphController:
         query = f"SELECT {direction}{edge_table}{direction}{end_table} FROM {start_node}"
         return self._execute(self.db.query, query)
 
-    def count_connections(self) -> any:
+    def count_connections(self) -> Any:
         """
         TODO
         This method should implement logic to count connections in the graph.
@@ -96,7 +96,7 @@ class GraphController:
         query = ""
         return self._execute(self.db.query, query)
 
-    def find_path(self) -> any:
+    def find_path(self) -> Any:
         """
         TODO
         This method should implement logic to find paths in the graph.
@@ -125,7 +125,7 @@ class AsyncGraphController:
             edge_table: str,  # e.g., "order"
             to_record: str,  # e.g., "product:456"
             edge_data: dict | None = None  # Optional data for the edge
-    ) -> any:
+    ) -> Any:
         """
         Create a relationship between two records
 
@@ -158,7 +158,7 @@ class AsyncGraphController:
 
         return await self.db.query(query)
 
-    async def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->") -> any:
+    async def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->") -> Any:
         """
         Get records connected via outgoing relationships
 
@@ -172,7 +172,7 @@ class AsyncGraphController:
         query = f"SELECT {direction}{edge_table}{direction}{end_table} FROM {start_node}"
         return await self.db.query(query)
 
-    async def count_connections(self) -> any:
+    async def count_connections(self) -> Any:
         """
         TODO
         This method should implement logic to count connections in the graph.
@@ -181,7 +181,7 @@ class AsyncGraphController:
         query = ""
         return await self.db.query(query)
 
-    async def find_path(self) -> any:
+    async def find_path(self) -> Any:
         """
         TODO
         This method should implement logic to find paths in the graph.

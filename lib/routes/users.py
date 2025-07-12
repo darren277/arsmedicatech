@@ -53,7 +53,8 @@ def search_users_route() -> Tuple[Response, int]:
                 continue
 
             # Skip the current user
-            if user.id == get_current_user().user_id:
+            current_user = get_current_user()
+            if current_user and user.id == current_user.user_id:
                 continue
 
             # Search in username, first_name, last_name, and email
@@ -105,7 +106,7 @@ def check_users_exist_route() -> Tuple[Response, int]:
         logger.debug(f"Found {len(users)} users in database")
         for user in users:
             logger.debug(f"User: {user.username} (ID: {user.id}, Role: {user.role}, Active: {user.is_active})")
-        return jsonify({"users_exist": len(users) > 0, "user_count": len(users)})
+        return jsonify({"users_exist": len(users) > 0, "user_count": len(users)}), 200
     finally:
         user_service.close()
 
@@ -260,11 +261,16 @@ def change_password_route() -> Tuple[Response, int]:
     user_service = UserService()
     user_service.connect()
     try:
+        user_id = get_current_user_id()
+        if not user_id:
+            return jsonify({"error": "Authentication required"}), 401
         success, message = user_service.change_password(
-            get_current_user().user_id,
+            user_id,
             current_password,
             new_password
         )
+
+        assert isinstance(success, bool), "Success should be a boolean"
 
         if success:
             return jsonify({"message": message}), 200
@@ -290,7 +296,11 @@ def get_current_user_info_route() -> Tuple[Response, int]:
     user_service = UserService()
     user_service.connect()
     try:
-        user = user_service.get_user_by_id(get_current_user().user_id)
+        user_id = get_current_user().user_id
+        if not user_id:
+            return jsonify({"error": "Authentication required"}), 401
+
+        user = user_service.get_user_by_id(user_id)
         if user:
             return jsonify({
                 "user": {
@@ -377,6 +387,8 @@ def login_route() -> Tuple[Response, int]:
         logger.debug(f"Authentication result - success: {success}, message: {message}")
 
         if success:
+            assert user_session is not None, "User session should not be None on successful authentication"
+
             # Store token and user_id in session
             session['auth_token'] = user_session.token
             session['user_id'] = user_session.user_id

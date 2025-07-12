@@ -23,7 +23,7 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
     logger.debug('[DEBUG] /api/llm_chat called')
     logger.debug('[DEBUG] Request headers:', dict(request.headers))
     logger.debug('[DEBUG] Session:', dict(session))
-    current_user_id = None
+    current_user_id: Optional[str] = None
     if hasattr(g, 'user') and g.user:
         current_user_id = g.user.user_id
     elif 'user_id' in session:
@@ -37,9 +37,12 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
     try:
         if request.method == 'GET':
             chats = llm_chat_service.get_llm_chats_for_user(current_user_id)
-            return jsonify([chat.to_dict() for chat in chats])
+            return jsonify([chat.to_dict() for chat in chats]), 200
         elif request.method == 'POST':
-            data = request.json
+            data: Optional[Dict[str, Any]] = request.json
+            if data is None:
+                return jsonify({"error": "Invalid JSON data"}), 400
+                
             assistant_id = data.get('assistant_id', 'ai-assistant')
             prompt = data.get('prompt')
             if not prompt:
@@ -59,7 +62,7 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
                 LLMAgent.from_mcp(
                     mcp_url=MCP_URL,
                     api_key=openai_api_key,
-                    model=LLMModel.GPT_4_1_NANO,
+                    model=LLMModel.GPT_4_1_NANO.value,  # Pass the string value instead of enum
                 )
             )
 
@@ -79,6 +82,6 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
             # Save updated agent state to session
             session['agent_data'] = agent.to_dict()
 
-            return jsonify(chat.to_dict())
+            return jsonify(chat.to_dict()), 200
     finally:
         llm_chat_service.close()
