@@ -3,7 +3,7 @@ Optimal Service Module
 
 Optimal is an API for solving optimization problems using various solvers.
 """
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 from settings import logger
 

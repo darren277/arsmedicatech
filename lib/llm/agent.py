@@ -3,19 +3,17 @@ LLM Agent Module
 """
 import enum
 import json
-from typing import Callable, Dict, List, Optional, Any, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Union, cast
 
 import openai
 from openai import OpenAI
 from openai.types.beta.threads.runs import ToolCall
-from openai.types.chat import ChatCompletionMessageToolCall
-from openai.types.chat.chat_completion import ChatCompletionMessage
+from openai.types.chat import (ChatCompletionMessage,
+                               ChatCompletionMessageToolCall)
 
 from lib.llm.mcp_tools import fetch_mcp_tool_defs
 from lib.services.encryption import get_encryption_service
-
 from settings import logger
-
 
 DEFAULT_SYSTEM_PROMPT = """
 You are a clinical assistant that helps healthcare providers with patient care tasks.
@@ -25,7 +23,9 @@ Your responses should be accurate, concise, and helpful.
 
 tools_with_keys = ['rag']
 
-ToolDefinition = Dict[str, Any]
+from openai.types.chat import ChatCompletionToolParam
+
+ToolDefinition = ChatCompletionToolParam
 
 class LLMModel(enum.Enum):
     """
@@ -96,10 +96,12 @@ class LLMAgent:
         self.model = model
         self.api_key = api_key
         self.system_prompt = system_prompt
-        self.params = params
-
+        self.tool_definitions: List[ChatCompletionToolParam] = []
+        self.tool_func_dict: Dict[str, Callable[..., Any]] = {}
         self.tool_definitions: List[ToolDefinition] = []
         self.tool_func_dict: Dict[str, Callable[..., Any]] = {}
+
+        self.params = params  # Store additional parameters
 
         self.message_history = self.fetch_history()
 
@@ -182,7 +184,7 @@ class LLMAgent:
         # Restore message history
         message_history = data.get('message_history', [{"role": "system", "content": "You are a helpful assistant."}])
         if isinstance(message_history, list):
-            agent.message_history = message_history
+            agent.message_history = cast(List[Dict[str, str]], message_history)
         else:
             agent.message_history = [{"role": "system", "content": "You are a helpful assistant."}]
         
@@ -211,11 +213,18 @@ class LLMAgent:
         if isinstance(model, str):
             model = LLMModel(model)
         
+        # Ensure model is an instance of LLMModel
+        if not isinstance(model, LLMModel):
+            if isinstance(model, str):
+                model = LLMModel(model)
+            else:
+                model = LLMModel.GPT_4_1_NANO
+
         agent = cls(
             custom_llm_endpoint=None,
             model=model,
             api_key=api_key,
-            system_prompt=kwargs.pop('system_prompt', DEFAULT_SYSTEM_PROMPT),
+            system_prompt=str(kwargs.pop('system_prompt', DEFAULT_SYSTEM_PROMPT)) if not isinstance(kwargs.get('system_prompt', DEFAULT_SYSTEM_PROMPT), dict) else DEFAULT_SYSTEM_PROMPT,
             **kwargs
         )
         
@@ -225,7 +234,7 @@ class LLMAgent:
             agent.add_tool(name, funcs[name], d)
         return agent
 
-    async def complete(self, prompt: Optional[str], **kwargs: Dict[str, str]) -> Dict[str, str]:
+    async def complete(self, prompt: Optional[str], **kwargs: Dict[str, str]) -> Dict[str, Any]:
         """
         Complete a prompt using the LLM, processing any tool calls if necessary.
         :param prompt: The user prompt to send to the LLM. If None, uses the existing message history.
@@ -246,8 +255,24 @@ class LLMAgent:
         if not api_key:
             raise ValueError("API key is required for LLM access.")
 
-        # Cast message_history to the expected type for OpenAI API
-        messages: List[ChatCompletionMessage] = cast(List[ChatCompletionMessage], self.message_history)
+        # Convert message_history to ChatCompletionMessageParam format
+        from openai.types.chat import ChatCompletionMessageParam
+
+        def to_message_param(msg: Dict[str, str]) -> ChatCompletionMessageParam:
+            role = msg.get("role")
+            content = msg.get("content")
+            if role == "system":
+                return cast(ChatCompletionMessageParam, {"role": "system", "content": content})
+            elif role == "user":
+                return cast(ChatCompletionMessageParam, {"role": "user", "content": content})
+            elif role == "assistant":
+                return cast(ChatCompletionMessageParam, {"role": "assistant", "content": content})
+            elif role == "function":
+                return cast(ChatCompletionMessageParam, {"role": "tool", "content": content, "name": msg.get("name", "")})
+            else:
+                raise ValueError(f"Unknown role: {role}")
+
+        messages: List[ChatCompletionMessageParam] = [to_message_param(m) for m in self.message_history]
 
         completion = self.client.chat.completions.create(
             model=self.model.value,

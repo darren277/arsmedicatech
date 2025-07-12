@@ -1,15 +1,15 @@
 """
 Chat routes for managing conversations and messages.
 """
-from typing import Tuple
+from typing import Any, Dict, List, Tuple
 
-from flask import request, jsonify, Response
+from flask import Response, jsonify, request
 
+from lib.data_types import UserID
 from lib.services.auth_decorators import get_current_user
 from lib.services.conversation_service import ConversationService
-from lib.services.user_service import UserService
 from lib.services.notifications import publish_event_with_buffer
-
+from lib.services.user_service import UserService
 from settings import logger
 
 
@@ -188,15 +188,18 @@ def send_message_route(conversation_id: str) -> Tuple[Response, int]:
                         sender_name = sender.get_full_name() if sender else "Unknown User"
                     finally:
                         user_service.close()
-                    
-                    event_data = {
-                        "type": "new_message",
-                        "conversation_id": conversation_id,
-                        "sender": sender_name,
-                        "text": message_text,
-                        "timestamp": str(msg_obj.created_at)
-                    }
-                    publish_event_with_buffer(participant_id, event_data)
+
+                    from lib.services.notifications import \
+                        EventData  # Ensure EventData is imported
+
+                    event_data = EventData(
+                        event_type="new_message",
+                        conversation_id=conversation_id,
+                        sender=sender_name,
+                        text=message_text,
+                        timestamp=str(msg_obj.created_at)
+                    )
+                    publish_event_with_buffer(UserID(participant_id), event_data)
             
             return jsonify({
                 "message": "Message sent successfully",
@@ -268,7 +271,7 @@ def get_conversation_messages_route(conversation_id: str) -> Tuple[Response, int
         conversation_service.mark_messages_as_read(conversation_id, current_user_id)
 
         # Convert to frontend format
-        message_list = []
+        message_list: List[Dict[str, Any]] = []
         for msg in messages:
             # Get sender info
             user_service = UserService()
@@ -328,7 +331,10 @@ def get_user_conversations_route() -> Tuple[Response, int]:
 
     :return: JSON response with a list of conversations or an error message.
     """
-    current_user_id = get_current_user().user_id
+    current_user = get_current_user()
+    if not current_user:
+        return jsonify({"error": "User not authenticated"}), 403
+    current_user_id = current_user.user_id
 
     logger.debug(f"Getting conversations for user: {current_user_id}")
 
@@ -341,7 +347,7 @@ def get_user_conversations_route() -> Tuple[Response, int]:
             logger.debug(f"Conversation: {conv.id} - {conv.participants} - {conv.conversation_type}")
 
         # Convert to frontend format
-        conversation_list = []
+        conversation_list: List[Dict[str, Any]] = []
         for conv in conversations:
             # Get the other participant's name for display
             other_participant_id = None
@@ -361,8 +367,11 @@ def get_user_conversations_route() -> Tuple[Response, int]:
                 user_service.close()
 
             # Get last message for preview
-            messages = conversation_service.get_conversation_messages(conv.id, limit=1)
-            last_message = messages[-1].text if messages else "No messages yet"
+            if conv.id is not None:
+                messages = conversation_service.get_conversation_messages(conv.id, limit=1)
+                last_message = messages[-1].text if messages else "No messages yet"
+            else:
+                last_message = "No messages yet"
 
             conversation_list.append({
                 "id": conv.id,

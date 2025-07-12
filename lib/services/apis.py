@@ -2,7 +2,7 @@
 APIs for fetching medical data from various sources like Medline, ClinicalTrials, and NCBI.
 """
 import time
-from typing import List
+from typing import Any, Dict, List, Tuple
 
 import requests
 
@@ -43,7 +43,7 @@ class Medline:
         """
         self.logger = logger
 
-    def fetch_medline(self, icd10_code: ICD10Code) -> dict:
+    def fetch_medline(self, icd10_code: ICD10Code) -> Dict[str, Any]:
         """
         https://connect.medlineplus.gov/service?
 
@@ -87,7 +87,7 @@ class ClinicalTrials:
         """
         self.logger = logger
 
-    def fetch_clinical_trials(self, query: str) -> dict:
+    def fetch_clinical_trials(self, query: str) -> Dict[str, Any]:
         """
         Fetches clinical trial data from ClinicalTrials.gov based on the provided query.
 
@@ -144,13 +144,15 @@ class NCBI:
             "User-Agent": f"arsmedicatech/0.1 ({self.email})"
         }
 
-    def fetch_ncbi_studies(self, query: str, debug: bool = False) -> list:
+    def fetch_ncbi_studies(self, query: str, debug: bool = False) -> List[Dict[str, Any]]:
         """
         Fetches studies from NCBI's PubMed database based on the provided query.
         :param query: The search query for PubMed articles.
         :param debug: If True, logs detailed information about the search results.
         :return: A list of dictionaries containing article information.
         """
+        hits: List[Dict[str, Any]] = []
+        total_found: int
         hits, total_found = self.search_pubmed(query, max_records=10, with_abstract=True)
         if debug:
             logger.debug(f"{total_found:,} articles in PubMed; showing {len(hits)} results:\n")
@@ -162,7 +164,7 @@ class NCBI:
                     logger.debug(f"   Abstract (truncated): {art['abstract'][:300]}...\n")
         return hits
 
-    def esearch(self, query: str, retmax: int = 100) -> tuple:
+    def esearch(self, query: str, retmax: int = 100) -> Tuple[List[str], int]:
         """
         Return up to retmax PubMed IDs (PMIDs) that match the query.
 
@@ -171,7 +173,7 @@ class NCBI:
         :param retmax: Maximum number of results to return.
         :return: A tuple containing a list of PMIDs and the total number of hits.
         """
-        params = {
+        params: Dict[str, Any] = {
             "db": "pubmed",
             "term": query,
             "retmode": "json",
@@ -186,7 +188,7 @@ class NCBI:
         data = r.json()["esearchresult"]
         return data["idlist"], int(data["count"])  # (list of PMIDs, total hits)
 
-    def esummary(self, pmids: List[str]) -> dict:
+    def esummary(self, pmids: List[str]) -> Dict[str, Any]:
         """
         Return a dict keyed by PMID with title, journal, authors, pubdate, etc.
 
@@ -196,7 +198,7 @@ class NCBI:
         """
         if not pmids:
             return {}
-        params = {
+        params: Dict[str, Any] = {
             "db": "pubmed",
             "id": ",".join(pmids),
             "retmode": "json",
@@ -218,7 +220,7 @@ class NCBI:
         :param pmid: The PubMed ID (PMID) of the article to fetch the abstract for.
         :return: The abstract text of the article, or an empty string if not found.
         """
-        params = {
+        params: Dict[str, Any] = {
             "db": "pubmed",
             "id": pmid,
             "rettype": "abstract",
@@ -231,7 +233,7 @@ class NCBI:
         r.raise_for_status()
         return r.text.strip()
 
-    def search_pubmed(self, query: str, max_records: int = 20, with_abstract: bool = False, delay: float = 0.35) -> tuple:
+    def search_pubmed(self, query: str, max_records: int = 20, with_abstract: bool = False, delay: float = 0.35) -> tuple[List[Dict[str, Any]], int]:
         """
         High-level helper.
         Returns a list of dicts: [{pmid, title, journal, authors, pubdate, abstract?}, ...]
@@ -246,10 +248,10 @@ class NCBI:
         ids, total = self.esearch(query, retmax=max_records)
         summaries = self.esummary(ids)
 
-        results = []
+        results: List[Dict[str, Any]] = []
         for pmid in ids:
             doc = summaries[pmid]
-            item = {
+            item: Dict[str, Any] = {
                 "pmid": pmid,
                 "title": doc["title"],
                 "journal": doc["fulljournalname"],

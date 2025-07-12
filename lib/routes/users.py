@@ -1,15 +1,14 @@
 """
 User management routes for the application.
 """
-from typing import Tuple
+from typing import Any, Dict, List, Tuple
 
-from flask import jsonify, request, session, Response
+from flask import Response, jsonify, request, session
 
 from lib.models.user import User
 from lib.services.auth_decorators import get_current_user, get_current_user_id
-from lib.services.user_service import UserService
 from lib.services.openai_security import get_openai_security_service
-
+from lib.services.user_service import UserService
 from settings import logger
 
 
@@ -46,7 +45,7 @@ def search_users_route() -> Tuple[Response, int]:
         all_users = user_service.get_all_users()
 
         # Filter users based on search query
-        filtered_users = []
+        filtered_users: List[Dict[str, str]] = []
         for user in all_users:
             # Skip inactive users
             if not user.is_active:
@@ -62,14 +61,14 @@ def search_users_route() -> Tuple[Response, int]:
 
             if not query or query.lower() in searchable_text:
                 filtered_users.append({
-                    "id": user.id,
-                    "username": user.username,
-                    "email": user.email,
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                    "role": user.role,
-                    "display_name": f"{user.first_name or ''} {user.last_name or ''}".strip() or user.username,
-                    "avatar": f"https://ui-avatars.com/api/?name={user.first_name or user.username}&background=random"
+                    "id": str(user.id) if user.id is not None else "",
+                    "username": user.username or "",
+                    "email": user.email or "",
+                    "first_name": user.first_name or "",
+                    "last_name": user.last_name or "",
+                    "role": user.role or "",
+                    "display_name": (f"{user.first_name or ''} {user.last_name or ''}".strip() or (user.username or "")),
+                    "avatar": f"https://ui-avatars.com/api/?name={user.first_name or user.username or ''}&background=random"
                 })
 
         # Limit results to 20 users
@@ -335,12 +334,14 @@ def logout_route() -> Tuple[Response, int]:
 
     :return: Response object containing a JSON message indicating successful logout.
     """
-    token = session.get('auth_token')
-    if token:
+    from typing import Optional
+    token = session.get('auth_token', '')
+    token_str: Optional[str] = str(token) if token is not None else None
+    if token_str:
         user_service = UserService()
         user_service.connect()
         try:
-            user_service.logout(token)
+            user_service.logout(token_str)
         finally:
             user_service.close()
 
@@ -703,7 +704,7 @@ def get_user_profile_route() -> Tuple[Response, int]:
                 logger.debug("User not found")
                 return jsonify({"error": "User not found"}), 404
 
-            profile_data = {
+            profile_data: Dict[str, Any] = {
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
@@ -774,7 +775,7 @@ def update_user_profile_route() -> Tuple[Response, int]:
         user_service.connect()
         try:
             # Prepare updates
-            updates = {}
+            updates: Dict[str, Any] = {}
             
             # Basic profile fields
             if 'first_name' in data:

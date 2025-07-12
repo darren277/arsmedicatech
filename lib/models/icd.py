@@ -104,7 +104,10 @@ async def search_icd_by_description(search_term: str) -> List[Dict[str, Any]]:
         return []
 
 
-async def lookup_icd_code(icd_code: ICD10Code) -> dict | None:
+from typing import Dict, Optional
+
+
+async def lookup_icd_code(icd_code: ICD10Code) -> Optional[Dict[str, Any]]:
     """
     Looks up an ICD code in the SurrealDB database.
     :param icd_code: ICD10Code - The ICD code to look up.
@@ -164,7 +167,6 @@ if __name__ == "__main__":
         asyncio.run(define_index())
 
     elif sys.argv[1] == "search":
-        icd_code = sys.argv[2]
-
-        result = asyncio.run(lookup_icd_code(icd_code))
-        logger.debug(result)
+        icd_code_str = sys.argv[2]
+        icd_code_obj = ICD10Code(icd_code_str)
+        result: Dict[str, Any] | None = asyncio.run(lookup_icd_code(icd_code_obj))

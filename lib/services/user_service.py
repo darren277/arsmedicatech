@@ -115,7 +115,7 @@ class UserService:
             result = self.db.create('User', user.to_dict())
             logger.debug(f"Database create result: {result}")
             logger.debug(f"Database create result type: {type(result)}")
-            if result and isinstance(result, dict) and result.get('id'):
+            if result and result.get('id'):
                 user.id = result['id']
                 logger.debug(f"User created successfully with ID: {user.id}")
                 logger.debug(f"User ID type: {type(user.id)}")
@@ -137,7 +137,7 @@ class UserService:
                             patient_id = user_id.split(':', 1)[1]
                         else:
                             patient_id = user_id
-                        patient_data = {
+                        patient_data: Dict[str, Any] = {
                             "demographic_no": patient_id,
                             "first_name": user.first_name,
                             "last_name": user.last_name,
@@ -197,7 +197,7 @@ class UserService:
             logger.debug(f"Creating session for user: {user.username}")
             logger.debug(f"User ID being stored in session: {user.id}")
             session = UserSession(
-                user_id=user.id,
+                user_id=user.id if user.id is not None else "",
                 username=user.username,
                 role=user.role
             )
@@ -234,7 +234,7 @@ class UserService:
                 {"username": username}
             )
             
-            if result and isinstance(result, list) and len(result) > 0:
+            if result and len(result) > 0:
                 user_data = result[0]
                 return User.from_dict(user_data)
             
@@ -257,7 +257,7 @@ class UserService:
                 {"email": email}
             )
             
-            if result and isinstance(result, list) and len(result) > 0:
+            if result and len(result) > 0:
                 # The query result contains user data directly, not nested in a 'result' field
                 user_dict = result[0]
                 return User.from_dict(user_dict)
@@ -321,7 +321,7 @@ class UserService:
                 {"session_token": token}
             )
             
-            if result and isinstance(result, list) and len(result) > 0:
+            if result and len(result) > 0:
                 session_data = result[0]
                 logger.debug(f"Session data from database: {session_data}")
                 session = UserSession.from_dict(session_data)
@@ -357,7 +357,7 @@ class UserService:
                 {"session_token": token}
             )
             
-            if result and isinstance(result, list) and len(result) > 0:
+            if result and len(result) > 0:
                 session_data = result[0]
                 self.db.delete(f"Session:{session_data.get('id')}")
                 return True
@@ -375,12 +375,11 @@ class UserService:
             logger.debug("Getting all users from database...")
             results = self.db.select_many('User')
             logger.debug(f"Raw results: {results}")
-            users = []
+            users: List[User] = []
             for user_data in results:
-                if isinstance(user_data, dict):
-                    # Remove password hash for security
-                    user_data.pop('password_hash', None)
-                    users.append(User.from_dict(user_data))
+                # Remove password hash for security
+                user_data.pop('password_hash', None)
+                users.append(User.from_dict(user_data))
             logger.debug(f"Processed {len(users)} users")
             return users
             
@@ -435,7 +434,7 @@ class UserService:
                 return False, msg
             
             # Hash new password
-            new_hash = user._hash_password(new_password)
+            new_hash = User.hash_password(new_password)
             
             # Update password
             result = self.db.update(f"User:{user_id}", {"password_hash": new_hash})
@@ -523,7 +522,7 @@ class UserService:
                 {"user_id": user_id}
             )
             
-            if result and isinstance(result, list) and len(result) > 0:
+            if result and len(result) > 0:
                 settings_data = result[0]
                 return UserSettings.from_dict(settings_data)
             
@@ -563,11 +562,9 @@ class UserService:
                 result = self.db.update(record_id, settings.to_dict())
                 logger.debug(f"Update result: {result}")
                 logger.debug(f"Update result type: {type(result)}")
-                logger.debug(f"Update result is None: {result is None}")
-                logger.debug(f"Update result is empty list: {result == []}")
                 logger.debug(f"Update result is empty dict: {result == {}}")
-                # Check if result is truthy (not None, not empty, etc.)
-                if result is not None and result != [] and result != {}:
+                # Check if result is not empty
+                if result != {}:
                     return True, "Settings updated successfully"
                 else:
                     return False, "Failed to update settings"
@@ -576,7 +573,7 @@ class UserService:
                 logger.debug(f"Creating new settings")
                 result = self.db.create('UserSettings', settings.to_dict())
                 logger.debug(f"Create result: {result}")
-                if result and isinstance(result, dict) and result.get('id'):
+                if result and result.get('id'):
                     settings.id = result['id']
                     return True, "Settings created successfully"
                 else:
@@ -657,4 +654,4 @@ class UserService:
             return False
         except Exception as e:
             logger.error(f"Error checking API key: {e}")
-            return False 
+            return False

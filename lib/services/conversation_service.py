@@ -1,7 +1,7 @@
 """
 Conversation Service
 """
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from lib.db.surreal import DbController
 from lib.models.conversation import Conversation, Message
@@ -77,7 +77,9 @@ class ConversationService:
                 
                 # Verify the conversation was saved by trying to retrieve it
                 logger.debug(f"Verifying conversation was saved...")
-                verification = self.get_conversation_by_id(conversation.id)
+                verification = None
+                if conversation.id is not None:
+                    verification = self.get_conversation_by_id(conversation.id)
                 if verification:
                     logger.debug(f"Conversation verification successful: {verification.id}")
                 else:
@@ -127,11 +129,10 @@ class ConversationService:
             query_result = self.db.query(query)
             logger.debug(f"Query result: {query_result}")
 
-            if query_result and isinstance(query_result, list) and len(query_result) > 0:
-                if isinstance(query_result[0], dict):
-                    conv = Conversation.from_dict(query_result[0])
-                    logger.debug(f"Found conversation: {conv.id}")
-                    return conv
+            if query_result and len(query_result) > 0:
+                conv = Conversation.from_dict(query_result[0])
+                logger.debug(f"Found conversation: {conv.id}")
+                return conv
 
             logger.debug(f"No conversation found with ID: {conversation_id}")
             return None
@@ -156,8 +157,8 @@ class ConversationService:
                 "SELECT * FROM Conversation WHERE participants = $participants",
                 {"participants": sorted_participants}
             )
-            
-            if result and isinstance(result, list) and len(result) > 0:
+
+            if result and len(result) > 0:
                 return Conversation.from_dict(result[0])
             return None
             
@@ -177,12 +178,11 @@ class ConversationService:
                 "SELECT * FROM Conversation WHERE $user_id IN participants",
                 {"user_id": user_id}
             )
-            
-            conversations = []
-            if result and isinstance(result, list):
+
+            conversations: List[Conversation] = []
+            if result and len(result) > 0:
                 for conv_data in result:
-                    if isinstance(conv_data, dict):
-                        conversations.append(Conversation.from_dict(conv_data))
+                    conversations.append(Conversation.from_dict(conv_data))
             
             return conversations
             
@@ -212,19 +212,19 @@ class ConversationService:
             message = Message(conversation_id, sender_id, text)
             
             # Save message to database
-            result = self.db.create('Message', message.to_dict())
+            result: Optional[Dict[str, Any]] = self.db.create('Message', message.to_dict())
             logger.debug(f"Message create result: {result}")
             if isinstance(result, tuple):
                 result = result[0]
             if isinstance(result, list) and len(result) > 0:
                 result = result[0]
-            if result and isinstance(result, dict):
+            if result:
                 message.id = result.get('id')
                 
                 # Merge update: fetch full conversation, update last_message_at, write back
                 conv_data = self.db.select(f"Conversation:{conversation_id}")
                 logger.debug(f"Conversation data before update: {conv_data}")
-                if conv_data and isinstance(conv_data, dict):
+                if conv_data:
                     conv_data["last_message_at"] = message.created_at
                     update_result = self.db.update(f"Conversation:{conversation_id}", conv_data)
                     logger.debug(f"Conversation update result: {update_result}")
@@ -255,13 +255,12 @@ class ConversationService:
                 "SELECT * FROM Message WHERE conversation_id = $conversation_id ORDER BY created_at DESC LIMIT $limit",
                 {"conversation_id": conversation_id, "limit": limit}
             )
-            
-            messages = []
-            if result and isinstance(result, list):
+
+            messages: List[Message] = []
+            if result:
                 for msg_data in result:
-                    if isinstance(msg_data, dict):
-                        messages.append(Message.from_dict(msg_data))
-            
+                    messages.append(Message.from_dict(msg_data))
+
             # Reverse to get chronological order
             messages.reverse()
             return messages
@@ -279,10 +278,11 @@ class ConversationService:
         :return: True if successful, False otherwise
         """
         try:
-            result = self.db.query(
+            result: Optional[List[Dict[str, Any]]] = self.db.query(
                 "UPDATE Message SET is_read = true WHERE conversation_id = $conversation_id AND sender_id != $user_id",
                 {"conversation_id": conversation_id, "user_id": user_id}
             )
+            logger.debug(f"Mark messages as read result: {result}")
             return True
             
         except Exception as e:

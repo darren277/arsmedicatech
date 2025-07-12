@@ -1,16 +1,15 @@
 """
 Vector database for RAG (retrieval‑augmented generation) with SurrealDB.
 """
-import json, asyncio
+import json
 from typing import List, Optional
 
 from openai import AsyncOpenAI
 from surrealdb import AsyncSurreal
 
-from settings import SURREALDB_NAMESPACE, SURREALDB_DATABASE, SURREALDB_HOST, SURREALDB_PORT, SURREALDB_PROTOCOL, SURREALDB_USER, SURREALDB_PASS
-
-from settings import logger
-
+from settings import (SURREALDB_DATABASE, SURREALDB_HOST, SURREALDB_NAMESPACE,
+                      SURREALDB_PASS, SURREALDB_PORT, SURREALDB_PROTOCOL,
+                      SURREALDB_USER, logger)
 
 DB_URL  = f"{SURREALDB_PROTOCOL}://{SURREALDB_HOST}:{SURREALDB_PORT}/rpc"
 
@@ -86,8 +85,6 @@ class BatchItem:
         """
         if not id or not text:
             raise ValueError("Both 'id' and 'text' must be provided and cannot be empty.")
-        if not isinstance(id, str) or not isinstance(text, str):
-            raise TypeError("'id' and 'text' must be of type str.")
         self.id = id
         self.text = text
 
@@ -106,8 +103,6 @@ class BatchList:
         """
         if not data:
             raise ValueError("Data cannot be empty.")
-        if not all(isinstance(item, BatchItem) for item in data):
-            raise TypeError("All items in data must be instances of BatchItem.")
         self.data = data
 
 
@@ -167,6 +162,8 @@ class Vec:
             logger.error(f"[ERROR] Failed to sign in to SurrealDB: {e}")
             raise
         try:
+            if SURREALDB_NAMESPACE is None or SURREALDB_DATABASE is None:
+                raise ValueError("SURREALDB_NAMESPACE and SURREALDB_DATABASE must not be None.")
             await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
         except Exception as e:
             logger.error(f"[ERROR] Failed to use namespace/database: {e}")
@@ -192,6 +189,8 @@ class Vec:
         db = AsyncSurreal(DB_URL)
         await db.connect()
         await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})
+        if SURREALDB_NAMESPACE is None or SURREALDB_DATABASE is None:
+                raise ValueError("SURREALDB_NAMESPACE and SURREALDB_DATABASE must not be None.")
         await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
 
         res = await db.query("INFO FOR DB;")
@@ -239,35 +238,29 @@ class Vec:
         if not self.client:
             raise ValueError("This function requires an OpenAI client to be initialized.")
 
-        if not isinstance(batch, BatchList):
-            raise TypeError("Batch must be an instance of BatchList.")
         if not batch.data:
             logger.warning("Batch is empty. Nothing to insert.")
             return
-        if not all(isinstance(item, BatchItem) for item in batch.data):
-            raise TypeError("All items in the batch must be instances of BatchItem.")
+        # All items in batch.data are guaranteed to be BatchItem instances by BatchList validation.
         logger.debug(f"[DEBUG] Inserting {len(batch.data)} records into SurrealDB...")
 
         # Prepare the batch for OpenAI embedding
-        batch = [item.__dict__ for item in batch.data] # Convert BatchItem to dict
+        batch_dicts = [item.__dict__ for item in batch.data] # Convert BatchItem to dict
 
-        texts  = [d["text"] for d in batch]
+        texts  = [d["text"] for d in batch_dicts]
         resp = await self.client.embeddings.create(model=self.embed_model, input=texts)
         embeds = [e.embedding for e in resp.data]
 
         inserted = 0
-        for i, (b, e) in enumerate(zip(batch, embeds)):
+        for i, (b, e) in enumerate(zip(batch_dicts, embeds)):
             record_id = f"knowledge:{b['id']}"
             logger.debug(f"\n[DEBUG] RECORD {i} → {record_id}")
             logger.debug(f"  → type(embedding): {type(e)}")
-            logger.debug(f"  → type(e[0]): {type(e[0]) if isinstance(e, list) and e else 'N/A'}")
-            logger.debug(f"  → len(embedding): {len(e) if isinstance(e, list) else 'N/A'}")
-            logger.debug(f"  → sample values: {e[:5] if isinstance(e, list) else 'N/A'}")
+            logger.debug(f"  → type(e[0]): {type(e[0]) if e else 'N/A'}")
+            logger.debug(f"  → len(embedding): {len(e) if e else 'N/A'}")
+            logger.debug(f"  → sample values: {e[:5] if e else 'N/A'}")
 
             # Surreal expects: array<float>
-            if not isinstance(e, list):
-                logger.error(f"Embedding is not a list.")
-                continue
             if not all(isinstance(x, float) for x in e):
                 bad_types = {type(x) for x in e}
                 logger.error(f"Non-float types in embedding: {bad_types}")
@@ -276,17 +269,11 @@ class Vec:
                 logger.error(f"Bad vector length: {len(e)}")
                 continue
 
-            record = {
-                "id": record_id,
-                "text": b["text"],
-                "embedding": e,
-            }
-
             try:
                 # Build the full query
                 value_tuples = ",\n".join(
                     f"{{ id: 'knowledge:{b['id']}', text: {json.dumps(b['text'])}, embedding: {json.dumps(e)} }}"
-                    for b, e in zip(batch, embeds)
+                    for b, e in zip(batch_dicts, embeds)
                 )
 
                 query = f"INSERT INTO knowledge [{value_tuples}];"
@@ -297,7 +284,7 @@ class Vec:
             except Exception as ex:
                 logger.debug(f"[FAIL] {record_id}: {ex}")
 
-    async def get_context(self, question: str, k: int = 4) -> List[str] or None:
+    async def get_context(self, question: str, k: int = 4) -> Optional[List[str]]:
         """
         Retrieve context from the knowledge base for a given question.
         :param question: The question for which context is to be retrieved.
@@ -310,9 +297,11 @@ class Vec:
         db   = AsyncSurreal(DB_URL)
         await db.connect()
         await db.signin({"username": SURREALDB_USER, "password": SURREALDB_PASS})
+        if SURREALDB_NAMESPACE is None or SURREALDB_DATABASE is None:
+            raise ValueError("SURREALDB_NAMESPACE and SURREALDB_DATABASE must not be None.")
         await db.use(SURREALDB_NAMESPACE, SURREALDB_DATABASE)
 
-        # SurrealQL k‑NN syntax:  <|k, COSINE|> $vector
+        # SurrealQL k‑NN syntax: <k, COSINE|> $vector
         q = f"SELECT text FROM knowledge WHERE embedding <|{k}, COSINE|> $vec;"
 
         try:
@@ -324,7 +313,14 @@ class Vec:
         finally:
             await db.close()
 
-        return [row["text"] for row in res]
+        # Ensure 'res' is a list of dicts containing 'text'
+        if isinstance(res, list):
+            return [row["text"] for row in res if isinstance(row, dict) and "text" in row]  # type: ignore
+        elif "result" in res and isinstance(res["result"], list):
+            return [row["text"] for row in res["result"] if isinstance(row, dict) and "text" in row]  # type: ignore
+        else:
+            logger.error(f"[ERROR] Unexpected result format from SurrealDB: {res}")
+            return None
 
     async def rag_chat(self, question: str, max_tokens: int = 400) -> str:
         """
@@ -348,4 +344,4 @@ class Vec:
         answer = (await self.client.chat.completions.create(
             model=self.model, messages=messages, max_tokens=max_tokens
         )).choices[0].message.content
-        return answer
+        return answer if answer is not None else ""

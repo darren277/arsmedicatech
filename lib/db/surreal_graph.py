@@ -1,9 +1,9 @@
 """
 This module provides a controller for graph operations in SurrealDB.
 """
-from typing import Callable, Any
+from typing import Any, Callable, Coroutine, Dict, Optional, Union
 
-from lib.db.surreal import DbController, AsyncDbController
+from lib.db.surreal import AsyncDbController, DbController
 
 
 class GraphController:
@@ -12,16 +12,24 @@ class GraphController:
     This class leverages an existing DbController to perform graph-specific operations.
     """
 
-    def __init__(self, db_controller: DbController | AsyncDbController):
+    def __init__(self, db_controller: Union[DbController, AsyncDbController]):
         """
         Initialize the GraphController with an existing DbController
 
         :param db_controller: An instance of DbController or AsyncDbController
         """
-        self.db = db_controller
-        self._is_async = hasattr(db_controller.query, "__await__")
+        self.db: Union[DbController, AsyncDbController] = db_controller
+        self._is_async = isinstance(db_controller, AsyncDbController)
 
-    def _execute(self, func: Callable, *args, **kwargs) -> Any:
+    def _execute(
+        self,
+        func: Union[
+            Callable[[str, Optional[Dict[str, Any]]], Any],
+            Callable[[str, Optional[Dict[Any, Any]]], Coroutine[Any, Any, Any]]
+        ],
+        *args: Any,
+        **kwargs: Any
+    ) -> Any:
         """
         Helper method to handle sync/async execution
         :param func: The function to execute (e.g., db.query)
@@ -39,7 +47,7 @@ class GraphController:
             from_record: str,  # e.g., "person:123"
             edge_table: str,  # e.g., "order"
             to_record: str,  # e.g., "product:456"
-            edge_data: dict | None = None  # Optional data for the edge
+            edge_data: Optional[Dict[str, Any]] = None  # Optional data for the edge
     ) -> Any:
         """
         Create a relationship between two records
@@ -56,7 +64,8 @@ class GraphController:
         # Add content if provided
         if edge_data:
             # Convert dict to SurrealQL content format
-            content_parts = []
+            from typing import List
+            content_parts: List[str] = []
             for key, value in edge_data.items():
                 # Handle special arrow syntax for references
                 if isinstance(value, str) and value.startswith("->"):
@@ -71,7 +80,7 @@ class GraphController:
             content_str = ", ".join(content_parts)
             query += f" CONTENT {{ {content_str} }}"
 
-        return self._execute(self.db.query, query)
+        return self._execute(self.db.query, query, None)
 
     def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->") -> Any:
         """
@@ -124,7 +133,7 @@ class AsyncGraphController:
             from_record: str,  # e.g., "person:123"
             edge_table: str,  # e.g., "order"
             to_record: str,  # e.g., "product:456"
-            edge_data: dict | None = None  # Optional data for the edge
+            edge_data: Optional[Dict[str, Any]] = None  # Optional data for the edge
     ) -> Any:
         """
         Create a relationship between two records
@@ -141,7 +150,8 @@ class AsyncGraphController:
         # Add content if provided
         if edge_data:
             # Convert dict to SurrealQL content format
-            content_parts = []
+            from typing import List
+            content_parts: List[str] = []
             for key, value in edge_data.items():
                 # Handle special arrow syntax for references
                 if isinstance(value, str) and value.startswith("->"):

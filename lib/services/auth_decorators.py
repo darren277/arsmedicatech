@@ -50,9 +50,6 @@ def require_auth(f: Callable[..., Any]) -> Callable[..., Any]:
         user_service.connect()
         try:
             logger.debug(f"Validating session token: {token[:10]}...")
-            if not isinstance(token, str):
-                logger.debug("Token is not a string, cannot validate session")
-                return jsonify({"error": "Invalid token format"}), 401
             user_session = user_service.validate_session(str(token))
             if not user_session:
                 logger.debug("Session validation failed")
@@ -168,7 +165,7 @@ def optional_auth(f: F) -> F:
     :return: The decorated function that checks for optional authentication.
     """
     @wraps(f)
-    def decorated_function(*args, **kwargs) -> Any:
+    def decorated_function(*args: Any, **kwargs: Any) -> Any:
         """
         Decorated function that checks for optional authentication.
         :param args: Args passed to the decorated function.
@@ -191,9 +188,9 @@ def optional_auth(f: F) -> F:
                 user_session = user_service.validate_session(token)
                 if user_session:
                     # Add user info to request context
-                    request.user_session = user_session
-                    request.user_id = user_session.user_id
-                    request.user_role = user_session.role
+                    g.user_session = user_session
+                    g.user_id = user_session.user_id
+                    g.user_role = user_session.role
             finally:
                 user_service.close()
         

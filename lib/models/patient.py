@@ -1,14 +1,14 @@
 """
 Patient and Encounter Models for SurrealDB
 """
-from typing import Tuple, Optional, List, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from lib.db.surreal import DbController, AsyncDbController
+from lib.db.surreal import AsyncDbController, DbController
 from settings import logger
 
-PatientDict = dict[str, str | int | list | None]  # Define a type for patient dictionaries
+PatientDict = Dict[str, str | int | List[Any] | None]  # Define a type for patient dictionaries
 
-EncounterDict = dict[str, str | int | list | None]  # Define a type for encounter dictionaries
+EncounterDict = Dict[str, str | int | List[Any] | None]  # Define a type for encounter dictionaries
 
 
 class Patient:
@@ -21,8 +21,8 @@ class Patient:
             first_name: Optional[str] = None,
             last_name: Optional[str] = None,
             date_of_birth: Optional[str] = None,
-            location: Tuple[str, str, str, str] = None,
-            sex: chr = None,
+            location: Optional[Tuple[str, str, str, str]] = None,
+            sex: Optional[str] = None,
             phone: Optional[str] = None,
             email: Optional[str] = None
     ) -> None:
@@ -56,12 +56,12 @@ class Patient:
     def __repr__(self) -> str:
         return f"<Patient: {self.first_name} {self.last_name} (ID: {self.demographic_no})>"
 
-    def schema(self) -> list:
+    def schema(self) -> List[str]:
         """
         Defines the schema for the Patient table in SurrealDB.
         :return: list of schema definition statements.
         """
-        statements = []
+        statements: List[str] = []
         statements.append('DEFINE TABLE patient SCHEMAFULL;')
         statements.append('DEFINE FIELD demographic_no ON patient TYPE string ASSERT $value != none;')
         statements.append('DEFINE FIELD first_name ON patient TYPE string;')
@@ -96,7 +96,7 @@ class SOAPNotes:
         self.assessment = assessment
         self.plan = plan
 
-    def serialize(self) -> dict:
+    def serialize(self) -> Dict[str, Any]:
         """
         Serializes the SOAPNotes instance to a dictionary.
         :return: dict containing the SOAP notes.
@@ -109,17 +109,17 @@ class SOAPNotes:
         )
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'SOAPNotes':
+    def from_dict(cls, data: Dict[str, Any]) -> 'SOAPNotes':
         """
         Creates a SOAPNotes instance from a dictionary.
         :param data: dict containing SOAP notes fields.
         :return: SOAPNotes instance
         """
         return cls(
-            subjective=data.get('subjective'),
-            objective=data.get('objective'),
-            assessment=data.get('assessment'),
-            plan=data.get('plan')
+            subjective=str(data.get('subjective') or ""),
+            objective=str(data.get('objective') or ""),
+            assessment=str(data.get('assessment') or ""),
+            plan=str(data.get('plan') or "")
         )
 
 
@@ -129,12 +129,12 @@ class Encounter:
     """
     def __init__(
             self,
-            note_id,
-            date_created,
-            provider_id,
-            soap_notes: SOAPNotes = None,
+            note_id: str,
+            date_created: str,
+            provider_id: str,
+            soap_notes: Optional[SOAPNotes] = None,
             additional_notes: Optional[str] = None,
-            diagnostic_codes: [str] = None
+            diagnostic_codes: Optional[List[str]] = None
     ) -> None:
         """
         Initializes an Encounter instance.
@@ -157,12 +157,12 @@ class Encounter:
     def __repr__(self) -> str:
         return f"<Encounter note_id={self.note_id}, date={self.date_created}>"
 
-    def schema(self) -> list:
+    def schema(self) -> List[str]:
         """
         Defines the schema for the Encounter table in SurrealDB.
         :return: list of schema definition statements.
         """
-        statements = []
+        statements: List[str] = []
 
         # Define a standard analyzer for medical text.
         # It splits text into words and converts them to a common format (lowercase, basic characters).
@@ -203,7 +203,7 @@ def create_schema() -> None:
     db.connect()
 
     patient = Patient("")
-    encounter = Encounter(None, None, None)
+    encounter = Encounter("", "", "")
 
     for stmt in patient.schema():
         db.query(stmt)
@@ -214,7 +214,7 @@ def create_schema() -> None:
     db.close()
 
 
-def store_patient(db: DbController or AsyncDbController, patient: Patient) -> dict:
+def store_patient(db: Union[DbController, AsyncDbController], patient: Patient) -> Dict[str, Any]:
     """
     Stores a Patient instance in SurrealDB as patient:<demographic_no>.
 
@@ -224,7 +224,7 @@ def store_patient(db: DbController or AsyncDbController, patient: Patient) -> di
     """
     record_id = f"patient:{patient.demographic_no}"
 
-    content_data = {
+    content_data: Dict[str, Any] = {
         "demographic_no": str(patient.demographic_no),
         "first_name": patient.first_name,
         "last_name": patient.last_name,
@@ -233,7 +233,7 @@ def store_patient(db: DbController or AsyncDbController, patient: Patient) -> di
         "phone": patient.phone,
         "email": patient.email,
         # location could be stored as a separate field or nested object up to you.
-        "location": list(patient.location)
+        "location": list(patient.location) if patient.location is not None else []
     }
 
     query = f"CREATE {record_id} CONTENT $data"
@@ -246,9 +246,20 @@ def store_patient(db: DbController or AsyncDbController, patient: Patient) -> di
 
     logger.debug('resulttttsasfsdgsd', result)
 
-    return result
+    # If result is a coroutine, await it
+    import asyncio
+    if asyncio.iscoroutine(result):
+        result = asyncio.run(result)
 
-def store_encounter(db, encounter: Encounter, patient_id: str) -> dict:
+    # If result is a list, return the first item or an empty dict
+    if result:
+        return result[0]
+    elif isinstance(result, dict):
+        return result
+    else:
+        return {}
+
+def store_encounter(db: Union[DbController, AsyncDbController], encounter: Encounter, patient_id: str) -> Dict[str, Any]:
     """
     Stores an Encounter instance in SurrealDB as encounter:<note_id>,
     referencing the given patient_id (e.g., 'patient:12345').
@@ -266,7 +277,7 @@ def store_encounter(db, encounter: Encounter, patient_id: str) -> dict:
     else:
         note_text = encounter.additional_notes or str(encounter.soap_notes) if encounter.soap_notes else ""
 
-    content_data = {
+    content_data: Dict[str, Any] = {
         "note_id": str(encounter.note_id),
         "date_created": str(encounter.date_created),
         "provider_id": str(encounter.provider_id),
@@ -290,10 +301,21 @@ def store_encounter(db, encounter: Encounter, patient_id: str) -> dict:
 
     logger.debug('resultttt', result)
 
-    return result
+    # If result is a coroutine, await it
+    import asyncio
+    if asyncio.iscoroutine(result):
+        result = asyncio.run(result)
+
+    # If result is a list, return the first item or an empty dict
+    if result:
+        return result[0] if len(result) > 0 else {}
+    elif isinstance(result, dict):
+        return result
+    else:
+        return {}
 
 
-def add_some_placeholder_encounters(db: DbController or AsyncDbController, patient_id: str) -> None:
+def add_some_placeholder_encounters(db: Union[DbController, AsyncDbController], patient_id: str) -> None:
     """
     Adds some placeholder encounters for testing purposes.
 
@@ -301,8 +323,8 @@ def add_some_placeholder_encounters(db: DbController or AsyncDbController, patie
     :param patient_id: Patient ID in the format 'patient:<demographic_no>'.
     :return: None
     """
-    from datetime import datetime, timedelta
     import random
+    from datetime import datetime, timedelta
 
     # Generate 5 random encounters
     for i in range(5):
@@ -312,18 +334,18 @@ def add_some_placeholder_encounters(db: DbController or AsyncDbController, patie
         note_text = f"This is a placeholder note text for encounter {i+1}."
         diagnostic_codes = [f"code-{random.randint(100, 999)}"]
 
-        encounter = Encounter(note_id, date_created.isoformat(), provider_id, additional_notes=note_text, diagnostic_codes=diagnostic_codes)
+        encounter = Encounter(str(note_id), date_created.isoformat(), provider_id, additional_notes=note_text, diagnostic_codes=diagnostic_codes)
         store_encounter(db, encounter, patient_id)
 
 
-def add_some_placeholder_patients(db: DbController or AsyncDbController) -> None:
+def add_some_placeholder_patients(db: Union[DbController, AsyncDbController]) -> None:
     """
     Adds some placeholder patients for testing purposes.
     :param db: DbController instance connected to SurrealDB.
     :return: None
     """
-    from datetime import datetime
     import random
+    from datetime import datetime
 
     # Generate 5 random patients
     for i in range(5):
@@ -353,14 +375,14 @@ def add_some_placeholder_patients(db: DbController or AsyncDbController) -> None
         add_some_placeholder_encounters(db, f"patient:{demographic_no}")
 
 
-def serialize_patient(patient: dict) -> Union[str, dict]:
+def serialize_patient(patient: Dict[str, Any]) -> Union[str, Dict[str, Any]]:
     """
     Serializes a patient dictionary to ensure all IDs are strings and handles RecordID types.
     :param patient: dict - The patient data to serialize.
     :return: dict - The serialized patient data with all IDs as strings.
     """
     from surrealdb import RecordID
-    
+
     # Handle case where patient is a RecordID or other non-dict object
     if not isinstance(patient, dict):
         if isinstance(patient, RecordID):
@@ -379,14 +401,14 @@ def serialize_patient(patient: dict) -> Union[str, dict]:
             patient[key] = str(patient[key])
     return patient
 
-def serialize_encounter(encounter: dict) -> Union[EncounterDict, str]:
+def serialize_encounter(encounter: Dict[str, Any]) -> Union[EncounterDict, str]:
     """
     Serializes an encounter dictionary to ensure all IDs are strings and handles RecordID types.
     :param encounter: dict - The encounter data to serialize.
     :return: dict - The serialized encounter data with all IDs as strings.
     """
     from surrealdb import RecordID
-    
+
     # Handle case where encounter is a RecordID or other non-dict object
     if not isinstance(encounter, dict):
         if isinstance(encounter, RecordID):
@@ -407,7 +429,7 @@ def serialize_encounter(encounter: dict) -> Union[EncounterDict, str]:
             encounter['patient'] = serialize_patient(encounter['patient'])
     return encounter
 
-def search_patient_history(search_term: str) -> list:
+def search_patient_history(search_term: str) -> List[PatientDict]:
     """
     Performs a full-text search across all encounter notes.
 
@@ -448,7 +470,7 @@ def search_patient_history(search_term: str) -> list:
     finally:
         db.close()
 
-def search_encounter_history(search_term: str) -> list:
+def search_encounter_history(search_term: str) -> List[EncounterDict]:
     """
     Performs a full-text search across all encounter notes.
 
@@ -486,7 +508,7 @@ def search_encounter_history(search_term: str) -> list:
         db.close()
 
 
-def get_patient_by_id(patient_id: str) -> dict:
+def get_patient_by_id(patient_id: str) -> Dict[str, Any]:
     """
     Get a patient by their demographic_no
 
@@ -530,7 +552,7 @@ def get_patient_by_id(patient_id: str) -> dict:
         db.close()
 
 
-def update_patient(patient_id: str, patient_data: dict) -> dict:
+def update_patient(patient_id: str, patient_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Update a patient record with only the provided fields, supporting PATCH/partial updates.
 
@@ -634,7 +656,7 @@ def delete_patient(patient_id: str) -> bool:
         db.close()
 
 
-def create_patient(patient_data: dict) -> dict:
+def create_patient(patient_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Create a new patient record
 
@@ -925,7 +947,7 @@ def create_encounter(encounter_data: dict, patient_id: str) -> EncounterDict:
         db.close()
 
 
-def update_encounter(encounter_id: str, encounter_data: dict) -> EncounterDict:
+def update_encounter(encounter_id: str, encounter_data: Dict[str, Any]) -> EncounterDict:
     """
     Update an encounter record with only the provided fields
 

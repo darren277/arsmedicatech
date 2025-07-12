@@ -124,12 +124,18 @@ class Appointment:
         logger.debug(f"Converted appointment_id: {appointment_id}")
         
         try:
+            # Ensure required fields are present and are strings
+            required_fields = ['patient_id', 'provider_id', 'appointment_date', 'start_time', 'end_time']
+            for field in required_fields:
+                if not isinstance(data.get(field), str) or not data.get(field):
+                    raise ValueError(f"Missing or invalid required field: {field}")
+
             appointment = cls(
-                patient_id=data.get('patient_id'),
-                provider_id=data.get('provider_id'),
-                appointment_date=data.get('appointment_date'),
-                start_time=data.get('start_time'),
-                end_time=data.get('end_time'),
+                patient_id=str(data.get('patient_id')),
+                provider_id=str(data.get('provider_id')),
+                appointment_date=str(data.get('appointment_date')),
+                start_time=str(data.get('start_time')),
+                end_time=str(data.get('end_time')),
                 appointment_type=data.get('appointment_type', 'consultation'),
                 status=data.get('status', 'scheduled'),
                 notes=data.get('notes'),

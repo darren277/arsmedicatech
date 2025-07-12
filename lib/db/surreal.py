@@ -1,7 +1,7 @@
 """
 Synchronous and Asynchronous SurrealDB Controller
 """
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from settings import logger
 
@@ -82,8 +82,8 @@ class DbController:
 
         return signin_result
 
-    
-    def query(self, statement: str, params: dict[str, Any] = None) -> list:
+
+    def query(self, statement: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
         Execute a SurrealQL query
 
@@ -96,7 +96,7 @@ class DbController:
         logger.debug("Executing Query:", statement, "with params:", params)
         return self.db.query(statement, params)
 
-    def search(self, query: str, params: dict = None) -> list:
+    def search(self, query: str, params: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Execute a search query
         :param query: SurrealQL search query
@@ -134,7 +134,7 @@ class DbController:
         # Mock response for schema creation
         return [{"status": "OK"}]
 
-    def update(self, record: str, data: dict) -> dict:
+    def update(self, record: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Update a record
 
@@ -196,7 +196,7 @@ class DbController:
             logger.error(f"Error creating record: {e}")
             return {}
 
-    def select_many(self, table_name: str) -> list:
+    def select_many(self, table_name: str) -> List[Dict[str, Any]]:
         """
         Select all records from a table
 
@@ -217,7 +217,7 @@ class DbController:
 
         return result
 
-    def select(self, record: str) -> dict:
+    def select(self, record: str) -> Dict[str, Any]:
         """
         Select a specific record
 
@@ -237,7 +237,7 @@ class DbController:
         logger.debug(f"Final result: {result}")
         return result
 
-    def delete(self, record: str) -> dict:
+    def delete(self, record: str) -> Dict[str, Any]:
         """
         Delete a record
 
@@ -321,7 +321,7 @@ class AsyncDbController:
 
         return signin_result
 
-    async def query(self, statement: str, params: dict = None) -> list:
+    async def query(self, statement: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
         Execute a SurrealQL query
 
@@ -333,7 +333,7 @@ class AsyncDbController:
             params = {}
         return await self.db.query(statement, params)
 
-    async def update(self, record: str, data: dict) -> dict:
+    async def update(self, record: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Update a record
 
@@ -349,7 +349,7 @@ class AsyncDbController:
             return {**result, 'id': _id}
         return result
 
-    async def create(self, table_name: str, data: dict) -> dict:
+    async def create(self, table_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create a new record
 
@@ -369,7 +369,7 @@ class AsyncDbController:
             logger.error(f"Error creating record: {e}")
             return {}
 
-    async def select_many(self, table_name: str) -> list:
+    async def select_many(self, table_name: str) -> List[Dict[str, Any]]:
         """
         Select all records from a table
 
@@ -387,7 +387,7 @@ class AsyncDbController:
 
         return result
 
-    async def select(self, record: str) -> dict:
+    async def select(self, record: str) -> Dict[str, Any]:
         """
         Select a specific record
 

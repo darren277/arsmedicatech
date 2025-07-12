@@ -31,15 +31,10 @@ def create_n_patients(n: int = 5) -> None:
         logger.debug(encounter.note_text)
         logger.debug("------")
 
-        result: list[dict[str, Any]] = store_patient(db, patient)
+        result: Dict[str, Any] = store_patient(db, patient)
 
         result = result[0]['result'][0]
-        if isinstance(result, dict):
-            patient_id = str(result.get('id', ''))
-        elif hasattr(result, '__str__'):
-            patient_id = str(result)
-        else:
-            patient_id = ''
+        patient_id = str(result.get('id', ''))
 
         store_encounter(db, encounter, patient_id)
 

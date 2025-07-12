@@ -158,7 +158,7 @@ class SchedulingService:
             query += " ORDER BY start_time"
             
             results = self.db.query(query, params)
-            appointments = []
+            appointments: List[Appointment] = []
             
             for result in results:
                 if result.get('result'):
@@ -185,7 +185,7 @@ class SchedulingService:
                 ORDER BY appointment_date DESC, start_time DESC
             """
             results = self.db.query(query, {"patient_id": patient_id})
-            appointments = []
+            appointments: List[Appointment] = []
             
             for result in results:
                 if result.get('result'):
@@ -219,13 +219,13 @@ class SchedulingService:
             query += " ORDER BY appointment_date, start_time"
             
             results = self.db.query(query, params)
-            appointments = []
-            
+            appointments: List[Appointment] = []
+
             for result in results:
                 if result.get('result'):
                     for record in result['result']:
                         appointments.append(Appointment.from_dict(record))
-            
+
             return appointments
         except Exception as e:
             logger.error(f"Error getting appointments by provider: {e}")
@@ -259,16 +259,15 @@ class SchedulingService:
             logger.debug(f"Executing query: {query}")
             results = self.db.query(query, {})
             logger.debug(f"Full query results: {results}")
-            
-            appointments = []
-            
+
+            appointments: List[Appointment] = []
+
             for result in results:
                 logger.debug(f"Processing result: {result}")
                 # The result is already the record, not nested under 'result'
-                if isinstance(result, dict):
-                    logger.debug(f"Processing record: {result}")
-                    appointments.append(Appointment.from_dict(result))
-                elif result.get('result'):
+                logger.debug(f"Processing record: {result}")
+                appointments.append(Appointment.from_dict(result))
+                if result.get('result'):
                     # Fallback for nested structure
                     for record in result['result']:
                         logger.debug(f"Processing nested record: {record}")
@@ -319,10 +318,11 @@ class SchedulingService:
                 if hasattr(appointment, key):
                     setattr(appointment, key, value)
             
-            appointment.updated_at = datetime.utcnow().isoformat()
+            from datetime import timezone
+            appointment.updated_at = datetime.now(timezone.utc).isoformat()
             
             # Save to database
-            result = self.db.update('appointment', appointment_id, appointment.to_dict())
+            result = self.db.update(appointment_id, appointment.to_dict())
             if result:
                 return True, "Appointment updated successfully"
             else:
@@ -423,7 +423,7 @@ class SchedulingService:
             business_end = datetime.strptime('17:00', '%H:%M')
             
             # Create time slots
-            slots = []
+            slots: List[Dict[str, str]] = []
             current_time = business_start
             
             while current_time + timedelta(minutes=duration_minutes) <= business_end:

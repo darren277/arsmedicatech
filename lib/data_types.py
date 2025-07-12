@@ -26,6 +26,12 @@ class EventData:
     """
     Custom EventData type for better type safety.
     """
-    def __init__(self, event_type: str, data: dict):
+    def __init__(self, event_type: str, conversation_id: str, sender: str, text: str, timestamp: str) -> None:
+        """
+        Initialize an EventData instance.
+        """
         self.event_type = event_type
-        self.data = data
+        self.conversation_id = conversation_id
+        self.sender = sender
+        self.text = text
+        self.timestamp = timestamp
