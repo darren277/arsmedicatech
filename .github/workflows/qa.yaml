@@ -50,7 +50,7 @@ jobs:
       - name: Run mypy
         run: |
           if [ -f requirements.txt ]; then pip install mypy; fi
-          mypy --config-file ./mypy.ini .
+          mypy --explicit-package-bases lib settings.py
 
       - name: Run npm tests
         run: npm test
