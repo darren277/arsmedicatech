@@ -112,52 +112,6 @@ class UserService:
             # Save to database
             logger.debug(f"Creating user with data: {user.to_dict()}")
             
-            # For testing, use a mock database if SurrealDB is not available
-            if not hasattr(self.db, 'create') or self.db is None:
-                logger.debug("Using mock database for user creation")
-                # Mock user storage (in-memory for testing)
-                if not hasattr(self, '_mock_users'):
-                    self._mock_users = {}
-                    logger.debug("Mock users storage initialized")
-                
-                # Generate a mock ID
-                user.id = f"user_{len(self._mock_users) + 1}"
-                self._mock_users[user.username] = user
-                logger.debug(f"User created successfully with ID: {user.id}")
-                logger.debug(f"Mock users now available: {list(self._mock_users.keys())}")
-                logger.debug(f"User data: {user.to_dict()}")
-                
-                # If the user is a patient, create a corresponding Patient record
-                if user.role == "patient" and user.id:
-                    try:
-                        from lib.models.patient import create_patient
-                        user_id = str(user.id)
-                        if ':' in user_id:
-                            patient_id = user_id.split(':', 1)[1]
-                        else:
-                            patient_id = user_id
-                        patient_data = {
-                            "demographic_no": patient_id,
-                            "first_name": user.first_name,
-                            "last_name": user.last_name,
-                            "email": user.email,
-                            "date_of_birth": "",
-                            "sex": "",
-                            "phone": "",
-                            "location": [],
-                            # Add more fields as needed
-                        }
-                        # Replace None with empty string for all string fields
-                        for key in patient_data:
-                            if key != "location" and patient_data[key] is None:
-                                patient_data[key] = ""
-                        patient_result = create_patient(patient_data)
-                        if not patient_result:
-                            logger.error(f"Failed to create patient record for user: {user.id}")
-                    except Exception as e:
-                        logger.error(f"Exception during patient record creation: {e}")
-                return True, "User created successfully", user
-            
             result = self.db.create('User', user.to_dict())
             logger.debug(f"Database create result: {result}")
             logger.debug(f"Database create result type: {type(result)}")
