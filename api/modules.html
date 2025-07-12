@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>lib &#8212; ArsMedicaTech  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="db package" href="db.html" />
+    <link rel="prev" title="app module" href="../app.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="lib">
+<h1>lib<a class="headerlink" href="#lib" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="db.html">db package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="db.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="db.html#module-db.surreal">db.surreal module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="db.html#db.surreal.AsyncDbController"><code class="docutils literal notranslate"><span class="pre">AsyncDbController</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncDbController.close"><code class="docutils literal notranslate"><span class="pre">AsyncDbController.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncDbController.connect"><code class="docutils literal notranslate"><span class="pre">AsyncDbController.connect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncDbController.create"><code class="docutils literal notranslate"><span class="pre">AsyncDbController.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncDbController.db"><code class="docutils literal notranslate"><span class="pre">AsyncDbController.db</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncDbController.delete"><code class="docutils literal notranslate"><span class="pre">AsyncDbController.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncDbController.query"><code class="docutils literal notranslate"><span class="pre">AsyncDbController.query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncDbController.select"><code class="docutils literal notranslate"><span class="pre">AsyncDbController.select()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncDbController.select_many"><code class="docutils literal notranslate"><span class="pre">AsyncDbController.select_many()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncDbController.update"><code class="docutils literal notranslate"><span class="pre">AsyncDbController.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="db.html#db.surreal.AsyncSurrealWrapper"><code class="docutils literal notranslate"><span class="pre">AsyncSurrealWrapper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncSurrealWrapper.close"><code class="docutils literal notranslate"><span class="pre">AsyncSurrealWrapper.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncSurrealWrapper.create"><code class="docutils literal notranslate"><span class="pre">AsyncSurrealWrapper.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncSurrealWrapper.delete"><code class="docutils literal notranslate"><span class="pre">AsyncSurrealWrapper.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncSurrealWrapper.query"><code class="docutils literal notranslate"><span class="pre">AsyncSurrealWrapper.query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncSurrealWrapper.select"><code class="docutils literal notranslate"><span class="pre">AsyncSurrealWrapper.select()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncSurrealWrapper.signin"><code class="docutils literal notranslate"><span class="pre">AsyncSurrealWrapper.signin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncSurrealWrapper.update"><code class="docutils literal notranslate"><span class="pre">AsyncSurrealWrapper.update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.AsyncSurrealWrapper.use"><code class="docutils literal notranslate"><span class="pre">AsyncSurrealWrapper.use()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="db.html#db.surreal.DbController"><code class="docutils literal notranslate"><span class="pre">DbController</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.close"><code class="docutils literal notranslate"><span class="pre">DbController.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.connect"><code class="docutils literal notranslate"><span class="pre">DbController.connect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.create"><code class="docutils literal notranslate"><span class="pre">DbController.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.db"><code class="docutils literal notranslate"><span class="pre">DbController.db</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.delete"><code class="docutils literal notranslate"><span class="pre">DbController.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.query"><code class="docutils literal notranslate"><span class="pre">DbController.query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.search"><code class="docutils literal notranslate"><span class="pre">DbController.search()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.select"><code class="docutils literal notranslate"><span class="pre">DbController.select()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.select_many"><code class="docutils literal notranslate"><span class="pre">DbController.select_many()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.DbController.update"><code class="docutils literal notranslate"><span class="pre">DbController.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="db.html#db.surreal.SurrealWrapper"><code class="docutils literal notranslate"><span class="pre">SurrealWrapper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.SurrealWrapper.close"><code class="docutils literal notranslate"><span class="pre">SurrealWrapper.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.SurrealWrapper.create"><code class="docutils literal notranslate"><span class="pre">SurrealWrapper.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.SurrealWrapper.delete"><code class="docutils literal notranslate"><span class="pre">SurrealWrapper.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.SurrealWrapper.query"><code class="docutils literal notranslate"><span class="pre">SurrealWrapper.query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.SurrealWrapper.select"><code class="docutils literal notranslate"><span class="pre">SurrealWrapper.select()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.SurrealWrapper.signin"><code class="docutils literal notranslate"><span class="pre">SurrealWrapper.signin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.SurrealWrapper.update"><code class="docutils literal notranslate"><span class="pre">SurrealWrapper.update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal.SurrealWrapper.use"><code class="docutils literal notranslate"><span class="pre">SurrealWrapper.use()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="db.html#module-db.surreal_graph">db.surreal_graph module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="db.html#db.surreal_graph.AsyncGraphController"><code class="docutils literal notranslate"><span class="pre">AsyncGraphController</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal_graph.AsyncGraphController.count_connections"><code class="docutils literal notranslate"><span class="pre">AsyncGraphController.count_connections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal_graph.AsyncGraphController.find_path"><code class="docutils literal notranslate"><span class="pre">AsyncGraphController.find_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal_graph.AsyncGraphController.get_relations"><code class="docutils literal notranslate"><span class="pre">AsyncGraphController.get_relations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal_graph.AsyncGraphController.relate"><code class="docutils literal notranslate"><span class="pre">AsyncGraphController.relate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="db.html#db.surreal_graph.GraphController"><code class="docutils literal notranslate"><span class="pre">GraphController</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal_graph.GraphController.count_connections"><code class="docutils literal notranslate"><span class="pre">GraphController.count_connections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal_graph.GraphController.find_path"><code class="docutils literal notranslate"><span class="pre">GraphController.find_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal_graph.GraphController.get_relations"><code class="docutils literal notranslate"><span class="pre">GraphController.get_relations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.surreal_graph.GraphController.relate"><code class="docutils literal notranslate"><span class="pre">GraphController.relate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="db.html#module-db.vec">db.vec module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="db.html#db.vec.BatchItem"><code class="docutils literal notranslate"><span class="pre">BatchItem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="db.html#db.vec.BatchList"><code class="docutils literal notranslate"><span class="pre">BatchList</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="db.html#db.vec.Vec"><code class="docutils literal notranslate"><span class="pre">Vec</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.vec.Vec.get_context"><code class="docutils literal notranslate"><span class="pre">Vec.get_context()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.vec.Vec.init"><code class="docutils literal notranslate"><span class="pre">Vec.init()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.vec.Vec.insert"><code class="docutils literal notranslate"><span class="pre">Vec.insert()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.vec.Vec.rag_chat"><code class="docutils literal notranslate"><span class="pre">Vec.rag_chat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="db.html#db.vec.Vec.seed"><code class="docutils literal notranslate"><span class="pre">Vec.seed()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="db.html#module-db">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dummy_data.html">dummy_data module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="llm.html">llm package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="llm.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="llm.mcp.html">llm.mcp package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="llm.mcp.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.mcp.html#module-llm.mcp.mcp_init">llm.mcp.mcp_init module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.mcp.html#llm-mcp-mcp-server-module">llm.mcp.mcp_server module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.mcp.html#module-llm.mcp.register_tools">llm.mcp.register_tools module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.mcp.html#llm-mcp-trees-module">llm.mcp.trees module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.mcp.html#module-llm.mcp">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="llm.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm.html#module-llm.agent">llm.agent module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="llm.html#llm.agent.LLMAgent"><code class="docutils literal notranslate"><span class="pre">LLMAgent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMAgent.add_tool"><code class="docutils literal notranslate"><span class="pre">LLMAgent.add_tool()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMAgent.complete"><code class="docutils literal notranslate"><span class="pre">LLMAgent.complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMAgent.fetch_history"><code class="docutils literal notranslate"><span class="pre">LLMAgent.fetch_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMAgent.from_dict"><code class="docutils literal notranslate"><span class="pre">LLMAgent.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMAgent.from_mcp"><code class="docutils literal notranslate"><span class="pre">LLMAgent.from_mcp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMAgent.process_tool_calls"><code class="docutils literal notranslate"><span class="pre">LLMAgent.process_tool_calls()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMAgent.reset_conversation"><code class="docutils literal notranslate"><span class="pre">LLMAgent.reset_conversation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMAgent.to_dict"><code class="docutils literal notranslate"><span class="pre">LLMAgent.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="llm.html#llm.agent.LLMModel"><code class="docutils literal notranslate"><span class="pre">LLMModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMModel.GPT_4_1"><code class="docutils literal notranslate"><span class="pre">LLMModel.GPT_4_1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMModel.GPT_4_1_MINI"><code class="docutils literal notranslate"><span class="pre">LLMModel.GPT_4_1_MINI</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.agent.LLMModel.GPT_4_1_NANO"><code class="docutils literal notranslate"><span class="pre">LLMModel.GPT_4_1_NANO</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="llm.html#llm.agent.process_tool_call"><code class="docutils literal notranslate"><span class="pre">process_tool_call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="llm.html#module-llm.mcp_tools">llm.mcp_tools module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="llm.html#llm.mcp_tools.CustomHeaderAuth"><code class="docutils literal notranslate"><span class="pre">CustomHeaderAuth</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.mcp_tools.CustomHeaderAuth.Generator"><code class="docutils literal notranslate"><span class="pre">CustomHeaderAuth.Generator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="llm.html#llm.mcp_tools.CustomHeaderAuth.auth_flow"><code class="docutils literal notranslate"><span class="pre">CustomHeaderAuth.auth_flow()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="llm.html#llm.mcp_tools.fetch_mcp_tool_defs"><code class="docutils literal notranslate"><span class="pre">fetch_mcp_tool_defs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="llm.html#module-llm">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="logger.html">logger module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="logger.html#logger.CustomFormatter"><code class="docutils literal notranslate"><span class="pre">CustomFormatter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.FORMATS"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.FORMATS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.black"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.black</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.bold_red"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.bold_red</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.format"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.format()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.green"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.green</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.grey"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.grey</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.log_format"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.log_format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.red"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.red</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.reset"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.reset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.CustomFormatter.yellow"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.yellow</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="logger.html#logger.Logger"><code class="docutils literal notranslate"><span class="pre">Logger</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.Logger.configure"><code class="docutils literal notranslate"><span class="pre">Logger.configure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.Logger.debug"><code class="docutils literal notranslate"><span class="pre">Logger.debug()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.Logger.error"><code class="docutils literal notranslate"><span class="pre">Logger.error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.Logger.info"><code class="docutils literal notranslate"><span class="pre">Logger.info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.Logger.warn"><code class="docutils literal notranslate"><span class="pre">Logger.warn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="logger.html#logger.Logger.warning"><code class="docutils literal notranslate"><span class="pre">Logger.warning()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="migrations.html">migrations package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html#module-migrations.demo">migrations.demo module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo.create_forms"><code class="docutils literal notranslate"><span class="pre">create_forms()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo.create_n_patients"><code class="docutils literal notranslate"><span class="pre">create_n_patients()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html#module-migrations.demo_utils">migrations.demo_utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo_utils.Encounter"><code class="docutils literal notranslate"><span class="pre">Encounter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo_utils.EncounterFactory"><code class="docutils literal notranslate"><span class="pre">EncounterFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.EncounterFactory.Meta"><code class="docutils literal notranslate"><span class="pre">EncounterFactory.Meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.EncounterFactory.date_created"><code class="docutils literal notranslate"><span class="pre">EncounterFactory.date_created</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.EncounterFactory.note_id"><code class="docutils literal notranslate"><span class="pre">EncounterFactory.note_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.EncounterFactory.note_text"><code class="docutils literal notranslate"><span class="pre">EncounterFactory.note_text</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.EncounterFactory.provider_id"><code class="docutils literal notranslate"><span class="pre">EncounterFactory.provider_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo_utils.FactoryWrapper"><code class="docutils literal notranslate"><span class="pre">FactoryWrapper</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory"><code class="docutils literal notranslate"><span class="pre">PatientFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory.Meta"><code class="docutils literal notranslate"><span class="pre">PatientFactory.Meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory.date_of_birth"><code class="docutils literal notranslate"><span class="pre">PatientFactory.date_of_birth</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory.demographic_no"><code class="docutils literal notranslate"><span class="pre">PatientFactory.demographic_no</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory.email"><code class="docutils literal notranslate"><span class="pre">PatientFactory.email</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory.first_name"><code class="docutils literal notranslate"><span class="pre">PatientFactory.first_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory.last_name"><code class="docutils literal notranslate"><span class="pre">PatientFactory.last_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory.location"><code class="docutils literal notranslate"><span class="pre">PatientFactory.location</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory.phone"><code class="docutils literal notranslate"><span class="pre">PatientFactory.phone</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="migrations.html#migrations.demo_utils.PatientFactory.sex"><code class="docutils literal notranslate"><span class="pre">PatientFactory.sex</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo_utils.f"><code class="docutils literal notranslate"><span class="pre">f()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo_utils.load_csv"><code class="docutils literal notranslate"><span class="pre">load_csv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo_utils.save_csv"><code class="docutils literal notranslate"><span class="pre">save_csv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.demo_utils.select_n_random_rows_from_csv"><code class="docutils literal notranslate"><span class="pre">select_n_random_rows_from_csv()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html#module-migrations.setup_user_settings">migrations.setup_user_settings module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.setup_user_settings.check_existing_schema"><code class="docutils literal notranslate"><span class="pre">check_existing_schema()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.setup_user_settings.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.setup_user_settings.setup_user_settings_schema"><code class="docutils literal notranslate"><span class="pre">setup_user_settings_schema()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html#module-migrations.vec">migrations.vec module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="migrations.html#migrations.vec.init_vec"><code class="docutils literal notranslate"><span class="pre">init_vec()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html#module-migrations">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.appointment">models.appointment module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.appointment.Appointment"><code class="docutils literal notranslate"><span class="pre">Appointment</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.can_be_cancelled"><code class="docutils literal notranslate"><span class="pre">Appointment.can_be_cancelled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.from_dict"><code class="docutils literal notranslate"><span class="pre">Appointment.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.get_datetime"><code class="docutils literal notranslate"><span class="pre">Appointment.get_datetime()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.get_duration_minutes"><code class="docutils literal notranslate"><span class="pre">Appointment.get_duration_minutes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.is_cancelled"><code class="docutils literal notranslate"><span class="pre">Appointment.is_cancelled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.is_completed"><code class="docutils literal notranslate"><span class="pre">Appointment.is_completed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.is_confirmed"><code class="docutils literal notranslate"><span class="pre">Appointment.is_confirmed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.is_in_past"><code class="docutils literal notranslate"><span class="pre">Appointment.is_in_past()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.is_this_week"><code class="docutils literal notranslate"><span class="pre">Appointment.is_this_week()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.is_today"><code class="docutils literal notranslate"><span class="pre">Appointment.is_today()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.schema"><code class="docutils literal notranslate"><span class="pre">Appointment.schema()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.Appointment.to_dict"><code class="docutils literal notranslate"><span class="pre">Appointment.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.appointment.AppointmentStatus"><code class="docutils literal notranslate"><span class="pre">AppointmentStatus</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentStatus.CANCELLED"><code class="docutils literal notranslate"><span class="pre">AppointmentStatus.CANCELLED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentStatus.COMPLETED"><code class="docutils literal notranslate"><span class="pre">AppointmentStatus.COMPLETED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentStatus.CONFIRMED"><code class="docutils literal notranslate"><span class="pre">AppointmentStatus.CONFIRMED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentStatus.NO_SHOW"><code class="docutils literal notranslate"><span class="pre">AppointmentStatus.NO_SHOW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentStatus.SCHEDULED"><code class="docutils literal notranslate"><span class="pre">AppointmentStatus.SCHEDULED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.appointment.AppointmentType"><code class="docutils literal notranslate"><span class="pre">AppointmentType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentType.CONSULTATION"><code class="docutils literal notranslate"><span class="pre">AppointmentType.CONSULTATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentType.EMERGENCY"><code class="docutils literal notranslate"><span class="pre">AppointmentType.EMERGENCY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentType.FOLLOW_UP"><code class="docutils literal notranslate"><span class="pre">AppointmentType.FOLLOW_UP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentType.ROUTINE"><code class="docutils literal notranslate"><span class="pre">AppointmentType.ROUTINE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.appointment.AppointmentType.SPECIALIST"><code class="docutils literal notranslate"><span class="pre">AppointmentType.SPECIALIST</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.clinic">models.clinic module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.Clinic"><code class="docutils literal notranslate"><span class="pre">Clinic</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.Clinic.to_geojson_point"><code class="docutils literal notranslate"><span class="pre">Clinic.to_geojson_point()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.create_clinic"><code class="docutils literal notranslate"><span class="pre">create_clinic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.delete_clinic"><code class="docutils literal notranslate"><span class="pre">delete_clinic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.generate_surrealql_create_query"><code class="docutils literal notranslate"><span class="pre">generate_surrealql_create_query()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.get_all_clinics"><code class="docutils literal notranslate"><span class="pre">get_all_clinics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.get_clinic_by_id"><code class="docutils literal notranslate"><span class="pre">get_clinic_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.km_m"><code class="docutils literal notranslate"><span class="pre">km_m()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.search_clinics_by_location"><code class="docutils literal notranslate"><span class="pre">search_clinics_by_location()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.test"><code class="docutils literal notranslate"><span class="pre">test()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.update_clinic"><code class="docutils literal notranslate"><span class="pre">update_clinic()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.conversation">models.conversation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.conversation.Conversation"><code class="docutils literal notranslate"><span class="pre">Conversation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.conversation.Conversation.add_participant"><code class="docutils literal notranslate"><span class="pre">Conversation.add_participant()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.conversation.Conversation.from_dict"><code class="docutils literal notranslate"><span class="pre">Conversation.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.conversation.Conversation.is_participant"><code class="docutils literal notranslate"><span class="pre">Conversation.is_participant()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.conversation.Conversation.remove_participant"><code class="docutils literal notranslate"><span class="pre">Conversation.remove_participant()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.conversation.Conversation.to_dict"><code class="docutils literal notranslate"><span class="pre">Conversation.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.conversation.Message"><code class="docutils literal notranslate"><span class="pre">Message</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.conversation.Message.from_dict"><code class="docutils literal notranslate"><span class="pre">Message.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.conversation.Message.to_dict"><code class="docutils literal notranslate"><span class="pre">Message.to_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#models-graph-module">models.graph module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.icd">models.icd module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.icd.define_index"><code class="docutils literal notranslate"><span class="pre">define_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.icd.import_icd_codes"><code class="docutils literal notranslate"><span class="pre">import_icd_codes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.icd.lookup_icd_code"><code class="docutils literal notranslate"><span class="pre">lookup_icd_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.icd.search_icd_by_description"><code class="docutils literal notranslate"><span class="pre">search_icd_by_description()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.llm_chat">models.llm_chat module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.llm_chat.LLMChat"><code class="docutils literal notranslate"><span class="pre">LLMChat</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.llm_chat.LLMChat.add_message"><code class="docutils literal notranslate"><span class="pre">LLMChat.add_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.llm_chat.LLMChat.from_dict"><code class="docutils literal notranslate"><span class="pre">LLMChat.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.llm_chat.LLMChat.to_dict"><code class="docutils literal notranslate"><span class="pre">LLMChat.to_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.patient">models.patient module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.Encounter"><code class="docutils literal notranslate"><span class="pre">Encounter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.patient.Encounter.schema"><code class="docutils literal notranslate"><span class="pre">Encounter.schema()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.Patient"><code class="docutils literal notranslate"><span class="pre">Patient</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.patient.Patient.schema"><code class="docutils literal notranslate"><span class="pre">Patient.schema()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.SOAPNotes"><code class="docutils literal notranslate"><span class="pre">SOAPNotes</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.patient.SOAPNotes.from_dict"><code class="docutils literal notranslate"><span class="pre">SOAPNotes.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.patient.SOAPNotes.serialize"><code class="docutils literal notranslate"><span class="pre">SOAPNotes.serialize()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.add_some_placeholder_encounters"><code class="docutils literal notranslate"><span class="pre">add_some_placeholder_encounters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.add_some_placeholder_patients"><code class="docutils literal notranslate"><span class="pre">add_some_placeholder_patients()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.create_encounter"><code class="docutils literal notranslate"><span class="pre">create_encounter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.create_patient"><code class="docutils literal notranslate"><span class="pre">create_patient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.create_schema"><code class="docutils literal notranslate"><span class="pre">create_schema()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.delete_encounter"><code class="docutils literal notranslate"><span class="pre">delete_encounter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.delete_patient"><code class="docutils literal notranslate"><span class="pre">delete_patient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_all_encounters"><code class="docutils literal notranslate"><span class="pre">get_all_encounters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_all_patients"><code class="docutils literal notranslate"><span class="pre">get_all_patients()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_encounter_by_id"><code class="docutils literal notranslate"><span class="pre">get_encounter_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_encounters_by_patient"><code class="docutils literal notranslate"><span class="pre">get_encounters_by_patient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_patient_by_id"><code class="docutils literal notranslate"><span class="pre">get_patient_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.search_encounter_history"><code class="docutils literal notranslate"><span class="pre">search_encounter_history()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.search_patient_history"><code class="docutils literal notranslate"><span class="pre">search_patient_history()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.serialize_encounter"><code class="docutils literal notranslate"><span class="pre">serialize_encounter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.serialize_patient"><code class="docutils literal notranslate"><span class="pre">serialize_patient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.store_encounter"><code class="docutils literal notranslate"><span class="pre">store_encounter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.store_patient"><code class="docutils literal notranslate"><span class="pre">store_patient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.update_encounter"><code class="docutils literal notranslate"><span class="pre">update_encounter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.update_patient"><code class="docutils literal notranslate"><span class="pre">update_patient()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.user">models.user module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.user.User"><code class="docutils literal notranslate"><span class="pre">User</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.from_dict"><code class="docutils literal notranslate"><span class="pre">User.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.get_full_name"><code class="docutils literal notranslate"><span class="pre">User.get_full_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.has_role"><code class="docutils literal notranslate"><span class="pre">User.has_role()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.hash_password"><code class="docutils literal notranslate"><span class="pre">User.hash_password()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.is_admin"><code class="docutils literal notranslate"><span class="pre">User.is_admin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.is_patient"><code class="docutils literal notranslate"><span class="pre">User.is_patient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.is_provider"><code class="docutils literal notranslate"><span class="pre">User.is_provider()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.to_dict"><code class="docutils literal notranslate"><span class="pre">User.to_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_email"><code class="docutils literal notranslate"><span class="pre">User.validate_email()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_password"><code class="docutils literal notranslate"><span class="pre">User.validate_password()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_phone"><code class="docutils literal notranslate"><span class="pre">User.validate_phone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_role"><code class="docutils literal notranslate"><span class="pre">User.validate_role()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_username"><code class="docutils literal notranslate"><span class="pre">User.validate_username()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.verify_password"><code class="docutils literal notranslate"><span class="pre">User.verify_password()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.user.UserSession"><code class="docutils literal notranslate"><span class="pre">UserSession</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.UserSession.from_dict"><code class="docutils literal notranslate"><span class="pre">UserSession.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.UserSession.is_expired"><code class="docutils literal notranslate"><span class="pre">UserSession.is_expired()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.UserSession.to_dict"><code class="docutils literal notranslate"><span class="pre">UserSession.to_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.user_settings">models.user_settings module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.user_settings.UserSettings"><code class="docutils literal notranslate"><span class="pre">UserSettings</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.from_dict"><code class="docutils literal notranslate"><span class="pre">UserSettings.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.get_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.get_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.has_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.has_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.set_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.set_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.to_dict"><code class="docutils literal notranslate"><span class="pre">UserSettings.to_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.validate_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.validate_openai_api_key()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="opt.html">opt package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opt.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html#module-opt.hypertension">opt.hypertension module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opt.html#opt.hypertension.build_hypertension_payload"><code class="docutils literal notranslate"><span class="pre">build_hypertension_payload()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opt.html#opt.hypertension.create_food_data_pd"><code class="docutils literal notranslate"><span class="pre">create_food_data_pd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opt.html#opt.hypertension.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html#module-opt">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="routes.html">routes package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="routes.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html#module-routes.appointments">routes.appointments module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.appointments.cancel_appointment_route"><code class="docutils literal notranslate"><span class="pre">cancel_appointment_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.appointments.confirm_appointment_route"><code class="docutils literal notranslate"><span class="pre">confirm_appointment_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.appointments.create_appointment_route"><code class="docutils literal notranslate"><span class="pre">create_appointment_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.appointments.get_appointment_route"><code class="docutils literal notranslate"><span class="pre">get_appointment_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.appointments.get_appointment_statuses_route"><code class="docutils literal notranslate"><span class="pre">get_appointment_statuses_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.appointments.get_appointment_types_route"><code class="docutils literal notranslate"><span class="pre">get_appointment_types_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.appointments.get_appointments_route"><code class="docutils literal notranslate"><span class="pre">get_appointments_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.appointments.get_available_slots_route"><code class="docutils literal notranslate"><span class="pre">get_available_slots_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.appointments.update_appointment_route"><code class="docutils literal notranslate"><span class="pre">update_appointment_route()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html#module-routes.chat">routes.chat module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.chat.create_conversation_route"><code class="docutils literal notranslate"><span class="pre">create_conversation_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.chat.get_conversation_messages_route"><code class="docutils literal notranslate"><span class="pre">get_conversation_messages_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.chat.get_user_conversations_route"><code class="docutils literal notranslate"><span class="pre">get_user_conversations_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.chat.send_message_route"><code class="docutils literal notranslate"><span class="pre">send_message_route()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html#module-routes.llm_agent">routes.llm_agent module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.llm_agent.llm_agent_endpoint_route"><code class="docutils literal notranslate"><span class="pre">llm_agent_endpoint_route()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html#module-routes.patients">routes.patients module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.create_encounter_route"><code class="docutils literal notranslate"><span class="pre">create_encounter_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.delete_encounter_route"><code class="docutils literal notranslate"><span class="pre">delete_encounter_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.get_all_encounters_route"><code class="docutils literal notranslate"><span class="pre">get_all_encounters_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.get_encounter_by_id_route"><code class="docutils literal notranslate"><span class="pre">get_encounter_by_id_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.get_encounters_by_patient_route"><code class="docutils literal notranslate"><span class="pre">get_encounters_by_patient_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.patch_intake_route"><code class="docutils literal notranslate"><span class="pre">patch_intake_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.patient_endpoint_route"><code class="docutils literal notranslate"><span class="pre">patient_endpoint_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.patients_endpoint_route"><code class="docutils literal notranslate"><span class="pre">patients_endpoint_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.search_encounters_route"><code class="docutils literal notranslate"><span class="pre">search_encounters_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.search_patients_route"><code class="docutils literal notranslate"><span class="pre">search_patients_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.update_encounter_route"><code class="docutils literal notranslate"><span class="pre">update_encounter_route()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html#module-routes.testing">routes.testing module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.testing.debug_session_route"><code class="docutils literal notranslate"><span class="pre">debug_session_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.testing.test_crud_route"><code class="docutils literal notranslate"><span class="pre">test_crud_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.testing.test_surrealdb_route"><code class="docutils literal notranslate"><span class="pre">test_surrealdb_route()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html#module-routes.users">routes.users module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.activate_user_route"><code class="docutils literal notranslate"><span class="pre">activate_user_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.change_password_route"><code class="docutils literal notranslate"><span class="pre">change_password_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.check_users_exist_route"><code class="docutils literal notranslate"><span class="pre">check_users_exist_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.deactivate_user_route"><code class="docutils literal notranslate"><span class="pre">deactivate_user_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.get_all_users_route"><code class="docutils literal notranslate"><span class="pre">get_all_users_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.get_api_usage_route"><code class="docutils literal notranslate"><span class="pre">get_api_usage_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.get_current_user_info_route"><code class="docutils literal notranslate"><span class="pre">get_current_user_info_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.get_user_profile_route"><code class="docutils literal notranslate"><span class="pre">get_user_profile_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.get_user_settings"><code class="docutils literal notranslate"><span class="pre">get_user_settings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.login_route"><code class="docutils literal notranslate"><span class="pre">login_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.logout_route"><code class="docutils literal notranslate"><span class="pre">logout_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.register_route"><code class="docutils literal notranslate"><span class="pre">register_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.search_users_route"><code class="docutils literal notranslate"><span class="pre">search_users_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.settings_route"><code class="docutils literal notranslate"><span class="pre">settings_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.setup_default_admin_route"><code class="docutils literal notranslate"><span class="pre">setup_default_admin_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.update_user_profile_route"><code class="docutils literal notranslate"><span class="pre">update_user_profile_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.users.update_user_settings"><code class="docutils literal notranslate"><span class="pre">update_user_settings()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html#module-routes">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">services package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="services.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.apis">services.apis module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.apis.ClinicalTrials"><code class="docutils literal notranslate"><span class="pre">ClinicalTrials</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.apis.ClinicalTrials.fetch_clinical_trials"><code class="docutils literal notranslate"><span class="pre">ClinicalTrials.fetch_clinical_trials()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.apis.ICD10Code"><code class="docutils literal notranslate"><span class="pre">ICD10Code</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.apis.ICD10Code.validate"><code class="docutils literal notranslate"><span class="pre">ICD10Code.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.apis.Medline"><code class="docutils literal notranslate"><span class="pre">Medline</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.apis.Medline.fetch_medline"><code class="docutils literal notranslate"><span class="pre">Medline.fetch_medline()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.apis.NCBI"><code class="docutils literal notranslate"><span class="pre">NCBI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.apis.NCBI.efetch_abstract"><code class="docutils literal notranslate"><span class="pre">NCBI.efetch_abstract()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.apis.NCBI.esearch"><code class="docutils literal notranslate"><span class="pre">NCBI.esearch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.apis.NCBI.esummary"><code class="docutils literal notranslate"><span class="pre">NCBI.esummary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.apis.NCBI.fetch_ncbi_studies"><code class="docutils literal notranslate"><span class="pre">NCBI.fetch_ncbi_studies()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.apis.NCBI.search_pubmed"><code class="docutils literal notranslate"><span class="pre">NCBI.search_pubmed()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.auth_decorators">services.auth_decorators module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.get_current_user"><code class="docutils literal notranslate"><span class="pre">get_current_user()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.get_current_user_id"><code class="docutils literal notranslate"><span class="pre">get_current_user_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.get_current_user_role"><code class="docutils literal notranslate"><span class="pre">get_current_user_role()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.optional_auth"><code class="docutils literal notranslate"><span class="pre">optional_auth()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_admin"><code class="docutils literal notranslate"><span class="pre">require_admin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_auth"><code class="docutils literal notranslate"><span class="pre">require_auth()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_patient"><code class="docutils literal notranslate"><span class="pre">require_patient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_provider"><code class="docutils literal notranslate"><span class="pre">require_provider()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_role"><code class="docutils literal notranslate"><span class="pre">require_role()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.conversation_service">services.conversation_service module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.conversation_service.ConversationService"><code class="docutils literal notranslate"><span class="pre">ConversationService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.add_message"><code class="docutils literal notranslate"><span class="pre">ConversationService.add_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.close"><code class="docutils literal notranslate"><span class="pre">ConversationService.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.connect"><code class="docutils literal notranslate"><span class="pre">ConversationService.connect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.create_conversation"><code class="docutils literal notranslate"><span class="pre">ConversationService.create_conversation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.delete_conversation"><code class="docutils literal notranslate"><span class="pre">ConversationService.delete_conversation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.get_conversation_by_id"><code class="docutils literal notranslate"><span class="pre">ConversationService.get_conversation_by_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.get_conversation_by_participants"><code class="docutils literal notranslate"><span class="pre">ConversationService.get_conversation_by_participants()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.get_conversation_messages"><code class="docutils literal notranslate"><span class="pre">ConversationService.get_conversation_messages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.get_user_conversations"><code class="docutils literal notranslate"><span class="pre">ConversationService.get_user_conversations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.conversation_service.ConversationService.mark_messages_as_read"><code class="docutils literal notranslate"><span class="pre">ConversationService.mark_messages_as_read()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.encryption">services.encryption module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.encryption.EncryptionService"><code class="docutils literal notranslate"><span class="pre">EncryptionService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.encryption.EncryptionService.decrypt"><code class="docutils literal notranslate"><span class="pre">EncryptionService.decrypt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.encryption.EncryptionService.decrypt_api_key"><code class="docutils literal notranslate"><span class="pre">EncryptionService.decrypt_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.encryption.EncryptionService.encrypt"><code class="docutils literal notranslate"><span class="pre">EncryptionService.encrypt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.encryption.EncryptionService.encrypt_api_key"><code class="docutils literal notranslate"><span class="pre">EncryptionService.encrypt_api_key()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.encryption.get_encryption_service"><code class="docutils literal notranslate"><span class="pre">get_encryption_service()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.llm_chat_service">services.llm_chat_service module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.llm_chat_service.LLMChatService"><code class="docutils literal notranslate"><span class="pre">LLMChatService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.llm_chat_service.LLMChatService.add_message"><code class="docutils literal notranslate"><span class="pre">LLMChatService.add_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.llm_chat_service.LLMChatService.close"><code class="docutils literal notranslate"><span class="pre">LLMChatService.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.llm_chat_service.LLMChatService.connect"><code class="docutils literal notranslate"><span class="pre">LLMChatService.connect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.llm_chat_service.LLMChatService.create_llm_chat"><code class="docutils literal notranslate"><span class="pre">LLMChatService.create_llm_chat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.llm_chat_service.LLMChatService.get_llm_chat"><code class="docutils literal notranslate"><span class="pre">LLMChatService.get_llm_chat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.llm_chat_service.LLMChatService.get_llm_chats_for_user"><code class="docutils literal notranslate"><span class="pre">LLMChatService.get_llm_chats_for_user()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.notifications">services.notifications module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.notifications.publish_event"><code class="docutils literal notranslate"><span class="pre">publish_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.notifications.publish_event_with_buffer"><code class="docutils literal notranslate"><span class="pre">publish_event_with_buffer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.notifications.store_event"><code class="docutils literal notranslate"><span class="pre">store_event()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.openai_security">services.openai_security module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.openai_security.OpenAISecurityService"><code class="docutils literal notranslate"><span class="pre">OpenAISecurityService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.openai_security.OpenAISecurityService.check_rate_limit"><code class="docutils literal notranslate"><span class="pre">OpenAISecurityService.check_rate_limit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.openai_security.OpenAISecurityService.get_usage_stats"><code class="docutils literal notranslate"><span class="pre">OpenAISecurityService.get_usage_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.openai_security.OpenAISecurityService.get_user_api_key_with_validation"><code class="docutils literal notranslate"><span class="pre">OpenAISecurityService.get_user_api_key_with_validation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.openai_security.OpenAISecurityService.log_api_usage"><code class="docutils literal notranslate"><span class="pre">OpenAISecurityService.log_api_usage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.openai_security.OpenAISecurityService.validate_api_key"><code class="docutils literal notranslate"><span class="pre">OpenAISecurityService.validate_api_key()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.openai_security.get_openai_security_service"><code class="docutils literal notranslate"><span class="pre">get_openai_security_service()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.optimal">services.optimal module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.optimal.OptimalMetadata"><code class="docutils literal notranslate"><span class="pre">OptimalMetadata</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.optimal.OptimalMetadata.to_dict"><code class="docutils literal notranslate"><span class="pre">OptimalMetadata.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.optimal.OptimalSchema"><code class="docutils literal notranslate"><span class="pre">OptimalSchema</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.optimal.OptimalSchema.to_dict"><code class="docutils literal notranslate"><span class="pre">OptimalSchema.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.optimal.OptimalService"><code class="docutils literal notranslate"><span class="pre">OptimalService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.optimal.OptimalService.headers"><code class="docutils literal notranslate"><span class="pre">OptimalService.headers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.optimal.OptimalService.payload"><code class="docutils literal notranslate"><span class="pre">OptimalService.payload</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.optimal.OptimalService.send"><code class="docutils literal notranslate"><span class="pre">OptimalService.send()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.redis_client">services.redis_client module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.redis_client.get_redis_connection"><code class="docutils literal notranslate"><span class="pre">get_redis_connection()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.scheduling">services.scheduling module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.scheduling.SchedulingService"><code class="docutils literal notranslate"><span class="pre">SchedulingService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.cancel_appointment"><code class="docutils literal notranslate"><span class="pre">SchedulingService.cancel_appointment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.close"><code class="docutils literal notranslate"><span class="pre">SchedulingService.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.complete_appointment"><code class="docutils literal notranslate"><span class="pre">SchedulingService.complete_appointment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.confirm_appointment"><code class="docutils literal notranslate"><span class="pre">SchedulingService.confirm_appointment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.connect"><code class="docutils literal notranslate"><span class="pre">SchedulingService.connect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.create_appointment"><code class="docutils literal notranslate"><span class="pre">SchedulingService.create_appointment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.get_all_appointments"><code class="docutils literal notranslate"><span class="pre">SchedulingService.get_all_appointments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.get_appointment"><code class="docutils literal notranslate"><span class="pre">SchedulingService.get_appointment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.get_appointments_by_date"><code class="docutils literal notranslate"><span class="pre">SchedulingService.get_appointments_by_date()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.get_appointments_by_patient"><code class="docutils literal notranslate"><span class="pre">SchedulingService.get_appointments_by_patient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.get_appointments_by_provider"><code class="docutils literal notranslate"><span class="pre">SchedulingService.get_appointments_by_provider()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.get_available_slots"><code class="docutils literal notranslate"><span class="pre">SchedulingService.get_available_slots()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.scheduling.SchedulingService.update_appointment"><code class="docutils literal notranslate"><span class="pre">SchedulingService.update_appointment()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services.user_service">services.user_service module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.user_service.UserService"><code class="docutils literal notranslate"><span class="pre">UserService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.activate_user"><code class="docutils literal notranslate"><span class="pre">UserService.activate_user()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.authenticate_user"><code class="docutils literal notranslate"><span class="pre">UserService.authenticate_user()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.change_password"><code class="docutils literal notranslate"><span class="pre">UserService.change_password()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.close"><code class="docutils literal notranslate"><span class="pre">UserService.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.connect"><code class="docutils literal notranslate"><span class="pre">UserService.connect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.create_default_admin"><code class="docutils literal notranslate"><span class="pre">UserService.create_default_admin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.create_user"><code class="docutils literal notranslate"><span class="pre">UserService.create_user()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.deactivate_user"><code class="docutils literal notranslate"><span class="pre">UserService.deactivate_user()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_all_users"><code class="docutils literal notranslate"><span class="pre">UserService.get_all_users()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.get_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_by_email"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_by_email()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_by_id"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_by_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_by_username"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_by_username()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_settings"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.has_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.has_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.logout"><code class="docutils literal notranslate"><span class="pre">UserService.logout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.save_user_settings"><code class="docutils literal notranslate"><span class="pre">UserService.save_user_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.update_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.update_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.update_user"><code class="docutils literal notranslate"><span class="pre">UserService.update_user()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.validate_session"><code class="docutils literal notranslate"><span class="pre">UserService.validate_session()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-services">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">types module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.AsyncGeneratorType"><code class="docutils literal notranslate"><span class="pre">AsyncGeneratorType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.BuiltinFunctionType"><code class="docutils literal notranslate"><span class="pre">BuiltinFunctionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.BuiltinMethodType"><code class="docutils literal notranslate"><span class="pre">BuiltinMethodType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.CellType"><code class="docutils literal notranslate"><span class="pre">CellType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.ClassMethodDescriptorType"><code class="docutils literal notranslate"><span class="pre">ClassMethodDescriptorType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.CodeType"><code class="docutils literal notranslate"><span class="pre">CodeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.CoroutineType"><code class="docutils literal notranslate"><span class="pre">CoroutineType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.DynamicClassAttribute"><code class="docutils literal notranslate"><span class="pre">DynamicClassAttribute</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="types.html#types.DynamicClassAttribute.deleter"><code class="docutils literal notranslate"><span class="pre">DynamicClassAttribute.deleter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="types.html#types.DynamicClassAttribute.getter"><code class="docutils literal notranslate"><span class="pre">DynamicClassAttribute.getter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="types.html#types.DynamicClassAttribute.setter"><code class="docutils literal notranslate"><span class="pre">DynamicClassAttribute.setter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.EllipsisType"><code class="docutils literal notranslate"><span class="pre">EllipsisType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.FrameType"><code class="docutils literal notranslate"><span class="pre">FrameType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.FunctionType"><code class="docutils literal notranslate"><span class="pre">FunctionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.GeneratorType"><code class="docutils literal notranslate"><span class="pre">GeneratorType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.GenericAlias"><code class="docutils literal notranslate"><span class="pre">GenericAlias</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.GetSetDescriptorType"><code class="docutils literal notranslate"><span class="pre">GetSetDescriptorType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.LambdaType"><code class="docutils literal notranslate"><span class="pre">LambdaType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.MappingProxyType"><code class="docutils literal notranslate"><span class="pre">MappingProxyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.MemberDescriptorType"><code class="docutils literal notranslate"><span class="pre">MemberDescriptorType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.MethodDescriptorType"><code class="docutils literal notranslate"><span class="pre">MethodDescriptorType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.MethodType"><code class="docutils literal notranslate"><span class="pre">MethodType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.MethodWrapperType"><code class="docutils literal notranslate"><span class="pre">MethodWrapperType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.ModuleType"><code class="docutils literal notranslate"><span class="pre">ModuleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.NoneType"><code class="docutils literal notranslate"><span class="pre">NoneType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.NotImplementedType"><code class="docutils literal notranslate"><span class="pre">NotImplementedType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.SimpleNamespace"><code class="docutils literal notranslate"><span class="pre">SimpleNamespace</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.TracebackType"><code class="docutils literal notranslate"><span class="pre">TracebackType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.UnionType"><code class="docutils literal notranslate"><span class="pre">UnionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.WrapperDescriptorType"><code class="docutils literal notranslate"><span class="pre">WrapperDescriptorType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.coroutine"><code class="docutils literal notranslate"><span class="pre">coroutine()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.new_class"><code class="docutils literal notranslate"><span class="pre">new_class()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.prepare_class"><code class="docutils literal notranslate"><span class="pre">prepare_class()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html#types.resolve_bases"><code class="docutils literal notranslate"><span class="pre">resolve_bases()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ArsMedicaTech</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../app.html">app module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">lib</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="db.html">db package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dummy_data.html">dummy_data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm.html">llm package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logger.html">logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html">migrations package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">models package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">opt package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html">routes package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html">services package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html">types module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../OPENAI_SECURITY_README.html">OpenAI Security System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../PATIENT_CRUD_README.html">Patient CRUD Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SSE_NOTIFICATIONS_README.html">Redis/SSE Notifications System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../USER_SETTINGS_README.html">User Settings System</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../app.html" title="previous chapter">app module</a></li>
+      <li>Next: <a href="db.html" title="next chapter">db package</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Darren MacKenzie.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Redis/SSE Notifications System &#8212; ArsMedicaTech  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="User Settings System" href="USER_SETTINGS_README.html" />
+    <link rel="prev" title="Patient CRUD Operations" href="PATIENT_CRUD_README.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="redis-sse-notifications-system">
+<h1>Redis/SSE Notifications System<a class="headerlink" href="#redis-sse-notifications-system" title="Link to this heading">¶</a></h1>
+<p>This document explains how the Redis/SSE (Server-Sent Events) notifications system works in the ArsMedicaTech application.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The notifications system provides real-time updates to users through:</p>
+<ul class="simple">
+<li><p><strong>Redis PubSub</strong>: For immediate message delivery</p></li>
+<li><p><strong>Redis Lists</strong>: For message buffering and replay</p></li>
+<li><p><strong>Server-Sent Events (SSE)</strong>: For browser-based real-time updates</p></li>
+</ul>
+</section>
+<section id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Frontend (React) ←→ SSE Stream ←→ Flask Backend ←→ Redis PubSub
+                                    ↓
+                              Redis Lists (Buffer)
+</pre></div>
+</div>
+</section>
+<section id="components">
+<h2>Components<a class="headerlink" href="#components" title="Link to this heading">¶</a></h2>
+<section id="backend-components">
+<h3>Backend Components<a class="headerlink" href="#backend-components" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">lib/services/redis_client.py</span></code></strong>: Redis connection management</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">lib/services/notifications.py</span></code></strong>: Event publishing functions</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">app.py</span></code></strong>: SSE endpoint and test endpoints</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">lib/routes/chat.py</span></code></strong>: Message sending with notification publishing</p></li>
+</ol>
+</section>
+<section id="frontend-components">
+<h3>Frontend Components<a class="headerlink" href="#frontend-components" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">src/hooks/useEvents.ts</span></code></strong>: SSE connection and event handling</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">src/pages/Messages.tsx</span></code></strong>: Integration with real-time updates</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">src/components/NotificationTest.tsx</span></code></strong>: Testing interface</p></li>
+</ol>
+</section>
+</section>
+<section id="event-types">
+<h2>Event Types<a class="headerlink" href="#event-types" title="Link to this heading">¶</a></h2>
+<section id="new-message-new-message">
+<h3>1. New Message (<code class="docutils literal notranslate"><span class="pre">new_message</span></code>)<a class="headerlink" href="#new-message-new-message" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;new_message&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;conversation_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sender&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dr. Smith&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hello, how are you feeling?&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-20T10:30:00Z&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="appointment-reminder-appointment-reminder">
+<h3>2. Appointment Reminder (<code class="docutils literal notranslate"><span class="pre">appointment_reminder</span></code>)<a class="headerlink" href="#appointment-reminder-appointment-reminder" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;appointment_reminder&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;appointmentId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;456&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-20T14:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Annual checkup&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-20T10:30:00Z&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="system-notification-system-notification">
+<h3>3. System Notification (<code class="docutils literal notranslate"><span class="pre">system_notification</span></code>)<a class="headerlink" href="#system-notification-system-notification" title="Link to this heading">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;system_notification&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Your profile is incomplete&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-20T10:30:00Z&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="setup-instructions">
+<h2>Setup Instructions<a class="headerlink" href="#setup-instructions" title="Link to this heading">¶</a></h2>
+<section id="redis-configuration">
+<h3>1. Redis Configuration<a class="headerlink" href="#redis-configuration" title="Link to this heading">¶</a></h3>
+<p>Add to your <code class="docutils literal notranslate"><span class="pre">.env</span></code> file:</p>
+<div class="highlight-env notranslate"><div class="highlight"><pre><span></span>REDIS_HOST=localhost
+REDIS_PORT=6379
+</pre></div>
+</div>
+</section>
+<section id="install-dependencies">
+<h3>2. Install Dependencies<a class="headerlink" href="#install-dependencies" title="Link to this heading">¶</a></h3>
+<p>Redis is already included in <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">redis</span><span class="o">==</span><span class="mf">6.2.0</span>
+</pre></div>
+</div>
+</section>
+<section id="start-redis">
+<h3>3. Start Redis<a class="headerlink" href="#start-redis" title="Link to this heading">¶</a></h3>
+<p>Using Docker:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">6379</span>:6379<span class="w"> </span>redis:alpine
+</pre></div>
+</div>
+<p>Or install locally:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ubuntu/Debian</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>redis-server
+
+<span class="c1"># macOS</span>
+brew<span class="w"> </span>install<span class="w"> </span>redis
+brew<span class="w"> </span>services<span class="w"> </span>start<span class="w"> </span>redis
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading">¶</a></h2>
+<section id="test-redis-connection">
+<h3>1. Test Redis Connection<a class="headerlink" href="#test-redis-connection" title="Link to this heading">¶</a></h3>
+<p>Run the Redis test script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>test/test_redis.py
+</pre></div>
+</div>
+</section>
+<section id="test-sse-in-browser">
+<h3>2. Test SSE in Browser<a class="headerlink" href="#test-sse-in-browser" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Start the Flask backend:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>app.py
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Start the React frontend:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>npm<span class="w"> </span>start
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Navigate to the Messages page</p></li>
+<li><p>Use the “SSE Notification Test” component to send test events</p></li>
+<li><p>Check the browser console for event logs</p></li>
+</ol>
+</section>
+<section id="test-endpoints">
+<h3>3. Test Endpoints<a class="headerlink" href="#test-endpoints" title="Link to this heading">¶</a></h3>
+<p><strong>Test SSE Message:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:5000/api/sse<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Cookie: session=your-session-cookie&quot;</span>
+</pre></div>
+</div>
+<p><strong>Test Appointment Reminder:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:5000/api/test/appointment-reminder<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Cookie: session=your-session-cookie&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;appointmentId&quot;: &quot;test-123&quot;,</span>
+<span class="s1">    &quot;time&quot;: &quot;2025-01-20T14:00:00Z&quot;,</span>
+<span class="s1">    &quot;content&quot;: &quot;Test appointment&quot;</span>
+<span class="s1">  }&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="how-it-works">
+<h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">¶</a></h2>
+<section id="event-publishing">
+<h3>1. Event Publishing<a class="headerlink" href="#event-publishing" title="Link to this heading">¶</a></h3>
+<p>When a message is sent:</p>
+<ol class="arabic simple">
+<li><p>Message is saved to the database</p></li>
+<li><p>Event is published to Redis PubSub for immediate delivery</p></li>
+<li><p>Event is stored in Redis List for replay (1-hour TTL)</p></li>
+</ol>
+</section>
+<section id="event-delivery">
+<h3>2. Event Delivery<a class="headerlink" href="#event-delivery" title="Link to this heading">¶</a></h3>
+<p>When a user connects via SSE:</p>
+<ol class="arabic simple">
+<li><p>Past events are replayed from Redis List</p></li>
+<li><p>New events are delivered via Redis PubSub</p></li>
+<li><p>Events are formatted as Server-Sent Events</p></li>
+</ol>
+</section>
+<section id="frontend-handling">
+<h3>3. Frontend Handling<a class="headerlink" href="#frontend-handling" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">useEvents</span></code> hook:</p>
+<ol class="arabic simple">
+<li><p>Establishes SSE connection</p></li>
+<li><p>Handles reconnection on errors</p></li>
+<li><p>Calls appropriate callbacks for each event type</p></li>
+<li><p>Updates UI in real-time</p></li>
+</ol>
+</section>
+</section>
+<section id="integration-points">
+<h2>Integration Points<a class="headerlink" href="#integration-points" title="Link to this heading">¶</a></h2>
+<section id="message-sending">
+<h3>Message Sending<a class="headerlink" href="#message-sending" title="Link to this heading">¶</a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">lib/routes/chat.py</span></code>, after successfully saving a message:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Publish notification to all other participants</span>
+<span class="k">for</span> <span class="n">participant_id</span> <span class="ow">in</span> <span class="n">conversation</span><span class="o">.</span><span class="n">participants</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">participant_id</span> <span class="o">!=</span> <span class="n">current_user_id</span><span class="p">:</span>
+        <span class="n">event_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;new_message&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;conversation_id&quot;</span><span class="p">:</span> <span class="n">conversation_id</span><span class="p">,</span>
+            <span class="s2">&quot;sender&quot;</span><span class="p">:</span> <span class="n">sender_name</span><span class="p">,</span>
+            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">message_text</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">msg_obj</span><span class="o">.</span><span class="n">created_at</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">publish_event_with_buffer</span><span class="p">(</span><span class="n">participant_id</span><span class="p">,</span> <span class="n">event_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="frontend-integration">
+<h3>Frontend Integration<a class="headerlink" href="#frontend-integration" title="Link to this heading">¶</a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">src/pages/Messages.tsx</span></code>:</p>
+<div class="highlight-typescript notranslate"><div class="highlight"><pre><span></span><span class="kd">const</span><span class="w"> </span><span class="nx">handleNewMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useCallback</span><span class="p">((</span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Update conversation list</span>
+<span class="w">  </span><span class="nx">setConversations</span><span class="p">(</span><span class="nx">prevConversations</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span>
+<span class="w">    </span><span class="nx">prevConversations</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">conv</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">conv</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">conversation_id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">conv</span><span class="p">,</span><span class="w"> </span><span class="nx">lastMessage</span><span class="o">:</span><span class="w"> </span><span class="kt">data.text</span><span class="w"> </span><span class="p">};</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">conv</span><span class="p">;</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">// Refresh messages if conversation is selected</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">selectedConversationId</span><span class="o">?</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">conversation_id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Fetch updated messages</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="nx">selectedConversationId</span><span class="p">,</span><span class="w"> </span><span class="nx">setConversations</span><span class="p">]);</span>
+
+<span class="nx">useEvents</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">onNewMessage</span><span class="o">:</span><span class="w"> </span><span class="kt">handleNewMessage</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">onAppointmentReminder</span><span class="o">:</span><span class="w"> </span><span class="kt">handleAppointmentReminder</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">onSystemNotification</span><span class="o">:</span><span class="w"> </span><span class="kt">handleSystemNotification</span><span class="p">,</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Redis Connection Failed</strong></p>
+<ul class="simple">
+<li><p>Check if Redis is running: <code class="docutils literal notranslate"><span class="pre">redis-cli</span> <span class="pre">ping</span></code></p></li>
+<li><p>Verify host/port in settings</p></li>
+<li><p>Check firewall settings</p></li>
+</ul>
+</li>
+<li><p><strong>SSE Connection Errors</strong></p>
+<ul class="simple">
+<li><p>Ensure user is authenticated</p></li>
+<li><p>Check browser console for CORS errors</p></li>
+<li><p>Verify SSE endpoint is accessible</p></li>
+</ul>
+</li>
+<li><p><strong>Events Not Received</strong></p>
+<ul class="simple">
+<li><p>Check Redis PubSub: <code class="docutils literal notranslate"><span class="pre">redis-cli</span> <span class="pre">monitor</span></code></p></li>
+<li><p>Verify user ID in event publishing</p></li>
+<li><p>Check browser console for SSE errors</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="debug-commands">
+<h3>Debug Commands<a class="headerlink" href="#debug-commands" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Monitor Redis activity</span>
+redis-cli<span class="w"> </span>monitor
+
+<span class="c1"># Check Redis keys</span>
+redis-cli<span class="w"> </span>keys<span class="w"> </span><span class="s2">&quot;user:*&quot;</span>
+
+<span class="c1"># Test Redis PubSub</span>
+redis-cli<span class="w"> </span>subscribe<span class="w"> </span><span class="s2">&quot;user:test-user-123&quot;</span>
+
+<span class="c1"># Check SSE endpoint</span>
+curl<span class="w"> </span>-N<span class="w"> </span>http://localhost:5000/api/events/stream
+</pre></div>
+</div>
+</section>
+</section>
+<section id="future-enhancements">
+<h2>Future Enhancements<a class="headerlink" href="#future-enhancements" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>WebSocket Support</strong>: For bi-directional communication</p></li>
+<li><p><strong>Message Encryption</strong>: For sensitive medical data</p></li>
+<li><p><strong>Delivery Acknowledgments</strong>: For guaranteed message delivery</p></li>
+<li><p><strong>Rate Limiting</strong>: To prevent spam</p></li>
+<li><p><strong>Message Persistence</strong>: Longer-term message storage</p></li>
+<li><p><strong>Push Notifications</strong>: For mobile devices</p></li>
+</ol>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ArsMedicaTech</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="app.html">app module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">lib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="OPENAI_SECURITY_README.html">OpenAI Security System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PATIENT_CRUD_README.html">Patient CRUD Operations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Redis/SSE Notifications System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#components">Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#event-types">Event Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-instructions">Setup Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-it-works">How It Works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-points">Integration Points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#future-enhancements">Future Enhancements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="USER_SETTINGS_README.html">User Settings System</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="PATIENT_CRUD_README.html" title="previous chapter">Patient CRUD Operations</a></li>
+      <li>Next: <a href="USER_SETTINGS_README.html" title="next chapter">User Settings System</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Darren MacKenzie.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/SSE_NOTIFICATIONS_README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

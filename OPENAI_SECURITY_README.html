@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>OpenAI Security System &#8212; ArsMedicaTech  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Patient CRUD Operations" href="PATIENT_CRUD_README.html" />
+    <link rel="prev" title="types module" href="api/types.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="openai-security-system">
+<h1>OpenAI Security System<a class="headerlink" href="#openai-security-system" title="Link to this heading">¶</a></h1>
+<p>This document describes the comprehensive security system implemented for OpenAI API integration in ArsMedicaTech.</p>
+<section id="security-overview">
+<h2>🔐 <strong>Security Overview</strong><a class="headerlink" href="#security-overview" title="Link to this heading">¶</a></h2>
+<p>The system provides multiple layers of security for OpenAI API usage:</p>
+<ol class="arabic simple">
+<li><p><strong>User-Specific API Keys</strong> - Each user has their own encrypted API key</p></li>
+<li><p><strong>API Key Validation</strong> - Real-time validation of API keys</p></li>
+<li><p><strong>Rate Limiting</strong> - Per-user rate limiting to prevent abuse</p></li>
+<li><p><strong>Usage Monitoring</strong> - Track and display API usage statistics</p></li>
+<li><p><strong>Secure Storage</strong> - AES-256 encryption for API keys</p></li>
+</ol>
+</section>
+<section id="architecture">
+<h2>🏗️ <strong>Architecture</strong><a class="headerlink" href="#architecture" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Frontend (Settings) → Backend (Security Service) → OpenAI API
+       ↓                        ↓                      ↓
+   User Input              Validation &amp;              API Calls
+   Usage Display           Rate Limiting             Response
+</pre></div>
+</div>
+</section>
+<section id="components">
+<h2>🔧 <strong>Components</strong><a class="headerlink" href="#components" title="Link to this heading">¶</a></h2>
+<section id="openai-security-service-lib-services-openai-security-py">
+<h3>1. OpenAI Security Service (<code class="docutils literal notranslate"><span class="pre">lib/services/openai_security.py</span></code>)<a class="headerlink" href="#openai-security-service-lib-services-openai-security-py" title="Link to this heading">¶</a></h3>
+<p><strong>Features:</strong></p>
+<ul class="simple">
+<li><p>API key validation with OpenAI</p></li>
+<li><p>Rate limiting (100 requests/hour per user)</p></li>
+<li><p>Usage tracking and statistics</p></li>
+<li><p>Caching for performance</p></li>
+</ul>
+<p><strong>Key Methods:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Validate API key</span>
+<span class="n">is_valid</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">security_service</span><span class="o">.</span><span class="n">validate_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
+
+<span class="c1"># Get user API key with validation</span>
+<span class="n">api_key</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">security_service</span><span class="o">.</span><span class="n">get_user_api_key_with_validation</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+
+<span class="c1"># Check rate limits</span>
+<span class="n">within_limit</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">security_service</span><span class="o">.</span><span class="n">check_rate_limit</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+
+<span class="c1"># Get usage statistics</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">security_service</span><span class="o">.</span><span class="n">get_usage_stats</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="enhanced-llm-agent-route-lib-routes-llm-agent-py">
+<h3>2. Enhanced LLM Agent Route (<code class="docutils literal notranslate"><span class="pre">lib/routes/llm_agent.py</span></code>)<a class="headerlink" href="#enhanced-llm-agent-route-lib-routes-llm-agent-py" title="Link to this heading">¶</a></h3>
+<p><strong>Security Features:</strong></p>
+<ul class="simple">
+<li><p>Automatic API key validation</p></li>
+<li><p>Rate limit enforcement</p></li>
+<li><p>Usage logging</p></li>
+<li><p>Error handling</p></li>
+</ul>
+<p><strong>Flow:</strong></p>
+<ol class="arabic simple">
+<li><p>Authenticate user</p></li>
+<li><p>Validate API key</p></li>
+<li><p>Check rate limits</p></li>
+<li><p>Make API call</p></li>
+<li><p>Log usage</p></li>
+<li><p>Return response</p></li>
+</ol>
+</section>
+<section id="usage-monitoring-api-usage">
+<h3>3. Usage Monitoring (<code class="docutils literal notranslate"><span class="pre">/api/usage</span></code>)<a class="headerlink" href="#usage-monitoring-api-usage" title="Link to this heading">¶</a></h3>
+<p><strong>Endpoint:</strong> <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/usage</span></code></p>
+<p><strong>Response:</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;usage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;requests_this_hour&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;max_requests_per_hour&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;window_start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1640995200</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="enhanced-settings-ui">
+<h3>4. Enhanced Settings UI<a class="headerlink" href="#enhanced-settings-ui" title="Link to this heading">¶</a></h3>
+<p><strong>Features:</strong></p>
+<ul class="simple">
+<li><p>API key management</p></li>
+<li><p>Usage statistics display</p></li>
+<li><p>Real-time progress bars</p></li>
+<li><p>Rate limit warnings</p></li>
+</ul>
+</section>
+</section>
+<section id="security-features">
+<h2>🛡️ <strong>Security Features</strong><a class="headerlink" href="#security-features" title="Link to this heading">¶</a></h2>
+<section id="api-key-security">
+<h3><strong>API Key Security</strong><a class="headerlink" href="#api-key-security" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Encryption</strong>: AES-256 with PBKDF2 key derivation</p></li>
+<li><p><strong>Validation</strong>: Real-time validation with OpenAI</p></li>
+<li><p><strong>Caching</strong>: 1-hour validation cache</p></li>
+<li><p><strong>Format Check</strong>: Ensures proper OpenAI key format</p></li>
+</ul>
+</section>
+<section id="rate-limiting">
+<h3><strong>Rate Limiting</strong><a class="headerlink" href="#rate-limiting" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Window</strong>: 1-hour sliding window</p></li>
+<li><p><strong>Limit</strong>: 100 requests per hour per user</p></li>
+<li><p><strong>Storage</strong>: In-memory with automatic cleanup</p></li>
+<li><p><strong>Reset</strong>: Automatic window reset</p></li>
+</ul>
+</section>
+<section id="usage-monitoring">
+<h3><strong>Usage Monitoring</strong><a class="headerlink" href="#usage-monitoring" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Tracking</strong>: Per-user request counting</p></li>
+<li><p><strong>Statistics</strong>: Real-time usage display</p></li>
+<li><p><strong>Logging</strong>: API usage for audit trails</p></li>
+<li><p><strong>Alerts</strong>: Rate limit warnings</p></li>
+</ul>
+</section>
+</section>
+<section id="usage-statistics">
+<h2>📊 <strong>Usage Statistics</strong><a class="headerlink" href="#usage-statistics" title="Link to this heading">¶</a></h2>
+<p>The system tracks:</p>
+<ul class="simple">
+<li><p><strong>Requests per hour</strong>: Current usage vs limit</p></li>
+<li><p><strong>Window timing</strong>: When limits reset</p></li>
+<li><p><strong>Model usage</strong>: Which models are being used</p></li>
+<li><p><strong>Token usage</strong>: Optional token counting</p></li>
+</ul>
+</section>
+<section id="api-flow">
+<h2>🔄 <strong>API Flow</strong><a class="headerlink" href="#api-flow" title="Link to this heading">¶</a></h2>
+<section id="user-makes-request">
+<h3><strong>1. User Makes Request</strong><a class="headerlink" href="#user-makes-request" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>User → Frontend → /api/llm_chat → Security Service
+</pre></div>
+</div>
+</section>
+<section id="security-validation">
+<h3><strong>2. Security Validation</strong><a class="headerlink" href="#security-validation" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Security Service → Rate Limit Check → API Key Validation → OpenAI API
+</pre></div>
+</div>
+</section>
+<section id="response-processing">
+<h3><strong>3. Response Processing</strong><a class="headerlink" href="#response-processing" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>OpenAI API → Usage Logging → Response → User
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration">
+<h2>🚀 <strong>Configuration</strong><a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h2>
+<section id="environment-variables">
+<h3><strong>Environment Variables</strong><a class="headerlink" href="#environment-variables" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Required for encryption</span>
+<span class="nv">ENCRYPTION_KEY</span><span class="o">=</span>your-secure-32-character-key
+
+<span class="c1"># Optional system fallback</span>
+<span class="nv">MIGRATION_OPENAI_API_KEY</span><span class="o">=</span>sk-system-key-for-migrations
+</pre></div>
+</div>
+</section>
+<section id="rate-limiting-configuration">
+<h3><strong>Rate Limiting Configuration</strong><a class="headerlink" href="#rate-limiting-configuration" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In OpenAISecurityService</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">rate_limit_window</span> <span class="o">=</span> <span class="mi">3600</span>  <span class="c1"># 1 hour</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">max_requests_per_hour</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># Adjust as needed</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="monitoring-analytics">
+<h2>📈 <strong>Monitoring &amp; Analytics</strong><a class="headerlink" href="#monitoring-analytics" title="Link to this heading">¶</a></h2>
+<section id="usage-dashboard">
+<h3><strong>Usage Dashboard</strong><a class="headerlink" href="#usage-dashboard" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Real-time usage statistics</p></li>
+<li><p>Rate limit progress bars</p></li>
+<li><p>Window reset timers</p></li>
+<li><p>Historical usage data</p></li>
+</ul>
+</section>
+<section id="admin-monitoring">
+<h3><strong>Admin Monitoring</strong><a class="headerlink" href="#admin-monitoring" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>System-wide usage statistics</p></li>
+<li><p>User-specific usage reports</p></li>
+<li><p>Rate limit violations</p></li>
+<li><p>API key validation failures</p></li>
+</ul>
+</section>
+</section>
+<section id="error-handling">
+<h2>🔍 <strong>Error Handling</strong><a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h2>
+<section id="common-errors">
+<h3><strong>Common Errors</strong><a class="headerlink" href="#common-errors" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>No API Key</strong>: “Please configure your API key in Settings”</p></li>
+<li><p><strong>Invalid Key</strong>: “API key validation failed”</p></li>
+<li><p><strong>Rate Limit</strong>: “Rate limit exceeded. Please try again later”</p></li>
+<li><p><strong>Network Error</strong>: “API connection failed”</p></li>
+</ol>
+</section>
+<section id="error-recovery">
+<h3><strong>Error Recovery</strong><a class="headerlink" href="#error-recovery" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Automatic retry for network issues</p></li>
+<li><p>Graceful degradation for validation failures</p></li>
+<li><p>User-friendly error messages</p></li>
+<li><p>Detailed logging for debugging</p></li>
+</ul>
+</section>
+</section>
+<section id="testing">
+<h2>🧪 <strong>Testing</strong><a class="headerlink" href="#testing" title="Link to this heading">¶</a></h2>
+<section id="security-tests">
+<h3><strong>Security Tests</strong><a class="headerlink" href="#security-tests" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test encryption</span>
+python<span class="w"> </span>test/test_encryption.py
+
+<span class="c1"># Test rate limiting</span>
+python<span class="w"> </span>test/test_rate_limiting.py
+
+<span class="c1"># Test API validation</span>
+python<span class="w"> </span>test/test_api_validation.py
+</pre></div>
+</div>
+</section>
+<section id="integration-tests">
+<h3><strong>Integration Tests</strong><a class="headerlink" href="#integration-tests" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>End-to-end API key flow</p></li>
+<li><p>Rate limiting enforcement</p></li>
+<li><p>Usage tracking accuracy</p></li>
+<li><p>Error handling scenarios</p></li>
+</ul>
+</section>
+</section>
+<section id="best-practices">
+<h2>🔒 <strong>Best Practices</strong><a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<section id="for-users">
+<h3><strong>For Users</strong><a class="headerlink" href="#for-users" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Secure Storage</strong>: Never share API keys</p></li>
+<li><p><strong>Regular Rotation</strong>: Update keys periodically</p></li>
+<li><p><strong>Monitor Usage</strong>: Check usage statistics regularly</p></li>
+<li><p><strong>Report Issues</strong>: Contact support for problems</p></li>
+</ol>
+</section>
+<section id="for-developers">
+<h3><strong>For Developers</strong><a class="headerlink" href="#for-developers" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Environment Variables</strong>: Use secure key management</p></li>
+<li><p><strong>Logging</strong>: Implement comprehensive logging</p></li>
+<li><p><strong>Monitoring</strong>: Set up usage alerts</p></li>
+<li><p><strong>Testing</strong>: Regular security testing</p></li>
+</ol>
+</section>
+</section>
+<section id="security-considerations">
+<h2>🚨 <strong>Security Considerations</strong><a class="headerlink" href="#security-considerations" title="Link to this heading">¶</a></h2>
+<section id="data-protection">
+<h3><strong>Data Protection</strong><a class="headerlink" href="#data-protection" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>API keys encrypted at rest</p></li>
+<li><p>Secure transmission (HTTPS)</p></li>
+<li><p>No plain text storage</p></li>
+<li><p>Access control enforcement</p></li>
+</ul>
+</section>
+<section id="id1">
+<h3><strong>Rate Limiting</strong><a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Prevents API abuse</p></li>
+<li><p>Protects against DoS attacks</p></li>
+<li><p>Fair usage distribution</p></li>
+<li><p>Configurable limits</p></li>
+</ul>
+</section>
+<section id="monitoring">
+<h3><strong>Monitoring</strong><a class="headerlink" href="#monitoring" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Real-time usage tracking</p></li>
+<li><p>Anomaly detection</p></li>
+<li><p>Audit trail maintenance</p></li>
+<li><p>Performance monitoring</p></li>
+</ul>
+</section>
+</section>
+<section id="future-enhancements">
+<h2>🔮 <strong>Future Enhancements</strong><a class="headerlink" href="#future-enhancements" title="Link to this heading">¶</a></h2>
+<section id="planned-features">
+<h3><strong>Planned Features</strong><a class="headerlink" href="#planned-features" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Advanced Analytics</strong>: Detailed usage reports</p></li>
+<li><p><strong>Cost Tracking</strong>: Dollar amount tracking</p></li>
+<li><p><strong>Team Management</strong>: Shared API keys</p></li>
+<li><p><strong>Webhooks</strong>: Usage notifications</p></li>
+<li><p><strong>API Key Rotation</strong>: Automatic key rotation</p></li>
+</ol>
+</section>
+<section id="security-improvements">
+<h3><strong>Security Improvements</strong><a class="headerlink" href="#security-improvements" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Multi-factor Authentication</strong>: Additional security</p></li>
+<li><p><strong>IP Whitelisting</strong>: Geographic restrictions</p></li>
+<li><p><strong>Advanced Rate Limiting</strong>: Adaptive limits</p></li>
+<li><p><strong>Threat Detection</strong>: Anomaly detection</p></li>
+<li><p><strong>Compliance</strong>: GDPR/HIPAA compliance</p></li>
+</ol>
+</section>
+</section>
+<section id="support">
+<h2>📞 <strong>Support</strong><a class="headerlink" href="#support" title="Link to this heading">¶</a></h2>
+<p>For security issues or questions:</p>
+<ol class="arabic simple">
+<li><p>Check the logs for detailed error information</p></li>
+<li><p>Review usage statistics for anomalies</p></li>
+<li><p>Contact the development team</p></li>
+<li><p>Report security vulnerabilities immediately</p></li>
+</ol>
+<hr class="docutils" />
+<p><strong>Note</strong>: This security system is designed to protect both users and the platform while providing a seamless experience. Regular security audits and updates are performed to maintain the highest security standards.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ArsMedicaTech</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="app.html">app module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">lib</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OpenAI Security System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#security-overview">🔐 <strong>Security Overview</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture">🏗️ <strong>Architecture</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#components">🔧 <strong>Components</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#security-features">🛡️ <strong>Security Features</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-statistics">📊 <strong>Usage Statistics</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-flow">🔄 <strong>API Flow</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">🚀 <strong>Configuration</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#monitoring-analytics">📈 <strong>Monitoring &amp; Analytics</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-handling">🔍 <strong>Error Handling</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">🧪 <strong>Testing</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">🔒 <strong>Best Practices</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#security-considerations">🚨 <strong>Security Considerations</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#future-enhancements">🔮 <strong>Future Enhancements</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#support">📞 <strong>Support</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PATIENT_CRUD_README.html">Patient CRUD Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SSE_NOTIFICATIONS_README.html">Redis/SSE Notifications System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="USER_SETTINGS_README.html">User Settings System</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="api/types.html" title="previous chapter">types module</a></li>
+      <li>Next: <a href="PATIENT_CRUD_README.html" title="next chapter">Patient CRUD Operations</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Darren MacKenzie.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/OPENAI_SECURITY_README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

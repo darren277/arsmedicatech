@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>migrations package &#8212; ArsMedicaTech  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="models package" href="models.html" />
+    <link rel="prev" title="logger module" href="logger.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="migrations-package">
+<h1>migrations package<a class="headerlink" href="#migrations-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-migrations.demo">
+<span id="migrations-demo-module"></span><h2>migrations.demo module<a class="headerlink" href="#module-migrations.demo" title="Link to this heading">¶</a></h2>
+<p>Some demo code to create patients and encounters in the database.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.demo.create_forms">
+<span class="sig-prename descclassname"><span class="pre">migrations.demo.</span></span><span class="sig-name descname"><span class="pre">create_forms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo.create_forms" title="Link to this definition">¶</a></dt>
+<dd><p>Create a demo form structure and a sample form submission.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.demo.create_n_patients">
+<span class="sig-prename descclassname"><span class="pre">migrations.demo.</span></span><span class="sig-name descname"><span class="pre">create_n_patients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo.create_n_patients" title="Link to this definition">¶</a></dt>
+<dd><p>Create a number of patients with encounters and diagnostic codes.
+:type n: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param n: Number of patients to create.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+</section>
+<section id="module-migrations.demo_utils">
+<span id="migrations-demo-utils-module"></span><h2>migrations.demo_utils module<a class="headerlink" href="#module-migrations.demo_utils" title="Link to this heading">¶</a></h2>
+<p>Utility functions and factories for generating demo data for encounters and patients.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="migrations.demo_utils.Encounter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">migrations.demo_utils.</span></span><span class="sig-name descname"><span class="pre">Encounter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_created</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic_codes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo_utils.Encounter" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents an encounter note for a patient.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="migrations.demo_utils.EncounterFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">migrations.demo_utils.</span></span><span class="sig-name descname"><span class="pre">EncounterFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factory_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo_utils.EncounterFactory" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#migrations.demo_utils.FactoryWrapper" title="migrations.demo_utils.FactoryWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">FactoryWrapper</span></code></a></p>
+<p>Factory for generating encounter notes with Faker.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="migrations.demo_utils.EncounterFactory.Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="headerlink" href="#migrations.demo_utils.EncounterFactory.Meta" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Meta class for EncounterFactory.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.EncounterFactory.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#migrations.demo_utils.EncounterFactory.Meta.model" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#migrations.demo_utils.Encounter" title="migrations.demo_utils.Encounter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Encounter</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.EncounterFactory.date_created">
+<span class="sig-name descname"><span class="pre">date_created</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.EncounterFactory.date_created" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.EncounterFactory.note_id">
+<span class="sig-name descname"><span class="pre">note_id</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.EncounterFactory.note_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.EncounterFactory.note_text">
+<span class="sig-name descname"><span class="pre">note_text</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.EncounterFactory.note_text" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.EncounterFactory.provider_id">
+<span class="sig-name descname"><span class="pre">provider_id</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.EncounterFactory.provider_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="migrations.demo_utils.FactoryWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">migrations.demo_utils.</span></span><span class="sig-name descname"><span class="pre">FactoryWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factory_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo_utils.FactoryWrapper" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">migrations.demo_utils.</span></span><span class="sig-name descname"><span class="pre">PatientFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factory_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo_utils.PatientFactory" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#migrations.demo_utils.FactoryWrapper" title="migrations.demo_utils.FactoryWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">FactoryWrapper</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Meta</span></span><a class="headerlink" href="#migrations.demo_utils.PatientFactory.Meta" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Meta class for PatientFactory.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#migrations.demo_utils.PatientFactory.Meta.model" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Patient</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.date_of_birth">
+<span class="sig-name descname"><span class="pre">date_of_birth</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.PatientFactory.date_of_birth" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.demographic_no">
+<span class="sig-name descname"><span class="pre">demographic_no</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.PatientFactory.demographic_no" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.email">
+<span class="sig-name descname"><span class="pre">email</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.PatientFactory.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.first_name">
+<span class="sig-name descname"><span class="pre">first_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.PatientFactory.first_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.last_name">
+<span class="sig-name descname"><span class="pre">last_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.PatientFactory.last_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.location">
+<span class="sig-name descname"><span class="pre">location</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.PatientFactory.location" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.phone">
+<span class="sig-name descname"><span class="pre">phone</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.PatientFactory.phone" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migrations.demo_utils.PatientFactory.sex">
+<span class="sig-name descname"><span class="pre">sex</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#migrations.demo_utils.PatientFactory.sex" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.demo_utils.f">
+<span class="sig-prename descclassname"><span class="pre">migrations.demo_utils.</span></span><span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo_utils.f" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.demo_utils.load_csv">
+<span class="sig-prename descclassname"><span class="pre">migrations.demo_utils.</span></span><span class="sig-name descname"><span class="pre">load_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo_utils.load_csv" title="Link to this definition">¶</a></dt>
+<dd><p>Load a CSV file and return every nth row with only the first two columns.
+:type path: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param path: The path to the CSV file.
+:type n: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param n: The step size for selecting rows (e.g., every nth row).
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]</span>
+:return: A list of lists, where each inner list contains the first two columns of the selected rows.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.demo_utils.save_csv">
+<span class="sig-prename descclassname"><span class="pre">migrations.demo_utils.</span></span><span class="sig-name descname"><span class="pre">save_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo_utils.save_csv" title="Link to this definition">¶</a></dt>
+<dd><p>Save a list of lists to a CSV file.
+:type path: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param path: The path where the CSV file will be saved.
+:type data: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]</span>
+:param data: A list of lists, where each inner list represents a row in the CSV file.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.demo_utils.select_n_random_rows_from_csv">
+<span class="sig-prename descclassname"><span class="pre">migrations.demo_utils.</span></span><span class="sig-name descname"><span class="pre">select_n_random_rows_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#migrations.demo_utils.select_n_random_rows_from_csv" title="Link to this definition">¶</a></dt>
+<dd><p>Select n random rows from a CSV file.
+:type path: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param path: The path to the CSV file.
+:type n: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param n: The number of random rows to select.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]</span>
+:return: A list of lists, where each inner list represents a row from the CSV file.</p>
+</dd></dl>
+
+</section>
+<section id="module-migrations.setup_user_settings">
+<span id="migrations-setup-user-settings-module"></span><h2>migrations.setup_user_settings module<a class="headerlink" href="#module-migrations.setup_user_settings" title="Link to this heading">¶</a></h2>
+<p>Database migration script to set up UserSettings table schema</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.setup_user_settings.check_existing_schema">
+<span class="sig-prename descclassname"><span class="pre">migrations.setup_user_settings.</span></span><span class="sig-name descname"><span class="pre">check_existing_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#migrations.setup_user_settings.check_existing_schema" title="Link to this definition">¶</a></dt>
+<dd><p>Check if UserSettings table already exists</p>
+<p>This function attempts to query the UserSettings table to see if it exists.
+:returns: True if the table exists, False otherwise.
+:rtype: bool</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.setup_user_settings.main">
+<span class="sig-prename descclassname"><span class="pre">migrations.setup_user_settings.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#migrations.setup_user_settings.main" title="Link to this definition">¶</a></dt>
+<dd><p>Main migration function</p>
+<p>This function orchestrates the migration process by checking for existing schema
+and setting up the UserSettings schema if it does not exist.
+:returns: True if migration is successful, False otherwise.
+:rtype: bool</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.setup_user_settings.setup_user_settings_schema">
+<span class="sig-prename descclassname"><span class="pre">migrations.setup_user_settings.</span></span><span class="sig-name descname"><span class="pre">setup_user_settings_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#migrations.setup_user_settings.setup_user_settings_schema" title="Link to this definition">¶</a></dt>
+<dd><p>Set up UserSettings table schema in SurrealDB</p>
+<p>This function connects to the SurrealDB instance, defines the UserSettings table schema,
+and creates a test record to verify the schema setup.
+:returns: True if schema setup is successful, False otherwise.
+:rtype: bool</p>
+</dd></dl>
+
+</section>
+<section id="module-migrations.vec">
+<span id="migrations-vec-module"></span><h2>migrations.vec module<a class="headerlink" href="#module-migrations.vec" title="Link to this heading">¶</a></h2>
+<p>Vector database migration script.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="migrations.vec.init_vec">
+<span class="sig-prename descclassname"><span class="pre">migrations.vec.</span></span><span class="sig-name descname"><span class="pre">init_vec</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#migrations.vec.init_vec" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize and seed the vector database with documents.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+</section>
+<section id="module-migrations">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-migrations" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ArsMedicaTech</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../app.html">app module</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">lib</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="db.html">db package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dummy_data.html">dummy_data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm.html">llm package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logger.html">logger module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">migrations package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">models package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">opt package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html">routes package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html">services package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html">types module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../OPENAI_SECURITY_README.html">OpenAI Security System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../PATIENT_CRUD_README.html">Patient CRUD Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SSE_NOTIFICATIONS_README.html">Redis/SSE Notifications System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../USER_SETTINGS_README.html">User Settings System</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">lib</a><ul>
+      <li>Previous: <a href="logger.html" title="previous chapter">logger module</a></li>
+      <li>Next: <a href="models.html" title="next chapter">models package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Darren MacKenzie.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api/migrations.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>User Settings System &#8212; ArsMedicaTech  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Redis/SSE Notifications System" href="SSE_NOTIFICATIONS_README.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="user-settings-system">
+<h1>User Settings System<a class="headerlink" href="#user-settings-system" title="Link to this heading">¶</a></h1>
+<p>This document describes the secure user settings system implemented for ArsMedicaTech, focusing on OpenAI API key management.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The user settings system provides a secure way for users to manage their account preferences, particularly their OpenAI API keys. All sensitive data is encrypted at rest and in transit.</p>
+</section>
+<section id="security-features">
+<h2>Security Features<a class="headerlink" href="#security-features" title="Link to this heading">¶</a></h2>
+<section id="encryption">
+<h3>Encryption<a class="headerlink" href="#encryption" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>AES-256 encryption</strong> using Fernet (symmetric encryption)</p></li>
+<li><p><strong>PBKDF2 key derivation</strong> with 100,000 iterations for key generation</p></li>
+<li><p><strong>Environment-based master key</strong> for encryption/decryption</p></li>
+<li><p><strong>API key prefixing</strong> for additional security identification</p></li>
+</ul>
+</section>
+<section id="data-protection">
+<h3>Data Protection<a class="headerlink" href="#data-protection" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>API keys are never stored in plain text</p></li>
+<li><p>Encryption happens before database storage</p></li>
+<li><p>Decryption only occurs when needed for API calls</p></li>
+<li><p>No API keys are returned in API responses</p></li>
+</ul>
+</section>
+</section>
+<section id="backend-components">
+<h2>Backend Components<a class="headerlink" href="#backend-components" title="Link to this heading">¶</a></h2>
+<section id="encryption-service-lib-services-encryption-py">
+<h3>1. Encryption Service (<code class="docutils literal notranslate"><span class="pre">lib/services/encryption.py</span></code>)<a class="headerlink" href="#encryption-service-lib-services-encryption-py" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">lib.services.encryption</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_encryption_service</span>
+
+<span class="c1"># Encrypt API key</span>
+<span class="n">encryption_service</span> <span class="o">=</span> <span class="n">get_encryption_service</span><span class="p">()</span>
+<span class="n">encrypted_key</span> <span class="o">=</span> <span class="n">encryption_service</span><span class="o">.</span><span class="n">encrypt_api_key</span><span class="p">(</span><span class="s2">&quot;sk-...&quot;</span><span class="p">)</span>
+
+<span class="c1"># Decrypt API key</span>
+<span class="n">decrypted_key</span> <span class="o">=</span> <span class="n">encryption_service</span><span class="o">.</span><span class="n">decrypt_api_key</span><span class="p">(</span><span class="n">encrypted_key</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="user-settings-model-lib-models-user-settings-py">
+<h3>2. User Settings Model (<code class="docutils literal notranslate"><span class="pre">lib/models/user_settings.py</span></code>)<a class="headerlink" href="#user-settings-model-lib-models-user-settings-py" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Manages user settings data</p></li>
+<li><p>Handles API key validation</p></li>
+<li><p>Provides secure getter/setter methods</p></li>
+</ul>
+</section>
+<section id="user-service-extensions-lib-services-user-service-py">
+<h3>3. User Service Extensions (<code class="docutils literal notranslate"><span class="pre">lib/services/user_service.py</span></code>)<a class="headerlink" href="#user-service-extensions-lib-services-user-service-py" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_user_settings(user_id)</span></code> - Retrieve user settings</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_user_settings(user_id,</span> <span class="pre">settings)</span></code> - Save settings</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">update_openai_api_key(user_id,</span> <span class="pre">api_key)</span></code> - Update API key</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_openai_api_key(user_id)</span></code> - Get decrypted API key</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">has_openai_api_key(user_id)</span></code> - Check if API key exists</p></li>
+</ul>
+</section>
+<section id="settings-routes-lib-routes-settings-py">
+<h3>4. Settings Routes (<code class="docutils literal notranslate"><span class="pre">lib/routes/settings.py</span></code>)<a class="headerlink" href="#settings-routes-lib-routes-settings-py" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/settings</span></code> - Get user settings (no API key returned)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/api/settings</span></code> - Update user settings</p></li>
+</ul>
+</section>
+</section>
+<section id="frontend-components">
+<h2>Frontend Components<a class="headerlink" href="#frontend-components" title="Link to this heading">¶</a></h2>
+<section id="settings-component-src-components-settings-tsx">
+<h3>Settings Component (<code class="docutils literal notranslate"><span class="pre">src/components/Settings.tsx</span></code>)<a class="headerlink" href="#settings-component-src-components-settings-tsx" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Modern, responsive UI</p></li>
+<li><p>Secure API key input with show/hide toggle</p></li>
+<li><p>Real-time validation</p></li>
+<li><p>Success/error messaging</p></li>
+<li><p>Loading states</p></li>
+</ul>
+</section>
+<section id="features">
+<h3>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>API Key Management</strong>: Add, update, or remove OpenAI API keys</p></li>
+<li><p><strong>User Information Display</strong>: Show user details and role</p></li>
+<li><p><strong>Security Information</strong>: Display account creation and update dates</p></li>
+<li><p><strong>Responsive Design</strong>: Works on desktop and mobile devices</p></li>
+</ul>
+</section>
+</section>
+<section id="environment-setup">
+<h2>Environment Setup<a class="headerlink" href="#environment-setup" title="Link to this heading">¶</a></h2>
+<section id="required-environment-variables">
+<h3>Required Environment Variables<a class="headerlink" href="#required-environment-variables" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Master encryption key (32+ characters recommended)</span>
+<span class="nv">ENCRYPTION_KEY</span><span class="o">=</span>your-secure-encryption-key-here
+</pre></div>
+</div>
+</section>
+<section id="database-schema">
+<h3>Database Schema<a class="headerlink" href="#database-schema" title="Link to this heading">¶</a></h3>
+<p>The system uses a <code class="docutils literal notranslate"><span class="pre">UserSettings</span></code> table with the following structure:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">UserSettings</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="n">STRING</span><span class="p">,</span>
+<span class="w">    </span><span class="n">user_id</span><span class="w"> </span><span class="n">STRING</span><span class="p">,</span>
+<span class="w">    </span><span class="n">openai_api_key</span><span class="w"> </span><span class="n">STRING</span><span class="p">,</span><span class="w">  </span><span class="c1">-- Encrypted</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="n">STRING</span><span class="p">,</span>
+<span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="n">STRING</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="api-endpoints">
+<h2>API Endpoints<a class="headerlink" href="#api-endpoints" title="Link to this heading">¶</a></h2>
+<section id="get-user-settings">
+<h3>Get User Settings<a class="headerlink" href="#get-user-settings" title="Link to this heading">¶</a></h3>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="err">GET /api/settings</span>
+<span class="err">Authorization: Bearer &lt;token&gt;</span>
+</pre></div>
+</div>
+<p>Response:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;settings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user:123&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;has_openai_api_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-01T00:00:00&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-01T00:00:00&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="update-user-settings">
+<h3>Update User Settings<a class="headerlink" href="#update-user-settings" title="Link to this heading">¶</a></h3>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="err">POST /api/settings</span>
+<span class="err">Authorization: Bearer &lt;token&gt;</span>
+<span class="err">Content-Type: application/json</span>
+
+<span class="err">{</span>
+<span class="err">  &quot;openai_api_key&quot;: &quot;sk-...&quot;</span>
+<span class="err">}</span>
+</pre></div>
+</div>
+<p>Response:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;OpenAI API key updated successfully&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="usage-examples">
+<h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading">¶</a></h2>
+<section id="backend-usage">
+<h3>Backend Usage<a class="headerlink" href="#backend-usage" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">lib.services.user_service</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserService</span>
+
+<span class="n">user_service</span> <span class="o">=</span> <span class="n">UserService</span><span class="p">()</span>
+<span class="n">user_service</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+<span class="c1"># Update API key</span>
+<span class="n">success</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">user_service</span><span class="o">.</span><span class="n">update_openai_api_key</span><span class="p">(</span><span class="s2">&quot;user:123&quot;</span><span class="p">,</span> <span class="s2">&quot;sk-...&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get API key for use</span>
+<span class="n">api_key</span> <span class="o">=</span> <span class="n">user_service</span><span class="o">.</span><span class="n">get_openai_api_key</span><span class="p">(</span><span class="s2">&quot;user:123&quot;</span><span class="p">)</span>
+
+<span class="c1"># Check if user has API key</span>
+<span class="n">has_key</span> <span class="o">=</span> <span class="n">user_service</span><span class="o">.</span><span class="n">has_openai_api_key</span><span class="p">(</span><span class="s2">&quot;user:123&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="frontend-usage">
+<h3>Frontend Usage<a class="headerlink" href="#frontend-usage" title="Link to this heading">¶</a></h3>
+<div class="highlight-typescript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nx">apiService</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../services/api&#39;</span><span class="p">;</span>
+
+<span class="c1">// Load settings</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">settings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">apiService</span><span class="p">.</span><span class="nx">getAPI</span><span class="p">(</span><span class="s1">&#39;/settings&#39;</span><span class="p">);</span>
+
+<span class="c1">// Update API key</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">apiService</span><span class="p">.</span><span class="nx">postAPI</span><span class="p">(</span><span class="s1">&#39;/settings&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">openai_api_key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;sk-...&#39;</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="security-best-practices">
+<h2>Security Best Practices<a class="headerlink" href="#security-best-practices" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Environment Variables</strong>: Always use environment variables for encryption keys</p></li>
+<li><p><strong>Key Rotation</strong>: Regularly rotate the master encryption key</p></li>
+<li><p><strong>Access Control</strong>: Ensure only authenticated users can access their settings</p></li>
+<li><p><strong>Input Validation</strong>: Validate API keys before encryption</p></li>
+<li><p><strong>Error Handling</strong>: Don’t expose encryption errors to users</p></li>
+<li><p><strong>Logging</strong>: Log encryption/decryption operations for audit trails</p></li>
+</ol>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading">¶</a></h2>
+<p>Run the encryption tests:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nb">test</span>
+python<span class="w"> </span>test_encryption.py
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>ENCRYPTION_KEY not set</strong></p>
+<ul class="simple">
+<li><p>Error: “ENCRYPTION_KEY environment variable must be set”</p></li>
+<li><p>Solution: Set the ENCRYPTION_KEY environment variable</p></li>
+</ul>
+</li>
+<li><p><strong>Invalid API key format</strong></p>
+<ul class="simple">
+<li><p>Error: “OpenAI API key must start with ‘sk-‘”</p></li>
+<li><p>Solution: Ensure API key follows OpenAI format (sk-…)</p></li>
+</ul>
+</li>
+<li><p><strong>Decryption failures</strong></p>
+<ul class="simple">
+<li><p>Error: “Failed to decrypt data”</p></li>
+<li><p>Solution: Check if encryption key has changed or data is corrupted</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="debug-mode">
+<h3>Debug Mode<a class="headerlink" href="#debug-mode" title="Link to this heading">¶</a></h3>
+<p>Enable debug logging by setting the log level to DEBUG in your application configuration.</p>
+</section>
+</section>
+<section id="future-enhancements">
+<h2>Future Enhancements<a class="headerlink" href="#future-enhancements" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Additional Settings</strong>: Profile information, preferences, notifications</p></li>
+<li><p><strong>Key Rotation</strong>: Automatic encryption key rotation</p></li>
+<li><p><strong>Audit Trail</strong>: Track settings changes</p></li>
+<li><p><strong>Backup/Restore</strong>: Export/import settings</p></li>
+<li><p><strong>Multi-factor Authentication</strong>: Additional security for sensitive settings</p></li>
+</ol>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ArsMedicaTech</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="app.html">app module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">lib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="OPENAI_SECURITY_README.html">OpenAI Security System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PATIENT_CRUD_README.html">Patient CRUD Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SSE_NOTIFICATIONS_README.html">Redis/SSE Notifications System</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User Settings System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#security-features">Security Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backend-components">Backend Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#frontend-components">Frontend Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-setup">Environment Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-endpoints">API Endpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-examples">Usage Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#security-best-practices">Security Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#future-enhancements">Future Enhancements</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="SSE_NOTIFICATIONS_README.html" title="previous chapter">Redis/SSE Notifications System</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Darren MacKenzie.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/USER_SETTINGS_README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

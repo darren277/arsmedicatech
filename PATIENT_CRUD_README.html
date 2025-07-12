@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Patient CRUD Operations &#8212; ArsMedicaTech  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Redis/SSE Notifications System" href="SSE_NOTIFICATIONS_README.html" />
+    <link rel="prev" title="OpenAI Security System" href="OPENAI_SECURITY_README.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="patient-crud-operations">
+<h1>Patient CRUD Operations<a class="headerlink" href="#patient-crud-operations" title="Link to this heading">¶</a></h1>
+<p>This document describes the full CRUD (Create, Read, Update, Delete) operations implemented for patients in the Flask/React application using SurrealDB.</p>
+<section id="backend-api-endpoints">
+<h2>Backend API Endpoints<a class="headerlink" href="#backend-api-endpoints" title="Link to this heading">¶</a></h2>
+<section id="get-all-patients">
+<h3>1. Get All Patients<a class="headerlink" href="#get-all-patients" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>GET</strong> <code class="docutils literal notranslate"><span class="pre">/api/patients</span></code></p></li>
+<li><p>Returns a list of all patients</p></li>
+<li><p>Response: Array of patient objects</p></li>
+</ul>
+</section>
+<section id="get-patient-by-id">
+<h3>2. Get Patient by ID<a class="headerlink" href="#get-patient-by-id" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>GET</strong> <code class="docutils literal notranslate"><span class="pre">/api/patients/{patient_id}</span></code></p></li>
+<li><p>Returns a specific patient by their demographic_no</p></li>
+<li><p>Response: Patient object or 404 if not found</p></li>
+</ul>
+</section>
+<section id="create-new-patient">
+<h3>3. Create New Patient<a class="headerlink" href="#create-new-patient" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>POST</strong> <code class="docutils literal notranslate"><span class="pre">/api/patients</span></code></p></li>
+<li><p>Creates a new patient record</p></li>
+<li><p>Required fields: <code class="docutils literal notranslate"><span class="pre">first_name</span></code>, <code class="docutils literal notranslate"><span class="pre">last_name</span></code></p></li>
+<li><p>Optional fields: <code class="docutils literal notranslate"><span class="pre">date_of_birth</span></code>, <code class="docutils literal notranslate"><span class="pre">sex</span></code>, <code class="docutils literal notranslate"><span class="pre">phone</span></code>, <code class="docutils literal notranslate"><span class="pre">email</span></code>, <code class="docutils literal notranslate"><span class="pre">location</span></code></p></li>
+<li><p>Response: Created patient object (201) or error (400/500)</p></li>
+</ul>
+</section>
+<section id="update-patient">
+<h3>4. Update Patient<a class="headerlink" href="#update-patient" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>PUT</strong> <code class="docutils literal notranslate"><span class="pre">/api/patients/{patient_id}</span></code></p></li>
+<li><p>Updates an existing patient record</p></li>
+<li><p>All fields are optional for updates</p></li>
+<li><p>Response: Updated patient object or 404 if not found</p></li>
+</ul>
+</section>
+<section id="delete-patient">
+<h3>5. Delete Patient<a class="headerlink" href="#delete-patient" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>DELETE</strong> <code class="docutils literal notranslate"><span class="pre">/api/patients/{patient_id}</span></code></p></li>
+<li><p>Deletes a patient record</p></li>
+<li><p>Response: Success message or 404 if not found</p></li>
+</ul>
+</section>
+<section id="search-patients">
+<h3>6. Search Patients<a class="headerlink" href="#search-patients" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>GET</strong> <code class="docutils literal notranslate"><span class="pre">/api/patients/search?q={search_term}</span></code></p></li>
+<li><p>Searches patient encounters using full-text search</p></li>
+<li><p>Requires at least 2 characters in search term</p></li>
+</ul>
+</section>
+</section>
+<section id="frontend-components">
+<h2>Frontend Components<a class="headerlink" href="#frontend-components" title="Link to this heading">¶</a></h2>
+<section id="patientlist-component">
+<h3>1. PatientList Component<a class="headerlink" href="#patientlist-component" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Displays all patients in a table format</p></li>
+<li><p>Includes actions for Edit and Delete</p></li>
+<li><p>“Add New Patient” button to create new patients</p></li>
+<li><p>Responsive design with loading states and error handling</p></li>
+</ul>
+</section>
+<section id="patient-component">
+<h3>2. Patient Component<a class="headerlink" href="#patient-component" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Displays detailed patient information</p></li>
+<li><p>Shows personal details and contact information</p></li>
+<li><p>Includes Edit and Delete buttons</p></li>
+<li><p>Handles loading states and error cases</p></li>
+</ul>
+</section>
+<section id="patientform-component">
+<h3>3. PatientForm Component<a class="headerlink" href="#patientform-component" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Used for both creating and editing patients</p></li>
+<li><p>Form validation for required fields</p></li>
+<li><p>Address fields for location information</p></li>
+<li><p>Responsive design with proper error handling</p></li>
+</ul>
+</section>
+</section>
+<section id="api-service-src-services-api-js">
+<h2>API Service (src/services/api.js)<a class="headerlink" href="#api-service-src-services-api-js" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">patientAPI</span></code> object provides methods for all CRUD operations:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">patientAPI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">getAll</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/patients&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">getById</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="sb">`/patients/</span><span class="si">${</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">create</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">patientData</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/patients&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">patientData</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">update</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">patientData</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="sb">`/patients/</span><span class="si">${</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nx">patientData</span><span class="p">),</span>
+<span class="w">    </span><span class="ow">delete</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="sb">`/patients/</span><span class="si">${</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">search</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">query</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="sb">`/patients/search?q=</span><span class="si">${</span><span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+<section id="routes">
+<h2>Routes<a class="headerlink" href="#routes" title="Link to this heading">¶</a></h2>
+<p>The following routes are available in the React application:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">/patients</span></code> - Patient list</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/patients/new</span></code> - Create new patient form</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/patients/{id}</span></code> - View patient details</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/patients/{id}/edit</span></code> - Edit patient form</p></li>
+</ul>
+</section>
+<section id="patient-data-structure">
+<h2>Patient Data Structure<a class="headerlink" href="#patient-data-structure" title="Link to this heading">¶</a></h2>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nx">demographic_no</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">      </span><span class="c1">// Unique patient identifier</span>
+<span class="w">    </span><span class="nx">first_name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">          </span><span class="c1">// Required</span>
+<span class="w">    </span><span class="nx">last_name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">           </span><span class="c1">// Required</span>
+<span class="w">    </span><span class="nx">date_of_birth</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">       </span><span class="c1">// ISO date format</span>
+<span class="w">    </span><span class="nx">sex</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;M|F|O&quot;</span><span class="p">,</span><span class="w">                  </span><span class="c1">// Male, Female, Other</span>
+<span class="w">    </span><span class="nx">phone</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">               </span><span class="c1">// Phone number</span>
+<span class="w">    </span><span class="nx">email</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">               </span><span class="c1">// Email address</span>
+<span class="w">    </span><span class="nx">location</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;state&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;country&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;zipcode&quot;</span><span class="p">]</span><span class="w">  </span><span class="c1">// Address array</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading">¶</a></h2>
+<p>A test endpoint is available at <code class="docutils literal notranslate"><span class="pre">/api/test_crud</span></code> that performs a complete CRUD cycle:</p>
+<ol class="arabic simple">
+<li><p>Creates a test patient</p></li>
+<li><p>Reads the created patient</p></li>
+<li><p>Updates the patient</p></li>
+<li><p>Deletes the patient</p></li>
+</ol>
+<p>This endpoint can be used to verify that all operations are working correctly.</p>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>All endpoints return appropriate HTTP status codes</p></li>
+<li><p>Frontend components display error messages to users</p></li>
+<li><p>Loading states are shown during API calls</p></li>
+<li><p>Form validation prevents invalid data submission</p></li>
+</ul>
+</section>
+<section id="database-schema">
+<h2>Database Schema<a class="headerlink" href="#database-schema" title="Link to this heading">¶</a></h2>
+<p>The patient table in SurrealDB includes:</p>
+<ul class="simple">
+<li><p>Unique index on <code class="docutils literal notranslate"><span class="pre">demographic_no</span></code></p></li>
+<li><p>All fields are properly typed</p></li>
+<li><p>Location stored as an array</p></li>
+<li><p>Full-text search capabilities for encounters</p></li>
+</ul>
+</section>
+<section id="future-enhancements">
+<h2>Future Enhancements<a class="headerlink" href="#future-enhancements" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Medical history integration</p></li>
+<li><p>Encounter management</p></li>
+<li><p>File attachments</p></li>
+<li><p>Audit logging</p></li>
+<li><p>Advanced search and filtering</p></li>
+<li><p>Bulk operations</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ArsMedicaTech</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="app.html">app module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">lib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="OPENAI_SECURITY_README.html">OpenAI Security System</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Patient CRUD Operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#backend-api-endpoints">Backend API Endpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#frontend-components">Frontend Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-service-src-services-api-js">API Service (src/services/api.js)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routes">Routes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#patient-data-structure">Patient Data Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#database-schema">Database Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#future-enhancements">Future Enhancements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SSE_NOTIFICATIONS_README.html">Redis/SSE Notifications System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="USER_SETTINGS_README.html">User Settings System</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="OPENAI_SECURITY_README.html" title="previous chapter">OpenAI Security System</a></li>
+      <li>Next: <a href="SSE_NOTIFICATIONS_README.html" title="next chapter">Redis/SSE Notifications System</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Darren MacKenzie.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/PATIENT_CRUD_README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

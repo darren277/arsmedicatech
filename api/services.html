@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>services package &#8212; ArsMedicaTech  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="types module" href="types.html" />
+    <link rel="prev" title="routes package" href="routes.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="services-package">
+<h1>services package<a class="headerlink" href="#services-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-services.apis">
+<span id="services-apis-module"></span><h2>services.apis module<a class="headerlink" href="#module-services.apis" title="Link to this heading">¶</a></h2>
+<p>APIs for fetching medical data from various sources like Medline, ClinicalTrials, and NCBI.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="services.apis.ClinicalTrials">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.apis.</span></span><span class="sig-name descname"><span class="pre">ClinicalTrials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.ClinicalTrials" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Fetches clinical trial data from ClinicalTrials.gov.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.apis.ClinicalTrials.fetch_clinical_trials">
+<span class="sig-name descname"><span class="pre">fetch_clinical_trials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.ClinicalTrials.fetch_clinical_trials" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches clinical trial data from ClinicalTrials.gov based on the provided query.</p>
+<p>curl -X GET “<a class="reference external" href="https://clinicaltrials.gov/api/v2/studies">https://clinicaltrials.gov/api/v2/studies</a>” -H “accept: application/json”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>query</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The search query for clinical trials.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the clinical trial data or an error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="services.apis.ICD10Code">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.apis.</span></span><span class="sig-name descname"><span class="pre">ICD10Code</span></span><a class="headerlink" href="#services.apis.ICD10Code" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+<p>Custom ICD10Code type for better type safety.
+Inherits from str to allow direct string usage.</p>
+<p>Format: <cite>ICD10:{icd10_code}</cite></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.apis.ICD10Code.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.ICD10Code.validate" title="Link to this definition">¶</a></dt>
+<dd><p>Validates the ICD-10 code format.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>
+:return: True if valid, False otherwise.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="services.apis.Medline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.apis.</span></span><span class="sig-name descname"><span class="pre">Medline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.Medline" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Fetches medical information from Medline using ICD-10 codes.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.apis.Medline.fetch_medline">
+<span class="sig-name descname"><span class="pre">fetch_medline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">icd10_code</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.Medline.fetch_medline" title="Link to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="https://connect.medlineplus.gov/service">https://connect.medlineplus.gov/service</a>?</p>
+<dl class="simple">
+<dt>knowledgeResponseType=application%2Fjson</dt><dd><p>&amp;mainSearchCriteria.v.cs=2.16.840.1.113883.6.90
+&amp;mainSearchCriteria.v.c={icd10_code}
+&amp;mainSearchCriteria.v.dn=
+&amp;informationRecipient.languageCode.c=en</p>
+</dd>
+</dl>
+<p>Fetches medical information from Medline using the provided ICD-10 code.
+:type icd10_code: <span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#services.apis.ICD10Code" title="services.apis.ICD10Code"><code class="xref py py-class docutils literal notranslate"><span class="pre">ICD10Code</span></code></a></span>
+:param icd10_code: The ICD-10 code for the medical condition.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:return: A dictionary containing the medical information or an error message.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="services.apis.NCBI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.apis.</span></span><span class="sig-name descname"><span class="pre">NCBI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.NCBI" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Fetches medical studies and articles from NCBI’s PubMed database.
+Uses the Entrez API to search for articles based on a query.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.apis.NCBI.efetch_abstract">
+<span class="sig-name descname"><span class="pre">efetch_abstract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pmid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.NCBI.efetch_abstract" title="Link to this definition">¶</a></dt>
+<dd><p>Return the plain-text abstract for one PMID (or ‘’ if none).</p>
+<p>Uses the Entrez EFetch API to fetch the abstract of a PubMed article.
+:type pmid: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param pmid: The PubMed ID (PMID) of the article to fetch the abstract for.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:return: The abstract text of the article, or an empty string if not found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.apis.NCBI.esearch">
+<span class="sig-name descname"><span class="pre">esearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.NCBI.esearch" title="Link to this definition">¶</a></dt>
+<dd><p>Return up to retmax PubMed IDs (PMIDs) that match the query.</p>
+<p>Uses the Entrez ESearch API to search for articles in PubMed.
+:type query: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param query: The search query for PubMed articles.
+:type retmax: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param retmax: Maximum number of results to return.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: A tuple containing a list of PMIDs and the total number of hits.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.apis.NCBI.esummary">
+<span class="sig-name descname"><span class="pre">esummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pmids</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.NCBI.esummary" title="Link to this definition">¶</a></dt>
+<dd><p>Return a dict keyed by PMID with title, journal, authors, pubdate, etc.</p>
+<p>Uses the Entrez ESummary API to fetch article summaries from PubMed.
+:type pmids: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:param pmids: List of PubMed IDs (PMIDs) to fetch summaries for.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:return: A dictionary where keys are PMIDs and values are article summaries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.apis.NCBI.fetch_ncbi_studies">
+<span class="sig-name descname"><span class="pre">fetch_ncbi_studies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.NCBI.fetch_ncbi_studies" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches studies from NCBI’s PubMed database based on the provided query.
+:type query: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param query: The search query for PubMed articles.
+:type debug: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>
+:param debug: If True, logs detailed information about the search results.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</span>
+:return: A list of dictionaries containing article information.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.apis.NCBI.search_pubmed">
+<span class="sig-name descname"><span class="pre">search_pubmed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_records</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_abstract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.35</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.apis.NCBI.search_pubmed" title="Link to this definition">¶</a></dt>
+<dd><p>High-level helper.
+Returns a list of dicts: [{pmid, title, journal, authors, pubdate, abstract?}, …]</p>
+<p>Uses the Entrez ESearch and ESummary APIs to search for articles in PubMed.
+:type query: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param query: The search query for PubMed articles.
+:type max_records: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param max_records: Maximum number of records to return.
+:type with_abstract: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>
+:param with_abstract: If True, fetches the abstract for each article.
+:type delay: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>
+:param delay: Delay in seconds between requests to avoid hitting the rate limit.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: A tuple containing a list of dictionaries with article information and the total number of hits.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-services.auth_decorators">
+<span id="services-auth-decorators-module"></span><h2>services.auth_decorators module<a class="headerlink" href="#module-services.auth_decorators" title="Link to this heading">¶</a></h2>
+<p>Authentication decorators for Flask routes.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="services.auth_decorators.get_current_user">
+<span class="sig-prename descclassname"><span class="pre">services.auth_decorators.</span></span><span class="sig-name descname"><span class="pre">get_current_user</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.auth_decorators.get_current_user" title="Link to this definition">¶</a></dt>
+<dd><p>Get current authenticated user session</p>
+<p>This function retrieves the current user session from the request context.
+If no user session is found, it returns None.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">UserSession</span></code>]</span>
+:return: Optional[UserSession]: The current user session if available, otherwise None.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.auth_decorators.get_current_user_id">
+<span class="sig-prename descclassname"><span class="pre">services.auth_decorators.</span></span><span class="sig-name descname"><span class="pre">get_current_user_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.auth_decorators.get_current_user_id" title="Link to this definition">¶</a></dt>
+<dd><p>Get current authenticated user ID</p>
+<p>This function retrieves the current user ID from the request context.
+If no user ID is found, it returns None.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:return: Optional[str]: The current user ID if available, otherwise None.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.auth_decorators.get_current_user_role">
+<span class="sig-prename descclassname"><span class="pre">services.auth_decorators.</span></span><span class="sig-name descname"><span class="pre">get_current_user_role</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.auth_decorators.get_current_user_role" title="Link to this definition">¶</a></dt>
+<dd><p>Get current authenticated user role</p>
+<p>This function retrieves the current user role from the request context.
+If no user role is found, it returns None.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:return: Optional[str]: The current user role if available, otherwise None.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.auth_decorators.optional_auth">
+<span class="sig-prename descclassname"><span class="pre">services.auth_decorators.</span></span><span class="sig-name descname"><span class="pre">optional_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.auth_decorators.optional_auth" title="Link to this definition">¶</a></dt>
+<dd><p>Decorator to optionally authenticate user (doesn’t fail if no auth)</p>
+<p>This decorator checks for a valid session token in the request headers or session.
+If a valid token is found, it validates the session and adds user information to the request context.
+If no valid token is found, it simply allows the request to proceed without authentication.
+:type f: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])</span>
+:param f: The function to decorate (Flask route handler).
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])</span>
+:return: The decorated function that checks for optional authentication.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.auth_decorators.require_admin">
+<span class="sig-prename descclassname"><span class="pre">services.auth_decorators.</span></span><span class="sig-name descname"><span class="pre">require_admin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.auth_decorators.require_admin" title="Link to this definition">¶</a></dt>
+<dd><p>Decorator to require admin role</p>
+<p>This decorator checks if the user has the ‘admin’ role.
+If the user does not have the required role, it returns a 403 Forbidden response.
+:type f: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])</span>
+:param f: The function to decorate (Flask route handler).
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])</span>
+:return: The decorated function that checks for admin role.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.auth_decorators.require_auth">
+<span class="sig-prename descclassname"><span class="pre">services.auth_decorators.</span></span><span class="sig-name descname"><span class="pre">require_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.auth_decorators.require_auth" title="Link to this definition">¶</a></dt>
+<dd><p>Decorator to require authentication for a route</p>
+<p>This decorator checks for a valid session token in the request headers or session.
+If a valid token is found, it validates the session and adds user information to the request context.
+If no valid token is found, it returns a 401 Unauthorized response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Param<span class="colon">:</span></dt>
+<dd class="field-odd"><p>f: The function to decorate (Flask route handler).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The decorated function that checks authentication.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.auth_decorators.require_patient">
+<span class="sig-prename descclassname"><span class="pre">services.auth_decorators.</span></span><span class="sig-name descname"><span class="pre">require_patient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.auth_decorators.require_patient" title="Link to this definition">¶</a></dt>
+<dd><p>Decorator to require patient role</p>
+<p>This decorator checks if the user has the ‘patient’ role.
+If the user does not have the required role, it returns a 403 Forbidden response.
+:type f: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])</span>
+:param f: The function to decorate (Flask route handler).
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])</span>
+:return: The decorated function that checks for patient role.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.auth_decorators.require_provider">
+<span class="sig-prename descclassname"><span class="pre">services.auth_decorators.</span></span><span class="sig-name descname"><span class="pre">require_provider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.auth_decorators.require_provider" title="Link to this definition">¶</a></dt>
+<dd><p>Decorator to require provider role</p>
+<p>This decorator checks if the user has the ‘provider’ role.
+If the user does not have the required role, it returns a 403 Forbidden response.
+:type f: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])</span>
+:param f: The function to decorate (Flask route handler).
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])</span>
+:return: The decorated function that checks for provider role.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.auth_decorators.require_role">
+<span class="sig-prename descclassname"><span class="pre">services.auth_decorators.</span></span><span class="sig-name descname"><span class="pre">require_role</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">required_role</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.auth_decorators.require_role" title="Link to this definition">¶</a></dt>
+<dd><p>Decorator to require a specific role for a route</p>
+<p>This decorator first checks if the user is authenticated, and then checks if the user has the required role.
+If the user is not authenticated or does not have the required role, it returns a 403 Forbidden response.
+:type required_role: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param required_role: The role that the user must have to access the route.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])], <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">F</span></code>, bound= <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>])]</span>
+:return: The decorated function that checks authentication and role.</p>
+</dd></dl>
+
+</section>
+<section id="module-services.conversation_service">
+<span id="services-conversation-service-module"></span><h2>services.conversation_service module<a class="headerlink" href="#module-services.conversation_service" title="Link to this heading">¶</a></h2>
+<p>Conversation Service</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.conversation_service.</span></span><span class="sig-name descname"><span class="pre">ConversationService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_controller</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Service for managing conversations and messages</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.add_message">
+<span class="sig-name descname"><span class="pre">add_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.add_message" title="Link to this definition">¶</a></dt>
+<dd><p>Add a message to a conversation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversation_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the conversation</p></li>
+<li><p><strong>sender_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user sending the message</p></li>
+<li><p><strong>text</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Message text</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message, message_object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.close" title="Link to this definition">¶</a></dt>
+<dd><p>Close database connection</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.connect">
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.connect" title="Link to this definition">¶</a></dt>
+<dd><p>Connect to database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.create_conversation">
+<span class="sig-name descname"><span class="pre">create_conversation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">participants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'user_to_user'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.create_conversation" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new conversation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>participants</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – List of user IDs participating in the conversation</p></li>
+<li><p><strong>conversation_type</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Type of conversation (“user_to_user”, “ai_assistant”)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message, conversation_object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.delete_conversation">
+<span class="sig-name descname"><span class="pre">delete_conversation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.delete_conversation" title="Link to this definition">¶</a></dt>
+<dd><p>Delete a conversation (only if user is a participant)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversation_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the conversation to delete</p></li>
+<li><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user requesting the deletion</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.get_conversation_by_id">
+<span class="sig-name descname"><span class="pre">get_conversation_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.get_conversation_by_id" title="Link to this definition">¶</a></dt>
+<dd><p>Get conversation by ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>conversation_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the conversation</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Conversation object or None if not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.get_conversation_by_participants">
+<span class="sig-name descname"><span class="pre">get_conversation_by_participants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">participants</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.get_conversation_by_participants" title="Link to this definition">¶</a></dt>
+<dd><p>Get conversation by participants (for user-to-user conversations)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>participants</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – List of user IDs participating in the conversation</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Conversation object or None if not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.get_conversation_messages">
+<span class="sig-name descname"><span class="pre">get_conversation_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.get_conversation_messages" title="Link to this definition">¶</a></dt>
+<dd><p>Get messages for a conversation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversation_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the conversation</p></li>
+<li><p><strong>limit</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Maximum number of messages to retrieve</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of Message objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.get_user_conversations">
+<span class="sig-name descname"><span class="pre">get_user_conversations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.get_user_conversations" title="Link to this definition">¶</a></dt>
+<dd><p>Get all conversations for a user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of Conversation objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.conversation_service.ConversationService.mark_messages_as_read">
+<span class="sig-name descname"><span class="pre">mark_messages_as_read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.conversation_service.ConversationService.mark_messages_as_read" title="Link to this definition">¶</a></dt>
+<dd><p>Mark all messages in a conversation as read for a user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversation_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the conversation</p></li>
+<li><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user marking messages as read</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if successful, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-services.encryption">
+<span id="services-encryption-module"></span><h2>services.encryption module<a class="headerlink" href="#module-services.encryption" title="Link to this heading">¶</a></h2>
+<p>Encryption Service for Sensitive Data</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="services.encryption.EncryptionService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.encryption.</span></span><span class="sig-name descname"><span class="pre">EncryptionService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.encryption.EncryptionService" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Service for encrypting and decrypting sensitive data like API keys</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.encryption.EncryptionService.decrypt">
+<span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encrypted_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.encryption.EncryptionService.decrypt" title="Link to this definition">¶</a></dt>
+<dd><p>Decrypt a string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>encrypted_data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Base64 encoded encrypted string</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Decrypted string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.encryption.EncryptionService.decrypt_api_key">
+<span class="sig-name descname"><span class="pre">decrypt_api_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encrypted_api_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.encryption.EncryptionService.decrypt_api_key" title="Link to this definition">¶</a></dt>
+<dd><p>Decrypt an API key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>encrypted_api_key</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Encrypted API key</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Decrypted API key</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.encryption.EncryptionService.encrypt">
+<span class="sig-name descname"><span class="pre">encrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.encryption.EncryptionService.encrypt" title="Link to this definition">¶</a></dt>
+<dd><p>Encrypt a string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – String to encrypt</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Base64 encoded encrypted string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.encryption.EncryptionService.encrypt_api_key">
+<span class="sig-name descname"><span class="pre">encrypt_api_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.encryption.EncryptionService.encrypt_api_key" title="Link to this definition">¶</a></dt>
+<dd><p>Encrypt an API key with additional security</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>api_key</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – API key to encrypt</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Encrypted API key</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.encryption.get_encryption_service">
+<span class="sig-prename descclassname"><span class="pre">services.encryption.</span></span><span class="sig-name descname"><span class="pre">get_encryption_service</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.encryption.get_encryption_service" title="Link to this definition">¶</a></dt>
+<dd><p>Get the global encryption service instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#services.encryption.EncryptionService" title="services.encryption.EncryptionService"><code class="xref py py-class docutils literal notranslate"><span class="pre">EncryptionService</span></code></a></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>EncryptionService instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-services.llm_chat_service">
+<span id="services-llm-chat-service-module"></span><h2>services.llm_chat_service module<a class="headerlink" href="#module-services.llm_chat_service" title="Link to this heading">¶</a></h2>
+<p>LLM Chat Service</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="services.llm_chat_service.LLMChatService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.llm_chat_service.</span></span><span class="sig-name descname"><span class="pre">LLMChatService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_controller</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.llm_chat_service.LLMChatService" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Service for managing LLM chats, including creating, retrieving, and updating chats.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.llm_chat_service.LLMChatService.add_message">
+<span class="sig-name descname"><span class="pre">add_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.llm_chat_service.LLMChatService.add_message" title="Link to this definition">¶</a></dt>
+<dd><p>Add a message to the LLM chat, creating the chat if needed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserID</span></code></span>) – UserID - The ID of the user.</p></li>
+<li><p><strong>assistant_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – str - The ID of the assistant.</p></li>
+<li><p><strong>sender</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – str - The sender of the message (e.g., ‘user’ or ‘assistant’).</p></li>
+<li><p><strong>text</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – str - The content of the message.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMChat</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>LLMChat - The updated LLMChat object with the new message added.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.llm_chat_service.LLMChatService.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.llm_chat_service.LLMChatService.close" title="Link to this definition">¶</a></dt>
+<dd><p>Close the database connection.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.llm_chat_service.LLMChatService.connect">
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.llm_chat_service.LLMChatService.connect" title="Link to this definition">¶</a></dt>
+<dd><p>Connect to the database.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.llm_chat_service.LLMChatService.create_llm_chat">
+<span class="sig-name descname"><span class="pre">create_llm_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.llm_chat_service.LLMChatService.create_llm_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new LLM chat for a user and assistant</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserID</span></code></span>) – UserID - The ID of the user.</p></li>
+<li><p><strong>assistant_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – str - The ID of the assistant.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMChat</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>LLMChat - The newly created LLMChat object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.llm_chat_service.LLMChatService.get_llm_chat">
+<span class="sig-name descname"><span class="pre">get_llm_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.llm_chat_service.LLMChatService.get_llm_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Get a specific LLM chat for a user and assistant</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserID</span></code></span>) – UserID - The ID of the user.</p></li>
+<li><p><strong>assistant_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – str - The ID of the assistant.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LLMChat</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[LLMChat] - The LLMChat object if found, otherwise None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.llm_chat_service.LLMChatService.get_llm_chats_for_user">
+<span class="sig-name descname"><span class="pre">get_llm_chats_for_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.llm_chat_service.LLMChatService.get_llm_chats_for_user" title="Link to this definition">¶</a></dt>
+<dd><p>Get all LLM chats for a user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserID</span></code></span>) – UserID - The ID of the user for whom to retrieve chats.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LLMChat</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[LLMChat] - A list of LLMChat objects for the specified user.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-services.notifications">
+<span id="services-notifications-module"></span><h2>services.notifications module<a class="headerlink" href="#module-services.notifications" title="Link to this heading">¶</a></h2>
+<p>Notifications Service</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="services.notifications.publish_event">
+<span class="sig-prename descclassname"><span class="pre">services.notifications.</span></span><span class="sig-name descname"><span class="pre">publish_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.notifications.publish_event" title="Link to this definition">¶</a></dt>
+<dd><p>Publish an event to a user’s Redis channel.
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserID</span></code></span>
+:param user_id: UserID - The ID of the user to whom the event is being published.
+:type event_data: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventData</span></code></span>
+:param event_data: EventData - The data of the event to be published.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.notifications.publish_event_with_buffer">
+<span class="sig-prename descclassname"><span class="pre">services.notifications.</span></span><span class="sig-name descname"><span class="pre">publish_event_with_buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.notifications.publish_event_with_buffer" title="Link to this definition">¶</a></dt>
+<dd><p>Publish an event to a user’s Redis channel and store it in a buffer.
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserID</span></code></span>
+:param user_id: UserID - The ID of the user to whom the event is being published.
+:type event_data: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventData</span></code></span>
+:param event_data: EventData - The data of the event to be published and stored.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.notifications.store_event">
+<span class="sig-prename descclassname"><span class="pre">services.notifications.</span></span><span class="sig-name descname"><span class="pre">store_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.notifications.store_event" title="Link to this definition">¶</a></dt>
+<dd><p>Store an event in Redis for a specific user.
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserID</span></code></span>
+:param user_id: UserID - The ID of the user to whom the event is being stored.
+:type event_data: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventData</span></code></span>
+:param event_data: EventData - The data of the event to be stored.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+</section>
+<section id="module-services.openai_security">
+<span id="services-openai-security-module"></span><h2>services.openai_security module<a class="headerlink" href="#module-services.openai_security" title="Link to this heading">¶</a></h2>
+<p>OpenAI Security Service</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="services.openai_security.OpenAISecurityService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.openai_security.</span></span><span class="sig-name descname"><span class="pre">OpenAISecurityService</span></span><a class="headerlink" href="#services.openai_security.OpenAISecurityService" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Service for managing OpenAI API security, validation, and rate limiting</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.openai_security.OpenAISecurityService.check_rate_limit">
+<span class="sig-name descname"><span class="pre">check_rate_limit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.openai_security.OpenAISecurityService.check_rate_limit" title="Link to this definition">¶</a></dt>
+<dd><p>Check if user has exceeded rate limits</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – User ID to check</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(within_limit, error_message)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.openai_security.OpenAISecurityService.get_usage_stats">
+<span class="sig-name descname"><span class="pre">get_usage_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.openai_security.OpenAISecurityService.get_usage_stats" title="Link to this definition">¶</a></dt>
+<dd><p>Get usage statistics for a user</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – User ID</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Usage statistics</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.openai_security.OpenAISecurityService.get_user_api_key_with_validation">
+<span class="sig-name descname"><span class="pre">get_user_api_key_with_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.openai_security.OpenAISecurityService.get_user_api_key_with_validation" title="Link to this definition">¶</a></dt>
+<dd><p>Get user’s API key with validation and rate limiting</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – User ID</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(api_key, error_message)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.openai_security.OpenAISecurityService.log_api_usage">
+<span class="sig-name descname"><span class="pre">log_api_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokens_used</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.openai_security.OpenAISecurityService.log_api_usage" title="Link to this definition">¶</a></dt>
+<dd><p>Log API usage for monitoring and billing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – User ID</p></li>
+<li><p><strong>model</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Model used</p></li>
+<li><p><strong>tokens_used</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Number of tokens used</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.openai_security.OpenAISecurityService.validate_api_key">
+<span class="sig-name descname"><span class="pre">validate_api_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.openai_security.OpenAISecurityService.validate_api_key" title="Link to this definition">¶</a></dt>
+<dd><p>Validate an OpenAI API key by making a test request</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>api_key</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The API key to validate</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(is_valid, error_message)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="services.openai_security.get_openai_security_service">
+<span class="sig-prename descclassname"><span class="pre">services.openai_security.</span></span><span class="sig-name descname"><span class="pre">get_openai_security_service</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.openai_security.get_openai_security_service" title="Link to this definition">¶</a></dt>
+<dd><p>Get the global OpenAI security service instance
+:rtype: <span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#services.openai_security.OpenAISecurityService" title="services.openai_security.OpenAISecurityService"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenAISecurityService</span></code></a></span>
+:return: OpenAISecurityService instance</p>
+</dd></dl>
+
+</section>
+<section id="module-services.optimal">
+<span id="services-optimal-module"></span><h2>services.optimal module<a class="headerlink" href="#module-services.optimal" title="Link to this heading">¶</a></h2>
+<p>Optimal Service Module</p>
+<p>Optimal is an API for solving optimization problems using various solvers.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="services.optimal.OptimalMetadata">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.optimal.</span></span><span class="sig-name descname"><span class="pre">OptimalMetadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sense</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.optimal.OptimalMetadata" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Metadata for the optimization problem.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.optimal.OptimalMetadata.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.optimal.OptimalMetadata.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Converts the metadata to a dictionary format.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:return: dict: A dictionary representation of the metadata.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="services.optimal.OptimalSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.optimal.</span></span><span class="sig-name descname"><span class="pre">OptimalSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_guess</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.optimal.OptimalSchema" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Schema for the optimization problem to be sent to the Optimal service.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.optimal.OptimalSchema.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.optimal.OptimalSchema.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Converts the schema to a dictionary format.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:return: dict: A dictionary representation of the optimization schema.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="services.optimal.OptimalService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.optimal.</span></span><span class="sig-name descname"><span class="pre">OptimalService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.optimal.OptimalService" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Service for interacting with the Optimal API to solve optimization problems.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="services.optimal.OptimalService.headers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">headers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#services.optimal.OptimalService.headers" title="Link to this definition">¶</a></dt>
+<dd><p>Constructs the headers for the HTTP request to the Optimal service.
+:raises ValueError: If the API key is not provided.
+:return: dict: The headers including the API key for authentication.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="services.optimal.OptimalService.payload">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">payload</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#services.optimal.OptimalService.payload" title="Link to this definition">¶</a></dt>
+<dd><p>Constructs the payload to be sent to the Optimal service.
+:return: dict: The payload containing the schema and metadata.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.optimal.OptimalService.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.optimal.OptimalService.send" title="Link to this definition">¶</a></dt>
+<dd><p>Sends the optimization problem to the Optimal service and returns the response.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:return: dict: The response from the Optimal service containing the optimization results.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-services.redis_client">
+<span id="services-redis-client-module"></span><h2>services.redis_client module<a class="headerlink" href="#module-services.redis_client" title="Link to this heading">¶</a></h2>
+<p>Redis client for connecting to a Redis database.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="services.redis_client.get_redis_connection">
+<span class="sig-prename descclassname"><span class="pre">services.redis_client.</span></span><span class="sig-name descname"><span class="pre">get_redis_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.redis_client.get_redis_connection" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a Redis client connection.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Redis</span></code></span>
+:return: redis.Redis</p>
+</dd></dl>
+
+</section>
+<section id="module-services.scheduling">
+<span id="services-scheduling-module"></span><h2>services.scheduling module<a class="headerlink" href="#module-services.scheduling" title="Link to this heading">¶</a></h2>
+<p>Scheduling service for managing appointments</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.scheduling.</span></span><span class="sig-name descname"><span class="pre">SchedulingService</span></span><a class="headerlink" href="#services.scheduling.SchedulingService" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Service for managing appointments</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.cancel_appointment">
+<span class="sig-name descname"><span class="pre">cancel_appointment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">appointment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.cancel_appointment" title="Link to this definition">¶</a></dt>
+<dd><p>Cancel an appointment</p>
+<p>This method cancels an existing appointment by updating its status to ‘cancelled’.
+It appends a cancellation note with the provided reason.
+:type appointment_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param appointment_id: ID of the appointment to cancel
+:type reason: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:param reason: Reason for cancellation (optional)
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:return: (success, message)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.close" title="Link to this definition">¶</a></dt>
+<dd><p>Close database connection</p>
+<p>This method closes the connection to the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.complete_appointment">
+<span class="sig-name descname"><span class="pre">complete_appointment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">appointment_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.complete_appointment" title="Link to this definition">¶</a></dt>
+<dd><p>Mark appointment as completed</p>
+<p>This method marks an existing appointment as completed by updating its status to ‘completed’.
+:type appointment_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param appointment_id: ID of the appointment to complete
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:return: (success, message)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.confirm_appointment">
+<span class="sig-name descname"><span class="pre">confirm_appointment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">appointment_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.confirm_appointment" title="Link to this definition">¶</a></dt>
+<dd><p>Confirm an appointment</p>
+<p>This method confirms an existing appointment by updating its status to ‘confirmed’.
+:type appointment_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param appointment_id: ID of the appointment to confirm
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:return: (success, message)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.connect">
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.connect" title="Link to this definition">¶</a></dt>
+<dd><p>Connect to database</p>
+<p>This method establishes a connection to the database.
+If the connection fails, it logs the error and raises an exception.
+:raises Exception: If the database connection fails</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.create_appointment">
+<span class="sig-name descname"><span class="pre">create_appointment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patient_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">appointment_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">appointment_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'consultation'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.create_appointment" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new appointment</p>
+<p>This method creates a new appointment in the database.
+It validates the input parameters, checks for time conflicts, and saves the appointment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patient_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the patient</p></li>
+<li><p><strong>provider_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the provider</p></li>
+<li><p><strong>appointment_date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Date of the appointment in YYYY-MM-DD format</p></li>
+<li><p><strong>start_time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Start time of the appointment in HH:MM format</p></li>
+<li><p><strong>end_time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – End time of the appointment in HH:MM format</p></li>
+<li><p><strong>appointment_type</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Type of the appointment (default is “consultation”)</p></li>
+<li><p><strong>notes</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – Additional notes for the appointment (optional)</p></li>
+<li><p><strong>location</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – Location of the appointment (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Appointment</span></code>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message, appointment)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.get_all_appointments">
+<span class="sig-name descname"><span class="pre">get_all_appointments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.get_all_appointments" title="Link to this definition">¶</a></dt>
+<dd><p>Get all appointments (for debugging)</p>
+<p>This method retrieves all appointments from the database, ordered by date and time.
+It is primarily used for debugging purposes to ensure the appointment table is functioning correctly.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Appointment</span></code>]</span>
+:return: List of all Appointment objects</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.get_appointment">
+<span class="sig-name descname"><span class="pre">get_appointment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">appointment_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.get_appointment" title="Link to this definition">¶</a></dt>
+<dd><p>Get appointment by ID</p>
+<p>This method retrieves an appointment from the database by its ID.
+:type appointment_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param appointment_id: ID of the appointment to retrieve
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Appointment</span></code>]</span>
+:return: Appointment object if found, None otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.get_appointments_by_date">
+<span class="sig-name descname"><span class="pre">get_appointments_by_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.get_appointments_by_date" title="Link to this definition">¶</a></dt>
+<dd><p>Get appointments for a specific date</p>
+<p>This method retrieves all appointments for a given date, optionally filtered by provider ID.
+:type date: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param date: Date in YYYY-MM-DD format
+:type provider_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:param provider_id: Optional provider ID to filter appointments
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Appointment</span></code>]</span>
+:return: List of Appointment objects for the specified date</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.get_appointments_by_patient">
+<span class="sig-name descname"><span class="pre">get_appointments_by_patient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patient_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.get_appointments_by_patient" title="Link to this definition">¶</a></dt>
+<dd><p>Get all appointments for a patient</p>
+<p>This method retrieves all appointments for a specific patient, ordered by date and time.
+:type patient_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param patient_id: ID of the patient
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Appointment</span></code>]</span>
+:return: List of Appointment objects for the specified patient</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.get_appointments_by_provider">
+<span class="sig-name descname"><span class="pre">get_appointments_by_provider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">provider_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.get_appointments_by_provider" title="Link to this definition">¶</a></dt>
+<dd><p>Get appointments for a provider within a date range</p>
+<p>This method retrieves all appointments for a specific provider, optionally filtered by a date range.
+:type provider_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param provider_id: ID of the provider
+:type start_date: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:param start_date: Start date in YYYY-MM-DD format (optional)
+:type end_date: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:param end_date: End date in YYYY-MM-DD format (optional)
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Appointment</span></code>]</span>
+:return: List of Appointment objects for the specified provider and date range</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.get_available_slots">
+<span class="sig-name descname"><span class="pre">get_available_slots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">provider_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_minutes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.get_available_slots" title="Link to this definition">¶</a></dt>
+<dd><p>Get available time slots for a provider on a specific date</p>
+<p>This method retrieves available time slots for a provider on a given date.
+It checks existing appointments and creates time slots based on business hours (9 AM to 5 PM).
+:type provider_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param provider_id: ID of the provider
+:type date: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param date: Date in YYYY-MM-DD format
+:type duration_minutes: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>
+:param duration_minutes: Duration of each time slot in minutes (default is 30 minutes)
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]</span>
+:return: List of available time slots as dictionaries with ‘start_time’ and ‘end_time’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.scheduling.SchedulingService.update_appointment">
+<span class="sig-name descname"><span class="pre">update_appointment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">appointment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.scheduling.SchedulingService.update_appointment" title="Link to this definition">¶</a></dt>
+<dd><p>Update an appointment</p>
+<p>This method updates an existing appointment with the provided fields.
+It checks for time conflicts if the appointment date or time is being updated.
+:type appointment_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param appointment_id: ID of the appointment to update
+:type updates: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:param updates: Dictionary of fields to update (e.g., {‘start_time’: ‘10:00’, ‘notes’: ‘Updated notes’})
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:return: (success, message)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-services.user_service">
+<span id="services-user-service-module"></span><h2>services.user_service module<a class="headerlink" href="#module-services.user_service" title="Link to this heading">¶</a></h2>
+<p>User Service for managing user accounts, authentication, and settings.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="services.user_service.UserService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">services.user_service.</span></span><span class="sig-name descname"><span class="pre">UserService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_controller</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Service for managing user accounts, authentication, and settings.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.activate_user">
+<span class="sig-name descname"><span class="pre">activate_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.activate_user" title="Link to this definition">¶</a></dt>
+<dd><p>Activate a user account</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user to activate</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.authenticate_user">
+<span class="sig-name descname"><span class="pre">authenticate_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.authenticate_user" title="Link to this definition">¶</a></dt>
+<dd><p>Authenticate a user with username and password</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Username of the user</p></li>
+<li><p><strong>password</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Password of the user</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">UserSession</span></code>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message, session_object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.change_password">
+<span class="sig-name descname"><span class="pre">change_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.change_password" title="Link to this definition">¶</a></dt>
+<dd><p>Change user password</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user whose password is to be changed</p></li>
+<li><p><strong>current_password</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Current password of the user</p></li>
+<li><p><strong>new_password</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – New password to set for the user</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.close" title="Link to this definition">¶</a></dt>
+<dd><p>Close database connection
+This method attempts to close the database connection using the provided DbController.
+If the DbController does not have a close method, it will log a message and continue in mock mode.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.connect">
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.connect" title="Link to this definition">¶</a></dt>
+<dd><p>Connect to database
+This method attempts to connect to the database using the provided DbController.
+If the DbController does not have a connect method, it will log a message and continue in mock mode.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.create_default_admin">
+<span class="sig-name descname"><span class="pre">create_default_admin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.create_default_admin" title="Link to this definition">¶</a></dt>
+<dd><p>Create a default admin user if no users exist</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(success, message)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.create_user">
+<span class="sig-name descname"><span class="pre">create_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'patient'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.create_user" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new user account</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Username for the new user</p></li>
+<li><p><strong>email</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Email address for the new user</p></li>
+<li><p><strong>password</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Password for the new user</p></li>
+<li><p><strong>first_name</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – First name of the user (optional)</p></li>
+<li><p><strong>last_name</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – Last name of the user (optional)</p></li>
+<li><p><strong>role</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Role of the user (default is “patient”)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message, user_object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.deactivate_user">
+<span class="sig-name descname"><span class="pre">deactivate_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.deactivate_user" title="Link to this definition">¶</a></dt>
+<dd><p>Deactivate a user account
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param user_id: ID of the user to deactivate
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:return: (success, message)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.get_all_users">
+<span class="sig-name descname"><span class="pre">get_all_users</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.get_all_users" title="Link to this definition">¶</a></dt>
+<dd><p>Get all users (admin only)
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code>]</span>
+:return: List of User objects</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.get_openai_api_key">
+<span class="sig-name descname"><span class="pre">get_openai_api_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.get_openai_api_key" title="Link to this definition">¶</a></dt>
+<dd><p>Get user’s decrypted OpenAI API key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user whose API key to retrieve</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>OpenAI API key if found, empty string otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.get_user_by_email">
+<span class="sig-name descname"><span class="pre">get_user_by_email</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.get_user_by_email" title="Link to this definition">¶</a></dt>
+<dd><p>Get user by email</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>email</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Email address of the user to retrieve</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>User object if found, None otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.get_user_by_id">
+<span class="sig-name descname"><span class="pre">get_user_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.get_user_by_id" title="Link to this definition">¶</a></dt>
+<dd><p>Get user by ID
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param user_id: ID of the user to retrieve
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code>]</span>
+:return: User object if found, None otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.get_user_by_username">
+<span class="sig-name descname"><span class="pre">get_user_by_username</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.get_user_by_username" title="Link to this definition">¶</a></dt>
+<dd><p>Get user by username
+:type username: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param username: Username of the user to retrieve
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code>]</span>
+:return: User object if found, None otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.get_user_settings">
+<span class="sig-name descname"><span class="pre">get_user_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.get_user_settings" title="Link to this definition">¶</a></dt>
+<dd><p>Get user settings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user whose settings to retrieve</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">UserSettings</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>UserSettings object if found, None otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.has_openai_api_key">
+<span class="sig-name descname"><span class="pre">has_openai_api_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.has_openai_api_key" title="Link to this definition">¶</a></dt>
+<dd><p>Check if user has a valid OpenAI API key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user to check</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if user has a valid OpenAI API key, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.logout">
+<span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.logout" title="Link to this definition">¶</a></dt>
+<dd><p>Logout user by removing session
+:type token: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param token: Session token to remove
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>
+:return: True if logout successful, False otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.save_user_settings">
+<span class="sig-name descname"><span class="pre">save_user_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.save_user_settings" title="Link to this definition">¶</a></dt>
+<dd><p>Save user settings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user whose settings to save</p></li>
+<li><p><strong>settings</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserSettings</span></code></span>) – UserSettings object containing the settings to save</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.update_openai_api_key">
+<span class="sig-name descname"><span class="pre">update_openai_api_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.update_openai_api_key" title="Link to this definition">¶</a></dt>
+<dd><p>Update user’s OpenAI API key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – ID of the user whose API key to update</p></li>
+<li><p><strong>api_key</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – New OpenAI API key to set for the user</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(success, message)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.update_user">
+<span class="sig-name descname"><span class="pre">update_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.update_user" title="Link to this definition">¶</a></dt>
+<dd><p>Update user information
+:type user_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param user_id: ID of the user to update
+:type updates: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:param updates: Dictionary of fields to update
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:return: (success, message)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="services.user_service.UserService.validate_session">
+<span class="sig-name descname"><span class="pre">validate_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#services.user_service.UserService.validate_session" title="Link to this definition">¶</a></dt>
+<dd><p>Validate session token and return session if valid
+:type token: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param token: Session token to validate
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">UserSession</span></code>]</span>
+:return: UserSession object if valid, None otherwise</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-services">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-services" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ArsMedicaTech</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../app.html">app module</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">lib</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="db.html">db package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dummy_data.html">dummy_data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm.html">llm package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logger.html">logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html">migrations package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">models package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">opt package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html">routes package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">services package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html">types module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../OPENAI_SECURITY_README.html">OpenAI Security System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../PATIENT_CRUD_README.html">Patient CRUD Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SSE_NOTIFICATIONS_README.html">Redis/SSE Notifications System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../USER_SETTINGS_README.html">User Settings System</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">lib</a><ul>
+      <li>Previous: <a href="routes.html" title="previous chapter">routes package</a></li>
+      <li>Next: <a href="types.html" title="next chapter">types module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Darren MacKenzie.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api/services.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>routes package &#8212; ArsMedicaTech  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="services package" href="services.html" />
+    <link rel="prev" title="opt package" href="opt.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="routes-package">
+<h1>routes package<a class="headerlink" href="#routes-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-routes.appointments">
+<span id="routes-appointments-module"></span><h2>routes.appointments module<a class="headerlink" href="#module-routes.appointments" title="Link to this heading">¶</a></h2>
+<p>Appointment routes for scheduling functionality</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.appointments.cancel_appointment_route">
+<span class="sig-prename descclassname"><span class="pre">routes.appointments.</span></span><span class="sig-name descname"><span class="pre">cancel_appointment_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">appointment_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.appointments.cancel_appointment_route" title="Link to this definition">¶</a></dt>
+<dd><p>Cancel an appointment</p>
+<p>This endpoint allows users to cancel an existing appointment.
+It requires the user to be authenticated and provides the appointment ID
+along with an optional reason for cancellation.
+Returns a JSON response indicating success or failure of the cancellation operation.
+HTTP Status Codes:
+- 200 OK: Appointment successfully cancelled
+- 400 Bad Request: Missing required fields or invalid data
+- 401 Unauthorized: User not authenticated
+- 403 Forbidden: User does not have access to this appointment
+- 404 Not Found: Appointment not found
+- 500 Internal Server Error: An unexpected error occurred
+Example Request:
+DELETE /appointments/Appointment:12345
+Content-Type: application/json
+{</p>
+<blockquote>
+<div><p>“reason”: “Patient requested cancellation”</p>
+</div></blockquote>
+<p>}
+Example Response:
+HTTP/1.1 200 OK
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“message”: “Appointment cancelled successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>appointment_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The ID of the appointment to cancel</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response with success message or error details</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.appointments.confirm_appointment_route">
+<span class="sig-prename descclassname"><span class="pre">routes.appointments.</span></span><span class="sig-name descname"><span class="pre">confirm_appointment_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">appointment_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.appointments.confirm_appointment_route" title="Link to this definition">¶</a></dt>
+<dd><p>Confirm an appointment</p>
+<p>This endpoint allows users to confirm an existing appointment.
+It requires the user to be authenticated and provides the appointment ID.
+Returns a JSON response indicating success or failure of the confirmation operation.
+HTTP Status Codes:
+- 200 OK: Appointment successfully confirmed
+- 400 Bad Request: Missing required fields or invalid data
+- 401 Unauthorized: User not authenticated
+- 403 Forbidden: User does not have access to this appointment
+- 404 Not Found: Appointment not found
+- 500 Internal Server Error: An unexpected error occurred
+Example Request:
+POST /appointments/Appointment:12345/confirm
+Example Response:
+HTTP/1.1 200 OK
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“message”: “Appointment confirmed successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>appointment_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The ID of the appointment to confirm</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response with success message or error details</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.appointments.create_appointment_route">
+<span class="sig-prename descclassname"><span class="pre">routes.appointments.</span></span><span class="sig-name descname"><span class="pre">create_appointment_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.appointments.create_appointment_route" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new appointment</p>
+<p>This endpoint allows users to create a new appointment.
+It requires the user to be authenticated and provides necessary details
+such as patient ID, provider ID, appointment date, start and end times,
+appointment type, notes, and location.</p>
+<p>Returns a JSON response with the appointment details if successful,
+or an error message if there was an issue.</p>
+<p>HTTP Status Codes:
+- 201 Created: Appointment successfully created
+- 400 Bad Request: Missing required fields or invalid data
+- 401 Unauthorized: User not authenticated
+- 500 Internal Server Error: An unexpected error occurred</p>
+<p>Example Request:
+POST /appointments
+Content-Type: application/json
+{</p>
+<blockquote>
+<div><p>“patient_id”: “Patient:12345”,
+…</p>
+</div></blockquote>
+<p>}</p>
+<p>Example Response:
+HTTP/1.1 201 Created
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“message”: “Appointment created successfully”,</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with appointment details or error message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.appointments.get_appointment_route">
+<span class="sig-prename descclassname"><span class="pre">routes.appointments.</span></span><span class="sig-name descname"><span class="pre">get_appointment_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">appointment_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.appointments.get_appointment_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get a specific appointment</p>
+<p>This endpoint retrieves details of a specific appointment by its ID.
+It checks if the user has access to the appointment based on their role
+(provider or patient) and returns the appointment details if found.
+Returns a JSON response with the appointment details or an error message.
+HTTP Status Codes:
+- 200 OK: Successfully retrieved appointment details
+- 401 Unauthorized: User not authenticated
+- 403 Forbidden: User does not have access to this appointment
+- 404 Not Found: Appointment not found
+- 500 Internal Server Error: An unexpected error occurred
+Example Request:
+GET /appointments/Appointment:12345
+Example Response:
+HTTP/1.1 200 OK
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“appointment”: {</p>
+<blockquote>
+<div><p>“id”: “Appointment:12345”,
+“patient_id”: “Patient:12345”,
+“provider_id”: “Provider:67890”,
+“appointment_date”: “2023-10-01”,
+“start_time”: “10:00”,
+“end_time”: “10:30”,
+“appointment_type”: “consultation”,
+“status”: “scheduled”,
+“notes”: “”,
+“location”: “Clinic A”,
+“created_at”: “2023-09-01T12:00:00Z”,
+“updated_at”: “2023-09-01T12:00:00Z”</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>}
+:type appointment_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param appointment_id: The ID of the appointment to retrieve
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: JSON response with appointment details or error message</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.appointments.get_appointment_statuses_route">
+<span class="sig-prename descclassname"><span class="pre">routes.appointments.</span></span><span class="sig-name descname"><span class="pre">get_appointment_statuses_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.appointments.get_appointment_statuses_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get available appointment statuses</p>
+<p>This endpoint retrieves a list of available appointment statuses.
+It can be used to populate dropdowns or selection lists in the UI.
+Returns a JSON response with the list of appointment statuses.
+HTTP Status Codes:
+- 200 OK: Successfully retrieved appointment statuses
+- 500 Internal Server Error: An unexpected error occurred
+Example Request:
+GET /appointments/statuses
+Example Response:
+HTTP/1.1 200 OK
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“appointment_statuses”: [</p>
+<blockquote>
+<div><p>{“value”: “scheduled”, “label”: “Scheduled”},
+{“value”: “confirmed”, “label”: “Confirmed”},
+{“value”: “cancelled”, “label”: “Cancelled”},
+{“value”: “completed”, “label”: “Completed”},
+{“value”: “no_show”, “label”: “No Show”}</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>}
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: JSON response with appointment statuses or error message</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.appointments.get_appointment_types_route">
+<span class="sig-prename descclassname"><span class="pre">routes.appointments.</span></span><span class="sig-name descname"><span class="pre">get_appointment_types_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.appointments.get_appointment_types_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get available appointment types</p>
+<p>This endpoint retrieves a list of available appointment types.
+It can be used to populate dropdowns or selection lists in the UI.
+Returns a JSON response with the list of appointment types.
+HTTP Status Codes:
+- 200 OK: Successfully retrieved appointment types
+- 500 Internal Server Error: An unexpected error occurred
+Example Request:
+GET /appointments/types
+Example Response:
+HTTP/1.1 200 OK
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“appointment_types”: [</p>
+<blockquote>
+<div><p>{“value”: “consultation”, “label”: “Consultation”},
+{“value”: “follow_up”, “label”: “Follow-up”},
+{“value”: “emergency”, “label”: “Emergency”},
+{“value”: “routine”, “label”: “Routine Check-up”},
+{“value”: “specialist”, “label”: “Specialist Visit”}</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>}
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: JSON response with appointment types or error message</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.appointments.get_appointments_route">
+<span class="sig-prename descclassname"><span class="pre">routes.appointments.</span></span><span class="sig-name descname"><span class="pre">get_appointments_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.appointments.get_appointments_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get appointments based on filters</p>
+<p>This endpoint retrieves appointments based on various filters such as date,
+patient ID, provider ID, and status. It allows users to view their appointments
+or those of patients they manage.
+Returns a JSON response with the list of appointments and their details.
+HTTP Status Codes:
+- 200 OK: Successfully retrieved appointments
+- 401 Unauthorized: User not authenticated
+- 500 Internal Server Error: An unexpected error occurred
+Example Request:
+GET /appointments?date=2023-10-01&amp;patient_id=Patient:12345&amp;provider_id=Provider:67890&amp;status=scheduled
+Example Response:
+HTTP/1.1 200 OK
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“appointments”: [</p>
+<blockquote>
+<div><dl class="simple">
+<dt>{</dt><dd><p>“id”: “Appointment:12345”,
+“patient_id”: “Patient:12345”,
+“provider_id”: “Provider:67890”,
+“appointment_date”: “2023-10-01”,
+“start_time”: “10:00”,
+“end_time”: “10:30”,
+“appointment_type”: “consultation”,
+“status”: “scheduled”,
+“notes”: “”,
+“location”: “Clinic A”,
+“created_at”: “2023-09-01T12:00:00Z”,
+“updated_at”: “2023-09-01T12:00:00Z”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>],
+“total”: 1</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with appointments or error message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.appointments.get_available_slots_route">
+<span class="sig-prename descclassname"><span class="pre">routes.appointments.</span></span><span class="sig-name descname"><span class="pre">get_available_slots_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.appointments.get_available_slots_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get available time slots for a provider on a specific date</p>
+<p>This endpoint retrieves available time slots for a specific provider on a given date.
+It allows users to check availability for scheduling appointments.
+Returns a JSON response with the available time slots or an error message.
+HTTP Status Codes:
+- 200 OK: Successfully retrieved available slots
+- 400 Bad Request: Missing required parameters or invalid data
+- 401 Unauthorized: User not authenticated
+- 500 Internal Server Error: An unexpected error occurred
+Example Request:
+GET /appointments/available_slots?date=2023-10-01&amp;provider_id=Provider:67890&amp;duration=30
+Example Response:
+HTTP/1.1 200 OK
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“date”: “2023-10-01”,
+“provider_id”: “Provider:67890”,
+“duration_minutes”: 30,
+“available_slots”: [</p>
+<blockquote>
+<div><p>“10:00-10:30”,
+“10:30-11:00”,
+…</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>}
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: JSON response with available slots or error message</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.appointments.update_appointment_route">
+<span class="sig-prename descclassname"><span class="pre">routes.appointments.</span></span><span class="sig-name descname"><span class="pre">update_appointment_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">appointment_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.appointments.update_appointment_route" title="Link to this definition">¶</a></dt>
+<dd><p>Update an appointment</p>
+<p>This endpoint allows users to update an existing appointment.
+It requires the user to be authenticated and provides the appointment ID
+along with the fields to be updated such as appointment date, start and end times,
+appointment type, notes, and location.
+Returns a JSON response indicating success or failure of the update operation.</p>
+<p>HTTP Status Codes:
+- 200 OK: Appointment successfully updated
+- 400 Bad Request: Missing required fields or invalid data
+- 401 Unauthorized: User not authenticated
+- 403 Forbidden: User does not have access to this appointment
+- 404 Not Found: Appointment not found
+- 500 Internal Server Error: An unexpected error occurred
+Example Request:
+PUT /appointments/Appointment:12345
+Content-Type: application/json
+{</p>
+<blockquote>
+<div><p>“appointment_date”: “2023-10-01”,
+“start_time”: “10:00”,
+“end_time”: “10:30”,
+“appointment_type”: “follow_up”,
+“notes”: “Updated notes”,
+“location”: “Updated Clinic A”</p>
+</div></blockquote>
+<p>}
+Example Response:
+HTTP/1.1 200 OK
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“message”: “Appointment updated successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>appointment_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The ID of the appointment to update</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response with success message or error details</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-routes.chat">
+<span id="routes-chat-module"></span><h2>routes.chat module<a class="headerlink" href="#module-routes.chat" title="Link to this heading">¶</a></h2>
+<p>Chat routes for managing conversations and messages.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.chat.create_conversation_route">
+<span class="sig-prename descclassname"><span class="pre">routes.chat.</span></span><span class="sig-name descname"><span class="pre">create_conversation_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.chat.create_conversation_route" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new conversation</p>
+<p>This endpoint allows users to create a new conversation with one or more participants.
+It ensures the current user is included in the participants and handles different conversation types.
+Participants must be provided in the request body, and at least two participants are required.
+The endpoint returns the conversation ID upon successful creation.
+If the request is invalid or the conversation cannot be created, an error message is returned.</p>
+<p>Example request body:
+{</p>
+<blockquote>
+<div><p>“participants”: [“user1_id”, “user2_id”],
+“type”: “user_to_user”  # or “group”, “ai_assistant”, etc.</p>
+</div></blockquote>
+<p>}
+Example response:
+{</p>
+<blockquote>
+<div><p>“message”: “Conversation created successfully”,
+“conversation_id”: “conv12345”</p>
+</div></blockquote>
+<p>}</p>
+<p>Error responses:
+{</p>
+<blockquote>
+<div><p>“error”: “No data provided”</p>
+</div></blockquote>
+<section id="id1">
+<h3>}<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>“error”: “At least 2 participants are required”</p>
+</div></blockquote>
+</section>
+<section id="id2">
+<h3>}<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>“error”: “Conversation creation failed: &lt;reason&gt;”</p>
+</div></blockquote>
+<p>}</p>
+<p>400 Bad Request if the request is invalid or conversation cannot be created.
+201 Created if the conversation is successfully created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">return<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with success message and conversation ID or error message.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.chat.get_conversation_messages_route">
+<span class="sig-prename descclassname"><span class="pre">routes.chat.</span></span><span class="sig-name descname"><span class="pre">get_conversation_messages_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.chat.get_conversation_messages_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get messages for a specific conversation</p>
+<p>This endpoint retrieves all messages in a specified conversation.
+It verifies that the conversation exists and that the user is a participant.
+If successful, it returns a list of messages with sender information and timestamps.
+If the conversation does not exist or the user is not a participant, it returns an error.</p>
+<p>Example response:
+{</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“messages”: [</dt><dd><dl class="simple">
+<dt>{</dt><dd><p>“id”: “msg12345”,
+“sender”: “John Doe”,
+“text”: “Hello, this is a message!”,
+“timestamp”: “2023-10-01T12:00:00Z”,
+“is_read”: true</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>]</p>
+</div></blockquote>
+<p>}</p>
+<p>Error responses:
+{</p>
+<blockquote>
+<div><p>“error”: “Conversation not found”</p>
+</div></blockquote>
+<section id="id3">
+<h3>}<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>“error”: “Access denied”</p>
+</div></blockquote>
+<p>}</p>
+<p>403 Forbidden if the user is not a participant in the conversation.
+404 Not Found if the conversation does not exist.
+200 OK if the messages are retrieved successfully.</p>
+<dl class="field-list simple">
+<dt class="field-odd">type conversation_id<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-even">param conversation_id<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the conversation to retrieve messages from.</p>
+</dd>
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">return<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with a list of messages or an error message.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.chat.get_user_conversations_route">
+<span class="sig-prename descclassname"><span class="pre">routes.chat.</span></span><span class="sig-name descname"><span class="pre">get_user_conversations_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.chat.get_user_conversations_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get all conversations for the current user</p>
+<p>This endpoint retrieves all conversations that the current user is a participant in.
+It returns a list of conversations with basic details such as participants, last message preview,
+and conversation type (e.g., user-to-user, group, AI assistant).
+If the user has no conversations, it returns an empty list.
+If the user is not authenticated, it returns an error.</p>
+<p>Example response:
+{</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“conversations”: [</dt><dd><dl class="simple">
+<dt>{</dt><dd><p>“id”: “conv12345”,
+“name”: “John Doe”,
+“lastMessage”: “Hello, this is a message!”,
+“avatar”: “<a class="reference external" href="https://ui-avatars.com/api/?name=John+Doe&amp;background=random">https://ui-avatars.com/api/?name=John+Doe&amp;background=random</a>”,
+“participantId”: “user123”,
+“isAI”: false,
+“last_message_at”: “2023-10-01T12:00:00Z”</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>]</p>
+</div></blockquote>
+<p>}</p>
+<p>Error responses:
+{</p>
+<blockquote>
+<div><p>“error”: “User not authenticated”</p>
+</div></blockquote>
+<p>}</p>
+<p>200 OK if conversations are retrieved successfully.
+403 Forbidden if the user is not authenticated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with a list of conversations or an error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.chat.send_message_route">
+<span class="sig-prename descclassname"><span class="pre">routes.chat.</span></span><span class="sig-name descname"><span class="pre">send_message_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.chat.send_message_route" title="Link to this definition">¶</a></dt>
+<dd><p>Send a message in a conversation</p>
+<p>This endpoint allows users to send a message in a specific conversation.
+It verifies that the conversation exists and that the user is a participant.
+The message text must be provided in the request body.
+If successful, it returns the message ID and timestamp.
+If the conversation does not exist or the user is not a participant, it returns an error.</p>
+<p>Example request body:
+{</p>
+<blockquote>
+<div><p>“text”: “Hello, this is a message!”</p>
+</div></blockquote>
+<p>}</p>
+<p>Example response:
+{</p>
+<blockquote>
+<div><p>“message”: “Message sent successfully”,
+“message_id”: “msg12345”,
+“timestamp”: “2023-10-01T12:00:00Z”</p>
+</div></blockquote>
+<p>}</p>
+<p>Error responses:
+{</p>
+<blockquote>
+<div><p>“error”: “Message text is required”</p>
+</div></blockquote>
+<section id="id4">
+<h3>}<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>“error”: “Conversation not found”</p>
+</div></blockquote>
+</section>
+<section id="id5">
+<h3>}<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>“error”: “Access denied”</p>
+</div></blockquote>
+</section>
+<section id="id6">
+<h3>}<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>“error”: “Failed to send message: &lt;reason&gt;”</p>
+</div></blockquote>
+<p>}</p>
+<p>200 OK if the message is sent successfully.
+400 Bad Request if the request is invalid or message cannot be sent.
+404 Not Found if the conversation does not exist.
+403 Forbidden if the user is not a participant in the conversation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">type conversation_id<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-even">param conversation_id<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ID of the conversation to send the message in.</p>
+</dd>
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">return<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with success message and message details or error message.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-routes.llm_agent">
+<span id="routes-llm-agent-module"></span><h2>routes.llm_agent module<a class="headerlink" href="#module-routes.llm_agent" title="Link to this heading">¶</a></h2>
+<p>LLM Agent Endpoint</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.llm_agent.llm_agent_endpoint_route">
+<span class="sig-prename descclassname"><span class="pre">routes.llm_agent.</span></span><span class="sig-name descname"><span class="pre">llm_agent_endpoint_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.llm_agent.llm_agent_endpoint_route" title="Link to this definition">¶</a></dt>
+<dd><p>Route for the LLM agent endpoint.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: Response object with JSON data or error message.</p>
+</dd></dl>
+
+</section>
+<section id="module-routes.patients">
+<span id="routes-patients-module"></span><h2>routes.patients module<a class="headerlink" href="#module-routes.patients" title="Link to this heading">¶</a></h2>
+<p>Routes for patient and encounter management in a healthcare application.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.create_encounter_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">create_encounter_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patient_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.create_encounter_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to create a new encounter for a patient</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>patient_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">PatientID</span></code></span>) – The ID of the patient to create an encounter for, formatted as ‘Patient:{patient_id}’.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response with the created encounter or error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.delete_encounter_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">delete_encounter_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encounter_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.delete_encounter_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to delete an encounter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>encounter_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The ID of the encounter to delete.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response indicating success or failure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.get_all_encounters_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">get_all_encounters_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.get_all_encounters_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to get all encounters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with all encounters or error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.get_encounter_by_id_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">get_encounter_by_id_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encounter_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.get_encounter_by_id_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to get a specific encounter by ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>encounter_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The ID of the encounter to retrieve.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response with the encounter or error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.get_encounters_by_patient_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">get_encounters_by_patient_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patient_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.get_encounters_by_patient_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to get all encounters for a specific patient</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>patient_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">PatientID</span></code></span>) – The ID of the patient to get encounters for, formatted as ‘Patient:{patient_id}’.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response with encounters or error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.patch_intake_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">patch_intake_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patient_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.patch_intake_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to patch a patient’s intake data.
+:type patient_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">PatientID</span></code></span>
+:param patient_id: The ID of the patient to update, formatted as ‘Patient:{patient_id}’.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: Response indicating success or failure.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.patient_endpoint_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">patient_endpoint_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patient_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.patient_endpoint_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to handle patient-related operations.
+:type patient_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">PatientID</span></code></span>
+:param patient_id: The ID of the patient to operate on, formatted as ‘Patient:{patient_id}’.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: Response with patient data or error message.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.patients_endpoint_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">patients_endpoint_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.patients_endpoint_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to handle patient-related operations.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: JSON response with patient data or error message.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.search_encounters_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">search_encounters_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.search_encounters_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to search encounters via FTS.
+Accepts a ‘q’ query parameter.
+e.g., /api/encounters/search?q=headache</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with search results or error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.search_patients_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">search_patients_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.search_patients_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to search patient histories via FTS.
+Accepts a ‘q’ query parameter.
+e.g., /api/patients/search?q=headache</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with search results or error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.update_encounter_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">update_encounter_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encounter_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.update_encounter_route" title="Link to this definition">¶</a></dt>
+<dd><p>API endpoint to update an encounter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>encounter_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The ID of the encounter to update.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON response with the updated encounter or error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-routes.testing">
+<span id="routes-testing-module"></span><h2>routes.testing module<a class="headerlink" href="#module-routes.testing" title="Link to this heading">¶</a></h2>
+<p>Testing routes for CRUD operations and database interactions.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.testing.debug_session_route">
+<span class="sig-prename descclassname"><span class="pre">routes.testing.</span></span><span class="sig-name descname"><span class="pre">debug_session_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.testing.debug_session_route" title="Link to this definition">¶</a></dt>
+<dd><p>Debug endpoint to check session state</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON response with session data and request headers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.testing.test_crud_route">
+<span class="sig-prename descclassname"><span class="pre">routes.testing.</span></span><span class="sig-name descname"><span class="pre">test_crud_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.testing.test_crud_route" title="Link to this definition">¶</a></dt>
+<dd><p>Test CRUD operations for patient management.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: Response object with results of CRUD operations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.testing.test_surrealdb_route">
+<span class="sig-prename descclassname"><span class="pre">routes.testing.</span></span><span class="sig-name descname"><span class="pre">test_surrealdb_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.testing.test_surrealdb_route" title="Link to this definition">¶</a></dt>
+<dd><p>Test route to interact with SurrealDB.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span>
+:return: Response object with test results.</p>
+</dd></dl>
+
+</section>
+<section id="module-routes.users">
+<span id="routes-users-module"></span><h2>routes.users module<a class="headerlink" href="#module-routes.users" title="Link to this heading">¶</a></h2>
+<p>User management routes for the application.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.activate_user_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">activate_user_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.activate_user_route" title="Link to this definition">¶</a></dt>
+<dd><p>Activate a user account (admin only)</p>
+<p>This endpoint allows an admin to activate a user account by user ID.
+Example request:
+POST /api/users/activate/&lt;user_id&gt;
+Path parameters:
+- user_id: The ID of the user to activate.
+Example response:
+{</p>
+<blockquote>
+<div><p>“message”: “User activated successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The ID of the user to activate.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response object containing a JSON message indicating success or failure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.change_password_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">change_password_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.change_password_route" title="Link to this definition">¶</a></dt>
+<dd><p>Change user password
+This endpoint allows the authenticated user to change their password.
+It requires the current password and the new password to be provided in the request body.
+Example request:
+POST /api/users/change_password
+Body:
+{</p>
+<blockquote>
+<div><p>“current_password”: “old_password”,
+“new_password”: “new_password”</p>
+</div></blockquote>
+<p>}
+Example response:
+{</p>
+<blockquote>
+<div><p>“message”: “Password changed successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON message indicating success or failure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.check_users_exist_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">check_users_exist_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.check_users_exist_route" title="Link to this definition">¶</a></dt>
+<dd><p>Check if any users exist (public endpoint)</p>
+<p>This endpoint checks if there are any users in the database.
+It returns a JSON response indicating whether users exist and the count of users.
+Example request:
+GET /api/users/check_exists
+Example response:
+{</p>
+<blockquote>
+<div><p>“users_exist”: true,
+“user_count”: 5</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON indicating if users exist and the count of users.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.deactivate_user_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">deactivate_user_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.deactivate_user_route" title="Link to this definition">¶</a></dt>
+<dd><p>Deactivate a user account (admin only)</p>
+<p>This endpoint allows an admin to deactivate a user account by user ID.
+Example request:
+POST /api/users/deactivate/&lt;user_id&gt;
+Path parameters:
+- user_id: The ID of the user to deactivate.
+Example response:
+{</p>
+<blockquote>
+<div><p>“message”: “User deactivated successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The ID of the user to deactivate.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response object containing a JSON message indicating success or failure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.get_all_users_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">get_all_users_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.get_all_users_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get all users (admin only)</p>
+<p>This endpoint retrieves a list of all users in the system.
+It is intended for administrative use and returns user details such as ID,
+username, email, first name, last name, role, active status, and creation date.
+Example request:
+GET /api/users/all
+Example response:
+[]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON list of all users.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.get_api_usage_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">get_api_usage_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.get_api_usage_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get current user’s API usage statistics</p>
+<p>This endpoint retrieves the API usage statistics for the currently authenticated user.
+It returns a JSON response containing the user’s API usage data, such as the number of requests made,
+tokens used, and any other relevant metrics.
+Example request:
+GET /api/users/api_usage
+Example response:
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“usage”: {</p>
+<blockquote>
+<div><p>“requests_made”: 100,
+“tokens_used”: 5000,
+“last_reset”: “2023-01-01T00:00:00Z”</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON representation of the user’s API usage statistics or an error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.get_current_user_info_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">get_current_user_info_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.get_current_user_info_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get current authenticated user information</p>
+<p>This endpoint retrieves the information of the currently authenticated user.
+It returns details such as user ID, username, email, first name, last name,
+role, active status, and creation date.
+Example request:
+GET /api/users/me
+Example response:
+{}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON representation of the current user’s information.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.get_user_profile_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">get_user_profile_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.get_user_profile_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get current user’s profile information</p>
+<p>This endpoint retrieves the profile information of the currently authenticated user.
+It returns a JSON response containing the user’s ID, username, email, first name, last name,
+role, specialty, clinic name, clinic address, phone number, active status, and creation date.
+Example request:
+GET /api/users/profile
+Example response:
+{}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON representation of the user’s profile or an error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.get_user_settings">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">get_user_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.get_user_settings" title="Link to this definition">¶</a></dt>
+<dd><p>Get current user’s settings</p>
+<p>This endpoint retrieves the settings for the currently authenticated user.
+It returns a JSON response containing the user ID, whether the user has an OpenAI API key,
+and timestamps for when the settings were created and last updated.
+Example request:
+GET /api/users/settings
+Example response:
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“settings”: {</p>
+<blockquote>
+<div><p>“user_id”: “12345”,
+“has_openai_api_key”: true,
+“created_at”: “2023-01-01T00:00:00Z”,
+“updated_at”: “2023-01-02T00:00:00Z”</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON representation of the user’s settings or an error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.login_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">login_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.login_route" title="Link to this definition">¶</a></dt>
+<dd><p>Authenticate user and create session</p>
+<p>This endpoint allows users to log in by providing their username and password.
+It validates the credentials, creates a user session, and returns a JSON response
+containing the authentication token and user details.
+Example request:
+POST /api/users/login
+Body:
+{</p>
+<blockquote>
+<div><p>“username”: “user1”,
+“password”: “securepassword”</p>
+</div></blockquote>
+<p>}
+Example response:
+{}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON representation of the user session and token.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.logout_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">logout_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.logout_route" title="Link to this definition">¶</a></dt>
+<dd><p>Logout user and invalidate session</p>
+<p>This endpoint logs out the user by invalidating their session token.
+It removes the authentication token from the session and calls the user service
+to perform any necessary cleanup on the server side.
+Example request:
+POST /api/users/logout
+Example response:
+{</p>
+<blockquote>
+<div><p>“message”: “Logged out successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON message indicating successful logout.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.register_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">register_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.register_route" title="Link to this definition">¶</a></dt>
+<dd><p>Register a new user account</p>
+<p>This endpoint allows new users to register by providing their username,
+email, password, and optional first name, last name, and role.
+Example request:
+POST /api/users/register
+Body:
+{}</p>
+<p>Example response:
+{}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON representation of the newly created user or an error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.search_users_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">search_users_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.search_users_route" title="Link to this definition">¶</a></dt>
+<dd><p>Search for users (authenticated users only)</p>
+<p>This endpoint allows authenticated users to search for other users
+by username, first name, last name, or email. It excludes inactive users
+and the current user from the results. The search query is case-insensitive
+and can be a partial match on any of the searchable fields.
+Returns a JSON response with a list of matching users, limited to 20 results.
+The response includes user details such as ID, username, email, first name,
+last name, role, display name, and avatar URL.</p>
+<p>Example request:
+GET /api/users/search?q=example
+Query parameters:
+- q: The search query string to filter users by username, first name,</p>
+<blockquote>
+<div><p>last name, or email.</p>
+</div></blockquote>
+<p>Example response:
+…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON list of users matching the search query.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.settings_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">settings_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.settings_route" title="Link to this definition">¶</a></dt>
+<dd><p>Handle settings requests</p>
+<p>This endpoint allows users to get or update their settings.
+It supports both GET and POST methods:
+- GET: Retrieve the current user’s settings.
+- POST: Update the current user’s settings, such as OpenAI API key.
+Example request:
+GET /api/users/settings
+POST /api/users/settings
+Body:
+{</p>
+<blockquote>
+<div><p>“openai_api_key”: “sk-…”</p>
+</div></blockquote>
+<p>}
+Example response:
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“settings”: {</p>
+<blockquote>
+<div><p>“user_id”: “12345”,
+“has_openai_api_key”: true,
+“created_at”: “2023-01-01T00:00:00Z”,
+“updated_at”: “2023-01-02T00:00:00Z”</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON representation of the user’s settings or an error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.setup_default_admin_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">setup_default_admin_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.setup_default_admin_route" title="Link to this definition">¶</a></dt>
+<dd><p>Setup default admin user (only works if no users exist)</p>
+<p>This endpoint creates a default admin user if no users exist in the database.
+It is intended to be used during the initial setup of the application.
+Example request:
+POST /api/users/setup_default_admin
+Example response:
+{</p>
+<blockquote>
+<div><p>“message”: “Default admin user created successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON message indicating success or failure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.update_user_profile_route">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">update_user_profile_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.update_user_profile_route" title="Link to this definition">¶</a></dt>
+<dd><p>Update current user’s profile information</p>
+<p>This endpoint allows the authenticated user to update their profile information.
+It expects a JSON payload with the fields to be updated, such as first name,
+last name, phone number, specialty, clinic name, clinic address, and role.
+Example request:
+POST /api/users/profile
+Body:
+{</p>
+<blockquote>
+<div><p>“first_name”: “John”,
+“last_name”: “Doe”,
+“phone”: “+1234567890”,
+“specialty”: “Cardiology”,
+“clinic_name”: “Heart Clinic”,
+“clinic_address”: “123 Heart St, Cardiology City”,
+“role”: “provider”</p>
+</div></blockquote>
+<p>}
+Example response:
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“message”: “Profile updated successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON message indicating success or failure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.users.update_user_settings">
+<span class="sig-prename descclassname"><span class="pre">routes.users.</span></span><span class="sig-name descname"><span class="pre">update_user_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.users.update_user_settings" title="Link to this definition">¶</a></dt>
+<dd><p>Update user settings</p>
+<p>This endpoint allows the authenticated user to update their settings,
+such as the OpenAI API key. It expects a JSON payload with the new settings.
+Example request:
+POST /api/users/settings
+Body:
+{</p>
+<blockquote>
+<div><p>“openai_api_key”: “sk-…”</p>
+</div></blockquote>
+<p>}
+Example response:
+{</p>
+<blockquote>
+<div><p>“success”: true,
+“message”: “OpenAI API key updated successfully”</p>
+</div></blockquote>
+<p>}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object containing a JSON message indicating success or failure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-routes">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-routes" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ArsMedicaTech</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../app.html">app module</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">lib</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="db.html">db package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dummy_data.html">dummy_data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm.html">llm package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logger.html">logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html">migrations package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">models package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">opt package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">routes package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html">services package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html">types module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../OPENAI_SECURITY_README.html">OpenAI Security System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../PATIENT_CRUD_README.html">Patient CRUD Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SSE_NOTIFICATIONS_README.html">Redis/SSE Notifications System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../USER_SETTINGS_README.html">User Settings System</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">lib</a><ul>
+      <li>Previous: <a href="opt.html" title="previous chapter">opt package</a></li>
+      <li>Next: <a href="services.html" title="next chapter">services package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Darren MacKenzie.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api/routes.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

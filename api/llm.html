@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>llm package &#8212; ArsMedicaTech  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="llm.mcp package" href="llm.mcp.html" />
+    <link rel="prev" title="dummy_data module" href="dummy_data.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="llm-package">
+<h1>llm package<a class="headerlink" href="#llm-package" title="Link to this heading">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="llm.mcp.html">llm.mcp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="llm.mcp.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm.mcp.html#module-llm.mcp.mcp_init">llm.mcp.mcp_init module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="llm.mcp.html#llm.mcp.mcp_init.health_check"><code class="docutils literal notranslate"><span class="pre">health_check()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="llm.mcp.html#llm-mcp-mcp-server-module">llm.mcp.mcp_server module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm.mcp.html#module-llm.mcp.register_tools">llm.mcp.register_tools module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="llm.mcp.html#llm.mcp.register_tools.register_openai_tool"><code class="docutils literal notranslate"><span class="pre">register_openai_tool()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="llm.mcp.html#llm-mcp-trees-module">llm.mcp.trees module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm.mcp.html#module-llm.mcp">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-llm.agent">
+<span id="llm-agent-module"></span><h2>llm.agent module<a class="headerlink" href="#module-llm.agent" title="Link to this heading">¶</a></h2>
+<p>LLM Agent Module</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="llm.agent.LLMAgent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">llm.agent.</span></span><span class="sig-name descname"><span class="pre">LLMAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_llm_endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">LLMModel.GPT_4_1_NANO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_prompt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\\nYou</span> <span class="pre">are</span> <span class="pre">a</span> <span class="pre">clinical</span> <span class="pre">assistant</span> <span class="pre">that</span> <span class="pre">helps</span> <span class="pre">healthcare</span> <span class="pre">providers</span> <span class="pre">with</span> <span class="pre">patient</span> <span class="pre">care</span> <span class="pre">tasks.\\nYou</span> <span class="pre">can</span> <span class="pre">answer</span> <span class="pre">questions,</span> <span class="pre">provide</span> <span class="pre">information,</span> <span class="pre">and</span> <span class="pre">assist</span> <span class="pre">with</span> <span class="pre">various</span> <span class="pre">healthcare-related</span> <span class="pre">tasks.\\nYour</span> <span class="pre">responses</span> <span class="pre">should</span> <span class="pre">be</span> <span class="pre">accurate,</span> <span class="pre">concise,</span> <span class="pre">and</span> <span class="pre">helpful.\\n'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMAgent" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An agent that interacts with an LLM to perform tasks using tools.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="llm.agent.LLMAgent.add_tool">
+<span class="sig-name descname"><span class="pre">add_tool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_def</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMAgent.add_tool" title="Link to this definition">¶</a></dt>
+<dd><p>Add a tool to the agent.
+:type tool_name: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param tool_name: Name of the tool to add.
+:type tool: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:param tool: Callable function that implements the tool’s functionality.
+:type tool_def: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChatCompletionToolParam</span></code></span>
+:param tool_def: Tool definition containing metadata about the tool.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="llm.agent.LLMAgent.complete">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMAgent.complete" title="Link to this definition">¶</a></dt>
+<dd><p>Complete a prompt using the LLM, processing any tool calls if necessary.
+:type prompt: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:param prompt: The user prompt to send to the LLM. If None, uses the existing message history.
+:type kwargs: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:param kwargs: Additional parameters for the LLM completion (e.g., temperature, max_tokens).
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:return: Dict containing the LLM’s response.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="llm.agent.LLMAgent.fetch_history">
+<span class="sig-name descname"><span class="pre">fetch_history</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMAgent.fetch_history" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch history from database.
+This method should be overridden to fetch conversation history from a database or other storage.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]</span>
+:return: List of message history, starting with the system prompt.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="llm.agent.LLMAgent.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_definitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_func_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMAgent.from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create an agent instance from serialized data.
+:type data: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:param data: Dictionary containing serialized agent state.
+:type api_key: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:param api_key: API key for accessing the LLM service.
+:type tool_definitions: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ChatCompletionToolParam</span></code>]]</span>
+:param tool_definitions: List of tool definitions to restore.
+:type tool_func_dict: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]]</span>
+:param tool_func_dict: Dictionary mapping tool names to their callable functions.
+:rtype: <span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#llm.agent.LLMAgent" title="llm.agent.LLMAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMAgent</span></code></a></span>
+:return: An instance of LLMAgent with restored state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="llm.agent.LLMAgent.from_mcp">
+<em class="property"><span class="pre">async</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_mcp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mcp_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMAgent.from_mcp" title="Link to this definition">¶</a></dt>
+<dd><p>Build an LLMAgent that proxies every tool call to the given MCP server.
+:type mcp_url: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param mcp_url: URL of the MCP server to fetch tool definitions from.
+:type api_key: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>
+:param api_key: API key for accessing the LLM service.
+:type model: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#llm.agent.LLMModel" title="llm.agent.LLMModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMModel</span></code></a>]</span>
+:param model: LLMModel enum value representing the model to use.
+:type kwargs: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:param kwargs: Additional parameters for the agent.
+:rtype: <span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#llm.agent.LLMAgent" title="llm.agent.LLMAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMAgent</span></code></a></span>
+:return: An instance of LLMAgent with tools fetched from the MCP server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="llm.agent.LLMAgent.process_tool_calls">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process_tool_calls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_calls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMAgent.process_tool_calls" title="Link to this definition">¶</a></dt>
+<dd><p>Process a list of tool calls by executing the corresponding functions.
+:type tool_calls: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ChatCompletionMessageToolCall</span></code>]</span>
+:param tool_calls: List of ToolCall objects to process.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="llm.agent.LLMAgent.reset_conversation">
+<span class="sig-name descname"><span class="pre">reset_conversation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMAgent.reset_conversation" title="Link to this definition">¶</a></dt>
+<dd><p>Reset the conversation history while keeping system prompt.
+This method clears the message history but retains the system prompt.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="llm.agent.LLMAgent.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMAgent.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Serialize the agent state to a dictionary for Flask session storage.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span>
+:return: Dictionary containing the agent’s state.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="llm.agent.LLMModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">llm.agent.</span></span><span class="sig-name descname"><span class="pre">LLMModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.LLMModel" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration of supported LLM models.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llm.agent.LLMModel.GPT_4_1">
+<span class="sig-name descname"><span class="pre">GPT_4_1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gpt-4.1'</span></em><a class="headerlink" href="#llm.agent.LLMModel.GPT_4_1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llm.agent.LLMModel.GPT_4_1_MINI">
+<span class="sig-name descname"><span class="pre">GPT_4_1_MINI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gpt-4.1-mini'</span></em><a class="headerlink" href="#llm.agent.LLMModel.GPT_4_1_MINI" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llm.agent.LLMModel.GPT_4_1_NANO">
+<span class="sig-name descname"><span class="pre">GPT_4_1_NANO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gpt-4.1-nano'</span></em><a class="headerlink" href="#llm.agent.LLMModel.GPT_4_1_NANO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="llm.agent.process_tool_call">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">llm.agent.</span></span><span class="sig-name descname"><span class="pre">process_tool_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_call</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.agent.process_tool_call" title="Link to this definition">¶</a></dt>
+<dd><p>Process a tool call from the LLM and execute the corresponding function.
+:type tool_call: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">CodeInterpreterToolCall</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FileSearchToolCall</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionToolCall</span></code>]</span>
+:param tool_call: ToolCall object containing the function name and arguments.
+:type tool_dict: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</span>
+:param tool_dict: Dictionary mapping function names to callable functions.
+:type session_id: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:param session_id: Optional session ID for tools that require it.
+:rtype: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>
+:return: Dict containing the role, function name, and result content.</p>
+</dd></dl>
+
+</section>
+<section id="module-llm.mcp_tools">
+<span id="llm-mcp-tools-module"></span><h2>llm.mcp_tools module<a class="headerlink" href="#module-llm.mcp_tools" title="Link to this heading">¶</a></h2>
+<p>Fetch and convert MCP tool definitions to OpenAI function format.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="llm.mcp_tools.CustomHeaderAuth">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">llm.mcp_tools.</span></span><span class="sig-name descname"><span class="pre">CustomHeaderAuth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">headers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.mcp_tools.CustomHeaderAuth" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Auth</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="llm.mcp_tools.CustomHeaderAuth.Generator">
+<span class="sig-name descname"><span class="pre">Generator</span></span><a class="headerlink" href="#llm.mcp_tools.CustomHeaderAuth.Generator" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="llm.mcp_tools.CustomHeaderAuth.auth_flow">
+<span class="sig-name descname"><span class="pre">auth_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.mcp_tools.CustomHeaderAuth.auth_flow" title="Link to this definition">¶</a></dt>
+<dd><p>Add custom headers to the request.
+:type request: <span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Request</span></code></span>
+:param request: The HTTP request to modify.
+:type request: httpx.Request
+:return: The modified request with custom headers.
+:rtype: Generator[httpx.Request, httpx.Response, None]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="llm.mcp_tools.fetch_mcp_tool_defs">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">llm.mcp_tools.</span></span><span class="sig-name descname"><span class="pre">fetch_mcp_tool_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mcp_url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm.mcp_tools.fetch_mcp_tool_defs" title="Link to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>Pull the tool list from an MCP server</p></li>
+<li><p>Convert each tool’s JSON-Schema → OpenAI ‘tool’ format</p></li>
+<li><p>Return (openai_tool_defs, {tool_name: call_function})</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mcp_url</strong> (<em>str</em>) – URL of the MCP server to fetch tools from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing a list of OpenAI tool definitions and a dictionary mapping tool names to their call functions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[list[dict], dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-llm">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-llm" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ArsMedicaTech</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../app.html">app module</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">lib</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="db.html">db package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dummy_data.html">dummy_data module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">llm package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logger.html">logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="migrations.html">migrations package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">models package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">opt package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes.html">routes package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html">services package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html">types module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../OPENAI_SECURITY_README.html">OpenAI Security System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../PATIENT_CRUD_README.html">Patient CRUD Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SSE_NOTIFICATIONS_README.html">Redis/SSE Notifications System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../USER_SETTINGS_README.html">User Settings System</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">lib</a><ul>
+      <li>Previous: <a href="dummy_data.html" title="previous chapter">dummy_data module</a></li>
+      <li>Next: <a href="llm.mcp.html" title="next chapter">llm.mcp package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Darren MacKenzie.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api/llm.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
