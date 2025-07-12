@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { EncounterForm } from '../components/EncounterForm';
 import { EncounterTable } from '../components/EncounterTable';
 import { encounterAPI, patientAPI } from '../services/api';
+import logger from '../services/logging';
 import { EncounterType, PatientType } from '../types';
 
 export function PatientDetail() {
@@ -23,20 +24,20 @@ export function PatientDetail() {
   const loadPatientData = useCallback(async () => {
     if (!patientId) return;
 
-    console.log('[DEBUG] Loading patient data for ID:', patientId);
+    logger.debug('Loading patient data for ID:', patientId);
     setIsLoading(true);
     try {
       // Load patient data first (no auth required)
       const patientData = await patientAPI.getById(patientId);
-      console.log('[DEBUG] Patient data received:', patientData);
-      console.log('[DEBUG] About to setPatient with:', patientData);
+      logger.debug('Patient data received:', patientData);
+      logger.debug('About to setPatient with:', patientData);
       setPatient(patientData);
-      console.log('[DEBUG] setPatient called');
+      logger.debug('setPatient called');
 
       // Try to load encounters data (auth required, may fail)
       try {
         const encountersData = await encounterAPI.getByPatient(patientId);
-        console.log('[DEBUG] Encounters data received:', encountersData);
+        logger.debug('Encounters data received:', encountersData);
         setEncounters(encountersData);
       } catch (encounterError) {
         console.warn(
@@ -58,7 +59,7 @@ export function PatientDetail() {
       patientId
     );
     if (patientId) {
-      console.log('[DEBUG] PatientDetail useEffect calling loadPatientData');
+      logger.debug('PatientDetail useEffect calling loadPatientData');
       loadPatientData();
     }
   }, [patientId, loadPatientData]);
@@ -134,7 +135,7 @@ export function PatientDetail() {
   }
 
   if (!patient) {
-    console.log('[DEBUG] PatientDetail render - patient is null/undefined');
+    logger.debug('PatientDetail render - patient is null/undefined');
     return (
       <div className="container mx-auto px-4 py-8">
         <p className="text-center text-red-600">Patient not found</p>

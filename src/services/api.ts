@@ -1,5 +1,6 @@
-import API_URL from '../env_vars';
+import { API_URL } from '../env_vars';
 import authService from './auth';
+import logger from './logging';
 
 class ApiService {
   baseURL: string;
@@ -18,12 +19,12 @@ class ApiService {
 
     // Add auth token if available
     const token = authService.getToken();
-    console.log('[DEBUG] API getHeaders - token available:', !!token);
+    logger.debug('API getHeaders - token available:', !!token);
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
-      console.log('[DEBUG] API getHeaders - Authorization header set');
+      logger.debug('API getHeaders - Authorization header set');
     } else {
-      console.log('[DEBUG] API getHeaders - No token available');
+      logger.debug('API getHeaders - No token available');
     }
 
     return headers;
@@ -38,16 +39,16 @@ class ApiService {
       ...options,
     };
 
-    console.log('[DEBUG] API request - URL:', url);
-    console.log('[DEBUG] API request - Method:', options.method || 'GET');
-    console.log('[DEBUG] API request - Headers:', config.headers);
+    logger.debug('API request - URL:', url);
+    logger.debug('API request - Method:', options.method || 'GET');
+    logger.debug('API request - Headers:', config.headers);
 
     try {
       const response = await fetch(url, config);
-      console.log('[DEBUG] API request - Response status:', response.status);
+      logger.debug('API request - Response status:', response.status);
 
       const data = await response.json();
-      console.log('[DEBUG] API request - Response data:', data);
+      logger.debug('API request - Response data:', data);
 
       if (!response.ok) {
         // Handle authentication errors
@@ -135,9 +136,9 @@ class ApiService {
     // Search both patients and encounters and combine results
     const [patientResults, encounterResults] = await Promise.all([
       this.searchPatients(query),
-      this.searchEncounters(query)
+      this.searchEncounters(query),
     ]);
-    
+
     // Combine and return results
     return [...(patientResults || []), ...(encounterResults || [])];
   }
@@ -220,12 +221,12 @@ class ApiService {
     participants: string[],
     type: string = 'user_to_user'
   ): Promise<any> {
-    console.log('[DEBUG] Creating conversation via API:', {
+    logger.debug('Creating conversation via API:', {
       participants,
       type,
     });
     const result = await this.postAPI('/conversations', { participants, type });
-    console.log('[DEBUG] Conversation creation API result:', result);
+    logger.debug('Conversation creation API result:', result);
     return result;
   }
 
@@ -267,14 +268,14 @@ export const encounterAPI = {
   getAll: () => apiService.getAPI('/encounters'),
 
   // Get encounters for a specific patient
-  getByPatient: (patientId: string) => 
+  getByPatient: (patientId: string) =>
     apiService.getAPI(`/patients/${patientId}/encounters`),
 
   // Get a specific encounter
   getById: (id: string) => apiService.getAPI(`/encounters/${id}`),
 
   // Create a new encounter for a patient
-  create: (patientId: string, encounterData: any) => 
+  create: (patientId: string, encounterData: any) =>
     apiService.postAPI(`/patients/${patientId}/encounters`, encounterData),
 
   // Update an encounter

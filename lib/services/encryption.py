@@ -1,3 +1,6 @@
+"""
+Encryption Service for Sensitive Data
+"""
 import base64
 import os
 from cryptography.fernet import Fernet
@@ -5,15 +8,20 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from typing import Optional
 
+from settings import logger
 
 class EncryptionService:
-    """Service for encrypting and decrypting sensitive data like API keys"""
+    """
+    Service for encrypting and decrypting sensitive data like API keys
+    """
     
-    def __init__(self, master_key: Optional[str] = None):
+    def __init__(self, master_key: Optional[str] = None) -> None:
         """
         Initialize encryption service
         
         :param master_key: Master key for encryption. If not provided, will use environment variable ENCRYPTION_KEY
+        :raises ValueError: If ENCRYPTION_KEY is not set in settings or environment
+        :return: None
         """
         if master_key:
             self.master_key = master_key
@@ -67,7 +75,7 @@ class EncryptionService:
             decrypted_data = self.cipher.decrypt(encrypted_bytes)
             return decrypted_data.decode()
         except Exception as e:
-            print(f"[ERROR] Failed to decrypt data: {e}")
+            logger.error(f"Failed to decrypt data: {e}")
             return ""
     
     def encrypt_api_key(self, api_key: str) -> str:
@@ -105,7 +113,11 @@ _encryption_service = None
 
 
 def get_encryption_service() -> EncryptionService:
-    """Get the global encryption service instance"""
+    """
+    Get the global encryption service instance
+
+    :return: EncryptionService instance
+    """
     global _encryption_service
     if _encryption_service is None:
         _encryption_service = EncryptionService()

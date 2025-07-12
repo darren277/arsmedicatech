@@ -1,16 +1,29 @@
-""""""
+"""
+This module defines a Clinic class and provides functions to interact with a SurrealDB database.
+"""
 import json
 
 from surrealdb import Surreal
 
 from lib.db.surreal import AsyncDbController
 
+from settings import logger
+
 
 class Clinic:
     """
     Represents a medical clinic with its address and geospatial location.
     """
-    def __init__(self, name: str, street: str, city: str, state: str, zip_code: str, longitude: float, latitude: float):
+    def __init__(
+            self,
+            name: str,
+            street: str,
+            city: str,
+            state: str,
+            zip_code: str,
+            longitude: float,
+            latitude: float
+    ) -> None:
         """
         Initializes a Clinic object.
 
@@ -35,13 +48,15 @@ class Clinic:
         """
         Converts the clinic's location to a GeoJSON Point dictionary.
         Note: GeoJSON specifies longitude, then latitude.
+
+        :return: A dictionary representing the clinic's location in GeoJSON format.
         """
         return {
             "type": "Point",
             "coordinates": [self.longitude, self.latitude]
         }
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Provides a string representation of the Clinic object.
         """
@@ -85,16 +100,16 @@ def generate_surrealql_create_query(clinic: Clinic, table_name: str = "clinic") 
 
 if __name__ == '__main__':
     # Define a schema for the clinic table for strong data typing.
-    print("-- Schema Definition (run this once)")
-    print("DEFINE TABLE clinic SCHEMAFULL;")
-    print("DEFINE FIELD name ON clinic TYPE string;")
-    print("DEFINE FIELD address ON clinic TYPE object;")
-    print("DEFINE FIELD address.street ON clinic TYPE string;")
-    print("DEFINE FIELD address.city ON clinic TYPE string;")
-    print("DEFINE FIELD address.state ON clinic TYPE string;")
-    print("DEFINE FIELD address.zip ON clinic TYPE string;")
-    print("DEFINE FIELD location ON clinic TYPE geometry (point);")
-    print("-" * 30)
+    logger.debug("-- Schema Definition (run this once)")
+    logger.debug("DEFINE TABLE clinic SCHEMAFULL;")
+    logger.debug("DEFINE FIELD name ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address ON clinic TYPE object;")
+    logger.debug("DEFINE FIELD address.street ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address.city ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address.state ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address.zip ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD location ON clinic TYPE geometry (point);")
+    logger.debug("-" * 30)
 
     # Create instances of the Clinic class for some sample clinics.
     # Coordinates are in (longitude, latitude) order.
@@ -129,25 +144,25 @@ if __name__ == '__main__':
     )
 
     # Generate and print the SurrealQL queries
-    print("-- Generated SurrealQL CREATE Statements")
+    logger.debug("-- Generated SurrealQL CREATE Statements")
     query1 = generate_surrealql_create_query(clinic1)
-    print(query1)
+    logger.debug(query1)
 
     query2 = generate_surrealql_create_query(clinic2)
-    print(query2)
+    logger.debug(query2)
 
     query3 = generate_surrealql_create_query(clinic3)
-    print(query3)
+    logger.debug(query3)
 
     # Example of how you might query this data
-    print("-" * 30)
-    print("-- Example Query: Find clinics within 5km of a point")
+    logger.debug("-" * 30)
+    logger.debug("-- Example Query: Find clinics within 5km of a point")
     # A point somewhere in Metropolis
     search_point_lon = -118.41
     search_point_lat = 34.08
-    print(f"SELECT name, address, location, geo::distance(location, ({search_point_lon}, {search_point_lat})) AS distance")
-    print(f"FROM clinic")
-    print(f"WHERE geo::distance(location, ({search_point_lon}, {search_point_lat})) < 5000;")
+    logger.debug(f"SELECT name, address, location, geo::distance(location, ({search_point_lon}, {search_point_lat})) AS distance")
+    logger.debug(f"FROM clinic")
+    logger.debug(f"WHERE geo::distance(location, ({search_point_lon}, {search_point_lat})) < 5000;")
 
 
 client = AsyncDbController()
@@ -165,7 +180,7 @@ async def create_clinic(clinic: Clinic):
     """
     query = generate_surrealql_create_query(clinic)
     result = await client.query(query)
-    print('result', type(result), result)
+    logger.debug('result', type(result), result)
     return result[0]['id'] if result else None
 
 
@@ -184,7 +199,7 @@ async def get_clinic_by_id(clinic_id: str):
     return result[0] if result else None
 
 
-async def get_all_clinics():
+async def get_all_clinics() -> list:
     """
     Asynchronously retrieves all clinic records from the database.
 
@@ -272,11 +287,19 @@ def km_m(meters: float) -> float:
     return meters * 1000
 
 
-def test():
+def test() -> None:
+    """
+    Test function to demonstrate the functionality of the Clinic class and database operations.
+    :return: None
+    """
     import asyncio
     import random
 
-    async def run_tests():
+    async def run_tests() -> None:
+        """
+        Runs a series of tests to demonstrate the functionality of the Clinic class and database operations.
+        :return: None
+        """
         await client.connect()
 
         random_name = f"Clinic {random.randint(1, 1000)}"
@@ -295,24 +318,24 @@ def test():
             latitude=lat
         )
         clinic_id = await create_clinic(clinic)
-        print(f"Created clinic with ID: {clinic_id}")
+        logger.debug(f"Created clinic with ID: {clinic_id}")
 
         # Retrieve the clinic by ID
         retrieved_clinic = await get_clinic_by_id(clinic_id)
-        print(f"Retrieved clinic: {retrieved_clinic}")
+        logger.debug(f"Retrieved clinic: {retrieved_clinic}")
 
         # Update the clinic
         #clinic.name = "Updated Test Clinic"
         #updated = await update_clinic(clinic_id, clinic)
-        #print(f"Clinic updated: {updated}")
+        #logger.debug(f"Clinic updated: {updated}")
 
         # Search clinics by location
         nearby_clinics = await search_clinics_by_location(-118.0, 34.0, radius=km_m(100))
-        print(f"Nearby clinics: {nearby_clinics}")
+        logger.debug(f"Nearby clinics: {nearby_clinics}")
 
         # Delete the clinic
         #deleted = await delete_clinic(clinic_id)
-        #print(f"Clinic deleted: {deleted}")
+        #logger.debug(f"Clinic deleted: {deleted}")
 
     asyncio.run(run_tests())
 

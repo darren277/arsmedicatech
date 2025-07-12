@@ -1,10 +1,19 @@
-""""""
+"""
+Some demo code to create patients and encounters in the database.
+"""
 from lib.db.surreal import DbController
 from lib.migrations.demo_utils import PatientFactory, EncounterFactory, select_n_random_rows_from_csv
 from lib.models.patient import create_schema, store_patient, store_encounter
 
+from settings import logger
 
-def create_n_patients(n):
+
+def create_n_patients(n: int = 5) -> None:
+    """
+    Create a number of patients with encounters and diagnostic codes.
+    :param n: Number of patients to create.
+    :return: None
+    """
     db = DbController(namespace='arsmedicatech', database='patients')
 
     path = r'section111validicd10-jan2025_0_sample.csv'
@@ -14,11 +23,11 @@ def create_n_patients(n):
         encounter = EncounterFactory()
         encounter.diagnostic_codes = select_n_random_rows_from_csv(path, 3)
 
-        print(patient.first_name, patient.last_name, patient.date_of_birth, patient.phone, patient.sex, patient.email)
-        print(patient.location)
-        print(encounter.note_id, encounter.date_created, encounter.provider_id, encounter.diagnostic_codes)
-        print(encounter.note_text)
-        print("------")
+        logger.debug(patient.first_name, patient.last_name, patient.date_of_birth, patient.phone, patient.sex, patient.email)
+        logger.debug(patient.location)
+        logger.debug(encounter.note_id, encounter.date_created, encounter.provider_id, encounter.diagnostic_codes)
+        logger.debug(encounter.note_text)
+        logger.debug("------")
 
         result = store_patient(db, patient)
 
@@ -35,7 +44,11 @@ def create_n_patients(n):
 #create_n_patients(5)
 
 
-def create_forms():
+def create_forms() -> None:
+    """
+    Create a demo form structure and a sample form submission.
+    :return: None
+    """
     # document store for forms of arbitrary structure...
     db = DbController(namespace='arsmedicatech', database='patients')
     db.connect()
@@ -61,11 +74,17 @@ def create_forms():
     }
 
     result = db.create('forms', patient_registration_form)
-    print(result)
+    logger.debug(result)
 
 
 
 
-create_forms()
+if __name__ == "__main__":
+    # Uncomment to create patients and encounters
+    # create_n_patients(5)
+
+    # Uncomment to create forms
+    # create_forms()
+    ...
 
 

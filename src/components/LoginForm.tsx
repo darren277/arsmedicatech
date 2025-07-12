@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import authService from '../services/auth';
+import logger from '../services/logging';
 import './LoginForm.css';
 
 const LoginForm = ({
@@ -65,25 +66,25 @@ const LoginForm = ({
     setGeneralError('');
 
     try {
-      console.log('Attempting login with:', formData.username);
+      logger.debug('Attempting login with:', formData.username);
 
       const result = await authService.login(
         formData.username,
         formData.password
       );
 
-      console.log('Login result:', result); // Debug log
+      logger.debug('Login result:', result); // Debug log
 
       if (result.success) {
         // The authService.login() returns { success: true, data: { token, user } }
         // We need to pass the user object to onLogin
         const userData = result.data.user || result.data;
-        console.log('User data to pass:', userData); // Debug log
-        console.log('Calling onLogin with userData:', userData);
+        logger.debug('User data to pass:', userData); // Debug log
+        logger.debug('Calling onLogin with userData:', userData);
         onLogin(userData);
-        console.log('onLogin called successfully');
+        logger.debug('onLogin called successfully');
       } else {
-        console.log('Login failed:', result.error);
+        logger.debug('Login failed:', result.error);
         setGeneralError(result.error || 'Login failed');
       }
     } catch (error) {

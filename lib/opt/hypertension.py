@@ -1,10 +1,16 @@
-""""""
+"""
+Hypertension Diet Optimization Module
+"""
 import pandas as pd
 
 from lib.services.optimal import OptimalSchema, OptimalMetadata
 
 
-def create_food_data_pd():
+def create_food_data_pd() -> pd.DataFrame:
+    """
+    Create a DataFrame containing food data relevant for hypertension management.
+    :return: pd.DataFrame
+    """
     food_data = pd.DataFrame({
         "food": ["Oats", "Salmon", "Spinach", "Banana", "Almonds", "Chicken Breast", "White Bread", "Cheese"],
         "sodium_mg": [2, 59, 79, 1, 1, 70, 490, 621],
@@ -30,6 +36,11 @@ def create_food_data_pd():
 
 
 def build_hypertension_payload(df: pd.DataFrame) -> dict:
+    """
+    Build a payload for the hypertension diet optimization problem.
+    :param df: pd.DataFrame
+    :return: dict
+    """
     payload = {
         "meta": {"problem_id": "htn-diet-v1", "solver": "scipy_slsqp", "sense": "minimize"},
         "variables": [{"name": f"x{i}", "lower": 0, "upper": 10} for i in range(len(df))],
@@ -52,7 +63,11 @@ def build_hypertension_payload(df: pd.DataFrame) -> dict:
 
 
 
-def main():
+def main() -> OptimalSchema:
+    """
+    Main function to create the hypertension diet optimization schema.
+    :return: OptimalSchema
+    """
     df = create_food_data_pd()
     hypertension_schema = OptimalSchema(
         meta=OptimalMetadata(problem_id="htn-diet-v1", solver="scipy_slsqp", sense="minimize"),

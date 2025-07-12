@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logger from '../services/logging';
 
 interface AppointmentFormProps {
   isOpen: boolean;
@@ -37,8 +38,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   }, [selectedDate]);
 
-  console.log('AppointmentForm - selectedDate:', selectedDate);
-  console.log(
+  logger.debug('AppointmentForm - selectedDate:', selectedDate);
+  logger.debug(
     'AppointmentForm - formData.appointmentDate:',
     formData.appointmentDate
   );
@@ -53,15 +54,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  console.log(
-    'AppointmentForm render - isOpen:',
+  logger.debug('AppointmentForm render - isOpen:', {
     isOpen,
-    'selectedDate:',
-    selectedDate
-  );
+    selectedDate,
+  });
 
   if (!isOpen) {
-    console.log('AppointmentForm not rendering - isOpen is false');
+    logger.debug('AppointmentForm not rendering - isOpen is false');
     return null;
   }
 

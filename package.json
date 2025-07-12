@@ -28,6 +28,7 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.25.9",
     "@heroicons/react": "^2.2.0",
+    "@sentry/react": "^9.38.0",
     "@tanstack/react-table": "^8.21.3",
     "axios": "^0.24.0",
     "babel-loader": "^9.2.1",

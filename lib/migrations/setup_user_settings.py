@@ -11,9 +11,19 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from db.surreal import DbController
 from settings import SURREALDB_NAMESPACE, SURREALDB_DATABASE
 
-def setup_user_settings_schema():
-    """Set up UserSettings table schema in SurrealDB"""
-    print("🔧 Setting up UserSettings table schema...")
+from settings import logger
+
+
+def setup_user_settings_schema() -> bool:
+    """
+    Set up UserSettings table schema in SurrealDB
+
+    This function connects to the SurrealDB instance, defines the UserSettings table schema,
+    and creates a test record to verify the schema setup.
+    Returns:
+        bool: True if schema setup is successful, False otherwise.
+    """
+    logger.debug("🔧 Setting up UserSettings table schema...")
     
     try:
         # Connect to database
@@ -45,12 +55,12 @@ def setup_user_settings_schema():
             FOR delete WHERE auth.id = user_id;
         """
         
-        print("📝 Executing schema definition...")
+        logger.debug("📝 Executing schema definition...")
         result = db.query(schema_definition)
-        print(f"✅ Schema setup result: {result}")
+        logger.debug(f"✅ Schema setup result: {result}")
         
         # Test the schema by creating a test record
-        print("\n🧪 Testing schema with a test record...")
+        logger.debug("\n🧪 Testing schema with a test record...")
         test_data = {
             'user_id': 'test-user-123',
             'openai_api_key': 'encrypted-test-key',
@@ -60,33 +70,39 @@ def setup_user_settings_schema():
         
         # Create test record
         create_result = db.create('UserSettings', test_data)
-        print(f"✅ Test record created: {create_result}")
+        logger.debug(f"✅ Test record created: {create_result}")
         
         # Query test record
         query_result = db.query(
             "SELECT * FROM UserSettings WHERE user_id = $user_id",
             {"user_id": "test-user-123"}
         )
-        print(f"✅ Test record queried: {query_result}")
+        logger.debug(f"✅ Test record queried: {query_result}")
         
         # Clean up test record
         if create_result and isinstance(create_result, dict) and create_result.get('id'):
             delete_result = db.delete(create_result['id'])
-            print(f"✅ Test record cleaned up: {delete_result}")
+            logger.debug(f"✅ Test record cleaned up: {delete_result}")
         
         db.close()
-        print("\n🎉 UserSettings schema setup completed successfully!")
+        logger.debug("\n🎉 UserSettings schema setup completed successfully!")
         return True
         
     except Exception as e:
-        print(f"❌ Error setting up UserSettings schema: {e}")
+        logger.debug(f"❌ Error setting up UserSettings schema: {e}")
         import traceback
         traceback.print_exc()
         return False
 
-def check_existing_schema():
-    """Check if UserSettings table already exists"""
-    print("🔍 Checking existing UserSettings schema...")
+def check_existing_schema() -> bool:
+    """
+    Check if UserSettings table already exists
+
+    This function attempts to query the UserSettings table to see if it exists.
+    Returns:
+        bool: True if the table exists, False otherwise.
+    """
+    logger.debug("🔍 Checking existing UserSettings schema...")
     
     try:
         db = DbController()
@@ -94,23 +110,30 @@ def check_existing_schema():
         
         # Try to query the table structure
         result = db.query("INFO FOR TABLE UserSettings")
-        print(f"📋 Existing schema info: {result}")
+        logger.debug(f"📋 Existing schema info: {result}")
         
         db.close()
         return True
         
     except Exception as e:
-        print(f"⚠️  UserSettings table may not exist: {e}")
+        logger.debug(f"⚠️  UserSettings table may not exist: {e}")
         return False
 
-def main():
-    """Main migration function"""
-    print("🚀 UserSettings Database Migration")
-    print("=" * 50)
+def main() -> bool:
+    """
+    Main migration function
+
+    This function orchestrates the migration process by checking for existing schema
+    and setting up the UserSettings schema if it does not exist.
+    Returns:
+        bool: True if migration is successful, False otherwise.
+    """
+    logger.debug("🚀 UserSettings Database Migration")
+    logger.debug("=" * 50)
     
     # Check if schema already exists
     if check_existing_schema():
-        print("✅ UserSettings table already exists")
+        logger.debug("✅ UserSettings table already exists")
         return True
     
     # Set up schema
@@ -119,8 +142,8 @@ def main():
 if __name__ == "__main__":
     success = main()
     if success:
-        print("\n✅ Migration completed successfully!")
-        print("\n💡 The UserSettings table is now ready for use.")
+        logger.debug("\n✅ Migration completed successfully!")
+        logger.debug("\n💡 The UserSettings table is now ready for use.")
     else:
-        print("\n❌ Migration failed!")
-        print("   Check the errors above and try again.") 
+        logger.debug("\n❌ Migration failed!")
+        logger.debug("   Check the errors above and try again.")

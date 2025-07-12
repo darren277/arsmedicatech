@@ -1,4 +1,6 @@
-""""""
+"""
+Dummy data for testing purposes
+"""
 
 id, name, lastMessage, avatar, messages, sender, text = 'id', 'name', 'lastMessage', 'avatar', 'messages', 'sender', 'text'
 

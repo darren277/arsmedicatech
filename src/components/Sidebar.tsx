@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import logger from '../services/logging';
 import { useUser } from './UserContext';
 // It is recommended to use an icon library like react-icons
 // import { FiGrid, FiUsers, FiMessageSquare, FiCalendar } from 'react-icons/fi';
@@ -7,7 +8,7 @@ const Sidebar = () => {
   const { user, isLoading } = useUser();
   const userType = user?.role || 'guest';
 
-  console.log('Sidebar user:', user);
+  logger.debug('Sidebar user:', user);
 
   if (isLoading) return null; // or a spinner
 
