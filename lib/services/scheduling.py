@@ -4,6 +4,15 @@ Scheduling service for managing appointments
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
+from lib.events import (
+    AppointmentCreated,
+    AppointmentUpdated,
+    AppointmentCancelled,
+    AppointmentConfirmed,
+    AppointmentCompleted
+)
+from lib.infra.event_bus import event_bus
+
 from lib.db.surreal import DbController
 from lib.models.appointment import Appointment, AppointmentStatus
 from settings import logger
@@ -109,11 +118,27 @@ class SchedulingService:
                 notes=notes,
                 location=location
             )
-            
+
             # Save to database
             result = self.db.create('appointment', appointment.to_dict())
             if result:
                 appointment.id = result.get('id')
+
+                # Publish event after successful database save
+                if appointment.id:
+                    event_bus.publish(
+                        AppointmentCreated(
+                            appointment_id=str(appointment.id),
+                            patient_id=appointment.patient_id,
+                            provider_id=appointment.provider_id,
+                            appointment_date=appointment.appointment_date,
+                            start_time=appointment.start_time,
+                            end_time=appointment.end_time,
+                            appointment_type=appointment.appointment_type,
+                            occurred_at=datetime.now()
+                        )
+                    )
+
                 return True, "Appointment created successfully", appointment
             else:
                 return False, "Failed to create appointment", None
@@ -325,10 +350,25 @@ class SchedulingService:
             
             from datetime import timezone
             appointment.updated_at = datetime.now(timezone.utc).isoformat()
-            
+
             # Save to database
             result = self.db.update(appointment_id, appointment.to_dict())
             if result:
+                # Publish event after successful database update
+                event_bus.publish(
+                    AppointmentUpdated(
+                        appointment_id=appointment_id,
+                        patient_id=appointment.patient_id,
+                        provider_id=appointment.provider_id,
+                        appointment_date=appointment.appointment_date,
+                        start_time=appointment.start_time,
+                        end_time=appointment.end_time,
+                        appointment_type=appointment.appointment_type,
+                        status=appointment.status,
+                        changes=updates,
+                        occurred_at=datetime.now()
+                    )
+                )
                 return True, "Appointment updated successfully"
             else:
                 return False, "Failed to update appointment"
@@ -358,8 +398,21 @@ class SchedulingService:
                 'status': AppointmentStatus.CANCELLED.value,
                 'notes': f"{appointment.notes}\n\nCancelled: {reason or 'No reason provided'}"
             }
-            
-            return self.update_appointment(appointment_id, updates)
+
+            success, message = self.update_appointment(appointment_id, updates)
+            if success:
+                # Publish cancellation event
+                event_bus.publish(
+                    AppointmentCancelled(
+                        appointment_id=appointment_id,
+                        patient_id=appointment.patient_id,
+                        provider_id=appointment.provider_id,
+                        reason=reason,
+                        occurred_at=datetime.now()
+                    )
+                )
+
+            return success, message
             
         except Exception as e:
             return False, f"Error cancelling appointment: {str(e)}"
@@ -381,7 +434,19 @@ class SchedulingService:
                 return False, "Appointment is not in scheduled status"
             
             updates = {'status': AppointmentStatus.CONFIRMED.value}
-            return self.update_appointment(appointment_id, updates)
+            success, message = self.update_appointment(appointment_id, updates)
+            if success:
+                # Publish confirmation event
+                event_bus.publish(
+                    AppointmentConfirmed(
+                        appointment_id=appointment_id,
+                        patient_id=appointment.patient_id,
+                        provider_id=appointment.provider_id,
+                        occurred_at=datetime.now()
+                    )
+                )
+
+            return success, message
             
         except Exception as e:
             return False, f"Error confirming appointment: {str(e)}"
@@ -403,7 +468,19 @@ class SchedulingService:
                 return False, "Appointment cannot be marked as completed"
             
             updates = {'status': AppointmentStatus.COMPLETED.value}
-            return self.update_appointment(appointment_id, updates)
+            success, message = self.update_appointment(appointment_id, updates)
+            if success:
+                # Publish completion event
+                event_bus.publish(
+                    AppointmentCompleted(
+                        appointment_id=appointment_id,
+                        patient_id=appointment.patient_id,
+                        provider_id=appointment.provider_id,
+                        occurred_at=datetime.now()
+                    )
+                )
+
+            return success, message
             
         except Exception as e:
             return False, f"Error completing appointment: {str(e)}"
