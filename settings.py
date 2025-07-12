@@ -65,3 +65,9 @@ OPTIMAL_URL = os.environ.get('OPTIMAL_URL', 'https://optimal.apphosting.services
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
+
+SENTRY_DSN = os.environ.get('SENTRY_DSN', None)
+if not SENTRY_DSN:
+    logger.error("SENTRY_DSN is not set. Sentry will not be initialized.")
+    raise ValueError("SENTRY_DSN must be set in settings.py or environment variable")
+

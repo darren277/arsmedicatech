@@ -3,6 +3,7 @@ Main application file for the Flask server.
 """
 import json
 import time
+import sentry_sdk
 from flask import Flask, jsonify, request, session, Response, Blueprint
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
@@ -24,11 +25,17 @@ from lib.routes.appointments import create_appointment_route, get_appointments_r
 from lib.services.auth_decorators import require_auth, require_admin, optional_auth
 from lib.services.notifications import publish_event, publish_event_with_buffer
 from lib.services.redis_client import get_redis_connection
-from settings import PORT, DEBUG, HOST, FLASK_SECRET_KEY
+from settings import PORT, DEBUG, HOST, FLASK_SECRET_KEY, SENTRY_DSN
 #from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from settings import logger
 
+sentry_sdk.init(
+    dsn=SENTRY_DSN,
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+)
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"], "supports_credentials": True, "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization"]}})
