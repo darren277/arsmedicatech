@@ -47,6 +47,13 @@ from lib.services.auth_decorators import (optional_auth, require_admin,
                                           require_auth)
 from lib.services.notifications import publish_event_with_buffer
 from lib.services.redis_client import get_redis_connection
+from lib.routes.webhooks import (create_webhook_subscription_route,
+                                 delete_webhook_subscription_route,
+                                 get_webhook_events_route,
+                                 get_webhook_subscription_route,
+                                 get_webhook_subscriptions_route,
+                                 update_webhook_subscription_route)
+from lib.event_handlers import register_event_handlers
 from settings import DEBUG, FLASK_SECRET_KEY, HOST, PORT, SENTRY_DSN, logger
 
 #from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -667,6 +674,74 @@ def get_appointment_statuses() -> Tuple[Response, int]:
     :return: Response object with appointment statuses data.
     """
     return get_appointment_statuses_route()
+
+
+# Webhook endpoints
+@app.route('/api/webhooks', methods=['GET'])
+@require_auth
+def get_webhook_subscriptions() -> Tuple[Response, int]:
+    """
+    Get webhook subscriptions for the authenticated user.
+    :return: Response object with webhook subscriptions data.
+    """
+    return get_webhook_subscriptions_route()
+
+
+@app.route('/api/webhooks', methods=['POST'])
+@require_auth
+def create_webhook_subscription() -> Tuple[Response, int]:
+    """
+    Create a new webhook subscription.
+    :return: Response object with webhook subscription creation status.
+    """
+    return create_webhook_subscription_route()
+
+
+@app.route('/api/webhooks/<subscription_id>', methods=['GET'])
+@require_auth
+def get_webhook_subscription(subscription_id: str) -> Tuple[Response, int]:
+    """
+    Get a specific webhook subscription by its ID.
+    :param subscription_id: The ID of the subscription to retrieve.
+    :return: Response object with webhook subscription details.
+    """
+    return get_webhook_subscription_route(subscription_id)
+
+
+@app.route('/api/webhooks/<subscription_id>', methods=['PUT'])
+@require_auth
+def update_webhook_subscription(subscription_id: str) -> Tuple[Response, int]:
+    """
+    Update an existing webhook subscription by its ID.
+    :param subscription_id: The ID of the subscription to update.
+    :return: Response object with webhook subscription update status.
+    """
+    return update_webhook_subscription_route(subscription_id)
+
+
+@app.route('/api/webhooks/<subscription_id>', methods=['DELETE'])
+@require_auth
+def delete_webhook_subscription(subscription_id: str) -> Tuple[Response, int]:
+    """
+    Delete an existing webhook subscription by its ID.
+    :param subscription_id: The ID of the subscription to delete.
+    :return: Response object with webhook subscription deletion status.
+    """
+    return delete_webhook_subscription_route(subscription_id)
+
+
+@app.route('/api/webhooks/events', methods=['GET'])
+@require_auth
+def get_webhook_events() -> Tuple[Response, int]:
+    """
+    Get available webhook events.
+    :return: Response object with webhook events data.
+    """
+    return get_webhook_events_route()
+
+
+# Register event handlers for webhook delivery
+register_event_handlers()
 
 
 # Register the SSE blueprint
