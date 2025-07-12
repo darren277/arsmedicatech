@@ -13,10 +13,42 @@ author = 'Darren MacKenzie'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",  # for Google/Numpy style docstrings
+    "sphinx_autodoc_typehints",
+    "myst_parser", #enable Markdown support
+]
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
+exclude_patterns = [
+    '_build',
+    'Thumbs.db',
+    '.DS_Store',
+    'src/*',
+    'k8s/*',
+    'static/*',
+    'emr/*',
+    'config/*',
+    '.vscode/*',
+    '.venv/*',
+    '.idea/*',
+    '.github/*',
+    'data/*',
+    'coverage/*',
+    'playright-report/*',
+    'node_modules/*',
+    'stuff/*',
+    'test/*',
+    'test-results/*',
+    'venv/*',
+]
 
 
 
