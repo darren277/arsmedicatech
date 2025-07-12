@@ -25,6 +25,8 @@ import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
+import logger from './services/logging';
+
 function Home() {
   logger.debug('Home component rendered');
 
