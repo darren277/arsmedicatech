@@ -1,4 +1,6 @@
-""""""
+"""
+Main application file for the Flask server.
+"""
 import json
 import time
 from flask import Flask, jsonify, request, session, Response, Blueprint
@@ -39,7 +41,12 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow cross-site requests
 # Global OPTIONS handler for CORS preflight
 @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
 @app.route('/<path:path>', methods=['OPTIONS'])
-def handle_options(path):
+def handle_options(path: str) -> Response:
+    """
+    Global OPTIONS handler to handle CORS preflight requests.
+    :param path: The path for which the OPTIONS request is made.
+    :return: Response object with CORS headers.
+    """
     logger.debug(f"Global OPTIONS handler called for path: {path}")
     response = Response()
     origin = request.headers.get('Origin')
@@ -63,7 +70,11 @@ sse_bp = Blueprint('sse', __name__)
 @sse_bp.route('/api/events/stream')
 @sse_bp.route('/api/events/stream', methods=['OPTIONS'])
 #@jwt_required()
-def stream_events():
+def stream_events() -> Response:
+    """
+    Server-Sent Events (SSE) endpoint to stream events to the client.
+    :return: Response object with the event stream.
+    """
     logger.debug(f"SSE endpoint called - Method: {request.method}")
     logger.debug(f"SSE endpoint - Origin: {request.headers.get('Origin')}")
     logger.debug(f"SSE endpoint - Headers: {dict(request.headers)}")
@@ -110,7 +121,11 @@ def stream_events():
     # For simplicity, we assume the frontend sends ?since=timestamp
     since = request.args.get('since')
 
-    def event_stream():
+    def event_stream() -> str:
+        """
+        Generator function to stream events to the client.
+        :return: Yields event data as a string in SSE format.
+        """
         # Replay missed events
         key = f"user:{user_id}:events"
         past_events = redis.lrange(key, 0, -1)
@@ -144,10 +159,14 @@ def stream_events():
 
 
 @app.route('/api/sse', methods=['GET'])
-def sse():
+def sse() -> Response:
+    """
+    Test endpoint to publish an event to the SSE stream.
+    :return: Response object indicating success or failure.
+    """
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({"error": "Unauthorized"}), 401
+        return jsonify({"error": "Unauthorized"}, 401)
 
     # Example event data
     event_data = {
@@ -159,13 +178,17 @@ def sse():
     }
     publish_event_with_buffer(user_id, event_data)
 
-    return jsonify({"message": "Event published successfully"}), 200
+    return jsonify({"message": "Event published successfully"}, 200)
 
 @app.route('/api/test/appointment-reminder', methods=['POST'])
-def test_appointment_reminder():
+def test_appointment_reminder() -> Response:
+    """
+    Test endpoint to send an appointment reminder event.
+    :return: Response object indicating success or failure.
+    """
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({"error": "Unauthorized"}), 401
+        return jsonify({"error": "Unauthorized"}, 401)
 
     data = request.json
     event_data = {
@@ -177,90 +200,163 @@ def test_appointment_reminder():
     }
     publish_event_with_buffer(user_id, event_data)
 
-    return jsonify({"message": "Appointment reminder sent successfully"}), 200
+    return jsonify({"message": "Appointment reminder sent successfully"}, 200)
 
 
 
 # Authentication endpoints
 @app.route('/api/auth/register', methods=['POST'])
-def register():
+def register() -> Response:
+    """
+    Register a new user.
+    :return: Response object with registration status.
+    """
     return register_route()
 
 @app.route('/api/auth/login', methods=['POST'])
-def login():
+def login() -> Response:
+    """
+    Login endpoint for users.
+    :return: Response object with login status.
+    """
     return login_route()
 
 @app.route('/api/auth/logout', methods=['POST'])
 @require_auth
-def logout():
+def logout() -> Response:
+    """
+    Logout endpoint for users.
+    :return: Response object with logout status.
+    """
     return logout_route()
 
 @app.route('/api/auth/me', methods=['GET'])
 @require_auth
-def get_current_user_info():
+def get_current_user_info() -> Response:
+    """
+    Get the current user's information.
+    :return: Response object with user information.
+    """
     return get_current_user_info_route()
 
 @app.route('/api/auth/change-password', methods=['POST'])
 @require_auth
-def change_password():
+def change_password() -> Response:
+    """
+    Change the password for the current user.
+    :return: Response object with change password status.
+    """
     return change_password_route()
 
 # Admin endpoints
 @app.route('/api/admin/users', methods=['GET'])
 @require_admin
-def get_all_users():
+def get_all_users() -> Response:
+    """
+    Get a list of all users.
+    :return: Response object with user list.
+    """
     return get_all_users_route()
 
 @app.route('/api/admin/users/<user_id>/deactivate', methods=['POST'])
 @require_admin
-def deactivate_user(user_id):
+def deactivate_user(user_id: str) -> Response:
+    """
+    Deactivate a user by their user ID.
+    :param user_id: The ID of the user to deactivate.
+    :return: Response object with deactivation status.
+    """
     return deactivate_user_route(user_id)
 
 @app.route('/api/admin/users/<user_id>/activate', methods=['POST'])
 @require_admin
-def activate_user(user_id):
+def activate_user(user_id: str) -> Response:
+    """
+    Activate a user by their user ID.
+    :param user_id: The ID of the user to activate.
+    :return: Response object with activation status.
+    """
     return activate_user_route(user_id)
 
 @app.route('/api/admin/setup', methods=['POST'])
-def setup_default_admin():
+def setup_default_admin() -> Response:
+    """
+    Setup the default admin user and initial configuration.
+    :return: Response object with setup status.
+    """
     return setup_default_admin_route()
 
 @app.route('/api/users/exist', methods=['GET'])
-def check_users_exist():
+def check_users_exist() -> Response:
+    """
+    Check if users exist in the system.
+    :return: Response object with existence check status.
+    """
     return check_users_exist_route()
 
 @app.route('/api/debug/session', methods=['GET'])
-def debug_session():
+def debug_session() -> Response:
+    """
+    Debug endpoint to inspect the current session.
+    :return: Response object with session data.
+    """
     return debug_session_route()
 
 @app.route('/api/users/search', methods=['GET'])
 @require_auth
-def search_users():
+def search_users() -> Response:
+    """
+    Search for users in the system.
+    :return: Response object with search results.
+    """
     return search_users_route()
 
 @app.route('/api/conversations', methods=['GET'])
 @require_auth
-def get_user_conversations():
+def get_user_conversations() -> Response:
+    """
+    Get conversations for the authenticated user.
+    :return: Response object with user conversations.
+    """
     return get_user_conversations_route()
 
 @app.route('/api/conversations/<conversation_id>/messages', methods=['GET'])
 @require_auth
-def get_conversation_messages(conversation_id):
+def get_conversation_messages(conversation_id: str) -> Response:
+    """
+    Get messages for a specific conversation.
+    :param conversation_id: The ID of the conversation to retrieve messages for.
+    :return: Response object with conversation messages.
+    """
     return get_conversation_messages_route(conversation_id)
 
 @app.route('/api/conversations/<conversation_id>/messages', methods=['POST'])
 @require_auth
-def send_message(conversation_id):
+def send_message(conversation_id: str) -> Response:
+    """
+    Send a message to a specific conversation.
+    :param conversation_id: The ID of the conversation to send a message to.
+    :return: Response object with message sending status.
+    """
     return send_message_route(conversation_id)
 
 @app.route('/api/conversations', methods=['POST'])
 @require_auth
-def create_conversation():
+def create_conversation() -> Response:
+    """
+    Create a new conversation for the authenticated user.
+    :return: Response object with conversation creation status.
+    """
     return create_conversation_route()
 
+# TODO: Do we even use this one?
 @app.route('/api/chat', methods=['GET', 'POST'])
 @optional_auth
-def chat_endpoint():
+def chat_endpoint() -> Response:
+    """
+    Endpoint to handle chat conversations.
+    :return: Response object with chat data.
+    """
     if request.method == 'GET':
         return jsonify(DUMMY_CONVERSATIONS)
     elif request.method == 'POST':
@@ -271,149 +367,274 @@ def chat_endpoint():
 
 @app.route('/api/llm_chat', methods=['GET', 'POST'])
 @optional_auth
-def llm_agent_endpoint():
+def llm_agent_endpoint() -> Response:
+    """
+    Endpoint for LLM agent interactions.
+    :return: Response object with LLM agent data.
+    """
     return llm_agent_endpoint_route()
 
 @app.route('/api/llm_chat/reset', methods=['POST'])
 @optional_auth
-def reset_llm_chat():
-    """Reset the LLM chat session"""
+def reset_llm_chat() -> Response:
+    """
+    Reset the LLM chat session
+    :return: Response object indicating the reset status.
+    """
     session.pop('agent_data', None)
     return jsonify({"message": "Chat session reset successfully"})
 
 @app.route('/api/time')
 #@cross_origin()
-def get_current_time():
+def get_current_time() -> Response:
+    """
+    Endpoint to get the current server time.
+    :return: Response object with the current time.
+    """
     response = jsonify({'time': time.time()})
     return response
 
 @app.route('/api/patients', methods=['GET', 'POST'])
-def patients_endpoint():
+def patients_endpoint() -> Response:
+    """
+    Endpoint to handle patient data.
+    :return: Response object with patient data.
+    """
     return patients_endpoint_route()
 
 @app.route('/api/patients/<patient_id>', methods=['GET', 'PUT', 'DELETE'])
-def patient_endpoint(patient_id):
+def patient_endpoint(patient_id: str) -> Response:
+    """
+    Endpoint to handle a specific patient by ID.
+    :param patient_id: The ID of the patient to retrieve or modify.
+    :return: Response object with patient data.
+    """
     return patient_endpoint_route(patient_id)
 
 @app.route('/api/patients/search', methods=['GET'])
 @require_auth
-def search_patients():
+def search_patients() -> Response:
+    """
+    Search for patients in the system.
+    :return: Response object with search results.
+    """
     return search_patients_route()
 
 # Encounter endpoints
 @app.route('/api/encounters', methods=['GET'])
 @require_auth
-def get_all_encounters():
+def get_all_encounters() -> Response:
+    """
+    Get all encounters in the system.
+    :return: Response object with all encounters.
+    """
     return get_all_encounters_route()
 
 @app.route('/api/encounters/search', methods=['GET'])
 @require_auth
-def search_encounters():
+def search_encounters() -> Response:
+    """
+    Search for encounters in the system.
+    :return: Response object with search results.
+    """
     return search_encounters_route()
 
 @app.route('/api/patients/<patient_id>/encounters', methods=['GET'])
 @require_auth
-def get_patient_encounters(patient_id):
+def get_patient_encounters(patient_id: str) -> Response:
+    """
+    Get all encounters for a specific patient.
+    :param patient_id: The ID of the patient to retrieve encounters for.
+    :return: Response object with patient encounters.
+    """
     return get_encounters_by_patient_route(patient_id)
 
 @app.route('/api/encounters/<encounter_id>', methods=['GET'])
 @require_auth
-def get_encounter(encounter_id):
+def get_encounter(encounter_id: str) -> Response:
+    """
+    Get a specific encounter by its ID.
+    :param encounter_id: The ID of the encounter to retrieve.
+    :return: Response object with encounter data.
+    """
     return get_encounter_by_id_route(encounter_id)
 
 @app.route('/api/patients/<patient_id>/encounters', methods=['POST'])
 @require_auth
-def create_patient_encounter(patient_id):
+def create_patient_encounter(patient_id: str) -> Response:
+    """
+    Create a new encounter for a specific patient.
+    :param patient_id: The ID of the patient to create an encounter for.
+    :return: Response object with encounter creation status.
+    """
     return create_encounter_route(patient_id)
 
 @app.route('/api/encounters/<encounter_id>', methods=['PUT'])
 @require_auth
-def update_encounter(encounter_id):
+def update_encounter(encounter_id: str) -> Response:
+    """
+    Update an existing encounter by its ID.
+    :param encounter_id: The ID of the encounter to update.
+    :return: Response object with encounter update status.
+    """
     return update_encounter_route(encounter_id)
 
 @app.route('/api/encounters/<encounter_id>', methods=['DELETE'])
 @require_auth
-def delete_encounter(encounter_id):
+def delete_encounter(encounter_id: str) -> Response:
+    """
+    Delete an existing encounter by its ID.
+    :param encounter_id: The ID of the encounter to delete.
+    :return: Response object with encounter deletion status.
+    """
     return delete_encounter_route(encounter_id)
 
 @app.route('/api/test_surrealdb', methods=['GET'])
 @require_admin
-def test_surrealdb():
+def test_surrealdb() -> Response:
+    """
+    Test endpoint to verify SurrealDB connection
+    :return: Response object with test status.
+    """
     return test_surrealdb_route()
 
 @app.route('/api/test_crud', methods=['GET'])
-def test_crud():
-    """Test endpoint to verify CRUD operations"""
+def test_crud() -> Response:
+    """
+    Test endpoint to verify CRUD operations
+    :return: Response object with CRUD test status.
+    """
     return test_crud_route()
 
 @app.route('/api/intake/<patient_id>', methods=['PATCH'])
-def patch_intake(patient_id):
+def patch_intake(patient_id: str) -> Response:
+    """
+    Patch the intake information for a specific patient.
+    :param patient_id: The ID of the patient to patch intake information for.
+    :return: Response object with intake patch status.
+    """
     return patch_intake_route(patient_id)
 
 @app.route('/api/settings', methods=['GET', 'POST'])
 @require_auth
-def settings():
+def settings() -> Response:
+    """
+    Endpoint to get or update user settings.
+    :return: Response object with settings data or update status.
+    """
     return settings_route()
 
 @app.route('/api/usage', methods=['GET'])
 @require_auth
-def api_usage():
+def api_usage() -> Response:
+    """
+    Endpoint to get API usage statistics.
+    :return: Response object with API usage data.
+    """
     return get_api_usage_route()
 
 @app.route('/api/profile', methods=['GET'])
 @require_auth
-def get_user_profile():
+def get_user_profile() -> Response:
+    """
+    Endpoint to get the user profile information.
+    :return: Response object with user profile data.
+    """
     return get_user_profile_route()
 
 @app.route('/api/profile', methods=['POST'])
 @require_auth
-def update_user_profile():
+def update_user_profile() -> Response:
+    """
+    Endpoint to update the user profile information.
+    :return: Response object with user profile update status.
+    """
     return update_user_profile_route()
 
 # Appointment endpoints
 @app.route('/api/appointments', methods=['GET'])
 @require_auth
-def get_appointments():
+def get_appointments() -> Response:
+    """
+    Get a list of appointments for the authenticated user.
+    :return: Response object with appointments data.
+    """
     return get_appointments_route()
 
 @app.route('/api/appointments', methods=['POST'])
 @require_auth
-def create_appointment():
+def create_appointment() -> Response:
+    """
+    Create a new appointment for the authenticated user.
+    :return: Response object with appointment creation status.
+    """
     return create_appointment_route()
 
 @app.route('/api/appointments/<appointment_id>', methods=['GET'])
 @require_auth
-def get_appointment(appointment_id):
+def get_appointment(appointment_id: str) -> Response:
+    """
+    Get details of a specific appointment by its ID.
+    :param appointment_id: The ID of the appointment to retrieve.
+    :return: Response object with appointment details.
+    """
     return get_appointment_route(appointment_id)
 
 @app.route('/api/appointments/<appointment_id>', methods=['PUT'])
 @require_auth
-def update_appointment(appointment_id):
+def update_appointment(appointment_id: str) -> Response:
+    """
+    Update an existing appointment by its ID.
+    :param appointment_id: The ID of the appointment to update.
+    :return: Response object with appointment update status.
+    """
     return update_appointment_route(appointment_id)
 
 @app.route('/api/appointments/<appointment_id>/cancel', methods=['POST'])
 @require_auth
-def cancel_appointment(appointment_id):
+def cancel_appointment(appointment_id: str) -> Response:
+    """
+    Cancel an existing appointment by its ID.
+    :param appointment_id: The ID of the appointment to cancel.
+    :return: Response object with appointment cancellation status.
+    """
     return cancel_appointment_route(appointment_id)
 
 @app.route('/api/appointments/<appointment_id>/confirm', methods=['POST'])
 @require_auth
-def confirm_appointment(appointment_id):
+def confirm_appointment(appointment_id: str) -> Response:
+    """
+    Confirm an existing appointment by its ID.
+    :param appointment_id: The ID of the appointment to confirm.
+    :return: Response object with appointment confirmation status.
+    """
     return confirm_appointment_route(appointment_id)
 
 @app.route('/api/appointments/available-slots', methods=['GET'])
 @require_auth
-def get_available_slots():
+def get_available_slots() -> Response:
+    """
+    Get available time slots for appointments.
+    :return: Response object with available slots data.
+    """
     return get_available_slots_route()
 
 @app.route('/api/appointments/types', methods=['GET'])
 @require_auth
-def get_appointment_types():
+def get_appointment_types() -> Response:
+    """
+    Get a list of appointment types.
+    :return: Response object with appointment types data.
+    """
     return get_appointment_types_route()
 
 @app.route('/api/appointments/statuses', methods=['GET'])
 @require_auth
-def get_appointment_statuses():
+def get_appointment_statuses() -> Response:
+    """
+    Get a list of appointment statuses.
+    :return: Response object with appointment statuses data.
+    """
     return get_appointment_statuses_route()
 
 
