@@ -307,6 +307,16 @@ const Settings: React.FC = () => {
           </div>
         </div>
 
+        {user?.role === 'admin' && (
+          <button
+            onClick={() => {
+              throw new Error('Test error for Sentry logging'); // This will trigger an error to test Sentry logging
+            }}
+          >
+            Test Sentry Error
+          </button>
+        )}
+
         <div className="settings-section">
           <h2>OpenAI API Key</h2>
           <p className="section-description">
