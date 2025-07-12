@@ -181,10 +181,6 @@ def test_appointment_reminder():
 
 
 
-@app.route('/api/', methods=['GET'])
-def hello_world():
-    return jsonify({"data": "Hello World"})
-
 # Authentication endpoints
 @app.route('/api/auth/register', methods=['POST'])
 def register():
