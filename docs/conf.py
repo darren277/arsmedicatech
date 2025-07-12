@@ -31,29 +31,30 @@ exclude_patterns = [
     '_build',
     'Thumbs.db',
     '.DS_Store',
-    'src/*',
-    'k8s/*',
-    'static/*',
-    'emr/*',
-    'config/*',
-    '.vscode/*',
-    '.venv/*',
-    '.idea/*',
-    '.github/*',
-    'data/*',
-    'coverage/*',
-    'playright-report/*',
-    'node_modules/*',
-    'stuff/*',
-    'test/*',
-    'test-results/*',
-    'venv/*',
+
+    # Exclude project root dirs
+    '../src/*',
+    '../k8s/*',
+    '../static/*',
+    '../emr/*',
+    '../config/*',
+    '../data/*',
+    '../node_modules/*',
+    '../test/*',
+    '../test-results/*',
+    '../coverage/*',
+    '../stuff/*',
+    '../playright-report/*',
+
+    # Exclude dev env and tooling
+    '../.vscode/*',
+    '../.idea/*',
+    '../.github/*',
+    '../.venv/*',
+    '../venv/*',
 ]
 
-for p in exclude_patterns:
-    exclude_patterns.append(f'**/{p}') # Ensure all patterns are recursive
-    exclude_patterns.append(f'../**/{p}')
-    exclude_patterns.append(f'../../**/{p}')
+
 
 
 
@@ -62,3 +63,17 @@ for p in exclude_patterns:
 
 html_theme = 'alabaster'
 html_static_path = ['_static']
+
+
+import os
+import sys
+
+# Add the project root directory to sys.path
+print("[DEBUG] __file__:", __file__)
+print("[DEBUG] cwd:", os.getcwd())
+
+lib_path = os.path.abspath('../../lib')
+print("[DEBUG] Adding to sys.path:", lib_path)
+sys.path.insert(0, lib_path)
+
+import db  # Should not throw an error
