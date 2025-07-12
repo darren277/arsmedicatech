@@ -25,8 +25,10 @@ import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
+import logger from './services/logging';
+
 function Home() {
-  console.log('Home component rendered');
+  logger.debug('Home component rendered');
 
   // TODO: Make this more programmatically flexible...
   // [AMT-035] User Onboarding Flows

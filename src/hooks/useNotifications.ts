@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import logger from '../services/logging';
 
 export interface Notification {
   id: string;
@@ -23,7 +24,7 @@ const useNotifications = () => {
   // Add a new notification
   const addNotification = useCallback(
     (notification: Omit<Notification, 'id' | 'isRead'>) => {
-      console.log('useNotifications: Adding notification:', notification);
+      logger.debug('useNotifications: Adding notification:', notification);
 
       const newNotification: Notification = {
         ...notification,
@@ -31,13 +32,13 @@ const useNotifications = () => {
         isRead: false,
       };
 
-      console.log(
+      logger.debug(
         'useNotifications: Created new notification:',
         newNotification
       );
       setNotifications(prev => {
         const updated = [newNotification, ...prev];
-        console.log('useNotifications: Updated notifications array:', updated);
+        logger.debug('useNotifications: Updated notifications array:', updated);
         return updated;
       });
     },

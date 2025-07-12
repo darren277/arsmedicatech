@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { MdArrowBack, MdArrowForward, MdWarning } from 'react-icons/md';
 import { useParams } from 'react-router-dom';
-import API_URL from '../env_vars';
+import { API_URL } from '../env_vars';
+import logger from '../services/logging';
 import {
   Button,
   Card,
@@ -96,25 +97,25 @@ const isStepComplete = (
   stepFields: (keyof PatientIntakeFormValues)[],
   values: PatientIntakeFormValues
 ) => {
-  console.log('Checking step completion for fields:', stepFields);
-  console.log('Current values:', values);
+  logger.debug('Checking step completion for fields:', stepFields);
+  logger.debug('Current values:', values);
 
   const result = stepFields.every(field => {
     const value = values[field];
-    console.log(`Field ${field}:`, value, typeof value);
+    logger.debug(`Field ${field}:`, { value, t: typeof value });
 
     if (field === 'consent') {
       const isValid = Boolean(value);
-      console.log(`Consent field valid:`, isValid);
+      logger.debug(`Consent field valid:`, isValid);
       return isValid;
     }
 
     const isValid = value && value.toString().trim() !== '';
-    console.log(`Field ${field} valid:`, isValid);
+    logger.debug(`Field ${field} valid:`, isValid);
     return isValid;
   });
 
-  console.log('Step complete result:', result);
+  logger.debug('Step complete result:', result);
   return result;
 };
 
@@ -498,7 +499,7 @@ export default function PatientIntakeForm() {
           </h3>
           <button
             type="button"
-            onClick={() => console.log('Form values:', getValues())}
+            onClick={() => logger.debug('Form values:', getValues())}
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors"
           >
             Log to Console

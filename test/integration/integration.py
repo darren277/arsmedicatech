@@ -2,6 +2,8 @@
 import requests
 from settings import OPTIMAL_URL, OPTIMAL_KEY
 
+from settings import logger
+
 
 def test_optimal_service():
     from lib.opt.hypertension import build_hypertension_payload, create_food_data_pd
@@ -34,7 +36,7 @@ def test_optimal_service():
 
     sol = resp.json()
 
-    print('sol', sol)
+    logger.debug('sol', sol)
 
     food_data["servings (100g)"] = np.round(sol["x"], 2)
 

@@ -1,7 +1,12 @@
-""""""
+"""
+Graph Schema for SurrealDB
+"""
+from typing import Any, Dict, List
+
 from lib.db.surreal import DbController
 from lib.db.surreal_graph import GraphController
-from settings import SURREALDB_URL, SURREALDB_NAMESPACE, SURREALDB_USER, SURREALDB_PASS
+from settings import (SURREALDB_NAMESPACE, SURREALDB_PASS, SURREALDB_URL,
+                      SURREALDB_USER, logger)
 
 '''
 [AMT-011]: Graph Schema for SurrealDB
@@ -35,10 +40,24 @@ graph_db = GraphController(db)
 
 """ NODES """
 
-def create_node(node_type: str, node_id: str, node_name: str, **fields):
+def create_node(node_type: str, node_id: str, node_name: str, **fields: Dict[str, Any]) -> None:
+    """
+    Create a node in the graph database.
+    :param node_type: str - Type of the node (e.g., 'symptom', 'diagnosis', 'medication').
+    :param node_id: str - Unique identifier for the node.
+    :param node_name: str - Name of the node.
+    :param fields: dict - Additional fields to set on the node.
+    :return: None
+    """
     db.create(f'{node_type}:{node_id}', dict(name=node_name, **fields))
 
-def query_node(node_type: str, node_id: str):
+def query_node(node_type: str, node_id: str) -> List[Dict[str, Any]]:
+    """
+    Query a single node in the graph database.
+    :param node_type: str - Type of the node (e.g., 'symptom', 'diagnosis', 'medication').
+    :param node_id: str - Unique identifier for the node.
+    :return: dict - The node record from the database.
+    """
     return db.query(f"SELECT * FROM {node_type}:{node_id}")
 
 
@@ -75,7 +94,7 @@ create_node('medication', 'warfarin', 'Warfarin')
 
 # SELECT * FROM symptom:loss_of_appetite
 symptom = query_node('symptom', 'loss_of_appetite')
-print(symptom)
+logger.debug(str(symptom))
 
 
 
@@ -112,19 +131,26 @@ graph_db.relate(
 # Get outgoing connections (symptoms of depression)
 # SELECT ->HAS_SYMPTOM->symptom FROM diagnosis:depression
 symptoms = graph_db.get_relations('diagnosis:depression', 'HAS_SYMPTOM', 'symptom')
-print(symptoms)
+logger.debug(symptoms)
 
 
 # Get incoming connections (diagnoses that have loss of appetite)
 # SELECT <-HAS_SYMPTOM-<diagnosis FROM symptom:loss_of_appetite
 diagnoses = graph_db.get_relations('symptom:loss_of_appetite', 'HAS_SYMPTOM', 'diagnosis', direction='<-')
-print(diagnoses)
+logger.debug(diagnoses)
 
 
 # Query a single edge (just to verify that it exists - or to get its attributes)
 
 # SELECT * FROM ->HAS_SYMPTOM->symptom:loss_of_appetite
-def query_edges(from_node: str, from_id: str, edge_name: str):
+def query_edges(from_node: str, from_id: str, edge_name: str) -> Dict[str, Any]:
+    """
+    Query a single edge in the graph database.
+    :param from_node: str - Type of the node (e.g., 'diagnosis', 'symptom').
+    :param from_id: str - Unique identifier for the node.
+    :param edge_name: str - Name of the edge (e.g., 'HAS_SYMPTOM').
+    :return: dict - The edge record from the database.
+    """
     return db.query(f'SELECT ->{edge_name}.* FROM {from_node}:{from_id}')[0]
 
 edge = query_edges('diagnosis', 'depression', 'HAS_SYMPTOM')
@@ -192,10 +218,10 @@ graph_db.relate(
 diagnoses = db.query('SELECT * FROM diagnosis')
 
 for diagnosis in diagnoses:
-    print(diagnosis)
+    logger.debug(str(diagnosis))
     # Get outgoing connections (symptoms of depression)
     symptoms = graph_db.get_relations(diagnosis['id'], 'HAS_SYMPTOM', 'symptom')
-    print(symptoms)
+    logger.debug(symptoms)
 
 
 # -- For a specific diagnosis, find its related symptoms:
@@ -203,11 +229,11 @@ for diagnosis in diagnoses:
 
 depression_symptoms_result = db.query('SELECT ->HAS_SYMPTOM.* FROM diagnosis:depression')
 depression_symptoms = depression_symptoms_result[0]['->HAS_SYMPTOM']
-print(depression_symptoms)
+logger.debug(depression_symptoms)
 
 for symptom in depression_symptoms:
     # symptom: dict_keys(['id', 'in', 'note', 'out'])
-    print(f"Symptom: {symptom['id']}. Note: {symptom['note']}. In: {symptom['in']}. Out: {symptom['out']}")
+    logger.debug(f"Symptom: {symptom['id']}. Note: {symptom['note']}. In: {symptom['in']}. Out: {symptom['out']}")
 
 
 # -- For a medication, see which diagnoses it treats and what it might be contraindicated for:
@@ -216,7 +242,7 @@ for symptom in depression_symptoms:
 
 prozac_diagnoses = db.query('SELECT ->TREATS.* FROM medication:prozac')
 prozac_diagnoses = prozac_diagnoses[0]['->TREATS']
-print(prozac_diagnoses)
+logger.debug(prozac_diagnoses)
 
 
 for diagnosis in prozac_diagnoses:
@@ -226,12 +252,12 @@ for diagnosis in prozac_diagnoses:
     medications = graph_db.get_relations('medication:prozac', 'CONTRAINDICATED_FOR', 'medication', direction=direction)
     medications = medications[0]['<-CONTRAINDICATED_FOR']['<-medication']
     for medication in medications:
-        print(medication)
+        logger.debug(medication)
 
     direction = '->'
     medications = graph_db.get_relations('medication:prozac', 'CONTRAINDICATED_FOR', 'medication', direction=direction)
     medications = medications[0]['->CONTRAINDICATED_FOR']['->medication']
     for medication in medications:
-        print(medication)
+        logger.debug(medication)
 
 

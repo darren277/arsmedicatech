@@ -6,12 +6,18 @@ on:
       - dev
       - stage
       - main
+  pull_request:
+    branches:
+      - dev
+      - stage
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
       ENCRYPTION_KEY: "test-encryption-key-for-ci-123456789"
+      SENTRY_DSN: "test-sentry-dsn-for-ci-123456789"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,6 +46,11 @@ jobs:
 
       - name: Run Python tests
         run: python run_tests.py all
+
+      - name: Run mypy
+        run: |
+          if [ -f requirements.txt ]; then pip install mypy; fi
+          mypy --explicit-package-bases lib settings.py
 
       - name: Run npm tests
         run: npm test

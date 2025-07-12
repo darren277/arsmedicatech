@@ -31,3 +31,7 @@ coverage/
 test-results/
 playwright-report/
 playwright/.cache/
+
+docs/_build
+
+typings/

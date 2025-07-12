@@ -1,12 +1,17 @@
 """
 Appointment model for scheduling functionality
 """
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any, List
+from datetime import datetime, timedelta, timezone
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from settings import logger
 
 
 class AppointmentStatus(Enum):
+    """
+    Enum for appointment status values.
+    """
     SCHEDULED = "scheduled"
     CONFIRMED = "confirmed"
     CANCELLED = "cancelled"
@@ -15,6 +20,9 @@ class AppointmentStatus(Enum):
 
 
 class AppointmentType(Enum):
+    """
+    Enum for appointment type values.
+    """
     CONSULTATION = "consultation"
     FOLLOW_UP = "follow_up"
     EMERGENCY = "emergency"
@@ -23,19 +31,24 @@ class AppointmentType(Enum):
 
 
 class Appointment:
-    def __init__(self, 
-                 patient_id: str,
-                 provider_id: str,
-                 appointment_date: str,
-                 start_time: str,
-                 end_time: str,
-                 appointment_type: str = "consultation",
-                 status: str = "scheduled",
-                 notes: str = None,
-                 location: str = None,
-                 id: str = None,
-                 created_at: str = None,
-                 updated_at: str = None):
+    """
+    Model representing a healthcare appointment.
+    """
+    def __init__(
+            self,
+            patient_id: str,
+            provider_id: str,
+            appointment_date: str,
+            start_time: str,
+            end_time: str,
+            appointment_type: str = "consultation",
+            status: str = "scheduled",
+            notes: Optional[str] = None,
+            location: Optional[str] = None,
+            id: Optional[str] = None,
+            created_at: Optional[str] = None,
+            updated_at: Optional[str] = None
+    ) -> None:
         """
         Initialize an Appointment object
         
@@ -51,7 +64,15 @@ class Appointment:
         :param id: Database record ID
         :param created_at: Creation timestamp
         :param updated_at: Last update timestamp
+
+        :raises ValueError: If any required fields are missing or invalid
+        :raises TypeError: If any field types are incorrect
+
+        :return: None
         """
+        if not patient_id or not provider_id or not appointment_date or not start_time or not end_time:
+            raise ValueError("Missing required fields: patient_id, provider_id, appointment_date, start_time, end_time")
+
         self.patient_id = patient_id
         self.provider_id = provider_id
         self.appointment_date = appointment_date
@@ -62,11 +83,15 @@ class Appointment:
         self.notes = notes or ""
         self.location = location or ""
         self.id = id
-        self.created_at = created_at or datetime.utcnow().isoformat()
-        self.updated_at = updated_at or datetime.utcnow().isoformat()
+        self.created_at = created_at or datetime.now(timezone.utc).isoformat()
+        self.updated_at = updated_at or datetime.now(timezone.utc).isoformat()
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert appointment to dictionary for database storage"""
+        """
+        Convert appointment to dictionary for database storage
+
+        :return: Dictionary representation of the appointment
+        """
         return {
             'patient_id': self.patient_id,
             'provider_id': self.provider_id,
@@ -83,23 +108,34 @@ class Appointment:
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Appointment':
-        """Create appointment from dictionary"""
-        print(f"[DEBUG] Appointment.from_dict called with data: {data}")
+        """
+        Create appointment from dictionary
+
+        :param data: Dictionary containing appointment data
+        :return: Appointment object
+        """
+        logger.debug(f"Appointment.from_dict called with data: {data}")
         
         # Convert RecordID to string if it exists
         appointment_id = data.get('id')
         if hasattr(appointment_id, '__str__'):
             appointment_id = str(appointment_id)
         
-        print(f"[DEBUG] Converted appointment_id: {appointment_id}")
+        logger.debug(f"Converted appointment_id: {appointment_id}")
         
         try:
+            # Ensure required fields are present and are strings
+            required_fields = ['patient_id', 'provider_id', 'appointment_date', 'start_time', 'end_time']
+            for field in required_fields:
+                if not isinstance(data.get(field), str) or not data.get(field):
+                    raise ValueError(f"Missing or invalid required field: {field}")
+
             appointment = cls(
-                patient_id=data.get('patient_id'),
-                provider_id=data.get('provider_id'),
-                appointment_date=data.get('appointment_date'),
-                start_time=data.get('start_time'),
-                end_time=data.get('end_time'),
+                patient_id=str(data.get('patient_id')),
+                provider_id=str(data.get('provider_id')),
+                appointment_date=str(data.get('appointment_date')),
+                start_time=str(data.get('start_time')),
+                end_time=str(data.get('end_time')),
                 appointment_type=data.get('appointment_type', 'consultation'),
                 status=data.get('status', 'scheduled'),
                 notes=data.get('notes'),
@@ -108,16 +144,20 @@ class Appointment:
                 created_at=data.get('created_at'),
                 updated_at=data.get('updated_at')
             )
-            print(f"[DEBUG] Successfully created appointment object: {appointment.id}")
+            logger.debug(f"Successfully created appointment object: {appointment.id}")
             return appointment
         except Exception as e:
-            print(f"[ERROR] Failed to create appointment from dict: {e}")
+            logger.error(f"Failed to create appointment from dict: {e}")
             import traceback
-            print(f"[ERROR] Traceback: {traceback.format_exc()}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
             raise
     
     def get_duration_minutes(self) -> int:
-        """Calculate appointment duration in minutes"""
+        """
+        Calculate appointment duration in minutes
+
+        :return: Duration in minutes, or 0 if times are invalid
+        """
         try:
             start = datetime.strptime(self.start_time, '%H:%M')
             end = datetime.strptime(self.end_time, '%H:%M')
@@ -127,26 +167,46 @@ class Appointment:
             return 0
     
     def is_confirmed(self) -> bool:
-        """Check if appointment is confirmed"""
+        """
+        Check if appointment is confirmed
+
+        :return: True if appointment is confirmed, False otherwise
+        """
         return self.status == AppointmentStatus.CONFIRMED.value
     
     def is_cancelled(self) -> bool:
-        """Check if appointment is cancelled"""
+        """
+        Check if appointment is cancelled
+
+        :return: True if appointment is cancelled, False otherwise
+        """
         return self.status == AppointmentStatus.CANCELLED.value
     
     def is_completed(self) -> bool:
-        """Check if appointment is completed"""
+        """
+        Check if appointment is completed
+
+        :return: True if appointment is completed, False otherwise
+        """
         return self.status == AppointmentStatus.COMPLETED.value
     
     def can_be_cancelled(self) -> bool:
-        """Check if appointment can be cancelled"""
+        """
+        Check if appointment can be cancelled
+
+        :return: True if appointment can be cancelled, False otherwise
+        """
         return self.status in [
             AppointmentStatus.SCHEDULED.value,
             AppointmentStatus.CONFIRMED.value
         ]
-    
-    def get_datetime(self) -> datetime:
-        """Get full datetime of appointment start"""
+
+    def get_datetime(self) -> Optional[datetime]:
+        """
+        Get full datetime of appointment start
+
+        :return: Datetime object representing appointment start, or None if invalid
+        """
         try:
             date_obj = datetime.strptime(self.appointment_date, '%Y-%m-%d')
             time_obj = datetime.strptime(self.start_time, '%H:%M').time()
@@ -155,21 +215,33 @@ class Appointment:
             return None
     
     def is_in_past(self) -> bool:
-        """Check if appointment is in the past"""
+        """
+        Check if appointment is in the past
+
+        :return: True if appointment is in the past, False otherwise
+        """
         appointment_dt = self.get_datetime()
         if not appointment_dt:
             return False
         return appointment_dt < datetime.now()
     
     def is_today(self) -> bool:
-        """Check if appointment is today"""
+        """
+        Check if appointment is today
+
+        :return: True if appointment is today, False otherwise
+        """
         appointment_dt = self.get_datetime()
         if not appointment_dt:
             return False
         return appointment_dt.date() == datetime.now().date()
     
     def is_this_week(self) -> bool:
-        """Check if appointment is this week"""
+        """
+        Check if appointment is this week
+
+        :return: True if appointment is this week, False otherwise
+        """
         appointment_dt = self.get_datetime()
         if not appointment_dt:
             return False
@@ -178,9 +250,13 @@ class Appointment:
         week_end = week_start + timedelta(days=6)
         return week_start.date() <= appointment_dt.date() <= week_end.date()
     
-    def schema(self):
-        """Define database schema for appointments"""
-        statements = []
+    def schema(self) -> List[str]:
+        """
+        Define database schema for appointments
+
+        :return: List of SQL statements to define the appointment table and fields
+        """
+        statements: List[str] = []
         statements.append('DEFINE TABLE appointment SCHEMAFULL;')
         statements.append('DEFINE FIELD patient_id ON appointment TYPE record<patient> ASSERT $value != none;')
         statements.append('DEFINE FIELD provider_id ON appointment TYPE record<user> ASSERT $value != none;')

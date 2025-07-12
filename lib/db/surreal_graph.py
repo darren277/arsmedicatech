@@ -1,4 +1,10 @@
-""""""
+"""
+This module provides a controller for graph operations in SurrealDB.
+"""
+from typing import Any, Callable, Coroutine, Dict, Optional, Union
+
+from lib.db.surreal import AsyncDbController, DbController
+
 
 class GraphController:
     """
@@ -6,23 +12,43 @@ class GraphController:
     This class leverages an existing DbController to perform graph-specific operations.
     """
 
-    def __init__(self, db_controller):
+    def __init__(self, db_controller: Union[DbController, AsyncDbController]):
         """
         Initialize the GraphController with an existing DbController
 
         :param db_controller: An instance of DbController or AsyncDbController
         """
-        self.db = db_controller
-        self._is_async = hasattr(db_controller.query, "__await__")
+        self.db: Union[DbController, AsyncDbController] = db_controller
+        self._is_async = isinstance(db_controller, AsyncDbController)
 
-    def _execute(self, func, *args, **kwargs):
-        """Helper method to handle sync/async execution"""
+    def _execute(
+        self,
+        func: Union[
+            Callable[[str, Optional[Dict[str, Any]]], Any],
+            Callable[[str, Optional[Dict[Any, Any]]], Coroutine[Any, Any, Any]]
+        ],
+        *args: Any,
+        **kwargs: Any
+    ) -> Any:
+        """
+        Helper method to handle sync/async execution
+        :param func: The function to execute (e.g., db.query)
+        :param args: Positional arguments for the function
+        :param kwargs: Keyword arguments for the function
+        :return: The result of the function execution
+        """
         if self._is_async:
             import asyncio
             return asyncio.ensure_future(func(*args, **kwargs))
         return func(*args, **kwargs)
 
-    def relate(self, from_record, edge_table, to_record, edge_data=None):
+    def relate(
+            self,
+            from_record: str,  # e.g., "person:123"
+            edge_table: str,  # e.g., "order"
+            to_record: str,  # e.g., "product:456"
+            edge_data: Optional[Dict[str, Any]] = None  # Optional data for the edge
+    ) -> Any:
         """
         Create a relationship between two records
 
@@ -38,7 +64,8 @@ class GraphController:
         # Add content if provided
         if edge_data:
             # Convert dict to SurrealQL content format
-            content_parts = []
+            from typing import List
+            content_parts: List[str] = []
             for key, value in edge_data.items():
                 # Handle special arrow syntax for references
                 if isinstance(value, str) and value.startswith("->"):
@@ -55,7 +82,7 @@ class GraphController:
 
         return self._execute(self.db.query, query)
 
-    def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->"):
+    def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->") -> Any:
         """
         Get records connected via outgoing relationships
 
@@ -69,16 +96,20 @@ class GraphController:
         query = f"SELECT {direction}{edge_table}{direction}{end_table} FROM {start_node}"
         return self._execute(self.db.query, query)
 
-    def count_connections(self):
+    def count_connections(self) -> Any:
         """
         TODO
+        This method should implement logic to count connections in the graph.
+        Currently, it returns an empty query.
         """
         query = ""
         return self._execute(self.db.query, query)
 
-    def find_path(self):
+    def find_path(self) -> Any:
         """
         TODO
+        This method should implement logic to find paths in the graph.
+        Currently, it returns an empty query.
         """
         query = ""
         return self._execute(self.db.query, query)
@@ -89,7 +120,7 @@ class AsyncGraphController:
     An asynchronous controller class for graph operations in SurrealDB.
     """
 
-    def __init__(self, async_db_controller):
+    def __init__(self, async_db_controller: AsyncDbController):
         """
         Initialize the AsyncGraphController with an existing AsyncDbController
 
@@ -97,7 +128,13 @@ class AsyncGraphController:
         """
         self.db = async_db_controller
 
-    async def relate(self, from_record, edge_table, to_record, edge_data=None):
+    async def relate(
+            self,
+            from_record: str,  # e.g., "person:123"
+            edge_table: str,  # e.g., "order"
+            to_record: str,  # e.g., "product:456"
+            edge_data: Optional[Dict[str, Any]] = None  # Optional data for the edge
+    ) -> Any:
         """
         Create a relationship between two records
 
@@ -113,7 +150,8 @@ class AsyncGraphController:
         # Add content if provided
         if edge_data:
             # Convert dict to SurrealQL content format
-            content_parts = []
+            from typing import List
+            content_parts: List[str] = []
             for key, value in edge_data.items():
                 # Handle special arrow syntax for references
                 if isinstance(value, str) and value.startswith("->"):
@@ -130,7 +168,7 @@ class AsyncGraphController:
 
         return await self.db.query(query)
 
-    async def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->"):
+    async def get_relations(self, start_node: str, edge_table: str, end_table: str, direction: str = "->") -> Any:
         """
         Get records connected via outgoing relationships
 
@@ -144,16 +182,20 @@ class AsyncGraphController:
         query = f"SELECT {direction}{edge_table}{direction}{end_table} FROM {start_node}"
         return await self.db.query(query)
 
-    async def count_connections(self):
+    async def count_connections(self) -> Any:
         """
         TODO
+        This method should implement logic to count connections in the graph.
+        Currently, it returns an empty query.
         """
         query = ""
         return await self.db.query(query)
 
-    async def find_path(self):
+    async def find_path(self) -> Any:
         """
         TODO
+        This method should implement logic to find paths in the graph.
+        Currently, it returns an empty query.
         """
         query = ""
         return await self.db.query(query)

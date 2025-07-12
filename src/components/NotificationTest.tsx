@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import API_URL from '../env_vars';
+import { API_URL } from '../env_vars';
 
 const NotificationTest: React.FC = () => {
   const [status, setStatus] = useState<string>('');

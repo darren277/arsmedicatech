@@ -6,12 +6,14 @@ import time
 import sys
 import os
 
+from typing import Optional
+
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from lib.services.notifications import publish_event_with_buffer
 
-def send_notification(user_id: str, notification_type: str, message: str = None):
+def send_notification(user_id: str, notification_type: str, message: Optional[str] = None):
     """Send a single notification"""
     
     # Create event data

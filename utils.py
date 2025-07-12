@@ -1,4 +1,5 @@
 """"""
+from settings import logger
 
 
 import ssl
@@ -20,20 +21,20 @@ def fetch_cert(hostname, port=443):
 
 def parse_cert(cert):
     if not cert:
-        print("❌ No certificate found or unable to fetch.")
+        logger.debug("❌ No certificate found or unable to fetch.")
         return
 
-    print("\n📄 Subject:")
+    logger.debug("\n📄 Subject:")
     pprint(cert.get('subject'))
 
-    print("\n🏢 Issuer:")
+    logger.debug("\n🏢 Issuer:")
     pprint(cert.get('issuer'))
 
-    print("\n📅 Validity Period:")
+    logger.debug("\n📅 Validity Period:")
     print(f"  Not Before: {cert.get('notBefore')}")
     print(f"  Not After : {cert.get('notAfter')}")
 
-    print("\n🌐 Subject Alt Names:")
+    logger.debug("\n🌐 Subject Alt Names:")
     pprint(cert.get('subjectAltName'))
 
     # Expiry check
@@ -42,9 +43,9 @@ def parse_cert(cert):
     print(f"\n✅ Expires in: {days_left} days")
 
     if days_left < 0:
-        print("❌ Certificate has expired!")
+        logger.debug("❌ Certificate has expired!")
     elif days_left < 10:
-        print("⚠️ Certificate is about to expire!")
+        logger.debug("⚠️ Certificate is about to expire!")
 
 if __name__ == "__main__":
     domain = "demo.arsmedicatech.com"
@@ -100,13 +101,13 @@ def calculate_row_size(sql_string: str):
         print(line)
         line = line.lstrip().rstrip()
         if line.startswith('CREATE TABLE'):
-            print("CONTINUING:", line)
+            logger.debug("CONTINUING:", line)
             continue
         elif line.startswith('PRIMARY KEY'):
-            print("BREAKING:", line)
+            logger.debug("BREAKING:", line)
             break
         elif line == '':
-            print("CONTINUING:", line)
+            logger.debug("CONTINUING:", line)
             continue
         x = line.split(' ')
         try:

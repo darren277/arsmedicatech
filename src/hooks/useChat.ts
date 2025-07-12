@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import apiService from '../services/api';
+import logger from '../services/logging';
 import { Conversation } from '../types';
 
 const DUMMY_CONVERSATIONS: Conversation[] = [
@@ -73,7 +74,7 @@ function useChat(isLLM = false) {
         } else {
           data = await apiService.getUserConversations();
         }
-        console.log('Fetched conversations:', data);
+        logger.debug('Fetched conversations:', data);
 
         // Transform the data to match the frontend format
         if (data && Array.isArray(data)) {
@@ -120,7 +121,7 @@ function useChat(isLLM = false) {
     participantAvatar: string,
     isAI: boolean = false
   ) => {
-    console.log(
+    logger.debug(
       '[DEBUG] Creating new conversation with participantId:',
       participantId
     );
@@ -129,7 +130,7 @@ function useChat(isLLM = false) {
     // For AI conversations, we use a timestamp
     const conversationId = isAI ? Date.now() : participantId;
 
-    console.log('[DEBUG] Using conversation ID:', conversationId);
+    logger.debug('Using conversation ID:', conversationId);
 
     const newConversation: Conversation = {
       id: conversationId,
@@ -158,7 +159,7 @@ function useChat(isLLM = false) {
           'ai-assistant',
           newMessage
         );
-        console.log('LLM Response:', llmResponse);
+        logger.debug('LLM Response:', llmResponse);
 
         // Add both user message and LLM response to the conversation
         const updatedConversations = conversations.map(conv => {
