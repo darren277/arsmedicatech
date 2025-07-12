@@ -24,3 +24,14 @@ stuff/
 k8s/values.yaml
 
 dist/
+
+coverage/
+
+# Playwright test results
+test-results/
+playwright-report/
+playwright/.cache/
+
+docs/_build
+
+typings/

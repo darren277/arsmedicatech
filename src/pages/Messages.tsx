@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import NewConversationModal from '../components/NewConversationModal';
+import { useNotificationContext } from '../components/NotificationContext';
+import NotificationTest from '../components/NotificationTest';
 import SignupPopup from '../components/SignupPopup';
 import { Conversation, useChat } from '../hooks/useChat';
+import useEvents from '../hooks/useEvents';
 import { useNewConversationModal } from '../hooks/useNewConversationModal';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import apiService from '../services/api';
 import authService from '../services/auth';
+import logger from '../services/logging';
 import './Messages.css';
 
 const DUMMY_CONVERSATIONS: Conversation[] = [
@@ -61,12 +65,28 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
 ];
 
 const Messages = () => {
+  logger.debug('Messages component rendering');
+
   const isAuthenticated = authService.isAuthenticated();
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
   const { isModalOpen, showModal, hideModal } = useNewConversationModal();
   const [selectedMessages, setSelectedMessages] = useState<
     { sender: string; text: string }[]
   >([]);
+
+  logger.debug('Messages: isAuthenticated:', isAuthenticated);
+
+  // Initialize notification system
+  const {
+    notifications,
+    unreadCount,
+    addNotification,
+    markAsRead,
+    markAllAsRead,
+    clearNotification,
+    clearAllNotifications,
+    getRecentNotifications,
+  } = useNotificationContext();
 
   const {
     conversations,
@@ -80,6 +100,108 @@ const Messages = () => {
     createNewConversation,
     isLoading,
   } = useChat(false); // Default to regular chat, will be overridden per conversation
+
+  // Handle real-time notifications
+  const handleNewMessage = useCallback(
+    (data: any) => {
+      logger.debug('Received new message notification:', data);
+
+      // Add notification for new message
+      const notification = {
+        type: 'new_message' as const,
+        title: 'New Message',
+        message: data.text,
+        timestamp: data.timestamp,
+        data: {
+          sender: data.sender,
+          conversation_id: data.conversation_id,
+        },
+      };
+
+      logger.debug('Adding notification:', notification);
+      addNotification(notification);
+      logger.debug('Notification added successfully');
+
+      // Update conversation list with new message
+      setConversations(prevConversations =>
+        prevConversations.map(conv => {
+          if (conv.id.toString() === data.conversation_id) {
+            return {
+              ...conv,
+              lastMessage: data.text,
+            };
+          }
+          return conv;
+        })
+      );
+
+      // If this conversation is currently selected, refresh messages
+      if (selectedConversationId?.toString() === data.conversation_id) {
+        // Refresh messages for the current conversation
+        const fetchMessages = async () => {
+          try {
+            const response = await apiService.getConversationMessages(
+              selectedConversationId.toString()
+            );
+            setSelectedMessages(
+              (response.messages || []).map((msg: any) => ({
+                sender: msg.sender,
+                text: msg.text,
+              }))
+            );
+          } catch (error) {
+            console.error('Error refreshing messages:', error);
+          }
+        };
+        fetchMessages();
+      }
+    },
+    [selectedConversationId, setConversations, addNotification]
+  );
+
+  const handleAppointmentReminder = useCallback(
+    (data: any) => {
+      logger.debug('Received appointment reminder:', data);
+
+      // Add notification for appointment reminder
+      addNotification({
+        type: 'appointment_reminder',
+        title: 'Appointment Reminder',
+        message: data.content,
+        timestamp: data.timestamp,
+        data: {
+          appointmentId: data.appointmentId,
+          time: data.time,
+        },
+      });
+    },
+    [addNotification]
+  );
+
+  const handleSystemNotification = useCallback(
+    (data: any) => {
+      logger.debug('Received system notification:', data);
+
+      // Add notification for system notification
+      addNotification({
+        type: 'system_notification',
+        title: 'System Notification',
+        message: data.content,
+        timestamp: data.timestamp,
+        data: data,
+      });
+    },
+    [addNotification]
+  );
+
+  // Initialize SSE connection
+  logger.debug('Messages: Setting up SSE connection with callbacks');
+  useEvents({
+    onNewMessage: handleNewMessage,
+    onAppointmentReminder: handleAppointmentReminder,
+    onSystemNotification: handleSystemNotification,
+  });
+  logger.debug('Messages: SSE connection setup complete');
 
   // Fetch messages when a conversation is selected
   useEffect(() => {
@@ -151,11 +273,11 @@ const Messages = () => {
     const messageText = newMessage;
     setNewMessage(''); // Clear input immediately
 
-    console.log(
+    logger.debug(
       '[DEBUG] Sending user message to conversation:',
       selectedConversation.id
     );
-    console.log('[DEBUG] Selected conversation:', selectedConversation);
+    logger.debug('Selected conversation:', selectedConversation);
 
     // Add message locally first for immediate feedback
     const updatedConversations = conversations.map(conv => {
@@ -179,7 +301,7 @@ const Messages = () => {
         selectedConversation.id.toString(),
         messageText
       );
-      console.log(
+      logger.debug(
         'Message sent successfully to conversation:',
         selectedConversation.id
       );
@@ -204,18 +326,18 @@ const Messages = () => {
     userId: string,
     userInfo?: { display_name: string; avatar: string }
   ) => {
-    console.log('[DEBUG] Starting user chat with:', userId, userInfo);
+    logger.debug('Starting user chat with:', { userId, userInfo });
     try {
       // Create conversation in database
-      console.log('[DEBUG] Creating conversation in database...');
+      logger.debug('Creating conversation in database...');
       const response = await apiService.createConversation(
         [userId],
         'user_to_user'
       );
-      console.log('[DEBUG] Conversation creation response:', response);
+      logger.debug('Conversation creation response:', response);
 
       if (response.conversation_id) {
-        console.log(
+        logger.debug(
           '[DEBUG] Creating conversation in frontend with ID:',
           response.conversation_id
         );
@@ -233,7 +355,7 @@ const Messages = () => {
     } catch (error) {
       console.error('Error creating conversation:', error);
       // Fallback: create conversation locally
-      console.log('[DEBUG] Falling back to local conversation creation');
+      logger.debug('Falling back to local conversation creation');
       createNewConversation(
         userId,
         userInfo?.display_name || 'Unknown User',
@@ -347,6 +469,10 @@ const Messages = () => {
           )}
         </div>
       </div>
+
+      {/* SSE Notification Test Component */}
+      <NotificationTest />
+
       <SignupPopup isOpen={isPopupOpen} onClose={hideSignupPopup} />
       <NewConversationModal
         isOpen={isModalOpen}

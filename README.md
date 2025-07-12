@@ -224,6 +224,74 @@ graph TD
     LLM -->|Answer| USER
 ```
 
+## Messaging
+
+### Notifications
+
+Live updates and notifications are handled using SSE (Server-Sent Events) via Redis for a PubSub queue.
+
+| Event Type              | Payload Example                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| `new_message`           | `{ type: 'new_message', conversationId: '123', sender: 'provider', content: 'Hello!' }` |
+| `system_notification`   | `{ type: 'system_notification', content: 'Your profile is incomplete' }`       |
+| `appointment_reminder` | `{ type: 'appointment_reminder', appointmentId: '456', time: '2025-02-20T10:00:00Z' }` |
+
+### Usage
+
+To notify users when a new message is saved, you can implement a function that publishes an event to the Redis PubSub queue. This function should be called after successfully saving the message in the database.
+
+```python
+def notify_on_message_save(msg, recipient):
+    # After storing the message successfully
+    if success and msg_obj:
+        event = {
+            "type": "new_message",
+            "conversation_id": conversation_id,
+            "sender": "Dr. Smith",  # Or look up sender
+            "text": message_text,
+            "timestamp": str(msg_obj.created_at)
+        }
+        # Notify recipient
+        for participant_id in conversation.participant_ids:
+            if participant_id != current_user_id:
+                publish_event(participant_id, event)
+```
+
+```python
+def send_appointment_reminder():
+    publish_event(user_id=42, event_data={
+        "type": "appointment_reminder",
+        "time": "2025-07-11T10:00:00Z",
+        "content": "Annual checkup"
+    })
+```
+
+### Running Redis Locally
+
+To run Redis locally, you can use Docker:
+
+```bash
+docker run --name redis -d -p 6379:6379 redis:latest
+```
+
+Then, you can connect to it using a Redis client library in your application.
+
+### Testing
+
+`{USER_ID}` is the user ID of the recipient, which can be obtained from your user management system or database.
+
+It looks something like `User:8jz38zk55xaboplbo9at`.
+
+```shell
+# Send a test message
+python test/send_notification.py {USER_ID} new_message "Hello from CLI!"
+
+# Send an appointment reminder
+python test/send_notification.py {USER_ID} appointment_reminder "Your appointment is tomorrow"
+
+# Send a system notification
+python test/send_notification.py {USER_ID} system_notification "System maintenance scheduled"
+```
 
 ## How to Use
 
@@ -320,3 +388,43 @@ Integration with External Data: To fill out a large knowledge graph, you can loo
 3. Navigate to the URL. Something like this: http://127.0.0.1:6274/#tools
 4. Enter the URL: http://127.0.0.1:9000/mcp.
 5. Click "Connect" to view the available tools.
+
+## API Integrations
+
+### Optimal
+
+[Optimal](https://optimal.apphosting.services) is an API for mathematical optimization-as-a-service. It is actually another project of mine.
+
+The use case implemented here is for individuals (patients or healthcare providers) to mathematically calculate an optimal diet for a particular condition. The first example provided is for managing hypertension.
+
+## Documentation
+
+To generate docs: `sphinx-apidoc -o docs/source/api lib`.
+To build the docs: `sphinx-build -b html docs/source docs/_build/html`.
+
+To test before build: `sphinx-build -v -b html docs docs/_build/html`.
+
+### TODO
+
+WARNING: autodoc: failed to import module 'mcp_server' from module 'llm.mcp'; the following exception was raised:
+No module named 'trees' [autodoc.import_object]
+WARNING: autodoc: failed to import module 'trees' from module 'llm.mcp'; the following exception was raised:
+No module named 'mcp_init' [autodoc.import_object]
+
+## MyPy
+
+mypy --explicit-package-bases lib settings.py
+
+### Some Notes on Edge Cases
+
+I tried to limit my use of `# type: ignore` as much as possible, but I encountered a few edge cases that were more trouble than the static typing was worth (for the time being, at least).
+
+Some of those cases:
+* SurrealDB controller methods with ambiguous signatures.
+* Flask `session` object.
+* The `Faker` library.
+* And a few other very isolated cases.
+
+If time permits, I will return to these, but there is so much more value to be gained elsewhere.
+
+As for `disable_error_code = no-any-return`, this one I will likely be returning to sooner than later.

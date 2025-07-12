@@ -19,3 +19,22 @@ export interface Conversation {
   participantId?: string;
   isAI?: boolean;
 }
+
+export interface EncounterType {
+  note_id?: string;
+  date_created?: string;
+  provider_id?: string;
+  note_text?: string;
+  diagnostic_codes?: string[];
+  status?: string;
+  patient?: PatientType;
+  score?: number;
+  highlighted_note?: string;
+}
+
+export interface SOAPNotesType {
+  subjective?: string;
+  objective?: string;
+  assessment?: string;
+  plan?: string;
+}

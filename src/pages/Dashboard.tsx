@@ -5,10 +5,11 @@ import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
 import SignupPopup from '../components/SignupPopup';
 import { useUser } from '../components/UserContext';
-import API_URL from '../env_vars';
+import { API_URL } from '../env_vars';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import apiService from '../services/api';
 import authService from '../services/auth';
+import logger from '../services/logging';
 
 const Panel1 = () => {
   const [currentTime, setCurrentTime] = useState(0);
@@ -208,13 +209,13 @@ const Dashboard = () => {
   const [usersExist, setUsersExist] = useState<boolean | null>(null);
 
   // Debug logging
-  console.log('Dashboard render - user:', user);
-  console.log('Dashboard render - isAuthenticated:', isAuthenticated);
-  console.log('Dashboard render - userLoading:', userLoading);
+  logger.debug('Dashboard render - user:', user);
+  logger.debug('Dashboard render - isAuthenticated:', isAuthenticated);
+  logger.debug('Dashboard render - userLoading:', userLoading);
 
   // Track authentication state changes
   useEffect(() => {
-    console.log('Dashboard - Authentication state changed:', {
+    logger.debug('Dashboard - Authentication state changed:', {
       user,
       isAuthenticated,
       userLoading,
@@ -237,7 +238,7 @@ const Dashboard = () => {
   }, []);
 
   const handleLogin = (userData: UserData): void => {
-    console.log('Dashboard handleLogin called with:', userData);
+    logger.debug('Dashboard handleLogin called with:', userData);
     const userForContext = {
       id: userData.id.toString(),
       username: userData.username,
@@ -246,17 +247,17 @@ const Dashboard = () => {
       last_name: userData.last_name,
       role: userData.role,
     };
-    console.log('Setting user in context:', userForContext);
+    logger.debug('Setting user in context:', userForContext);
     setUser(userForContext);
-    console.log('User set in context successfully');
+    logger.debug('User set in context successfully');
 
     // Close the popup after successful login
     hideSignupPopup();
-    console.log('Signup popup closed after login');
+    logger.debug('Signup popup closed after login');
   };
 
   const handleRegister = (userData: UserData): void => {
-    console.log('Dashboard handleRegister called with:', userData);
+    logger.debug('Dashboard handleRegister called with:', userData);
     const userForContext = {
       id: userData.id.toString(),
       username: userData.username,
@@ -265,20 +266,20 @@ const Dashboard = () => {
       last_name: userData.last_name,
       role: userData.role,
     };
-    console.log('Setting user in context:', userForContext);
+    logger.debug('Setting user in context:', userForContext);
     setUser(userForContext);
-    console.log('User set in context successfully');
+    logger.debug('User set in context successfully');
 
     // Close the popup after successful registration
     hideSignupPopup();
-    console.log('Signup popup closed after registration');
+    logger.debug('Signup popup closed after registration');
   };
 
   const handleLogout = async () => {
-    console.log('Dashboard handleLogout called');
+    logger.debug('Dashboard handleLogout called');
     await authService.logout();
     setUser(null);
-    console.log('User cleared from context');
+    logger.debug('User cleared from context');
   };
 
   const handleSetupAdmin = async () => {
@@ -291,7 +292,7 @@ const Dashboard = () => {
   };
 
   if (userLoading) {
-    console.log('Dashboard - showing loading state');
+    logger.debug('Dashboard - showing loading state');
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
@@ -301,7 +302,7 @@ const Dashboard = () => {
   }
 
   if (isAuthenticated && user) {
-    console.log('Dashboard - showing authenticated dashboard');
+    logger.debug('Dashboard - showing authenticated dashboard');
     return (
       <>
         <AuthenticatedDashboard user={user} onLogout={handleLogout} />
@@ -310,8 +311,8 @@ const Dashboard = () => {
     );
   }
 
-  console.log('Dashboard - showing public dashboard');
-  console.log('Dashboard - popup state:', { isPopupOpen, showLogin });
+  logger.debug('Dashboard - showing public dashboard');
+  logger.debug('Dashboard - popup state:', { isPopupOpen, showLogin });
   return (
     <>
       <PublicDashboard showSignupPopup={showSignupPopup} />
