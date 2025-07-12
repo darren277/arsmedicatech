@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { MdArrowBack, MdArrowForward, MdWarning } from 'react-icons/md';
 import { useParams } from 'react-router-dom';
-import API_URL from '../env_vars';
+import { API_URL } from '../env_vars';
 import logger from '../services/logging';
 import {
   Button,

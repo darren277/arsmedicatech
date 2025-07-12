@@ -5,7 +5,7 @@ import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
 import SignupPopup from '../components/SignupPopup';
 import { useUser } from '../components/UserContext';
-import API_URL from '../env_vars';
+import { API_URL } from '../env_vars';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import apiService from '../services/api';
 import authService from '../services/auth';

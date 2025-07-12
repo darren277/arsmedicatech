@@ -1,4 +1,4 @@
-import API_URL from '../env_vars';
+import { API_URL } from '../env_vars';
 
 class AuthService {
   token: string | null;

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import API_URL from '../env_vars';
+import { API_URL } from '../env_vars';
 import logger from '../services/logging';
 
 interface EventCallbacks {
