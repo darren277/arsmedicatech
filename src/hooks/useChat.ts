@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import apiService from '../services/api';
+import logger from '../services/logging';
 import { Conversation } from '../types';
 
 const DUMMY_CONVERSATIONS: Conversation[] = [
@@ -69,11 +70,11 @@ function useChat(isLLM = false) {
       try {
         let data;
         if (isLLM) {
-          data = await apiService.getLLMChatHistory();
+          data = await apiService.getLLMChatHistory('ai-assistant');
         } else {
           data = await apiService.getUserConversations();
         }
-        console.log('Fetched conversations:', data);
+        logger.debug('Fetched conversations:', data);
 
         // Transform the data to match the frontend format
         if (data && Array.isArray(data)) {
@@ -120,7 +121,7 @@ function useChat(isLLM = false) {
     participantAvatar: string,
     isAI: boolean = false
   ) => {
-    console.log(
+    logger.debug(
       '[DEBUG] Creating new conversation with participantId:',
       participantId
     );
@@ -129,7 +130,7 @@ function useChat(isLLM = false) {
     // For AI conversations, we use a timestamp
     const conversationId = isAI ? Date.now() : participantId;
 
-    console.log('[DEBUG] Using conversation ID:', conversationId);
+    logger.debug('Using conversation ID:', conversationId);
 
     const newConversation: Conversation = {
       id: conversationId,
@@ -154,8 +155,11 @@ function useChat(isLLM = false) {
     try {
       if (isLLM) {
         // For LLM chat, send the message to the LLM endpoint using apiService
-        const llmResponse = await apiService.sendLLMMessage(newMessage);
-        console.log('LLM Response:', llmResponse);
+        const llmResponse = await apiService.sendLLMMessage(
+          'ai-assistant',
+          newMessage
+        );
+        logger.debug('LLM Response:', llmResponse);
 
         // Add both user message and LLM response to the conversation
         const updatedConversations = conversations.map(conv => {

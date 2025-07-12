@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import authService from '../services/auth';
+import logger from '../services/logging';
 
 export interface User {
   id: string;
@@ -32,8 +33,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // Debug logging for state changes
   useEffect(() => {
-    console.log('UserContext - user state changed:', user);
-    console.log('UserContext - isAuthenticated state changed:', !!user);
+    logger.debug('UserContext - user state changed:', user);
+    logger.debug('UserContext - isAuthenticated state changed:', !!user);
   }, [user]);
 
   useEffect(() => {
@@ -51,10 +52,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const setUserWithLogging = (newUser: User | null) => {
-    console.log('UserContext - setUser called with:', newUser);
+    logger.debug('UserContext - setUser called with:', newUser);
     setUser(newUser);
     setIsAuthenticated(!!newUser);
-    console.log('UserContext - isAuthenticated set to:', !!newUser);
+    logger.debug('UserContext - isAuthenticated set to:', !!newUser);
   };
 
   return (

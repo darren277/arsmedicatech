@@ -1,15 +1,20 @@
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { Notification } from '../hooks/useNotifications';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import authService from '../services/auth';
-import { ProfilePanel } from './ProfilePanel';
-import SearchBox from './SearchBox';
+import NotificationIndicator from './NotificationIndicator';
 import SignupPopup from './SignupPopup';
+import './Topbar.css';
 import { useUser } from './UserContext';
 
 interface Props {
-  query: string;
-  onQueryChange(q: string): void;
-  results: any[];
-  loading: boolean;
+  // Notification props
+  unreadCount: number;
+  recentNotifications: Notification[];
+  onMarkAsRead: (id: string) => void;
+  onMarkAllAsRead: () => void;
+  onClearNotification: (id: string) => void;
+  onClearAll: () => void;
 }
 
 export default function Topbar(props: Props) {
@@ -28,33 +33,41 @@ export default function Topbar(props: Props) {
   return (
     <>
       <header className="topbar">
-        <div className="search-container">
-          <SearchBox
-            value={props.query}
-            onChange={props.onQueryChange}
-            loading={props.loading}
-          />
-        </div>
-
-        <div className="auth-status">
-          {isAuthenticated && user ? (
-            <ProfilePanel
-              user={{
-                name:
-                  `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
-                  user.username,
-                role: user.role,
-              }}
-              onLogout={handleLogout}
+        <div className="topbar-actions">
+          {/* Notification Indicator */}
+          {isAuthenticated && (
+            <NotificationIndicator
+              unreadCount={props.unreadCount}
+              recentNotifications={props.recentNotifications}
+              onMarkAsRead={props.onMarkAsRead}
+              onMarkAllAsRead={props.onMarkAllAsRead}
+              onClearNotification={props.onClearNotification}
+              onClearAll={props.onClearAll}
             />
-          ) : (
-            <div className="guest-auth">
-              <span className="guest-label">Guest User</span>
-              <button onClick={showSignupPopup} className="auth-button">
-                Sign Up / Login
-              </button>
-            </div>
           )}
+
+          <div className="auth-status">
+            {isAuthenticated && user ? (
+              <div className="profile-container">
+                <span className="user-name">
+                  {`${user.first_name || ''} ${user.last_name || ''}`.trim() ||
+                    user.username}
+                </span>
+                <span className="user-role">{user.role}</span>
+                <button onClick={handleLogout} className="logout-button">
+                  <ArrowRightOnRectangleIcon className="logout-icon" />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="guest-auth">
+                <span className="guest-label">Guest User</span>
+                <button onClick={showSignupPopup} className="auth-button">
+                  Sign Up / Login
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
       <SignupPopup isOpen={isPopupOpen} onClose={hideSignupPopup} />
