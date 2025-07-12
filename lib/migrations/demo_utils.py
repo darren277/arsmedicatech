@@ -1,7 +1,7 @@
 """
 Utility functions and factories for generating demo data for encounters and patients.
 """
-from typing import List
+from typing import List, Optional
 
 from faker import Faker
 import factory
@@ -96,7 +96,7 @@ class Encounter:
             note_id: int,
             date_created: str,
             provider_id: int,
-            note_text: str = None,
+            note_text: Optional[str] = None,
             diagnostic_codes: List[str] = None,
     ) -> None:
         """

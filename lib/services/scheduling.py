@@ -55,8 +55,8 @@ class SchedulingService:
             start_time: str,
             end_time: str,
             appointment_type: str = "consultation",
-            notes: str = None,
-            location: str = None
+            notes: Optional[str] = None,
+            location: Optional[str] = None
     ) -> Tuple[bool, str, Optional[Appointment]]:
         """
         Create a new appointment
@@ -138,7 +138,7 @@ class SchedulingService:
             logger.error(f"Error getting appointment: {e}")
             return None
     
-    def get_appointments_by_date(self, date: str, provider_id: str = None) -> List[Appointment]:
+    def get_appointments_by_date(self, date: str, provider_id: Optional[str] = None) -> List[Appointment]:
         """
         Get appointments for a specific date
 
@@ -197,7 +197,7 @@ class SchedulingService:
             logger.error(f"Error getting appointments by patient: {e}")
             return []
     
-    def get_appointments_by_provider(self, provider_id: str, start_date: str = None, end_date: str = None) -> List[Appointment]:
+    def get_appointments_by_provider(self, provider_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> List[Appointment]:
         """
         Get appointments for a provider within a date range
 
@@ -331,7 +331,7 @@ class SchedulingService:
         except Exception as e:
             return False, f"Error updating appointment: {str(e)}"
     
-    def cancel_appointment(self, appointment_id: str, reason: str = None) -> Tuple[bool, str]:
+    def cancel_appointment(self, appointment_id: str, reason: Optional[str] = None) -> Tuple[bool, str]:
         """
         Cancel an appointment
 
@@ -451,7 +451,7 @@ class SchedulingService:
             logger.error(f"Error getting available slots: {e}")
             return []
     
-    def _check_time_conflict(self, provider_id: str, date: str, start_time: str, end_time: str, exclude_id: str = None) -> Optional[str]:
+    def _check_time_conflict(self, provider_id: str, date: str, start_time: str, end_time: str, exclude_id: Optional[str] = None) -> Optional[str]:
         """
         Check for time conflicts with existing appointments
 

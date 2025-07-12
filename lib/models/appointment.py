@@ -43,11 +43,11 @@ class Appointment:
             end_time: str,
             appointment_type: str = "consultation",
             status: str = "scheduled",
-            notes: str = None,
-            location: str = None,
-            id: str = None,
-            created_at: str = None,
-            updated_at: str = None
+            notes: Optional[str] = None,
+            location: Optional[str] = None,
+            id: Optional[str] = None,
+            created_at: Optional[str] = None,
+            updated_at: Optional[str] = None
     ) -> None:
         """
         Initialize an Appointment object

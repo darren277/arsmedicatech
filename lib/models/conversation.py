@@ -13,9 +13,9 @@ class Conversation:
             self,
             participants: List[str],
             conversation_type: str = "user_to_user",
-            created_at: str = None,
-            id: str = None,
-            last_message_at: str = None
+            created_at: Optional[str] = None,
+            id: Optional[str] = None,
+            last_message_at: Optional[str] = None
     ) -> None:
         """
         Initialize a Conversation object
@@ -109,8 +109,8 @@ class Message:
             conversation_id: str,
             sender_id: str,
             text: str,
-            created_at: str = None,
-            id: str = None,
+            created_at: Optional[str] = None,
+            id: Optional[str] = None,
             is_read: bool = False
     ) -> None:
         """

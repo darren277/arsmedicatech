@@ -16,10 +16,10 @@ class UserSettings:
     def __init__(
             self,
             user_id: str,
-            openai_api_key: str = None,
-            created_at: str = None,
-            updated_at: str = None,
-            id: str = None
+            openai_api_key: Optional[str] = None,
+            created_at: Optional[str] = None,
+            updated_at: Optional[str] = None,
+            id: Optional[str] = None
     ) -> None:
         """
         Initialize user settings

@@ -3,7 +3,7 @@ LLM Agent Module
 """
 import enum
 import json
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 
 import openai
 from openai import OpenAI
@@ -39,7 +39,7 @@ class LLMModel(enum.Enum):
 async def process_tool_call(
         tool_call: ToolCall,
         tool_dict: Dict[str, Callable],
-        session_id: str = None
+        session_id: Optional[str] = None
     ) -> Dict[str, str]:
     """
     Process a tool call from the LLM and execute the corresponding function.
@@ -71,9 +71,9 @@ class LLMAgent:
     """
     def __init__(
             self,
-            custom_llm_endpoint: str = None,
+            custom_llm_endpoint: Optional[str] = None,
             model: LLMModel = LLMModel.GPT_4_1_NANO,
-            api_key: str = None,
+            api_key: Optional[str] = None,
             system_prompt: str = DEFAULT_SYSTEM_PROMPT,
             **params: Dict[str, str]  # Additional parameters for the agent (e.g., temperature, max_tokens, etc.
     ) -> None:
@@ -151,7 +151,7 @@ class LLMAgent:
     def from_dict(
             cls,
             data: Dict[str, str],
-            api_key: str = None,
+            api_key: Optional[str] = None,
             tool_definitions: List[ToolDefinition] = None,
             tool_func_dict: Dict[str, Callable] = None
     ) -> 'LLMAgent':

@@ -1,6 +1,8 @@
 """
 Synchronous and Asynchronous SurrealDB Controller
 """
+from typing import Optional
+
 from settings import logger
 
 
@@ -11,11 +13,11 @@ class DbController:
     """
     def __init__(
             self,
-            url: str = None,
-            namespace: str = None,
-            database: str = None,
-            user: str = None,
-            password: str = None
+            url: Optional[str] = None,
+            namespace: Optional[str] = None,
+            database: Optional[str] = None,
+            user: Optional[str] = None,
+            password: Optional[str] = None
     ) -> None:
         """
         Initialize a synchronous DB controller for SurrealDB
@@ -254,11 +256,11 @@ class AsyncDbController:
     Asynchronous DB controller for SurrealDB
     """
     def __init__(self,
-                 url: str = None,
-                 namespace: str = None,
-                 database: str = None,
-                 user: str = None,
-                 password: str = None
+                 url: Optional[str] = None,
+                 namespace: Optional[str] = None,
+                 database: Optional[str] = None,
+                 user: Optional[str] = None,
+                 password: Optional[str] = None
          ) -> None:
         """
         Initialize an asynchronous DB controller for SurrealDB

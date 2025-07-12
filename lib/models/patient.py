@@ -1,7 +1,7 @@
 """
 Patient and Encounter Models for SurrealDB
 """
-from typing import Tuple
+from typing import Tuple, Optional
 
 from lib.db.surreal import DbController, AsyncDbController
 from settings import logger
@@ -14,13 +14,13 @@ class Patient:
     def __init__(
             self,
             demographic_no: str,
-            first_name: str = None,
-            last_name: str  = None,
-            date_of_birth: str = None,
+            first_name: Optional[str] = None,
+            last_name: Optional[str] = None,
+            date_of_birth: Optional[str] = None,
             location: Tuple[str, str, str, str] = None,
             sex: chr = None,
-            phone: str = None,
-            email: str = None
+            phone: Optional[str] = None,
+            email: Optional[str] = None
     ) -> None:
         """
         Initializes a Patient instance.
@@ -129,7 +129,7 @@ class Encounter:
             date_created,
             provider_id,
             soap_notes: SOAPNotes = None,
-            additional_notes: str = None,
+            additional_notes: Optional[str] = None,
             diagnostic_codes: [str] = None
     ) -> None:
         """

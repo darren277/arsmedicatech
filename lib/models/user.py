@@ -19,17 +19,17 @@ class User:
             self,
             username: str,
             email: str,
-            password: str = None,
-            first_name: str = None,
-            last_name: str = None,
+            password: Optional[str] = None,
+            first_name: Optional[str] = None,
+            last_name: Optional[str] = None,
             role: str = "patient",
             is_active: bool = True,
-            created_at: str = None,
-            id: str = None,
-            specialty: str = None,
-            clinic_name: str = None,
-            clinic_address: str = None,
-            phone: str = None
+            created_at: Optional[str] = None,
+            id: Optional[str] = None,
+            specialty: Optional[str] = None,
+            clinic_name: Optional[str] = None,
+            clinic_address: Optional[str] = None,
+            phone: Optional[str] = None
     ) -> None:
         """
         Initialize a User object
@@ -311,8 +311,8 @@ class UserSession:
             user_id: str,
             username: str,
             role: str,
-            created_at: str = None,
-            expires_at: str = None
+            created_at: Optional[str] = None,
+            expires_at: Optional[str] = None
     ) -> None:
         """
         Initialize a UserSession object
