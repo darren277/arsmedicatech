@@ -69,11 +69,6 @@ import os
 import sys
 
 # Add the project root directory to sys.path
-print("[DEBUG] __file__:", __file__)
-print("[DEBUG] cwd:", os.getcwd())
-
-lib_path = os.path.abspath('../../lib')
-print("[DEBUG] Adding to sys.path:", lib_path)
-sys.path.insert(0, lib_path)
-
-import db  # Should not throw an error
+project_root = os.path.abspath('../..')
+sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.abspath('../../lib'))

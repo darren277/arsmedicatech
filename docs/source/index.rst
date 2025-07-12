@@ -18,3 +18,8 @@ documentation for details.
    app
    api/modules
 
+   OPENAI_SECURITY_README
+   PATIENT_CRUD_README
+   SSE_NOTIFICATIONS_README
+   USER_SETTINGS_README
+
