@@ -6,6 +6,7 @@ import PatientForm from './components/PatientForm';
 import { tourSteps } from './onboarding/tourSteps';
 import { EncounterDetail } from './pages/EncounterDetail';
 import { EncounterFormPage } from './pages/EncounterForm';
+import LabResults from './pages/LabResults';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
 
@@ -139,6 +140,7 @@ const router = createBrowserRouter([
       { path: 'schedule', element: <Schedule /> },
       { path: 'messages', element: <Messages /> },
       { path: 'settings', element: <Settings /> },
+      { path: 'lab-results', element: <LabResults /> },
     ],
     errorElement: <ErrorPage />,
   },

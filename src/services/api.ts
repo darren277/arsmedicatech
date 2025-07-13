@@ -234,6 +234,11 @@ class ApiService {
   async testSurrealDB(): Promise<any> {
     return this.getAPI('/test_surrealdb');
   }
+
+  // Lab Results API
+  async getLabResults(): Promise<any> {
+    return this.getAPI('/lab_results');
+  }
 }
 
 // Create a singleton instance

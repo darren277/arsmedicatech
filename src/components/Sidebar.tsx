@@ -38,14 +38,24 @@ const Sidebar = () => {
               )}
             </li>
           ) : (
-            <li>
-              <NavLink
-                to="/patients"
-                className={({ isActive }) => (isActive ? 'active' : '')}
-              >
-                Patients
-              </NavLink>
-            </li>
+            <>
+              <li>
+                <NavLink
+                  to="/patients"
+                  className={({ isActive }) => (isActive ? 'active' : '')}
+                >
+                  Patients
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/lab-results"
+                  className={({ isActive }) => (isActive ? 'active' : '')}
+                >
+                  Lab Results
+                </NavLink>
+              </li>
+            </>
           )}
           <li>
             <NavLink
