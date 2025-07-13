@@ -179,7 +179,7 @@ def get_webhook_subscriptions_route() -> Tuple[Response, int]:
                 query += " AND enabled = $enabled"
             else:
                 query += " WHERE enabled = $enabled"
-            params["enabled"] = enabled.lower() == 'true'
+            params["enabled"] = 'true' if enabled.lower() == 'true' else 'false'
         
         query += " ORDER BY created_at DESC"
         
