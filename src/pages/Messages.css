@@ -1,6 +1,8 @@
 .messages-container {
   display: flex;
-  height: calc(100vh - 60px); /* If you have a topbar of 60px, adjust as needed */
+  height: calc(
+    100vh - 60px
+  ); /* If you have a topbar of 60px, adjust as needed */
   overflow: hidden; /* Prevent the page from scrolling horizontally */
 }
 
@@ -205,6 +207,10 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
