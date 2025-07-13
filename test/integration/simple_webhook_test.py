@@ -3,11 +3,13 @@ Simple Webhook Test Script
 
 This script provides a simple way to test the webhook system.
 """
-import requests
 import time
 from datetime import datetime, timedelta
 
-from settings import DEMO_ADMIN_USERNAME, DEMO_ADMIN_PASSWORD
+import requests
+
+from settings import DEMO_ADMIN_PASSWORD, DEMO_ADMIN_USERNAME
+
 
 def test_webhook_system():
     """Test the webhook system with a simple flow"""
@@ -100,4 +102,4 @@ def test_webhook_system():
 
 
 if __name__ == "__main__":
-    test_webhook_system() 
+    test_webhook_system()
