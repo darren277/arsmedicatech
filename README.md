@@ -93,7 +93,14 @@ ArsMedicaTech is built to support the evolving digital needs of healthcare. Its 
 
 This project is still in active development, and contributions are welcome. Whether you're a clinician, developer, designer, or informatician, there's room for you in the ArsMedicaTech community.
 
+See also: [`CONTRIBUTING.md`](./docs/source/CONTRIBUTING.md) for guidelines on how to contribute.
+
+Or, alternatively, another way to contribute is to [sponsor the project](./docs/source/DONATE.md) to help fund development and maintenance.
+
+But, most importantly of all at this early stage, simply expressing any interest, either openly in [our discussions section](https://github.com/darren277/arsmedicatech/discussions), or privately via email ([see profile](https://github.com/darren277)), would be a major start.
+
 ---
+
 ## 🛡️ License & Reciprocity
 
 ArsMedicaTech is released under the **GNU Affero General Public License v3 (AGPL-3.0-or-later)**.  
