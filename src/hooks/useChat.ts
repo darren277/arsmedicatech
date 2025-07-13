@@ -59,8 +59,8 @@ function useChat(isLLM = false) {
   const [conversations, setConversations] =
     useState<Conversation[]>(DUMMY_CONVERSATIONS);
   const [selectedConversationId, setSelectedConversationId] = useState<
-    number | string
-  >(conversations[0]?.id || 1);
+    number | string | null
+  >(conversations[0]?.id || null);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -94,11 +94,13 @@ function useChat(isLLM = false) {
           }
         } else {
           setConversations([]);
+          setSelectedConversationId(null);
         }
       } catch (error) {
         console.error('Error fetching conversations:', error);
         // Fallback to empty array if fetch fails
         setConversations([]);
+        setSelectedConversationId(null);
       }
     };
 
@@ -110,7 +112,7 @@ function useChat(isLLM = false) {
     conv => conv.id === selectedConversationId
   );
 
-  const handleSelectConversation = (id: number | string): void => {
+  const handleSelectConversation = (id: number | string | null): void => {
     setSelectedConversationId(id);
     setNewMessage('');
   };
