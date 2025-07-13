@@ -7,6 +7,7 @@ import { tourSteps } from './onboarding/tourSteps';
 import { EncounterDetail } from './pages/EncounterDetail';
 import { EncounterFormPage } from './pages/EncounterForm';
 import LabResults from './pages/LabResults';
+import OptimalTableDemo from './pages/OptimalTableDemo';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
 
@@ -141,6 +142,7 @@ const router = createBrowserRouter([
       { path: 'messages', element: <Messages /> },
       { path: 'settings', element: <Settings /> },
       { path: 'lab-results', element: <LabResults /> },
+      { path: 'optimal-table-demo', element: <OptimalTableDemo /> },
     ],
     errorElement: <ErrorPage />,
   },
