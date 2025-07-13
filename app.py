@@ -55,6 +55,7 @@ from lib.routes.webhooks import (create_webhook_subscription_route,
                                  update_webhook_subscription_route)
 from lib.event_handlers import register_event_handlers
 from settings import DEBUG, FLASK_SECRET_KEY, HOST, PORT, SENTRY_DSN, logger
+from lib.services.lab_results import LabResultsService, hematology, differential_hematology, general_chemistry, serum_proteins
 
 #from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -739,6 +740,20 @@ def get_webhook_events() -> Tuple[Response, int]:
     """
     return get_webhook_events_route()
 
+@app.route('/api/lab_results', methods=['GET'])
+@require_auth
+def get_lab_results() -> Tuple[Response, int]:
+    """
+    Get lab results for the authenticated user.
+    :return: Response object with lab results data.
+    """
+    lab_results_service: LabResultsService = LabResultsService(
+        hematology=hematology,
+        differential_hematology=differential_hematology,
+        general_chemistry=general_chemistry,
+        serum_proteins=serum_proteins,
+    )
+    return jsonify(lab_results_service.lab_results), 200
 
 # Register event handlers for webhook delivery
 register_event_handlers()
