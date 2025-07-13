@@ -46,8 +46,8 @@ from lib.routes.users import (activate_user_route, change_password_route,
                               logout_route, register_route, search_users_route,
                               settings_route, setup_default_admin_route,
                               update_user_profile_route)
-from lib.services.auth_decorators import (optional_auth, require_admin,
-                                          require_auth)
+from lib.services.auth_decorators import (optional_auth, require_admin, require_api_key,
+                                          require_api_permission, require_auth)
 from lib.services.notifications import publish_event_with_buffer
 from lib.services.redis_client import get_redis_connection
 from settings import DEBUG, FLASK_SECRET_KEY, HOST, PORT, SENTRY_DSN, logger
@@ -457,6 +457,8 @@ def search_patients() -> Tuple[Response, int]:
 # Encounter endpoints
 @app.route('/api/encounters', methods=['GET'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:read')
 def get_all_encounters() -> Tuple[Response, int]:
     """
     Get all encounters in the system.
@@ -466,6 +468,8 @@ def get_all_encounters() -> Tuple[Response, int]:
 
 @app.route('/api/encounters/search', methods=['GET'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:read')
 def search_encounters() -> Tuple[Response, int]:
     """
     Search for encounters in the system.
@@ -475,6 +479,8 @@ def search_encounters() -> Tuple[Response, int]:
 
 @app.route('/api/patients/<patient_id>/encounters', methods=['GET'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:read')
 def get_patient_encounters(patient_id: str) -> Tuple[Response, int]:
     """
     Get all encounters for a specific patient.
@@ -485,6 +491,8 @@ def get_patient_encounters(patient_id: str) -> Tuple[Response, int]:
 
 @app.route('/api/encounters/<encounter_id>', methods=['GET'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:read')
 def get_encounter(encounter_id: str) -> Tuple[Response, int]:
     """
     Get a specific encounter by its ID.
@@ -495,6 +503,8 @@ def get_encounter(encounter_id: str) -> Tuple[Response, int]:
 
 @app.route('/api/patients/<patient_id>/encounters', methods=['POST'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:write')
 def create_patient_encounter(patient_id: str) -> Tuple[Response, int]:
     """
     Create a new encounter for a specific patient.
@@ -505,6 +515,8 @@ def create_patient_encounter(patient_id: str) -> Tuple[Response, int]:
 
 @app.route('/api/encounters/<encounter_id>', methods=['PUT'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:write')
 def update_encounter(encounter_id: str) -> Tuple[Response, int]:
     """
     Update an existing encounter by its ID.
@@ -515,6 +527,8 @@ def update_encounter(encounter_id: str) -> Tuple[Response, int]:
 
 @app.route('/api/encounters/<encounter_id>', methods=['DELETE'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:write')
 def delete_encounter(encounter_id: str) -> Tuple[Response, int]:
     """
     Delete an existing encounter by its ID.
