@@ -2,7 +2,7 @@
 Authentication decorators for Flask routes.
 """
 from functools import wraps
-from typing import Any, Callable, Optional, TypeVar, cast
+from typing import Any, Callable, Optional, TypeVar, cast, List
 
 from flask import g, jsonify, request, session
 
@@ -194,7 +194,9 @@ def optional_auth(f: F) -> F:
             finally:
                 user_service.close()
 
-        return cast(F, decorated_function)
+        return f(*args, **kwargs)
+
+    return cast(F, decorated_function)
 
     return cast(F, decorated_function)
 
