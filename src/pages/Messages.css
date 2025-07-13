@@ -98,6 +98,18 @@
   margin: 0;
 }
 
+.no-conversations {
+  padding: 40px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.no-conversations p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 /* --- Chat Window (Right) --- */
 .chat-window {
   flex: 1;
@@ -188,6 +200,15 @@
   cursor: not-allowed;
 }
 
+.no-conversation-selected {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #666;
+  font-size: 16px;
+}
+
 .loading-indicator {
   display: flex;
   align-items: center;
@@ -204,6 +225,62 @@
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-left: 8px;
+}
+
+/* --- Authentication Required UI --- */
+.auth-required-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 60px);
+  background-color: #f8f9fa;
+}
+
+.auth-required-content {
+  text-align: center;
+  background-color: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+}
+
+.auth-required-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.auth-required-content h2 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.auth-required-content p {
+  margin: 0 0 24px 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+.auth-required-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.auth-required-button:hover {
+  background-color: #0056b3;
+}
+
+.auth-required-button:active {
+  transform: translateY(1px);
 }
 
 @keyframes spin {

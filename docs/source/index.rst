@@ -15,11 +15,16 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
+   MANIFESTO
+   ETHICS
+   CONTRIBUTING
+   DONATE
+
    app
    api/modules
 
-   OPENAI_SECURITY_README
    PATIENT_CRUD_README
+   OPENAI_SECURITY_README
    SSE_NOTIFICATIONS_README
    USER_SETTINGS_README
 

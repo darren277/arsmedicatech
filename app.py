@@ -404,7 +404,7 @@ def chat_endpoint() -> Tuple[Response, int]:
         return jsonify({"error": "Method not allowed"}), 405
 
 @app.route('/api/llm_chat', methods=['GET', 'POST'])
-@optional_auth
+@require_auth
 def llm_agent_endpoint() -> Tuple[Response, int]:
     """
     Endpoint for LLM agent interactions.
