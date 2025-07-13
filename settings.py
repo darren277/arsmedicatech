@@ -69,3 +69,5 @@ if not SENTRY_DSN:
     logger.error("SENTRY_DSN is not set. Sentry will not be initialized.")
     raise ValueError("SENTRY_DSN must be set in settings.py or environment variable")
 
+DEMO_ADMIN_USERNAME = os.environ.get('DEMO_ADMIN_USERNAME', 'admin')
+DEMO_ADMIN_PASSWORD = os.environ.get('DEMO_ADMIN_PASSWORD', 'admin')

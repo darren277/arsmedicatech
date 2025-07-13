@@ -7,6 +7,7 @@ import requests
 import time
 from datetime import datetime, timedelta
 
+from settings import DEMO_ADMIN_USERNAME, DEMO_ADMIN_PASSWORD
 
 def test_webhook_system():
     """Test the webhook system with a simple flow"""
@@ -30,7 +31,7 @@ def test_webhook_system():
     print("1. Logging in...")
     login_response = session.post(
         f"{base_url}/api/auth/login",
-        json={"username": "admin2", "password": "Kv$t26VUvuse;*7"}
+        json={"username": DEMO_ADMIN_USERNAME, "password": DEMO_ADMIN_PASSWORD}
     )
     
     if login_response.status_code != 200:
