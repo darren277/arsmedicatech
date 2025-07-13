@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 3012;
 
 module.exports = {
   entry: path.resolve(__dirname, '../src/index.tsx'),
@@ -28,7 +28,7 @@ module.exports = {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                config: path.resolve(__dirname, './postcss.config.js'), // 👈 explicit path
+                config: path.resolve(__dirname, './postcss.config.js'),
               },
             },
           },
