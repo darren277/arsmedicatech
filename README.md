@@ -2,6 +2,14 @@
 
 **ArsMedicaTech** is an integrated clinical platform designed to support a wide range of use cases across modern healthcare workflows. Combining a flexible backend architecture with cutting-edge AI tools and EMR interoperability, the project aims to deliver a unified, extensible interface for providers, patients, and researchers.
 
+**A note about interest in this project**: Right now it is still in early stages, and I contribute to it when I can, but if anyone stumbles upon this and finds that it has the potential to do a lot of good, I am willing to upscale my efforts.
+
+If anyone has any new ideas, suggestions, questions, would like to contribute, or would like to express even a general interest in the project, I can be reached via the e-mail address in my profile <https://github.com/darren277>.
+
+I also opened up the Discussions section for this repository for anyone who would like to suggest anything or express any interest at all.
+
+Also, check out <https://github.com/users/darren277/projects/1> to see what's currently being worked on and what's on the backlog.
+
 ---
 
 ## 🚀 Purpose & Vision
@@ -85,11 +93,39 @@ ArsMedicaTech is built to support the evolving digital needs of healthcare. Its 
 
 This project is still in active development, and contributions are welcome. Whether you're a clinician, developer, designer, or informatician, there's room for you in the ArsMedicaTech community.
 
+See also: [`CONTRIBUTING.md`](./docs/source/CONTRIBUTING.md) for guidelines on how to contribute.
+
+Or, alternatively, another way to contribute is to [sponsor the project](./docs/source/DONATE.md) to help fund development and maintenance.
+
+But, most importantly of all at this early stage, simply expressing any interest, either openly in [our discussions section](https://github.com/darren277/arsmedicatech/discussions), or privately via email ([see profile](https://github.com/darren277)), would be a major start.
+
 ---
 
-## 📄 License
+## 🛡️ License & Reciprocity
 
-***TBD** — Will be updated upon reaching MVP milestone.*
+ArsMedicaTech is released under the **GNU Affero General Public License v3 (AGPL-3.0-or-later)**.  
+⚖️  Any party that deploys a modified version as a network service **must publicly release its source code under the same license**.  
+This server-side copyleft keeps improvements transparent while ensuring patients retain freedom and auditability.
+
+> *Short version*: Use it, improve it, even run it commercially - but if you host or sell a modified edition you **must** give the community those changes.
+
+---
+
+## ❓ Commercial-Use FAQ (abridged)
+
+| Question | Answer                                                                                                                               |
+|----------|--------------------------------------------------------------------------------------------------------------------------------------|
+| **Can we run our own hosted instance for our clinic?** | Yes. Just leave the copyright headers intact and publish any code changes per AGPL §13.                                              |
+| **Can we charge patients or hospitals?** | We won’t police fair cost-recovery.  We do ask you keep fees **reasonable and non-exploitative**, and upstream your improvements.    |
+| **Can we rebrand and close-source extra features?** | No.  Any derivative network service must remain AGPL.  Proprietary forks violate the license.                                        |
+| **How can we give back?** | • Submit pull requests  • Fund upstream development (see [`DONATE.md`](./docs/source/DONATE.md))  • Offer pro-bono clinical feedback |
+
+---
+
+## ❤️ Supporting the Project
+
+This project is sustained by community donations rather than venture capital.  
+If ArsMedicaTech helps your patients or practice, please consider a small monthly sponsorship.  Details in [`DONATE.md`](./DONATE.md).
 
 ---
 
