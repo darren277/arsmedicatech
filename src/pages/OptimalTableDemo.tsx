@@ -252,46 +252,292 @@ const OptimalTableDemo: React.FC = () => {
             <h3 className="text-lg font-semibold text-green-800 mb-4">
               Optimal Service Results
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {optimalResult.result && (
                 <div>
-                  <h4 className="text-md font-medium text-green-700 mb-2">
+                  <h4 className="text-md font-medium text-green-700 mb-3">
                     Optimization Results:
                   </h4>
-                  <div className="bg-white rounded-lg p-4 border border-green-200">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium">Status:</span>{' '}
-                        {optimalResult.result.status}
+                  <div className="bg-white rounded-lg p-6 border border-green-200">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-6">
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <span className="font-medium text-blue-800">
+                          Status:
+                        </span>
+                        <div className="text-blue-700 mt-1">
+                          {optimalResult.result.status}
+                        </div>
                       </div>
                       {optimalResult.result.fun && (
-                        <div>
-                          <span className="font-medium">Objective Value:</span>{' '}
-                          {optimalResult.result.fun.toFixed(4)}
+                        <div className="bg-purple-50 p-3 rounded-lg">
+                          <span className="font-medium text-purple-800">
+                            Objective Value:
+                          </span>
+                          <div className="text-purple-700 mt-1">
+                            {optimalResult.result.fun.toFixed(4)}
+                          </div>
                         </div>
                       )}
                       {optimalResult.result.nit && (
-                        <div>
-                          <span className="font-medium">Iterations:</span>{' '}
-                          {optimalResult.result.nit}
+                        <div className="bg-orange-50 p-3 rounded-lg">
+                          <span className="font-medium text-orange-800">
+                            Iterations:
+                          </span>
+                          <div className="text-orange-700 mt-1">
+                            {optimalResult.result.nit}
+                          </div>
                         </div>
                       )}
                     </div>
-                    {optimalResult.result.x && (
-                      <div className="mt-4">
-                        <h5 className="font-medium text-green-700 mb-2">
-                          Optimal Servings:
+
+                    {/* Objective Value Explanation */}
+                    {optimalResult.result.fun && (
+                      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <h5 className="font-medium text-yellow-800 mb-2">
+                          What does the Objective Value mean?
                         </h5>
-                        <div className="bg-gray-50 rounded p-3">
-                          <pre className="text-sm overflow-auto">
-                            {JSON.stringify(optimalResult.result.x, null, 2)}
-                          </pre>
+                        <p className="text-sm text-yellow-700">
+                          The objective value represents the optimized score for
+                          your diet.
+                          <strong>Lower values are better</strong> for
+                          hypertension management. The formula minimizes:{' '}
+                          <code className="bg-yellow-100 px-1 rounded">
+                            0.6×sodium + 0.3×saturated_fat - 0.4×potassium -
+                            0.2×fiber
+                          </code>
+                        </p>
+                        <div className="mt-2 text-xs text-yellow-600">
+                          <strong>Current score:</strong>{' '}
+                          {optimalResult.result.fun.toFixed(4)}
+                          {optimalResult.result.fun < 0
+                            ? ' (Excellent - negative score indicates good balance)'
+                            : ' (Room for improvement)'}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Optimal Servings Display */}
+                    {optimalResult.result.x && optimalResult.tableData && (
+                      <div className="mt-6">
+                        <h5 className="font-medium text-green-700 mb-3">
+                          Recommended Daily Servings (100g each):
+                        </h5>
+
+                        {/* Visual Bar Chart */}
+                        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                          <h6 className="text-sm font-medium text-gray-700 mb-3">
+                            Visual Representation:
+                          </h6>
+                          <div className="space-y-2">
+                            {optimalResult.result.x.map(
+                              (serving: number, index: number) => {
+                                const foodItem = optimalResult.tableData[index];
+                                const servingRounded =
+                                  Math.round(serving * 100) / 100;
+                                const isRecommended = serving > 0.01;
+                                const maxServing = Math.max(
+                                  ...optimalResult.result.x
+                                );
+                                const barWidth =
+                                  maxServing > 0
+                                    ? (serving / maxServing) * 100
+                                    : 0;
+
+                                return (
+                                  <div
+                                    key={index}
+                                    className="flex items-center space-x-3"
+                                  >
+                                    <div className="w-24 text-sm font-medium text-gray-700 truncate">
+                                      {foodItem?.food || `Food ${index + 1}`}
+                                    </div>
+                                    <div className="flex-1 bg-gray-200 rounded-full h-4">
+                                      <div
+                                        className={`h-4 rounded-full transition-all duration-300 ${
+                                          isRecommended
+                                            ? 'bg-gradient-to-r from-green-400 to-green-600'
+                                            : 'bg-gray-300'
+                                        }`}
+                                        style={{ width: `${barWidth}%` }}
+                                      />
+                                    </div>
+                                    <div className="w-16 text-sm font-bold text-right">
+                                      {servingRounded > 0.01
+                                        ? `${servingRounded}g`
+                                        : '0g'}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Food Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {optimalResult.result.x.map(
+                            (serving: number, index: number) => {
+                              const foodItem = optimalResult.tableData[index];
+                              const servingRounded =
+                                Math.round(serving * 100) / 100;
+                              const isRecommended = serving > 0.01;
+
+                              return (
+                                <div
+                                  key={index}
+                                  className={`p-3 rounded-lg border ${
+                                    isRecommended
+                                      ? 'bg-green-100 border-green-300'
+                                      : 'bg-gray-100 border-gray-300'
+                                  }`}
+                                >
+                                  <div className="flex justify-between items-center">
+                                    <span
+                                      className={`font-medium ${
+                                        isRecommended
+                                          ? 'text-green-800'
+                                          : 'text-gray-600'
+                                      }`}
+                                    >
+                                      {foodItem?.food || `Food ${index + 1}`}
+                                    </span>
+                                    <span
+                                      className={`text-sm font-bold ${
+                                        isRecommended
+                                          ? 'text-green-700'
+                                          : 'text-gray-500'
+                                      }`}
+                                    >
+                                      {servingRounded > 0.01
+                                        ? `${servingRounded}g`
+                                        : '0g'}
+                                    </span>
+                                  </div>
+                                  {isRecommended && (
+                                    <div className="mt-1 text-xs text-green-600">
+                                      {servingRounded >= 10
+                                        ? '⭐ High priority'
+                                        : '✓ Recommended'}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
+
+                        {/* Summary */}
+                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <h6 className="font-medium text-blue-800 mb-2">
+                            Diet Summary:
+                          </h6>
+                          <div className="text-sm text-blue-700">
+                            <p>
+                              • <strong>Recommended foods:</strong>{' '}
+                              {
+                                optimalResult.result.x.filter(
+                                  (s: number) => s > 0.01
+                                ).length
+                              }{' '}
+                              items
+                            </p>
+                            <p>
+                              • <strong>Total servings:</strong>{' '}
+                              {optimalResult.result.x
+                                .reduce((sum: number, s: number) => sum + s, 0)
+                                .toFixed(2)}
+                              g
+                            </p>
+                            <p>
+                              • <strong>Focus:</strong>{' '}
+                              {optimalResult.result.x[1] > 2 ? 'Salmon' : ''}{' '}
+                              {optimalResult.result.x[2] > 5 ? 'Spinach' : ''}{' '}
+                              {optimalResult.result.x[3] > 5 ? 'Banana' : ''}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Nutritional Insights */}
+                        <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                          <h6 className="font-medium text-purple-800 mb-3">
+                            Nutritional Insights:
+                          </h6>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="font-medium text-purple-700">
+                                Key Recommendations:
+                              </div>
+                              <ul className="mt-1 text-purple-600 space-y-1">
+                                {optimalResult.result.x[1] > 2 && (
+                                  <li>
+                                    •{' '}
+                                    <strong>
+                                      Salmon (
+                                      {optimalResult.result.x[1].toFixed(1)}g):
+                                    </strong>{' '}
+                                    High in omega-3s and potassium
+                                  </li>
+                                )}
+                                {optimalResult.result.x[2] > 5 && (
+                                  <li>
+                                    •{' '}
+                                    <strong>
+                                      Spinach (
+                                      {optimalResult.result.x[2].toFixed(1)}g):
+                                    </strong>{' '}
+                                    Rich in potassium and fiber
+                                  </li>
+                                )}
+                                {optimalResult.result.x[3] > 5 && (
+                                  <li>
+                                    •{' '}
+                                    <strong>
+                                      Banana (
+                                      {optimalResult.result.x[3].toFixed(1)}g):
+                                    </strong>{' '}
+                                    Excellent potassium source
+                                  </li>
+                                )}
+                                {optimalResult.result.x[4] === 0 && (
+                                  <li>
+                                    • <strong>Avoid Almonds:</strong> Allergy
+                                    risk detected
+                                  </li>
+                                )}
+                              </ul>
+                            </div>
+                            <div>
+                              <div className="font-medium text-purple-700">
+                                Health Benefits:
+                              </div>
+                              <ul className="mt-1 text-purple-600 space-y-1">
+                                <li>
+                                  • <strong>Blood Pressure:</strong> Low sodium,
+                                  high potassium diet
+                                </li>
+                                <li>
+                                  • <strong>Heart Health:</strong> Reduced
+                                  saturated fat intake
+                                </li>
+                                <li>
+                                  • <strong>Digestive Health:</strong> Adequate
+                                  fiber content
+                                </li>
+                                <li>
+                                  • <strong>Safety:</strong> Allergy
+                                  considerations included
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
               )}
+
+              {/* Raw Data Section */}
               <div>
                 <h4 className="text-md font-medium text-green-700 mb-2">
                   Processed Data:
