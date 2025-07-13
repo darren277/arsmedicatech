@@ -1,12 +1,13 @@
 name: Deploy
 
-#on:
-#  push:
-#    branches:
-#      - main
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
+    if: false # temporarily disabling the job
     runs-on: ubuntu-latest
     env:
       ENCRYPTION_KEY: "test-encryption-key-for-ci-123456789"
