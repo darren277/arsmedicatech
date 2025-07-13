@@ -11,6 +11,7 @@ from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.dummy_data import DUMMY_CONVERSATIONS
+from lib.event_handlers import register_event_handlers
 from lib.routes.appointments import (cancel_appointment_route,
                                      confirm_appointment_route,
                                      create_appointment_route,
@@ -24,6 +25,7 @@ from lib.routes.chat import (create_conversation_route,
                              get_conversation_messages_route,
                              get_user_conversations_route, send_message_route)
 from lib.routes.llm_agent import llm_agent_endpoint_route
+from lib.routes.optimal import call_optimal_route
 from lib.routes.patients import (create_encounter_route,
                                  delete_encounter_route,
                                  get_all_encounters_route,
@@ -43,19 +45,21 @@ from lib.routes.users import (activate_user_route, change_password_route,
                               logout_route, register_route, search_users_route,
                               settings_route, setup_default_admin_route,
                               update_user_profile_route)
-from lib.services.auth_decorators import (optional_auth, require_admin,
-                                          require_auth)
-from lib.services.notifications import publish_event_with_buffer
-from lib.services.redis_client import get_redis_connection
 from lib.routes.webhooks import (create_webhook_subscription_route,
                                  delete_webhook_subscription_route,
                                  get_webhook_events_route,
                                  get_webhook_subscription_route,
                                  get_webhook_subscriptions_route,
                                  update_webhook_subscription_route)
-from lib.event_handlers import register_event_handlers
+from lib.services.auth_decorators import (optional_auth, require_admin,
+                                          require_auth)
+from lib.services.lab_results import (LabResultsService,
+                                      differential_hematology,
+                                      general_chemistry, hematology,
+                                      serum_proteins)
+from lib.services.notifications import publish_event_with_buffer
+from lib.services.redis_client import get_redis_connection
 from settings import DEBUG, FLASK_SECRET_KEY, HOST, PORT, SENTRY_DSN, logger
-from lib.services.lab_results import LabResultsService, hematology, differential_hematology, general_chemistry, serum_proteins
 
 #from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -754,6 +758,15 @@ def get_lab_results() -> Tuple[Response, int]:
         serum_proteins=serum_proteins,
     )
     return jsonify(lab_results_service.lab_results), 200
+
+@app.route('/api/optimal', methods=['POST'])
+@require_auth
+def call_optimal() -> Tuple[Response, int]:
+    """
+    Process the optimal table data and call the Optimal service.
+    :return: Response object with optimal table data.
+    """
+    return call_optimal_route()
 
 # Register event handlers for webhook delivery
 register_event_handlers()

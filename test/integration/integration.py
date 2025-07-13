@@ -1,5 +1,11 @@
 """"""
+import os
+import sys
+
 import requests
+
+# Add the project root to the Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from settings import OPTIMAL_KEY, OPTIMAL_URL, logger
 
