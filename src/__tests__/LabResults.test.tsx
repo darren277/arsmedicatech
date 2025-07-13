@@ -103,7 +103,7 @@ describe('LabResults Component', () => {
       expect(
         screen.getByText('Failed to load lab results. Please try again later.')
       ).toBeInTheDocument();
-      expect(screen.getByText('Retry')).toBeInTheDocument();
+      expect(screen.getByText('Try Again')).toBeInTheDocument();
     });
   });
 
