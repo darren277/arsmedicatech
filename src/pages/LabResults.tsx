@@ -36,7 +36,12 @@ const RangeVisualizer: React.FC<RangeVisualizerProps> = ({
 }) => {
   const [min, max] = range;
   const rangeWidth = max - min;
-  const resultPosition = ((result - min) / rangeWidth) * 100;
+
+  // Calculate position as percentage within the range
+  let resultPosition = 0;
+  if (rangeWidth > 0) {
+    resultPosition = ((result - min) / rangeWidth) * 100;
+  }
 
   // Clamp position between 0 and 100
   const clampedPosition = Math.max(0, Math.min(100, resultPosition));
@@ -44,30 +49,39 @@ const RangeVisualizer: React.FC<RangeVisualizerProps> = ({
   const isOutOfRange = result < min || result > max;
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-3">
       <div className="flex-1 relative">
-        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-          {/* Range bar */}
-          <div className="h-full bg-green-200 relative">
+        <div className="h-3 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
+          {/* Range bar with gradient */}
+          <div className="h-full bg-gradient-to-r from-green-300 to-green-400 relative">
             {/* Result indicator */}
             <div
-              className={`absolute top-0 h-full w-1 rounded-full transition-all duration-200 ${
-                isOutOfRange ? 'bg-red-500' : 'bg-blue-500'
+              className={`absolute top-0 h-full w-1.5 rounded-full transition-all duration-300 shadow-md ${
+                isOutOfRange ? 'bg-red-500' : 'bg-blue-600'
               }`}
               style={{ left: `${clampedPosition}%` }}
             />
+            {/* Range boundaries */}
+            <div className="absolute left-0 top-0 h-full w-0.5 bg-gray-600 opacity-50"></div>
+            <div className="absolute right-0 top-0 h-full w-0.5 bg-gray-600 opacity-50"></div>
           </div>
         </div>
         {/* Range labels */}
         <div className="flex justify-between text-xs text-gray-600 mt-1">
-          <span>{min}</span>
-          <span>{max}</span>
+          <span className="font-medium">{min}</span>
+          <span className="font-medium">{max}</span>
         </div>
       </div>
-      <span className="text-sm text-gray-700 min-w-[60px] text-right">
+      <div
+        className={`text-sm font-semibold min-w-[80px] text-right ${
+          isOutOfRange ? 'text-red-600' : 'text-green-600'
+        }`}
+      >
         {result}
-        {units && <span className="text-gray-500 ml-1">{units}</span>}
-      </span>
+        {units && (
+          <span className="text-gray-500 ml-1 font-normal">{units}</span>
+        )}
+      </div>
     </div>
   );
 };
@@ -81,18 +95,24 @@ const ResultStatusIndicator: React.FC<ResultStatusIndicatorProps> = ({
 
   if (!isOutOfRange) {
     return (
-      <div
-        className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"
-        title="Within normal range"
-      />
+      <div className="flex items-center space-x-2">
+        <div
+          className="w-4 h-4 bg-green-500 rounded-full flex-shrink-0 shadow-sm"
+          title="Within normal range"
+        />
+        <span className="text-xs text-green-600 font-medium">Normal</span>
+      </div>
     );
   }
 
   return (
-    <div
-      className="w-3 h-3 bg-red-500 rounded-full flex-shrink-0 animate-pulse"
-      title="Outside normal range"
-    />
+    <div className="flex items-center space-x-2">
+      <div
+        className="w-4 h-4 bg-red-500 rounded-full flex-shrink-0 animate-pulse shadow-sm"
+        title="Outside normal range"
+      />
+      <span className="text-xs text-red-600 font-medium">Abnormal</span>
+    </div>
   );
 };
 
@@ -112,52 +132,63 @@ const HoverModal: React.FC<HoverModalProps> = ({
   const isOutOfRange = result < min || result > max;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-        <div className="flex justify-between items-start mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-200">
+        <div className="flex justify-between items-start mb-6">
+          <h3 className="text-xl font-bold text-gray-900">{name}</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+            className="text-gray-400 hover:text-gray-600 text-2xl font-bold transition-colors duration-200"
           >
             ×
           </button>
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-600 mb-2">{description}</p>
+        <div className="space-y-6">
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {description}
+            </p>
           </div>
 
-          <div className="bg-gray-50 p-3 rounded">
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-medium">Result:</span>
-              <span
-                className={`font-semibold ${isOutOfRange ? 'text-red-600' : 'text-green-600'}`}
-              >
-                {result} {units}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="font-medium">Normal Range:</span>
-              <span className="text-gray-700">
-                {min} - {max} {units}
-              </span>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-700">Result:</span>
+                <span
+                  className={`font-bold text-lg ${isOutOfRange ? 'text-red-600' : 'text-green-600'}`}
+                >
+                  {result} {units}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-700">
+                  Normal Range:
+                </span>
+                <span className="text-gray-800 font-medium">
+                  {min} - {max} {units}
+                </span>
+              </div>
             </div>
           </div>
 
           {notes && (
-            <div>
-              <span className="font-medium text-gray-700">Notes:</span>
-              <p className="text-sm text-gray-600 mt-1">{notes}</p>
+            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+              <span className="font-semibold text-gray-700 block mb-2">
+                Notes:
+              </span>
+              <p className="text-sm text-gray-700">{notes}</p>
             </div>
           )}
 
           {isOutOfRange && (
-            <div className="bg-red-50 border border-red-200 p-3 rounded">
-              <p className="text-red-700 text-sm font-medium">
-                ⚠️ Result is outside the normal range
-              </p>
+            <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <span className="text-red-600 text-xl">⚠️</span>
+                <p className="text-red-700 font-semibold">
+                  Result is outside the normal range
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -167,7 +198,7 @@ const HoverModal: React.FC<HoverModalProps> = ({
 };
 
 const LabResultsTable: React.FC<LabResultsTableProps> = ({ title, data }) => {
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   const items = Object.entries(data);
 
@@ -177,73 +208,86 @@ const LabResultsTable: React.FC<LabResultsTableProps> = ({ title, data }) => {
 
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">{title}</h2>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">
+        {title}
+      </h2>
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Test Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Result & Range
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Notes
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {items.map(([name, labResult]) => (
-              <tr
-                key={name}
-                className="hover:bg-gray-50 cursor-pointer transition-colors duration-150"
-                onMouseEnter={() => setHoveredItem(name)}
-                onMouseLeave={() => setHoveredItem(null)}
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <ResultStatusIndicator
-                    result={labResult.result}
-                    range={labResult.reference_range}
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {name}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <RangeVisualizer
-                    result={labResult.result}
-                    range={labResult.reference_range}
-                    units={labResult.units}
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">
-                    {labResult.notes || '-'}
-                  </div>
-                </td>
-              </tr>
-            ))}
+          <tbody className="bg-white divide-y divide-gray-100">
+            {items.map(([name, labResult]) => {
+              const isOutOfRange =
+                labResult.result < labResult.reference_range[0] ||
+                labResult.result > labResult.reference_range[1];
+
+              return (
+                <tr
+                  key={name}
+                  className={`hover:bg-gray-50 cursor-pointer transition-all duration-200 ${
+                    isOutOfRange ? 'bg-red-50 hover:bg-red-100' : ''
+                  }`}
+                  onClick={() => setSelectedItem(name)}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <ResultStatusIndicator
+                      result={labResult.result}
+                      range={labResult.reference_range}
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div
+                      className={`text-sm font-semibold ${
+                        isOutOfRange ? 'text-red-800' : 'text-gray-900'
+                      }`}
+                    >
+                      {name}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <RangeVisualizer
+                      result={labResult.result}
+                      range={labResult.reference_range}
+                      units={labResult.units}
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-600">
+                      {labResult.notes || '-'}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      {/* Hover Modal */}
-      {hoveredItem && data[hoveredItem] && (
+      {/* Modal */}
+      {selectedItem && data[selectedItem] && (
         <HoverModal
           isOpen={true}
-          onClose={() => setHoveredItem(null)}
-          description={data[hoveredItem].description}
-          name={hoveredItem}
-          result={data[hoveredItem].result}
-          range={data[hoveredItem].reference_range}
-          units={data[hoveredItem].units}
-          notes={data[hoveredItem].notes}
+          onClose={() => setSelectedItem(null)}
+          description={data[selectedItem].description}
+          name={selectedItem}
+          result={data[selectedItem].result}
+          range={data[selectedItem].reference_range}
+          units={data[selectedItem].units}
+          notes={data[selectedItem].notes}
         />
       )}
     </div>
@@ -275,11 +319,16 @@ const LabResults: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading lab results...</p>
+          <div className="text-center py-20">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-6"></div>
+            <p className="text-xl text-gray-600 font-medium">
+              Loading lab results...
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Please wait while we fetch your laboratory data
+            </p>
           </div>
         </div>
       </div>
@@ -288,16 +337,20 @@ const LabResults: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-700">{error}</p>
+          <div className="text-center py-20">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-8 max-w-md mx-auto">
+              <div className="text-red-600 text-4xl mb-4">⚠️</div>
+              <h2 className="text-xl font-bold text-red-800 mb-2">
+                Error Loading Results
+              </h2>
+              <p className="text-red-700 mb-6">{error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium"
               >
-                Retry
+                Try Again
               </button>
             </div>
           </div>
@@ -308,10 +361,18 @@ const LabResults: React.FC = () => {
 
   if (!labResults) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-gray-600">No lab results available.</p>
+          <div className="text-center py-20">
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 max-w-md mx-auto">
+              <div className="text-gray-400 text-4xl mb-4">📋</div>
+              <h2 className="text-xl font-bold text-gray-800 mb-2">
+                No Lab Results Available
+              </h2>
+              <p className="text-gray-600">
+                There are currently no laboratory results to display.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -319,13 +380,14 @@ const LabResults: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Lab Results</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Lab Results</h1>
+          <p className="text-lg text-gray-600 max-w-3xl">
             Comprehensive laboratory test results with visual indicators and
-            detailed information.
+            detailed information. Click on any test to view detailed clinical
+            information.
           </p>
         </div>
 
@@ -348,26 +410,34 @@ const LabResults: React.FC = () => {
           />
         </div>
 
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Legend</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span>Within normal range</span>
+        <div className="mt-12 bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+          <h3 className="text-xl font-bold text-gray-800 mb-6">Legend</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+            <div className="flex items-center space-x-3">
+              <div className="w-4 h-4 bg-green-500 rounded-full shadow-sm"></div>
+              <span className="font-medium text-gray-700">
+                Within normal range
+              </span>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span>Outside normal range</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-4 h-4 bg-red-500 rounded-full shadow-sm"></div>
+              <span className="font-medium text-gray-700">
+                Outside normal range
+              </span>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-              <span>Result indicator on range bar</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-4 h-4 bg-blue-600 rounded-full shadow-sm"></div>
+              <span className="font-medium text-gray-700">
+                Result indicator on range bar
+              </span>
             </div>
           </div>
-          <p className="mt-4 text-sm text-gray-600">
-            Hover over any test name to see detailed information about the test
-            and its clinical significance.
-          </p>
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              💡 <strong>Tip:</strong> Click on any test name to see detailed
+              information about the test and its clinical significance.
+            </p>
+          </div>
         </div>
       </div>
     </div>

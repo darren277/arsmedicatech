@@ -122,14 +122,14 @@ describe('LabResults Component', () => {
     });
   });
 
-  it('shows hover instructions', async () => {
+  it('shows click instructions', async () => {
     mockApiService.getLabResults.mockResolvedValue(mockLabResults);
 
     render(<LabResults />);
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Hover over any test name to see detailed information/)
+        screen.getByText(/Click on any test name to see detailed information/)
       ).toBeInTheDocument();
     });
   });
