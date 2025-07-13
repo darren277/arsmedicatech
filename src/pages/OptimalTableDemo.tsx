@@ -3,6 +3,7 @@ import OptimalTable, {
   TableColumn,
   TableRow,
 } from '../components/OptimalTable';
+import apiService from '../services/api';
 
 const OptimalTableDemo: React.FC = () => {
   // Define the columns based on your hypertension data structure
@@ -121,6 +122,9 @@ const OptimalTableDemo: React.FC = () => {
   ];
 
   const [tableData, setTableData] = useState<TableRow[]>(initialData);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [optimalResult, setOptimalResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleDataChange = (newData: TableRow[]) => {
     setTableData(newData);
@@ -146,6 +150,29 @@ const OptimalTableDemo: React.FC = () => {
 
   const handleResetData = () => {
     setTableData(initialData);
+    setOptimalResult(null);
+    setError(null);
+  };
+
+  const handleProcessWithOptimal = async () => {
+    setIsProcessing(true);
+    setError(null);
+    setOptimalResult(null);
+
+    try {
+      const result = await apiService.callOptimal(tableData);
+      setOptimalResult(result);
+      console.log('Optimal service result:', result);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to process with Optimal service'
+      );
+      console.error('Error calling Optimal service:', err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -174,6 +201,13 @@ const OptimalTableDemo: React.FC = () => {
           >
             Reset Data
           </button>
+          <button
+            onClick={handleProcessWithOptimal}
+            disabled={isProcessing}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
+          >
+            {isProcessing ? 'Processing...' : 'Process with Optimal'}
+          </button>
         </div>
 
         <OptimalTable
@@ -186,6 +220,89 @@ const OptimalTableDemo: React.FC = () => {
           maxRows={20}
           className="mb-8"
         />
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <div className="mt-2 text-sm text-red-700">{error}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Optimal Results Display */}
+        {optimalResult && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-green-800 mb-4">
+              Optimal Service Results
+            </h3>
+            <div className="space-y-4">
+              {optimalResult.result && (
+                <div>
+                  <h4 className="text-md font-medium text-green-700 mb-2">
+                    Optimization Results:
+                  </h4>
+                  <div className="bg-white rounded-lg p-4 border border-green-200">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium">Status:</span>{' '}
+                        {optimalResult.result.status}
+                      </div>
+                      {optimalResult.result.fun && (
+                        <div>
+                          <span className="font-medium">Objective Value:</span>{' '}
+                          {optimalResult.result.fun.toFixed(4)}
+                        </div>
+                      )}
+                      {optimalResult.result.nit && (
+                        <div>
+                          <span className="font-medium">Iterations:</span>{' '}
+                          {optimalResult.result.nit}
+                        </div>
+                      )}
+                    </div>
+                    {optimalResult.result.x && (
+                      <div className="mt-4">
+                        <h5 className="font-medium text-green-700 mb-2">
+                          Optimal Servings:
+                        </h5>
+                        <div className="bg-gray-50 rounded p-3">
+                          <pre className="text-sm overflow-auto">
+                            {JSON.stringify(optimalResult.result.x, null, 2)}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              <div>
+                <h4 className="text-md font-medium text-green-700 mb-2">
+                  Processed Data:
+                </h4>
+                <pre className="bg-white rounded-lg p-4 border border-green-200 overflow-auto text-sm">
+                  {JSON.stringify(optimalResult.tableData, null, 2)}
+                </pre>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
