@@ -137,23 +137,25 @@ const Messages = () => {
 
       // If this conversation is currently selected, refresh messages
       if (selectedConversationId?.toString() === data.conversation_id) {
-        // Refresh messages for the current conversation
-        const fetchMessages = async () => {
-          try {
-            const response = await apiService.getConversationMessages(
-              selectedConversationId.toString()
-            );
-            setSelectedMessages(
-              (response.messages || []).map((msg: any) => ({
-                sender: msg.sender,
-                text: msg.text,
-              }))
-            );
-          } catch (error) {
-            console.error('Error refreshing messages:', error);
-          }
-        };
-        fetchMessages();
+        // Only refresh messages for real conversations (string IDs)
+        if (typeof selectedConversationId === 'string') {
+          const fetchMessages = async () => {
+            try {
+              const response = await apiService.getConversationMessages(
+                selectedConversationId.toString()
+              );
+              setSelectedMessages(
+                (response.messages || []).map((msg: any) => ({
+                  sender: msg.sender,
+                  text: msg.text,
+                }))
+              );
+            } catch (error) {
+              console.error('Error refreshing messages:', error);
+            }
+          };
+          fetchMessages();
+        }
       }
     },
     [selectedConversationId, setConversations, addNotification]
@@ -207,6 +209,19 @@ const Messages = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       if (!selectedConversationId || !selectedConversation) return;
+
+      // Check if this is a dummy conversation (has numeric ID and messages already loaded)
+      const isDummyConversation =
+        typeof selectedConversationId === 'number' &&
+        selectedConversation.messages &&
+        selectedConversation.messages.length > 0;
+
+      if (isDummyConversation) {
+        // For dummy conversations, use the pre-loaded messages
+        setSelectedMessages(selectedConversation.messages);
+        return;
+      }
+
       if (selectedConversation.isAI) {
         // For AI assistant, fetch from LLM chat history endpoint
         try {
@@ -220,19 +235,26 @@ const Messages = () => {
         }
         return;
       }
-      try {
-        const response = await apiService.getConversationMessages(
-          selectedConversationId.toString()
-        );
-        // The backend returns { messages: [...] }
-        setSelectedMessages(
-          (response.messages || []).map((msg: any) => ({
-            sender: msg.sender,
-            text: msg.text,
-          }))
-        );
-      } catch (error) {
-        console.error('Error fetching messages:', error);
+
+      // Only fetch from database for real conversations (string IDs)
+      if (typeof selectedConversationId === 'string') {
+        try {
+          const response = await apiService.getConversationMessages(
+            selectedConversationId.toString()
+          );
+          // The backend returns { messages: [...] }
+          setSelectedMessages(
+            (response.messages || []).map((msg: any) => ({
+              sender: msg.sender,
+              text: msg.text,
+            }))
+          );
+        } catch (error) {
+          console.error('Error fetching messages:', error);
+          setSelectedMessages([]);
+        }
+      } else {
+        // For other cases, set empty messages
         setSelectedMessages([]);
       }
     };
@@ -295,20 +317,27 @@ const Messages = () => {
     // We need to update the conversations state since useChat doesn't handle user-to-user messages
     setConversations(updatedConversations);
 
-    // Send message to backend
-    try {
-      await apiService.sendMessage(
-        selectedConversation.id.toString(),
-        messageText
-      );
+    // Only send message to backend for real conversations (string IDs)
+    if (typeof selectedConversation.id === 'string') {
+      try {
+        await apiService.sendMessage(
+          selectedConversation.id.toString(),
+          messageText
+        );
+        logger.debug(
+          'Message sent successfully to conversation:',
+          selectedConversation.id
+        );
+      } catch (error) {
+        console.error('Error sending message:', error);
+        // In a real app, you might want to show an error message to the user
+        // and potentially revert the local state change
+      }
+    } else {
       logger.debug(
-        'Message sent successfully to conversation:',
+        'Message added locally for dummy conversation:',
         selectedConversation.id
       );
-    } catch (error) {
-      console.error('Error sending message:', error);
-      // In a real app, you might want to show an error message to the user
-      // and potentially revert the local state change
     }
   };
 
@@ -390,29 +419,38 @@ const Messages = () => {
             </button>
           </div>
           <ul>
-            {conversations.map(conv => (
-              <li
-                key={conv.id}
-                onClick={() => handleSelectConversation(conv.id)}
-                className={
-                  conv.id === selectedConversationId
-                    ? 'conversation active'
-                    : 'conversation'
-                }
-              >
-                <img className="avatar" src={conv.avatar} alt={conv.name} />
-                <div className="conversation-info">
-                  <p className="conversation-name">{conv.name}</p>
-                  <p className="conversation-last">{conv.lastMessage}</p>
-                </div>
+            {conversations.length > 0 ? (
+              conversations.map(conv => (
+                <li
+                  key={conv.id}
+                  onClick={() => handleSelectConversation(conv.id)}
+                  className={
+                    conv.id === selectedConversationId
+                      ? 'conversation active'
+                      : 'conversation'
+                  }
+                >
+                  <img className="avatar" src={conv.avatar} alt={conv.name} />
+                  <div className="conversation-info">
+                    <p className="conversation-name">{conv.name}</p>
+                    <p className="conversation-last">{conv.lastMessage}</p>
+                  </div>
+                </li>
+              ))
+            ) : (
+              <li className="no-conversations">
+                <p>
+                  No conversations yet. Start a new conversation to begin
+                  messaging!
+                </p>
               </li>
-            ))}
+            )}
           </ul>
         </div>
 
         {/* Right side: chat window */}
         <div className="chat-window">
-          {selectedConversation && (
+          {selectedConversation ? (
             <>
               <div className="chat-header">
                 <h3>{selectedConversation.name}</h3>
@@ -466,6 +504,10 @@ const Messages = () => {
                 </button>
               </div>
             </>
+          ) : (
+            <div className="no-conversation-selected">
+              <p>Select a conversation to start messaging</p>
+            </div>
           )}
         </div>
       </div>
