@@ -1,8 +1,7 @@
 """"""
 
+from lib.services.apis import NCBI, ClinicalTrials, Medline
 from settings import NCBI_API_KEY, logger
-
-from lib.services.apis import Medline, ClinicalTrials, NCBI
 
 
 def test_medline():

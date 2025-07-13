@@ -1,13 +1,14 @@
 """"""
 import requests
-from settings import OPTIMAL_URL, OPTIMAL_KEY
 
-from settings import logger
+from settings import OPTIMAL_KEY, OPTIMAL_URL, logger
 
 
 def test_optimal_service():
-    from lib.opt.hypertension import build_hypertension_payload, create_food_data_pd
     import numpy as np
+
+    from lib.opt.hypertension import (build_hypertension_payload,
+                                      create_food_data_pd)
 
     food_data = create_food_data_pd()
 
@@ -56,8 +57,8 @@ def test_optimal_service():
 
 
 def test_optimal():
-    from lib.services.optimal import OptimalService
     from lib.opt.hypertension import main
+    from lib.services.optimal import OptimalService
 
     hypertension_schema = main()
 

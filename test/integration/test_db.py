@@ -1,10 +1,10 @@
 """
 Simple test script to check what's in the SurrealDB database
 """
-from settings import BASE_URL
-
 from lib.db.surreal import DbController
 from lib.models.patient import get_all_patients, get_patient_by_id
+from settings import BASE_URL
+
 
 def test_database():
     print("Testing database contents...")

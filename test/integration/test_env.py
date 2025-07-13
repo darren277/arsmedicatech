@@ -4,6 +4,7 @@ Test environment variables
 
 import os
 
+
 def test_env():
     """Test environment variables"""
     print("🔍 Testing Environment Variables")

@@ -2,9 +2,10 @@
 Debug script to test webhook delivery
 """
 import logging
-from lib.tasks import deliver_webhooks
+
 from lib.db.surreal import DbController
 from lib.models.webhook_subscription import WebhookSubscription
+from lib.tasks import deliver_webhooks
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 print(f"[debug] WebhookSubscription class: {WebhookSubscription}")
 import inspect
+
 print(f"[debug] WebhookSubscription defined in: {inspect.getfile(WebhookSubscription)}")
 print(f"[debug] id(WebhookSubscription.from_dict): {id(WebhookSubscription.from_dict)}")
 
