@@ -23,6 +23,8 @@ class Organization:
         created_at: Optional[str] = None,
         id: Optional[str] = None,
         description: Optional[str] = None,
+        country: Optional[str] = None,
+        clinic_ids: Optional[list[str]] = None,
     ) -> None:
         self.name = name
         self.org_type = org_type
@@ -30,6 +32,8 @@ class Organization:
         self.created_at = created_at or datetime.now(timezone.utc).isoformat()
         self.id = id
         self.description = description or ""
+        self.country = country or ""
+        self.clinic_ids = clinic_ids or []
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -39,6 +43,8 @@ class Organization:
             "created_by": self.created_by,
             "created_at": self.created_at,
             "description": self.description,
+            "country": self.country,
+            "clinic_ids": self.clinic_ids,
         }
 
     @classmethod
@@ -57,6 +63,8 @@ class Organization:
             created_at=data.get("created_at"),
             id=org_id,
             description=data.get("description", ""),
+            country=data.get("country", ""),
+            clinic_ids=data.get("clinic_ids", []),
         )
 
 def generate_surrealql_create_query(org: Organization, table_name: str = "organization") -> str:

@@ -62,7 +62,7 @@ def get_organizations_route() -> Tuple[Response, int]:
 def create_organization_route() -> Tuple[Response, int]:
     """
     API endpoint to create a new organization.
-    Accepts JSON body with: name, org_type, created_by, (optional) description.
+    Accepts JSON body with: name, org_type, created_by, (optional) description, country, clinic_ids.
     Returns the created organization or error.
     """
     if request.method != 'POST':
@@ -76,6 +76,8 @@ def create_organization_route() -> Tuple[Response, int]:
     org_type = data.get('org_type')
     created_by = data.get('created_by')
     description = data.get('description', "")
+    country = data.get('country', "")
+    clinic_ids = data.get('clinic_ids', [])
 
     if not all([name, org_type, created_by]):
         return jsonify({"error": "Missing required fields: name, org_type, created_by"}), 400
@@ -99,7 +101,9 @@ def create_organization_route() -> Tuple[Response, int]:
             name=name,
             org_type=org_type,
             created_by=created_by,
-            description=description
+            description=description,
+            country=country,
+            clinic_ids=clinic_ids
         )
 
         logger.info(f"Creating organization: {org.to_dict()}")
@@ -144,7 +148,7 @@ def update_organization_route(org_id: str) -> Tuple[Response, int]:
             return jsonify({"error": "Organization not found"}), 404
         org = Organization.from_dict(org_data)
         # Update fields
-        for key in ['name', 'org_type', 'description']:
+        for key in ['name', 'org_type', 'description', 'country', 'clinic_ids']:
             if key in data:
                 setattr(org, key, data[key])
         # Save updated org
@@ -185,6 +189,131 @@ def get_organization_by_user_id_route(user_id: str) -> Tuple[Response, int]:
         return jsonify({"error": "No organization found for this user"}), 404
     except Exception as e:
         logger.error(f"Error fetching organization for user {user_id}: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
+
+def add_clinic_to_organization_route(org_id: str) -> Tuple[Response, int]:
+    """
+    Add a clinic to an organization.
+    Accepts JSON body with clinic_id.
+    Returns the updated organization or error.
+    """
+    if request.method != 'POST':
+        return jsonify({"error": "Method not allowed"}), 405
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    clinic_id = data.get('clinic_id')
+    if not clinic_id:
+        return jsonify({"error": "Missing clinic_id"}), 400
+    
+    db = DbController()
+    db.connect()
+    try:
+        # Fetch existing org
+        org_data = db.select(f'organization:{org_id}')
+        if not org_data:
+            return jsonify({"error": "Organization not found"}), 404
+        
+        org = Organization.from_dict(org_data)
+        
+        # Check if clinic exists
+        clinic_data = db.select(f'clinic:{clinic_id}')
+        if not clinic_data:
+            return jsonify({"error": "Clinic not found"}), 404
+        
+        # Add clinic to organization if not already present
+        if clinic_id not in org.clinic_ids:
+            org.clinic_ids.append(clinic_id)
+            
+            # Update organization's country if not set and clinic has country
+            if not org.country and 'address' in clinic_data and 'country' in clinic_data['address']:
+                org.country = clinic_data['address']['country']
+            
+            # Save updated org
+            update_data = org.to_dict()
+            db.update(f'organization:{org_id}', update_data)
+        
+        return jsonify({"organization": org.to_dict()}), 200
+    except Exception as e:
+        logger.error(f"Error adding clinic to organization: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
+
+def remove_clinic_from_organization_route(org_id: str) -> Tuple[Response, int]:
+    """
+    Remove a clinic from an organization.
+    Accepts JSON body with clinic_id.
+    Returns the updated organization or error.
+    """
+    if request.method != 'DELETE':
+        return jsonify({"error": "Method not allowed"}), 405
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    clinic_id = data.get('clinic_id')
+    if not clinic_id:
+        return jsonify({"error": "Missing clinic_id"}), 400
+    
+    db = DbController()
+    db.connect()
+    try:
+        # Fetch existing org
+        org_data = db.select(f'organization:{org_id}')
+        if not org_data:
+            return jsonify({"error": "Organization not found"}), 404
+        
+        org = Organization.from_dict(org_data)
+        
+        # Remove clinic from organization if present
+        if clinic_id in org.clinic_ids:
+            org.clinic_ids.remove(clinic_id)
+            
+            # Save updated org
+            update_data = org.to_dict()
+            db.update(f'organization:{org_id}', update_data)
+        
+        return jsonify({"organization": org.to_dict()}), 200
+    except Exception as e:
+        logger.error(f"Error removing clinic from organization: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
+
+def get_organization_clinics_route(org_id: str) -> Tuple[Response, int]:
+    """
+    Get all clinics for an organization.
+    Returns the list of clinics or error.
+    """
+    if request.method != 'GET':
+        return jsonify({"error": "Method not allowed"}), 405
+    
+    db = DbController()
+    db.connect()
+    try:
+        # Fetch existing org
+        org_data = db.select(f'organization:{org_id}')
+        if not org_data:
+            return jsonify({"error": "Organization not found"}), 404
+        
+        org = Organization.from_dict(org_data)
+        
+        # Fetch all clinics for this organization
+        clinics = []
+        for clinic_id in org.clinic_ids:
+            clinic_data = db.select(f'clinic:{clinic_id}')
+            if clinic_data:
+                clinics.append(clinic_data)
+        
+        return jsonify({"clinics": clinics}), 200
+    except Exception as e:
+        logger.error(f"Error fetching organization clinics: {e}")
         return jsonify({"error": str(e)}), 500
     finally:
         db.close()
