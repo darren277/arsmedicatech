@@ -9,6 +9,7 @@ from flask import Response, jsonify, request
 
 from lib.db.surreal import DbController
 from lib.models.organization import Organization, create_organization
+from lib.models.user import User
 from settings import logger
 
 
@@ -79,24 +80,48 @@ def create_organization_route() -> Tuple[Response, int]:
     if not all([name, org_type, created_by]):
         return jsonify({"error": "Missing required fields: name, org_type, created_by"}), 400
 
-    org = Organization(
-        name=name,
-        org_type=org_type,
-        created_by=created_by,
-        description=description
-    )
-
+    db = DbController()
+    db.connect()
     try:
+        # Check if user can create more organizations
+        user_data = db.select(f'user:{created_by}')
+        if not user_data:
+            return jsonify({"error": "User not found"}), 404
+        
+        user = User.from_dict(user_data)
+        if not user.can_create_organization():
+            remaining = user.get_remaining_organization_slots()
+            return jsonify({
+                "error": f"Organization limit reached. You can create {user.max_organizations} organization(s) and have already created {user.user_organizations}. Remaining slots: {remaining}"
+            }), 403
+
+        org = Organization(
+            name=name,
+            org_type=org_type,
+            created_by=created_by,
+            description=description
+        )
+
         logger.info(f"Creating organization: {org.to_dict()}")
 
         org_id = create_organization(org)
         if org_id:
             org.id = org_id
+            
+            # Increment user's organization count
+            user.increment_organization_count()
+            user_update_data = user.to_dict()
+            db.update(f'user:{created_by}', user_update_data)
+            
             return jsonify({"organization": org.to_dict(), "id": org_id}), 201
         else:
             return jsonify({"error": "Failed to create organization"}), 500
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 403
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
 
 def update_organization_route(org_id: str) -> Tuple[Response, int]:
     """

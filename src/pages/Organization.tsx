@@ -285,6 +285,37 @@ const OrganizationPage: React.FC = () => {
             <p className="mt-2 text-gray-600">
               Set up your organization to get started with the platform.
             </p>
+
+            {/* Organization Limit Info */}
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+              <div className="flex items-center justify-center">
+                <svg
+                  className="h-5 w-5 text-blue-400 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-sm text-blue-800">
+                  <strong>Organization Limit:</strong> You can create up to 1
+                  organization.
+                  {user.max_organizations &&
+                    user.user_organizations !== undefined && (
+                      <span>
+                        {' '}
+                        You have created {user.user_organizations} of{' '}
+                        {user.max_organizations} allowed.
+                      </span>
+                    )}
+                </p>
+              </div>
+            </div>
           </div>
 
           <OrganizationForm onSuccess={setOrg} createdBy={user.id} />
