@@ -24,6 +24,7 @@ from lib.routes.chat import (create_conversation_route,
                              get_conversation_messages_route,
                              get_user_conversations_route, send_message_route)
 from lib.routes.llm_agent import llm_agent_endpoint_route
+from lib.routes.organizations import get_organizations_route
 from lib.routes.patients import (create_encounter_route,
                                  delete_encounter_route,
                                  get_all_encounters_route,
@@ -754,6 +755,35 @@ def get_lab_results() -> Tuple[Response, int]:
         serum_proteins=serum_proteins,
     )
     return jsonify(lab_results_service.lab_results), 200
+
+
+# Organizations endpoints
+@app.route('/api/organizations', methods=['GET'])
+def get_organizations() -> Tuple[Response, int]:
+    """
+    Get a list of organizations.
+    :return: Response object with organizations data.
+    """
+    return get_organizations_route()
+
+@app.route('/api/organizations', methods=['POST'])
+def create_organization_api() -> Tuple[Response, int]:
+    """
+    Create a new organization.
+    :return: Response object with created organization data.
+    """
+    from lib.routes.organizations import create_organization_route
+    return create_organization_route()
+
+@app.route('/api/organizations/<org_id>', methods=['PUT'])
+def update_organization_api(org_id: str) -> Tuple[Response, int]:
+    """
+    Update an organization by ID.
+    :return: Response object with updated organization data.
+    """
+    from lib.routes.organizations import update_organization_route
+    return update_organization_route(org_id)
+
 
 # Register event handlers for webhook delivery
 register_event_handlers()
