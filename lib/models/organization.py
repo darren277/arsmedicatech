@@ -60,10 +60,46 @@ def generate_surrealql_create_query(org: Organization, table_name: str = "organi
     query = f"CREATE {table_name}:{record_id} CONTENT {set_clause};"
     return query
 
-client = AsyncDbController()
-
-async def create_organization(org: Organization) -> Optional[str]:
-    query = generate_surrealql_create_query(org)
-    result = await client.query(query)
-    logger.debug('Organization create result', type(result), result)
-    return result[0]['id'] if result else None
+def create_organization(org: Organization) -> Optional[str]:
+    """
+    Create an organization in the database using DbController.
+    """
+    db = DbController()
+    db.connect()
+    try:
+        query = generate_surrealql_create_query(org)
+        result = db.query(query)
+        logger.debug('Organization create result type:', type(result))
+        logger.debug('Organization create result:', result)
+        
+        # Handle the query result structure
+        if result and len(result) > 0:
+            first_result = result[0]
+            logger.debug('First result type:', type(first_result))
+            logger.debug('First result:', first_result)
+            
+            # Check if result has a 'result' key (common in SurrealDB responses)
+            if 'result' in first_result:
+                logger.debug('Found result key in first_result')
+                if first_result['result'] and len(first_result['result']) > 0:
+                    created_record = first_result['result'][0]
+                    logger.debug('Created record:', created_record)
+                    if 'id' in created_record:
+                        logger.debug('Found id in created_record:', created_record['id'])
+                        return str(created_record['id'])
+            # If no 'result' key, check if the first result has an 'id'
+            elif 'id' in first_result:
+                logger.debug('Found id directly in first_result:', first_result['id'])
+                return str(first_result['id'])
+            else:
+                logger.debug('No result or id keys found in first_result')
+        else:
+            logger.debug('No result or empty result list')
+        
+        logger.warning("No valid result found in query response")
+        return None
+    except Exception as e:
+        logger.error(f"Error creating organization: {e}")
+        raise
+    finally:
+        db.close()
