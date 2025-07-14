@@ -8,7 +8,7 @@ limits without code changes.
 Usage:
     python -m lib.migrations.update_org_limits
 """
-
+from typing import Optional
 
 from lib.db.surreal import DbController
 from lib.models.user import User
@@ -50,7 +50,7 @@ def update_user_org_limit(user_id: str, new_limit: int) -> bool:
         db.close()
 
 
-def bulk_update_org_limits(new_limit: int, role_filter: str = None) -> dict:
+def bulk_update_org_limits(new_limit: int, role_filter: Optional[str] = None) -> dict:
     """
     Bulk update organization limits for multiple users.
     
@@ -110,7 +110,7 @@ def bulk_update_org_limits(new_limit: int, role_filter: str = None) -> dict:
         db.close()
 
 
-def get_user_org_info(user_id: str = None) -> dict:
+def get_user_org_info(user_id: Optional[str] = None) -> dict:
     """
     Get organization limit information for users.
     
