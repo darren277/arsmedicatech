@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ClinicList from '../components/ClinicList';
 import OrganizationForm from '../components/OrganizationForm';
 import { useUser } from '../components/UserContext';
 import { organizationAPI } from '../services/api';
@@ -48,6 +49,16 @@ const OrganizationPage: React.FC = () => {
       setError(err.message || 'Network error');
     } finally {
       setOrgLoading(false);
+    }
+  };
+
+  const handleOrgUpdate = async () => {
+    if (!user || !isAuthenticated) return;
+    try {
+      const found = await organizationAPI.getById(user.id);
+      setOrg(found || null);
+    } catch (error) {
+      setError('Failed to refresh organization data');
     }
   };
 
@@ -220,6 +231,14 @@ const OrganizationPage: React.FC = () => {
                     {org.org_type}
                   </span>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Country
+                  </label>
+                  <p className="mt-1 text-lg text-gray-900">
+                    {org.country || 'Not specified'}
+                  </p>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -229,6 +248,11 @@ const OrganizationPage: React.FC = () => {
                   {org.description || 'No description provided'}
                 </p>
               </div>
+            </div>
+
+            {/* Clinics Section */}
+            <div className="mt-8 border-t border-gray-200 pt-8">
+              <ClinicList organizationId={org.id} onUpdate={handleOrgUpdate} />
             </div>
 
             {error && (

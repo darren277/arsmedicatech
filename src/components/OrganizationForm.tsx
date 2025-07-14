@@ -8,6 +8,7 @@ interface OrganizationFormProps {
     name?: string;
     org_type?: string;
     description?: string;
+    country?: string;
     [key: string]: any;
   };
 }
@@ -30,6 +31,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
   const [description, setDescription] = useState(
     initialValues?.description || ''
   );
+  const [country, setCountry] = useState(initialValues?.country || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -39,6 +41,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
       setName(initialValues.name || '');
       setOrgType(initialValues.org_type || ORG_TYPES[0].value);
       setDescription(initialValues.description || '');
+      setCountry(initialValues.country || '');
     }
   }, [initialValues]);
 
@@ -55,6 +58,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
           name,
           org_type: orgType,
           description,
+          country,
           created_by: createdBy,
         };
         if (onSuccess) onSuccess(updated);
@@ -66,6 +70,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
         name,
         org_type: orgType,
         description,
+        country,
         created_by: createdBy,
       });
       if (res.ok) {
@@ -73,6 +78,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
         setName('');
         setOrgType(ORG_TYPES[0].value);
         setDescription('');
+        setCountry('');
         if (onSuccess) onSuccess(res.organization);
       } else {
         setError(res.error || 'Failed to create organization');
@@ -140,6 +146,23 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
             rows={4}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="Describe your organization (optional)"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="country"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Country
+          </label>
+          <input
+            id="country"
+            type="text"
+            value={country}
+            onChange={e => setCountry(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Enter country (optional)"
           />
         </div>
       </div>
