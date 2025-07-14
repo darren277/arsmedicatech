@@ -3,14 +3,17 @@ Main application file for the Flask server.
 """
 import json
 import time
-from typing import Tuple
+from typing import Tuple, Union
 
 import sentry_sdk
-from flask import Blueprint, Flask, Response, jsonify, request, session
+import werkzeug
+from flask import (Blueprint, Flask, Response, jsonify, redirect, request,
+                   session)
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.dummy_data import DUMMY_CONVERSATIONS
+from lib.event_handlers import register_event_handlers
 from lib.routes.appointments import (cancel_appointment_route,
                                      confirm_appointment_route,
                                      create_appointment_route,
@@ -44,19 +47,21 @@ from lib.routes.users import (activate_user_route, change_password_route,
                               logout_route, register_route, search_users_route,
                               settings_route, setup_default_admin_route,
                               update_user_profile_route)
-from lib.services.auth_decorators import (optional_auth, require_admin,
-                                          require_auth)
-from lib.services.notifications import publish_event_with_buffer
-from lib.services.redis_client import get_redis_connection
 from lib.routes.webhooks import (create_webhook_subscription_route,
                                  delete_webhook_subscription_route,
                                  get_webhook_events_route,
                                  get_webhook_subscription_route,
                                  get_webhook_subscriptions_route,
                                  update_webhook_subscription_route)
-from lib.event_handlers import register_event_handlers
+from lib.services.auth_decorators import (optional_auth, require_admin,
+                                          require_auth)
+from lib.services.lab_results import (LabResultsService,
+                                      differential_hematology,
+                                      general_chemistry, hematology,
+                                      serum_proteins)
+from lib.services.notifications import publish_event_with_buffer
+from lib.services.redis_client import get_redis_connection
 from settings import DEBUG, FLASK_SECRET_KEY, HOST, PORT, SENTRY_DSN, logger
-from lib.services.lab_results import LabResultsService, hematology, differential_hematology, general_chemistry, serum_proteins
 
 #from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -765,6 +770,28 @@ def get_organizations() -> Tuple[Response, int]:
     :return: Response object with organizations data.
     """
     return get_organizations_route()
+
+@app.route('/api/organizations/<org_id>', methods=['GET'])
+def get_organization(org_id: str) -> Union[Tuple[Response, int], werkzeug.wrappers.response.Response]:
+    """
+    Get a specific organization by ID.
+    :return: Response object with organization data.
+    """
+    print(f"get_organization: {org_id}")
+    if org_id.startswith('User:'):
+        print(f"redirecting to /api/organizations/user/{org_id}")
+        return redirect(f'/api/organizations/user/{org_id}')
+    from lib.routes.organizations import get_organization_route
+    return get_organization_route(org_id)
+
+@app.route('/api/organizations/user/<user_id>', methods=['GET'])
+def get_organization_by_user_id(user_id: str) -> Tuple[Response, int]:
+    """
+    Get a specific organization by ID.
+    :return: Response object with organization data.
+    """
+    from lib.routes.organizations import get_organization_by_user_id_route
+    return get_organization_by_user_id_route(user_id)
 
 @app.route('/api/organizations', methods=['POST'])
 def create_organization_api() -> Tuple[Response, int]:
