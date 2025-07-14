@@ -811,6 +811,33 @@ def update_organization_api(org_id: str) -> Tuple[Response, int]:
     from lib.routes.organizations import update_organization_route
     return update_organization_route(org_id)
 
+@app.route('/api/organizations/<org_id>/clinics', methods=['GET'])
+def get_organization_clinics(org_id: str) -> Tuple[Response, int]:
+    """
+    Get all clinics for an organization.
+    :return: Response object with clinics data.
+    """
+    from lib.routes.organizations import get_organization_clinics_route
+    return get_organization_clinics_route(org_id)
+
+@app.route('/api/organizations/<org_id>/clinics', methods=['POST'])
+def add_clinic_to_organization(org_id: str) -> Tuple[Response, int]:
+    """
+    Add a clinic to an organization.
+    :return: Response object with updated organization data.
+    """
+    from lib.routes.organizations import add_clinic_to_organization_route
+    return add_clinic_to_organization_route(org_id)
+
+@app.route('/api/organizations/<org_id>/clinics', methods=['DELETE'])
+def remove_clinic_from_organization(org_id: str) -> Tuple[Response, int]:
+    """
+    Remove a clinic from an organization.
+    :return: Response object with updated organization data.
+    """
+    from lib.routes.organizations import remove_clinic_from_organization_route
+    return remove_clinic_from_organization_route(org_id)
+
 
 # Register event handlers for webhook delivery
 register_event_handlers()
