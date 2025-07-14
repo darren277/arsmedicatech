@@ -26,6 +26,7 @@ import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
+import Organization from './pages/Organization';
 import logger from './services/logging';
 
 function Home() {
@@ -141,6 +142,8 @@ const router = createBrowserRouter([
       { path: 'messages', element: <Messages /> },
       { path: 'settings', element: <Settings /> },
       { path: 'lab-results', element: <LabResults /> },
+
+      { path: 'organization', element: <Organization /> },
     ],
     errorElement: <ErrorPage />,
   },

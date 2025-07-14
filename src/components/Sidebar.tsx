@@ -26,6 +26,16 @@ const Sidebar = () => {
               Dashboard
             </NavLink>
           </li>
+          {userType === 'admin' && (
+            <li>
+              <NavLink
+                to="/organization"
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
+                Organization
+              </NavLink>
+            </li>
+          )}
           {userType === 'patient' ? (
             <li>
               {user?.id && (
