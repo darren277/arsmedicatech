@@ -2,13 +2,14 @@
 This module defines a Organization class and provides functions to interact with a SurrealDB database.
 """
 import json
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from surrealdb import Surreal  # type: ignore
 
-from lib.db.surreal import AsyncDbController
+from lib.db.surreal import DbController
 from settings import logger
-from datetime import datetime, timezone
+
 
 class Organization:
     """
@@ -32,6 +33,7 @@ class Organization:
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            "id": str(self.id) if self.id else None,
             "name": self.name,
             "org_type": self.org_type,
             "created_by": self.created_by,
@@ -41,9 +43,13 @@ class Organization:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Organization":
+        # Handle RecordID objects from SurrealDB
         org_id = data.get("id")
-        if hasattr(org_id, "__str__"):
-            org_id = str(org_id)
+        if org_id is not None:
+            # Convert RecordID to string if it's not already a string
+            if hasattr(org_id, '__str__'):
+                org_id = str(org_id)
+        
         return cls(
             name=data.get("name", ""),
             org_type=data.get("org_type", ""),
@@ -55,9 +61,10 @@ class Organization:
 
 def generate_surrealql_create_query(org: Organization, table_name: str = "organization") -> str:
     data_to_set = org.to_dict()
+    # Remove id if present, so SurrealDB generates it
+    data_to_set.pop("id", None)
     set_clause = json.dumps(data_to_set, indent=4)
-    record_id = org.name.lower().replace(" ", "_").replace("'", "")
-    query = f"CREATE {table_name}:{record_id} CONTENT {set_clause};"
+    query = f"CREATE {table_name} CONTENT {set_clause};"
     return query
 
 def create_organization(org: Organization) -> Optional[str]:
