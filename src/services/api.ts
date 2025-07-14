@@ -295,4 +295,20 @@ export const encounterAPI = {
     apiService.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`),
 };
 
+// Organization API operations
+export const organizationAPI = {
+  // Get all organizations
+  getAll: () => apiService.getAPI('/organizations'),
+
+  // Get a specific organization by ID
+  getById: (id: string) => apiService.getAPI(`/organizations/${id}`),
+
+  // Create a new organization
+  create: (orgData: any) => apiService.postAPI('/organizations', orgData),
+
+  // Update an organization
+  update: (id: string, orgData: any) =>
+    apiService.putAPI(`/organizations/${id}`, orgData),
+};
+
 export default apiService;
