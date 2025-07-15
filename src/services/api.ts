@@ -342,7 +342,7 @@ export const metricsAPI = {
 
   // Get all metrics for a user
   getAllForUser: (userId: string) =>
-    apiService.getAPI(`/metrics/user/${userId}`),
+    apiService.getAPI(`/metrics/users/${userId}`),
 
   // Get a specific metric by ID
   getById: (id: string) => apiService.getAPI(`/metrics/${id}`),
