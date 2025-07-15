@@ -849,9 +849,18 @@ def validate_plugin_manifest(manifest: Dict[str, Any]) -> bool:
     :param manifest: The plugin manifest dictionary.
     :return: True if valid, False otherwise.
     """
-    required_fields = ['name', 'version', 'description', 'entry_point']
+    required_fields = ['name', 'version', 'description']
     return all(field in manifest for field in required_fields)
 
+def is_plugin_frontend_only(manifest: Dict[str, Any]) -> bool:
+    """
+    Check if the plugin is frontend only.
+    :param manifest: The plugin manifest dictionary.
+    :return: True if frontend only, False otherwise.
+    """
+    if 'main_js' in manifest and not 'main_py' in manifest:
+        return True
+    return False
 
 def load_and_attach_plugins() -> None:
     """
@@ -877,13 +886,22 @@ def load_and_attach_plugins() -> None:
                 if not validate_plugin_manifest(manifest):
                     logger.error(f"Plugin {plugin_name} manifest is invalid: {manifest}")
                     continue
+                if is_plugin_frontend_only(manifest):
+                    logger.debug(f"Plugin {plugin_name} is frontend only.")
+                    continue
                 entry_point = manifest.get('main_py')
                 if plugin_name != manifest.get('name'):
                     logger.error(f"Plugin {plugin_name} name does not match manifest name: {manifest.get('name')}")
                     continue
-                import_module(f"{PLUGIN_DIR}.{plugin_name}.py.{entry_point}")
+                plugin_module = import_module(f"{PLUGIN_DIR}.{plugin_name}.py.{entry_point.replace('.py', '')}")
+                plugin_bp = plugin_module.plugin_bp
+                app.register_blueprint(plugin_bp)
+                logger.debug(f"Registered plugin {plugin_name} with blueprint {plugin_bp}")
             except Exception as e:
                 logger.error(f"Failed to load plugin {plugin_name}: {e}")
+
+
+load_and_attach_plugins()
 
 
 # Register the SSE blueprint
