@@ -27,4 +27,5 @@ module.exports = {
   },
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  transformIgnorePatterns: ['/node_modules/(?!(d3|d3-[^/]+)/)'],
 };
