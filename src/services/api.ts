@@ -119,6 +119,14 @@ class ApiService {
     return this.request('/api' + endpoint, { method: 'DELETE' });
   }
 
+  // DELETE request with API prefix and body
+  async deleteAPIWithBody(endpoint: string, data: any): Promise<any> {
+    return this.request('/api' + endpoint, {
+      method: 'DELETE',
+      body: JSON.stringify(data),
+    });
+  }
+
   // Patient-related API calls
   async getPatients() {
     return this.getAPI('/patients');
@@ -293,6 +301,38 @@ export const encounterAPI = {
   // Search encounters
   search: (query: string) =>
     apiService.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`),
+};
+
+// Organization API operations
+export const organizationAPI = {
+  // Get all organizations
+  getAll: () => apiService.getAPI('/organizations'),
+
+  // Get a specific organization by ID
+  getById: (id: string) => apiService.getAPI(`/organizations/${id}`),
+
+  // Create a new organization
+  create: (orgData: any) => apiService.postAPI('/organizations', orgData),
+
+  // Update an organization
+  update: (id: string, orgData: any) =>
+    apiService.putAPI(`/organizations/${id}`, orgData),
+
+  // Get all clinics for an organization
+  getClinics: (orgId: string) =>
+    apiService.getAPI(`/organizations/${orgId}/clinics`),
+
+  // Add a clinic to an organization
+  addClinic: (orgId: string, clinicId: string) =>
+    apiService.postAPI(`/organizations/${orgId}/clinics`, {
+      clinic_id: clinicId,
+    }),
+
+  // Remove a clinic from an organization
+  removeClinic: (orgId: string, clinicId: string) =>
+    apiService.deleteAPIWithBody(`/organizations/${orgId}/clinics`, {
+      clinic_id: clinicId,
+    }),
 };
 
 export default apiService;

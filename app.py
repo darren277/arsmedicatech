@@ -3,14 +3,17 @@ Main application file for the Flask server.
 """
 import json
 import time
-from typing import Tuple
+from typing import Tuple, Union
 
 import sentry_sdk
-from flask import Blueprint, Flask, Response, jsonify, request, session
+import werkzeug
+from flask import (Blueprint, Flask, Response, jsonify, redirect, request,
+                   session)
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.dummy_data import DUMMY_CONVERSATIONS
+from lib.event_handlers import register_event_handlers
 from lib.routes.appointments import (cancel_appointment_route,
                                      confirm_appointment_route,
                                      create_appointment_route,
@@ -24,6 +27,7 @@ from lib.routes.chat import (create_conversation_route,
                              get_conversation_messages_route,
                              get_user_conversations_route, send_message_route)
 from lib.routes.llm_agent import llm_agent_endpoint_route
+from lib.routes.organizations import get_organizations_route
 from lib.routes.patients import (create_encounter_route,
                                  delete_encounter_route,
                                  get_all_encounters_route,
@@ -43,19 +47,21 @@ from lib.routes.users import (activate_user_route, change_password_route,
                               logout_route, register_route, search_users_route,
                               settings_route, setup_default_admin_route,
                               update_user_profile_route)
-from lib.services.auth_decorators import (optional_auth, require_admin,
-                                          require_auth)
-from lib.services.notifications import publish_event_with_buffer
-from lib.services.redis_client import get_redis_connection
 from lib.routes.webhooks import (create_webhook_subscription_route,
                                  delete_webhook_subscription_route,
                                  get_webhook_events_route,
                                  get_webhook_subscription_route,
                                  get_webhook_subscriptions_route,
                                  update_webhook_subscription_route)
-from lib.event_handlers import register_event_handlers
+from lib.services.auth_decorators import (optional_auth, require_admin,
+                                          require_auth)
+from lib.services.lab_results import (LabResultsService,
+                                      differential_hematology,
+                                      general_chemistry, hematology,
+                                      serum_proteins)
+from lib.services.notifications import publish_event_with_buffer
+from lib.services.redis_client import get_redis_connection
 from settings import DEBUG, FLASK_SECRET_KEY, HOST, PORT, SENTRY_DSN, logger
-from lib.services.lab_results import LabResultsService, hematology, differential_hematology, general_chemistry, serum_proteins
 
 #from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -754,6 +760,84 @@ def get_lab_results() -> Tuple[Response, int]:
         serum_proteins=serum_proteins,
     )
     return jsonify(lab_results_service.lab_results), 200
+
+
+# Organizations endpoints
+@app.route('/api/organizations', methods=['GET'])
+def get_organizations() -> Tuple[Response, int]:
+    """
+    Get a list of organizations.
+    :return: Response object with organizations data.
+    """
+    return get_organizations_route()
+
+@app.route('/api/organizations/<org_id>', methods=['GET'])
+def get_organization(org_id: str) -> Union[Tuple[Response, int], werkzeug.wrappers.response.Response]:
+    """
+    Get a specific organization by ID.
+    :return: Response object with organization data.
+    """
+    print(f"get_organization: {org_id}")
+    if org_id.startswith('User:'):
+        print(f"redirecting to /api/organizations/user/{org_id}")
+        return redirect(f'/api/organizations/user/{org_id}')
+    from lib.routes.organizations import get_organization_route
+    return get_organization_route(org_id)
+
+@app.route('/api/organizations/user/<user_id>', methods=['GET'])
+def get_organization_by_user_id(user_id: str) -> Tuple[Response, int]:
+    """
+    Get a specific organization by ID.
+    :return: Response object with organization data.
+    """
+    from lib.routes.organizations import get_organization_by_user_id_route
+    return get_organization_by_user_id_route(user_id)
+
+@app.route('/api/organizations', methods=['POST'])
+def create_organization_api() -> Tuple[Response, int]:
+    """
+    Create a new organization.
+    :return: Response object with created organization data.
+    """
+    from lib.routes.organizations import create_organization_route
+    return create_organization_route()
+
+@app.route('/api/organizations/<org_id>', methods=['PUT'])
+def update_organization_api(org_id: str) -> Tuple[Response, int]:
+    """
+    Update an organization by ID.
+    :return: Response object with updated organization data.
+    """
+    from lib.routes.organizations import update_organization_route
+    return update_organization_route(org_id)
+
+@app.route('/api/organizations/<org_id>/clinics', methods=['GET'])
+def get_organization_clinics(org_id: str) -> Tuple[Response, int]:
+    """
+    Get all clinics for an organization.
+    :return: Response object with clinics data.
+    """
+    from lib.routes.organizations import get_organization_clinics_route
+    return get_organization_clinics_route(org_id)
+
+@app.route('/api/organizations/<org_id>/clinics', methods=['POST'])
+def add_clinic_to_organization(org_id: str) -> Tuple[Response, int]:
+    """
+    Add a clinic to an organization.
+    :return: Response object with updated organization data.
+    """
+    from lib.routes.organizations import add_clinic_to_organization_route
+    return add_clinic_to_organization_route(org_id)
+
+@app.route('/api/organizations/<org_id>/clinics', methods=['DELETE'])
+def remove_clinic_from_organization(org_id: str) -> Tuple[Response, int]:
+    """
+    Remove a clinic from an organization.
+    :return: Response object with updated organization data.
+    """
+    from lib.routes.organizations import remove_clinic_from_organization_route
+    return remove_clinic_from_organization_route(org_id)
+
 
 # Register event handlers for webhook delivery
 register_event_handlers()
