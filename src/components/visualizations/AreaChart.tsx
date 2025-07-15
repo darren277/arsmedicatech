@@ -4,7 +4,10 @@ import React, { useEffect } from 'react';
 export default function AreaChart({
   data,
 }: {
-  data: { metricName: string; points: { date: string; value: number }[] }[];
+  data: {
+    metricName: string;
+    points: { date: string; value: number | null }[];
+  }[];
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -18,7 +21,9 @@ export default function AreaChart({
     const height = 300 - margin.top - margin.bottom;
 
     // Flatten all points for x/y domains
-    const allPoints = data.flatMap(series => series.points);
+    const allPoints = data.flatMap(series =>
+      series.points.filter(p => p.value !== null)
+    );
     const parseDate = d3.timeParse('%Y-%m-%d');
     const allParsedPoints = allPoints.map(d => ({
       ...d,
@@ -34,8 +39,8 @@ export default function AreaChart({
     const y = d3
       .scaleLinear()
       .domain([
-        d3.min(allParsedPoints, d => d.value) ?? 0,
-        d3.max(allParsedPoints, d => d.value) ?? 1,
+        d3.min(allParsedPoints, d => d.value as number) ?? 0,
+        d3.max(allParsedPoints, d => d.value as number) ?? 1,
       ])
       .nice()
       .range([height, 0]);
@@ -59,10 +64,13 @@ export default function AreaChart({
 
     // Draw areas for each metric
     data.forEach(series => {
-      const chartData = series.points.map(d => ({
-        ...d,
-        date: parseDate(d.date) as Date,
-      }));
+      const chartData = series.points
+        .map(d => ({
+          ...d,
+          date: parseDate(d.date) as Date,
+          value: d.value !== null ? d.value : 0,
+        }))
+        .filter(d => d.value !== null);
       svg
         .append('path')
         .datum(chartData)
@@ -73,10 +81,11 @@ export default function AreaChart({
         .attr(
           'd',
           d3
-            .area<{ date: Date; value: number }>()
+            .area<{ date: Date; value: number | null }>()
+            .defined(d => d.value !== null)
             .x(d => x(d.date))
             .y0(y(0))
-            .y1(d => y(d.value))
+            .y1(d => y(d.value as number))
         );
     });
 

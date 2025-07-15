@@ -4,7 +4,10 @@ import React, { useEffect } from 'react';
 export default function BarChart({
   data,
 }: {
-  data: { metricName: string; points: { date: string; value: number }[] }[];
+  data: {
+    metricName: string;
+    points: { date: string; value: number | null }[];
+  }[];
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -19,7 +22,6 @@ export default function BarChart({
 
     // Flatten all points and get all unique dates
     const allPoints = data.flatMap(series => series.points);
-    const parseDate = d3.timeParse('%Y-%m-%d');
     const allDates = Array.from(new Set(allPoints.map(d => d.date))).sort();
     const metrics = data.map(d => d.metricName);
 
@@ -34,7 +36,7 @@ export default function BarChart({
     // Y scale
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(allPoints, d => d.value) ?? 1])
+      .domain([0, d3.max(allPoints, d => d.value ?? 0) ?? 1])
       .nice()
       .range([height, 0]);
     // Color
@@ -67,12 +69,11 @@ export default function BarChart({
       .selectAll('rect')
       .data(date =>
         metrics.map(metric => {
-          const point = data
-            .find(d => d.metricName === metric)
-            ?.points.find(p => p.date === date);
+          const series = data.find(d => d.metricName === metric);
+          const point = series?.points.find(p => p.date === date);
           return {
             metric,
-            value: point ? point.value : 0,
+            value: point && point.value !== null ? point.value : 0,
             date,
           };
         })

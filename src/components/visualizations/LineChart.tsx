@@ -5,7 +5,10 @@ import React, { useEffect } from 'react';
 export default function LineChart({
   data,
 }: {
-  data: { metricName: string; points: { date: string; value: number }[] }[];
+  data: {
+    metricName: string;
+    points: { date: string; value: number | null }[];
+  }[];
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -27,7 +30,9 @@ export default function LineChart({
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     // Flatten all points for x/y domains
-    const allPoints = data.flatMap(series => series.points);
+    const allPoints = data.flatMap(series =>
+      series.points.filter(p => p.value !== null)
+    );
     const parseDate = d3.timeParse('%Y-%m-%d');
     const allParsedPoints = allPoints.map(d => ({
       ...d,
@@ -42,8 +47,8 @@ export default function LineChart({
     const y = d3
       .scaleLinear()
       .domain([
-        d3.min(allParsedPoints, d => d.value) ?? 0,
-        d3.max(allParsedPoints, d => d.value) ?? 1,
+        d3.min(allParsedPoints, d => d.value as number) ?? 0,
+        d3.max(allParsedPoints, d => d.value as number) ?? 1,
       ])
       .nice()
       .range([height, 0]);
@@ -64,10 +69,9 @@ export default function LineChart({
 
     // Draw lines for each metric
     data.forEach(series => {
-      const chartData = series.points.map(d => ({
-        ...d,
-        date: parseDate(d.date) as Date,
-      }));
+      const chartData = series.points
+        .map(d => ({ ...d, date: parseDate(d.date) as Date }))
+        .filter(d => d.value !== null);
       svg
         .append('path')
         .datum(chartData)
@@ -77,9 +81,10 @@ export default function LineChart({
         .attr(
           'd',
           d3
-            .line<{ date: Date; value: number }>()
+            .line<{ date: Date; value: number | null }>()
+            .defined(d => d.value !== null)
             .x(d => x(d.date))
-            .y(d => y(d.value))
+            .y(d => y(d.value as number))
         );
       // Dots
       svg
@@ -88,7 +93,7 @@ export default function LineChart({
         .enter()
         .append('circle')
         .attr('cx', d => x(d.date))
-        .attr('cy', d => y(d.value))
+        .attr('cy', d => y(d.value as number))
         .attr('r', 3)
         .attr('fill', color(series.metricName) as string);
     });

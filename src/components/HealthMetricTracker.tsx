@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import apiService from '../services/api';
+import { metricsAPI } from '../services/api';
 import { Button, Card, Input, Label } from './FormComponents';
 import { useUser } from './UserContext';
 import AreaChart from './visualizations/AreaChart';
@@ -41,15 +41,15 @@ function HealthMetricVisualization() {
     if (!startDate || !endDate) return;
     setLoading(true);
     setError(null);
-    apiService
-      .get(`/api/users/${user.id}/metrics`)
+    metricsAPI
+      .getAllForUser(user.id)
       .then(res => {
         // Filter by date range
         const filtered = (res.metrics || []).filter((set: MetricSet) => {
           return set.date >= startDate && set.date <= endDate;
         });
         setMetrics(filtered);
-        // Collect all metric names
+        // Collect all unique metric names across all sets
         const names = Array.from(
           new Set(
             filtered.flatMap((set: MetricSet) =>
@@ -61,6 +61,7 @@ function HealthMetricVisualization() {
         // If no metrics selected, select all by default
         if (names.length && selectedMetrics.length === 0)
           setSelectedMetrics(names);
+        if (filtered.length === 0) setError('No metrics found for this range.');
       })
       .catch(() => setError('Failed to fetch metrics'))
       .finally(() => setLoading(false));
@@ -76,22 +77,19 @@ function HealthMetricVisualization() {
 
   // Prepare data for the chart: { metricName: string, points: { date, value }[] }
   const chartData = React.useMemo(() => {
+    // Build a map of date -> { metric_name: value }
+    const allDates = metrics.map(set => set.date).sort();
     return selectedMetrics.map(metricName => {
-      const points: { date: string; value: number }[] = [];
-      metrics.forEach(set => {
-        set.metrics.forEach(m => {
-          if (m.metric_name === metricName) {
-            const value = parseFloat(m.metric_value);
-            if (!isNaN(value)) {
-              points.push({ date: set.date, value });
-            }
-          }
-        });
-      });
-      return {
-        metricName,
-        points: points.sort((a, b) => a.date.localeCompare(b.date)),
-      };
+      const points: { date: string; value: number | null }[] = allDates.map(
+        date => {
+          const set = metrics.find(s => s.date === date);
+          const metric = set?.metrics.find(m => m.metric_name === metricName);
+          // If value is missing or not a number, use null
+          const value = metric ? parseFloat(metric.metric_value) : null;
+          return { date, value: isNaN(value as number) ? null : value };
+        }
+      );
+      return { metricName, points };
     });
   }, [metrics, selectedMetrics]);
 
@@ -137,8 +135,8 @@ function HealthMetricVisualization() {
             }
           >
             <option value="line">Line Chart</option>
-            <option value="bar">Bar Chart (coming soon)</option>
-            <option value="scatter">Scatter Plot (coming soon)</option>
+            <option value="bar">Bar Chart</option>
+            <option value="scatter">Scatter Plot</option>
             <option value="area">Area Chart</option>
             <option value="radar">Radar Chart</option>
             <option value="heatmap">Heatmap</option>
@@ -193,27 +191,32 @@ function HealthMetricTracker() {
   const [metrics, setMetrics] = useState<Metric[]>([
     { metric_name: '', metric_value: '', metric_unit: '' },
   ]);
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(() => new Date());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [previousMetrics, setPreviousMetrics] = useState<MetricSet[]>([]);
   const [fetching, setFetching] = useState(false);
 
+  // Fetch metrics for user and date on mount and when date changes
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !date) return;
     setFetching(true);
-    apiService
-      .get(`/api/users/${user.id}/metrics`)
+    setError(null);
+    const isoDate = date.toISOString().slice(0, 10);
+    metricsAPI
+      .getForUserByDate(user.id, isoDate)
       .then(res => {
-        setPreviousMetrics(res.metrics || []);
-        setError(null);
+        if (res && res.metrics && res.metrics.length > 0) {
+          setMetrics(res.metrics);
+        } else {
+          setMetrics([{ metric_name: '', metric_value: '', metric_unit: '' }]);
+        }
       })
-      .catch(err => {
-        setError('Failed to fetch previous metrics');
+      .catch(() => {
+        setMetrics([{ metric_name: '', metric_value: '', metric_unit: '' }]);
       })
       .finally(() => setFetching(false));
-  }, [user?.id]);
+  }, [user?.id, date]);
 
   const handleMetricChange = (
     index: number,
@@ -244,21 +247,20 @@ function HealthMetricTracker() {
     setLoading(true);
     setError(null);
     setSuccess(null);
-    if (!user?.id) {
-      setError('User not logged in');
+    if (!user?.id || !date) {
+      setError('User not logged in or date not selected');
       setLoading(false);
       return;
     }
-    const payload = {
-      date: date ? date.toISOString().slice(0, 10) : '',
-      metrics,
-    };
+    const isoDate = date.toISOString().slice(0, 10);
     try {
-      await apiService.post(`/api/users/${user.id}/metrics`, payload);
+      await metricsAPI.upsertForUserByDate(user.id, isoDate, metrics);
       setSuccess('Metrics saved!');
-      // Refresh previous metrics
-      const res = await apiService.get(`/api/users/${user.id}/metrics`);
-      setPreviousMetrics(res.metrics || []);
+      // Refresh metrics for this date
+      const res = await metricsAPI.getForUserByDate(user.id, isoDate);
+      if (res && res.metrics && res.metrics.length > 0) {
+        setMetrics(res.metrics);
+      }
     } catch (err) {
       setError('Failed to save metrics');
     } finally {
@@ -329,7 +331,7 @@ function HealthMetricTracker() {
                 </td>
                 <td className="p-2 border">
                   <Button
-                    variant="secondary"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={() => removeRow(index)}
                     disabled={metrics.length === 1}
                   >
@@ -357,41 +359,6 @@ function HealthMetricTracker() {
         >
           {loading ? 'Submitting...' : 'Submit'}
         </Button>
-      </div>
-
-      {/* Previous Metrics Table */}
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold mb-2">Previous Metrics</h3>
-        {fetching ? (
-          <div>Loading previous metrics...</div>
-        ) : previousMetrics.length === 0 ? (
-          <div>No previous metrics found.</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-300 rounded-md text-sm">
-              <thead>
-                <tr className="bg-gray-50 text-left">
-                  <th className="p-2 border">Date</th>
-                  <th className="p-2 border">Metric Name</th>
-                  <th className="p-2 border">Value</th>
-                  <th className="p-2 border">Unit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {previousMetrics.map((set, i) =>
-                  set.metrics.map((metric, j) => (
-                    <tr key={`${i}-${j}`}>
-                      <td className="p-2 border">{set.date}</td>
-                      <td className="p-2 border">{metric.metric_name}</td>
-                      <td className="p-2 border">{metric.metric_value}</td>
-                      <td className="p-2 border">{metric.metric_unit}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
     </Card>
   );
