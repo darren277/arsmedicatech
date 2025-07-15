@@ -4,7 +4,10 @@ import React, { useEffect } from 'react';
 export default function Heatmap({
   data,
 }: {
-  data: { metricName: string; points: { date: string; value: number }[] }[];
+  data: {
+    metricName: string;
+    points: { date: string; value: number | null }[];
+  }[];
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -57,10 +60,10 @@ export default function Heatmap({
               p.date.slice(0, 10) === date
             );
           });
-          value = match ? match.value : 0;
+          value = match ? (match.value ?? 0) : 0;
         } else {
           const match = points.find(p => p.date.slice(0, 10) === date);
-          value = match ? match.value : 0;
+          value = match ? (match.value ?? 0) : 0;
         }
         return value;
       })

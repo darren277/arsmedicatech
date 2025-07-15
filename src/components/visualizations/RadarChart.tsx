@@ -5,7 +5,10 @@ export default function RadarChart({
   data,
   date,
 }: {
-  data: { metricName: string; points: { date: string; value: number }[] }[];
+  data: {
+    metricName: string;
+    points: { date: string; value: number | null }[];
+  }[];
   date?: string; // Optional: show snapshot for a specific date
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -28,7 +31,7 @@ export default function RadarChart({
           b.date.localeCompare(a.date)
         )[0];
       }
-      return point ? point.value : 0;
+      return point ? (point.value ?? 0) : 0; // Handle null values
     });
 
     const numAxes = metrics.length;
@@ -92,6 +95,7 @@ export default function RadarChart({
     // Draw data polygon
     const color = d3.scaleOrdinal(d3.schemeCategory10).domain(metrics);
     const points = values.map((v, i) => {
+      if (v === null || v === undefined) v = 0; // Handle null values
       const angle = i * angleSlice - Math.PI / 2;
       const r = ((v - minValue) / (maxValue - minValue)) * radius;
       return [Math.cos(angle) * r, Math.sin(angle) * r];

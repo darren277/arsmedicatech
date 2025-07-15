@@ -4,7 +4,10 @@ import React, { useEffect } from 'react';
 export default function CalendarChart({
   data,
 }: {
-  data: { metricName: string; points: { date: string; value: number }[] }[];
+  data: {
+    metricName: string;
+    points: { date: string; value: number | null }[];
+  }[];
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -18,7 +21,7 @@ export default function CalendarChart({
     const points = data[0].points;
     // Parse dates and values
     const parseDate = d3.timeParse('%Y-%m-%d');
-    const dateValueMap = new Map<string, number>();
+    const dateValueMap = new Map<string, number | null>();
     points.forEach(p => {
       const d = p.date.slice(0, 10);
       dateValueMap.set(d, p.value);

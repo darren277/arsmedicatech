@@ -4,7 +4,10 @@ import React, { useEffect } from 'react';
 export default function ScatterChart({
   data,
 }: {
-  data: { metricName: string; points: { date: string; value: number }[] }[];
+  data: {
+    metricName: string;
+    points: { date: string; value: number | null }[];
+  }[];
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -19,13 +22,20 @@ export default function ScatterChart({
 
     // Flatten all points
     const allPoints = data.flatMap(series =>
-      series.points.map(p => ({ ...p, metric: series.metricName }))
+      // value: p.value === null ? 0 : p.value
+      series.points.map(p => {
+        if (p.value === null) p.value = 0; // Handle null values
+        return { ...p, metric: series.metricName };
+      })
     );
     const parseDate = d3.timeParse('%Y-%m-%d');
-    const allParsedPoints = allPoints.map(d => ({
-      ...d,
-      date: parseDate(d.date) as Date,
-    }));
+    const allParsedPoints = allPoints.map(d => {
+      if (d.value === null) d.value = 0; // Handle null values
+      return {
+        ...d,
+        date: parseDate(d.date) as Date,
+      };
+    });
     const metrics = data.map(d => d.metricName);
 
     // X and Y scales
@@ -66,7 +76,7 @@ export default function ScatterChart({
       .enter()
       .append('circle')
       .attr('cx', d => x(d.date))
-      .attr('cy', d => y(d.value))
+      .attr('cy', d => y(d.value ?? 0))
       .attr('r', 4)
       .attr('fill', d => color(d.metric) as string)
       .attr('opacity', 0.8);
