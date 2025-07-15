@@ -1,0 +1,19 @@
+{
+  "name": "hello_world",
+  "version": "1.0.0",
+  "description": "A simple Hello World plugin",
+  "author": "Your Name",
+  "license": "MIT",
+  "main_py": "index.py",
+  "main_js": "index.jsx",
+  "permissions": {
+    "patients": {
+      "read": true,
+      "write": false
+    },
+    "appointments": {
+      "read": true,
+      "write": false
+    }
+  }
+}
