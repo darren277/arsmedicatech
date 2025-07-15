@@ -4,6 +4,7 @@ import { Button, Card, Input, Label } from './FormComponents';
 import { useUser } from './UserContext';
 import AreaChart from './visualizations/AreaChart';
 import BarChart from './visualizations/BarChart';
+import CalendarChart from './visualizations/CalendarChart';
 import Heatmap from './visualizations/Heatmap';
 import LineChart from './visualizations/LineChart';
 import RadarChart from './visualizations/RadarChart';
@@ -27,7 +28,7 @@ export function HealthMetricVisualization() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [visualizationType, setVisualizationType] = useState<
-    'line' | 'bar' | 'scatter' | 'area' | 'radar' | 'heatmap'
+    'line' | 'bar' | 'scatter' | 'area' | 'radar' | 'heatmap' | 'calendar'
   >('line');
   const [metrics, setMetrics] = useState<MetricSet[]>([]);
   const [metricNames, setMetricNames] = useState<string[]>([]);
@@ -131,6 +132,7 @@ export function HealthMetricVisualization() {
                   | 'area'
                   | 'radar'
                   | 'heatmap'
+                  | 'calendar'
               )
             }
           >
@@ -140,6 +142,7 @@ export function HealthMetricVisualization() {
             <option value="area">Area Chart</option>
             <option value="radar">Radar Chart</option>
             <option value="heatmap">Heatmap</option>
+            <option value="calendar">Calendar Chart</option>
           </select>
         </div>
         <div>
@@ -175,6 +178,8 @@ export function HealthMetricVisualization() {
           <RadarChart data={chartData} date={endDate} />
         ) : visualizationType === 'heatmap' ? (
           <Heatmap data={chartData} />
+        ) : visualizationType === 'calendar' ? (
+          <CalendarChart data={chartData} />
         ) : (
           <div>Visualization type not implemented yet.</div>
         )}
