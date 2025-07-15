@@ -10,4 +10,7 @@ const PluginRegistry = {
   },
 };
 
+// Attach to window for plugin scripts
+(window as any).PluginRegistry = PluginRegistry;
+
 export { PluginRegistry };

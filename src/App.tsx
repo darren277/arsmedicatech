@@ -26,8 +26,28 @@ import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
+import { useEffect } from 'react';
+import { API_URL } from './env_vars';
+import { usePluginRoutes } from './hooks/usePluginRoutes';
 import Organization from './pages/Organization';
+import { pluginAPI } from './services/api';
 import logger from './services/logging';
+
+function useLoadPlugins() {
+  useEffect(() => {
+    pluginAPI.getAll().then(plugins => {
+      plugins.forEach((plugin: any) => {
+        if (plugin.main_js) {
+          const script = document.createElement('script');
+          script.src = API_URL + `/plugin/${plugin.name}`;
+          script.async = true;
+          console.log('Loading plugin:', script);
+          document.body.appendChild(script);
+        }
+      });
+    });
+  }, []);
+}
 
 function Home() {
   logger.debug('Home component rendered');
@@ -118,7 +138,7 @@ function ErrorPage() {
   );
 }
 
-const routes = [
+const baseRoutes = [
   { index: true, element: <Dashboard /> },
   { path: 'about', element: <About /> },
   { path: 'contact', element: <Contact /> },
@@ -142,28 +162,20 @@ const routes = [
   { path: 'organization', element: <Organization /> },
 ];
 
-import { PluginRegistry } from './pluginRegistry';
-
-// Register routes from plugins
-PluginRegistry.routes.forEach(route => {
-  logger.debug('Registering route from PluginRegistry:', route);
-  if (route.path && route.element) {
-    routes.push(route);
-  } else {
-    logger.warn('Invalid route registered in PluginRegistry:', route);
-  }
-});
-
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Home />,
-    children: routes,
-    errorElement: <ErrorPage />,
-  },
-]);
-
 function App() {
+  useLoadPlugins();
+
+  const routes = usePluginRoutes(baseRoutes);
+
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <Home />,
+      children: routes,
+      errorElement: <ErrorPage />,
+    },
+  ]);
+
   return (
     <UserProvider>
       <NotificationProvider>
