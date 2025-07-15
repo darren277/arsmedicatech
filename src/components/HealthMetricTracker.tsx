@@ -5,6 +5,7 @@ import { useUser } from './UserContext';
 import AreaChart from './visualizations/AreaChart';
 import BarChart from './visualizations/BarChart';
 import LineChart from './visualizations/LineChart';
+import RadarChart from './visualizations/RadarChart';
 import ScatterChart from './visualizations/ScatterChart';
 
 type Metric = {
@@ -25,7 +26,7 @@ export function HealthMetricVisualization() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [visualizationType, setVisualizationType] = useState<
-    'line' | 'bar' | 'scatter' | 'area'
+    'line' | 'bar' | 'scatter' | 'area' | 'radar'
   >('line');
   const [metrics, setMetrics] = useState<MetricSet[]>([]);
   const [metricNames, setMetricNames] = useState<string[]>([]);
@@ -122,7 +123,7 @@ export function HealthMetricVisualization() {
             value={visualizationType}
             onChange={e =>
               setVisualizationType(
-                e.target.value as 'line' | 'bar' | 'scatter' | 'area'
+                e.target.value as 'line' | 'bar' | 'scatter' | 'area' | 'radar'
               )
             }
           >
@@ -130,6 +131,7 @@ export function HealthMetricVisualization() {
             <option value="bar">Bar Chart (coming soon)</option>
             <option value="scatter">Scatter Plot (coming soon)</option>
             <option value="area">Area Chart</option>
+            <option value="radar">Radar Chart</option>
           </select>
         </div>
         <div>
@@ -161,6 +163,8 @@ export function HealthMetricVisualization() {
           <ScatterChart data={chartData} />
         ) : visualizationType === 'area' ? (
           <AreaChart data={chartData} />
+        ) : visualizationType === 'radar' ? (
+          <RadarChart data={chartData} date={endDate} />
         ) : (
           <div>Visualization type not implemented yet.</div>
         )}
