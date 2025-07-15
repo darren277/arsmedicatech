@@ -118,33 +118,47 @@ function ErrorPage() {
   );
 }
 
+const routes = [
+  { index: true, element: <Dashboard /> },
+  { path: 'about', element: <About /> },
+  { path: 'contact', element: <Contact /> },
+  { path: 'patients', element: <Patients /> },
+  { path: 'patients/new', element: <PatientForm /> },
+  { path: 'patients/:patientId', element: <PatientDetail /> },
+  { path: 'patients/:patientId/edit', element: <PatientForm /> },
+  { path: 'encounters/:encounterId', element: <EncounterDetail /> },
+  { path: 'encounters/new', element: <EncounterFormPage /> },
+  { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
+  {
+    path: 'patients/:patientId/encounters/new',
+    element: <EncounterFormPage />,
+  },
+  { path: 'intake/:patientId', element: <PatientIntakeForm /> },
+  { path: 'schedule', element: <Schedule /> },
+  { path: 'messages', element: <Messages /> },
+  { path: 'settings', element: <Settings /> },
+  { path: 'lab-results', element: <LabResults /> },
+
+  { path: 'organization', element: <Organization /> },
+];
+
+import { PluginRegistry } from './pluginRegistry';
+
+// Register routes from plugins
+PluginRegistry.routes.forEach(route => {
+  logger.debug('Registering route from PluginRegistry:', route);
+  if (route.path && route.element) {
+    routes.push(route);
+  } else {
+    logger.warn('Invalid route registered in PluginRegistry:', route);
+  }
+});
+
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Home />,
-    children: [
-      { index: true, element: <Dashboard /> },
-      { path: 'about', element: <About /> },
-      { path: 'contact', element: <Contact /> },
-      { path: 'patients', element: <Patients /> },
-      { path: 'patients/new', element: <PatientForm /> },
-      { path: 'patients/:patientId', element: <PatientDetail /> },
-      { path: 'patients/:patientId/edit', element: <PatientForm /> },
-      { path: 'encounters/:encounterId', element: <EncounterDetail /> },
-      { path: 'encounters/new', element: <EncounterFormPage /> },
-      { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
-      {
-        path: 'patients/:patientId/encounters/new',
-        element: <EncounterFormPage />,
-      },
-      { path: 'intake/:patientId', element: <PatientIntakeForm /> },
-      { path: 'schedule', element: <Schedule /> },
-      { path: 'messages', element: <Messages /> },
-      { path: 'settings', element: <Settings /> },
-      { path: 'lab-results', element: <LabResults /> },
-
-      { path: 'organization', element: <Organization /> },
-    ],
+    children: routes,
     errorElement: <ErrorPage />,
   },
 ]);
