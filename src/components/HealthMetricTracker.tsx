@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import * as d3 from 'd3';
+import React, { useEffect, useState } from 'react';
 import apiService from '../services/api';
 import { Button, Card, Input, Label } from './FormComponents';
 import { useUser } from './UserContext';
@@ -14,6 +15,219 @@ type MetricSet = {
   date: string;
   metrics: Metric[];
 };
+
+// LineChart component using d3
+function LineChart({
+  data,
+  metricName,
+}: {
+  data: { date: string; value: number }[];
+  metricName: string;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    // Clear previous chart
+    ref.current.innerHTML = '';
+    if (!data.length) return;
+
+    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+    const width = 500 - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
+
+    const svg = d3
+      .select(ref.current)
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Parse dates
+    const parseDate = d3.timeParse('%Y-%m-%d');
+    const chartData = data.map(d => ({
+      ...d,
+      date: parseDate(d.date) as Date,
+    }));
+
+    // X and Y scales
+    const x = d3
+      .scaleTime()
+      .domain(d3.extent(chartData, d => d.date) as [Date, Date])
+      .range([0, width]);
+    const y = d3
+      .scaleLinear()
+      .domain([
+        d3.min(chartData, d => d.value) ?? 0,
+        d3.max(chartData, d => d.value) ?? 1,
+      ])
+      .nice()
+      .range([height, 0]);
+
+    // X axis
+    svg
+      .append('g')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x).ticks(5));
+
+    // Y axis
+    svg.append('g').call(d3.axisLeft(y));
+
+    // Line
+    svg
+      .append('path')
+      .datum(chartData)
+      .attr('fill', 'none')
+      .attr('stroke', '#2563eb')
+      .attr('stroke-width', 2)
+      .attr(
+        'd',
+        d3
+          .line<{ date: Date; value: number }>()
+          .x(d => x(d.date))
+          .y(d => y(d.value))
+      );
+
+    // Dots
+    svg
+      .selectAll('dot')
+      .data(chartData)
+      .enter()
+      .append('circle')
+      .attr('cx', d => x(d.date))
+      .attr('cy', d => y(d.value))
+      .attr('r', 3)
+      .attr('fill', '#2563eb');
+  }, [data, metricName]);
+
+  return <div ref={ref}></div>;
+}
+
+// New screen for visualizing metrics
+export function HealthMetricVisualization() {
+  const { user, isLoading: userLoading } = useUser();
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+  const [visualizationType, setVisualizationType] = useState<'line'>('line');
+  const [metrics, setMetrics] = useState<MetricSet[]>([]);
+  const [metricNames, setMetricNames] = useState<string[]>([]);
+  const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    if (!startDate || !endDate) return;
+    setLoading(true);
+    setError(null);
+    apiService
+      .get(`/api/users/${user.id}/metrics`)
+      .then(res => {
+        // Filter by date range
+        const filtered = (res.metrics || []).filter((set: MetricSet) => {
+          return set.date >= startDate && set.date <= endDate;
+        });
+        setMetrics(filtered);
+        // Collect all metric names
+        const names = Array.from(
+          new Set(
+            filtered.flatMap((set: MetricSet) =>
+              set.metrics.map(m => m.metric_name)
+            )
+          )
+        ) as string[];
+        setMetricNames(names);
+        if (names.length && !selectedMetric)
+          setSelectedMetric(names[0] as string);
+      })
+      .catch(() => setError('Failed to fetch metrics'))
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, startDate, endDate]);
+
+  // Prepare data for the chart
+  const chartData = React.useMemo(() => {
+    if (!selectedMetric) return [];
+    // Flatten all metric sets for the selected metric
+    const points: { date: string; value: number }[] = [];
+    metrics.forEach(set => {
+      set.metrics.forEach(m => {
+        if (m.metric_name === selectedMetric) {
+          // Try to parse value as number
+          const value = parseFloat(m.metric_value);
+          if (!isNaN(value)) {
+            points.push({ date: set.date, value });
+          }
+        }
+      });
+    });
+    // Sort by date
+    return points.sort((a, b) => a.date.localeCompare(b.date));
+  }, [metrics, selectedMetric]);
+
+  if (userLoading) return <div>Loading user...</div>;
+
+  return (
+    <Card className="p-6 space-y-4 w-full max-w-4xl mx-auto mt-8">
+      <h2 className="text-xl font-semibold">Health Metrics Visualization</h2>
+      {error && <div className="text-red-600">{error}</div>}
+      <div className="flex flex-col md:flex-row gap-4 items-center">
+        <div>
+          <Label>Start Date</Label>
+          <Input
+            type="date"
+            value={startDate}
+            onChange={e => setStartDate(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label>End Date</Label>
+          <Input
+            type="date"
+            value={endDate}
+            onChange={e => setEndDate(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label>Visualization Type</Label>
+          <select
+            className="border rounded px-2 py-1"
+            value={visualizationType}
+            onChange={e => setVisualizationType(e.target.value as 'line')}
+          >
+            <option value="line">Line Chart</option>
+            {/* Add more options in the future */}
+          </select>
+        </div>
+        <div>
+          <Label>Metric</Label>
+          <select
+            className="border rounded px-2 py-1"
+            value={selectedMetric}
+            onChange={e => setSelectedMetric(e.target.value)}
+            disabled={metricNames.length === 0}
+          >
+            {metricNames.map(name => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div className="mt-8">
+        {loading ? (
+          <div>Loading chart...</div>
+        ) : chartData.length === 0 ? (
+          <div>No data for selected range/metric.</div>
+        ) : (
+          <LineChart data={chartData} metricName={selectedMetric} />
+        )}
+      </div>
+    </Card>
+  );
+}
 
 export default function HealthMetricTracker() {
   const { user, isLoading: userLoading } = useUser();
