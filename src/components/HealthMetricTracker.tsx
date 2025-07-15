@@ -360,6 +360,13 @@ function HealthMetricTracker() {
           {loading ? 'Submitting...' : 'Submit'}
         </Button>
       </div>
+
+      <Button
+        className="bg-blue-600 hover:bg-blue-700 text-white"
+        onClick={() => (window.location.href = '/health-metrics-visualization')}
+      >
+        Health Metrics Visualization
+      </Button>
     </Card>
   );
 }
