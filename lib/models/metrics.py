@@ -24,12 +24,14 @@ class Metric:
         }
 
 class MetricSet:
-    def __init__(self, date: str, metrics: List[Metric]):
+    def __init__(self, user_id: str, date: str, metrics: List[Metric]):
+        self.user_id = user_id
         self.date = date
         self.metrics = metrics
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            'user_id': self.user_id,
             'date': self.date,
             'metrics': [metric.to_dict() for metric in self.metrics]
         }
