@@ -343,10 +343,18 @@ function HealthMetricTracker() {
       </div>
 
       <div className="flex justify-between items-center pt-4">
-        <Button variant="secondary" onClick={addRow} disabled={loading}>
+        <Button
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+          onClick={addRow}
+          disabled={loading}
+        >
           + Add Metric
         </Button>
-        <Button onClick={handleSubmit} disabled={loading}>
+        <Button
+          className="bg-green-600 hover:bg-green-700 text-white"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
           {loading ? 'Submitting...' : 'Submit'}
         </Button>
       </div>
