@@ -1,11 +1,13 @@
 // A plugin registration system
+import { PluginRoute, PluginWidget } from './types';
+
 const PluginRegistry = {
-  routes: [],
-  widgets: [],
-  registerRoute(route: any) {
+  routes: [] as PluginRoute[],
+  widgets: [] as PluginWidget[],
+  registerRoute(route: PluginRoute) {
     this.routes.push(route);
   },
-  registerWidget(widget: any) {
+  registerWidget(widget: PluginWidget) {
     this.widgets.push(widget);
   },
 };

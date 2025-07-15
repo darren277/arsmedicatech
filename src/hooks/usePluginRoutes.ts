@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { PluginRegistry } from '../pluginRegistry';
+import { PluginRoute } from '../types';
 
-export function usePluginRoutes(baseRoutes) {
+export function usePluginRoutes(baseRoutes: PluginRoute[]) {
   const [routes, setRoutes] = useState([
     ...baseRoutes,
     ...PluginRegistry.routes,

@@ -32,6 +32,7 @@ import { usePluginRoutes } from './hooks/usePluginRoutes';
 import Organization from './pages/Organization';
 import { pluginAPI } from './services/api';
 import logger from './services/logging';
+import { PluginRoute } from './types';
 
 function useLoadPlugins() {
   useEffect(() => {
@@ -139,7 +140,7 @@ function ErrorPage() {
   );
 }
 
-const baseRoutes = [
+const baseRoutes: PluginRoute[] = [
   { index: true, element: <Dashboard /> },
   { path: 'about', element: <About /> },
   { path: 'contact', element: <Contact /> },
