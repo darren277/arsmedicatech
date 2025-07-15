@@ -85,6 +85,8 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow cross-site requests
 # Global OPTIONS handler for CORS preflight
 @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
 @app.route('/<path:path>', methods=['OPTIONS'])
+@metrics_bp.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+@metrics_bp.route('/<path:path>', methods=['OPTIONS'])
 def handle_options(path: str) -> Tuple[Response, int]:
     """
     Global OPTIONS handler to handle CORS preflight requests.
@@ -96,7 +98,8 @@ def handle_options(path: str) -> Tuple[Response, int]:
     origin = request.headers.get('Origin')
     logger.debug(f"Global OPTIONS Origin: {origin}")
     response.headers['Access-Control-Allow-Origin'] = origin or '*'
-    response.headers['Access-Control-Allow-Credentials'] = 'false'
+    #response.headers['Access-Control-Allow-Credentials'] = 'false'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept, Cache-Control'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     response.headers['Access-Control-Max-Age'] = '86400'
