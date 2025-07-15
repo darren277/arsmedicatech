@@ -49,6 +49,8 @@ function useLoadPlugins() {
   }, []);
 }
 
+const isTestMode = true;
+
 function Home() {
   logger.debug('Home component rendered');
 
@@ -57,7 +59,6 @@ function Home() {
   // This should load when the user first logs in and then update the state to not run again
   // And during e2e testing, it should always be disabled.
   //const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_TOUR === 'true';
-  const isTestMode = true;
   const [runTour, setRunTour] = useState(!isTestMode);
 
   // Get notification context
@@ -163,9 +164,15 @@ const baseRoutes = [
 ];
 
 function App() {
-  useLoadPlugins();
+  let routes;
 
-  const routes = usePluginRoutes(baseRoutes);
+  if (!isTestMode) {
+    useLoadPlugins();
+    routes = usePluginRoutes(baseRoutes);
+  } else {
+    // For testing, we can use the base routes directly
+    routes = baseRoutes;
+  }
 
   const router = createBrowserRouter([
     {
