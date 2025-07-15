@@ -24,7 +24,7 @@ export function HealthMetricVisualization() {
   const [visualizationType, setVisualizationType] = useState<'line'>('line');
   const [metrics, setMetrics] = useState<MetricSet[]>([]);
   const [metricNames, setMetricNames] = useState<string[]>([]);
-  const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,33 +50,42 @@ export function HealthMetricVisualization() {
           )
         ) as string[];
         setMetricNames(names);
-        if (names.length && !selectedMetric)
-          setSelectedMetric(names[0] as string);
+        // If no metrics selected, select all by default
+        if (names.length && selectedMetrics.length === 0)
+          setSelectedMetrics(names);
       })
       .catch(() => setError('Failed to fetch metrics'))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, startDate, endDate]);
 
-  // Prepare data for the chart
+  // Handle checkbox toggle
+  const handleMetricToggle = (metric: string) => {
+    setSelectedMetrics(prev =>
+      prev.includes(metric) ? prev.filter(m => m !== metric) : [...prev, metric]
+    );
+  };
+
+  // Prepare data for the chart: { metricName: string, points: { date, value }[] }
   const chartData = React.useMemo(() => {
-    if (!selectedMetric) return [];
-    // Flatten all metric sets for the selected metric
-    const points: { date: string; value: number }[] = [];
-    metrics.forEach(set => {
-      set.metrics.forEach(m => {
-        if (m.metric_name === selectedMetric) {
-          // Try to parse value as number
-          const value = parseFloat(m.metric_value);
-          if (!isNaN(value)) {
-            points.push({ date: set.date, value });
+    return selectedMetrics.map(metricName => {
+      const points: { date: string; value: number }[] = [];
+      metrics.forEach(set => {
+        set.metrics.forEach(m => {
+          if (m.metric_name === metricName) {
+            const value = parseFloat(m.metric_value);
+            if (!isNaN(value)) {
+              points.push({ date: set.date, value });
+            }
           }
-        }
+        });
       });
+      return {
+        metricName,
+        points: points.sort((a, b) => a.date.localeCompare(b.date)),
+      };
     });
-    // Sort by date
-    return points.sort((a, b) => a.date.localeCompare(b.date));
-  }, [metrics, selectedMetric]);
+  }, [metrics, selectedMetrics]);
 
   if (userLoading) return <div>Loading user...</div>;
 
@@ -113,25 +122,25 @@ export function HealthMetricVisualization() {
           </select>
         </div>
         <div>
-          <Label>Metric</Label>
-          <select
-            className="border rounded px-2 py-1"
-            value={selectedMetric}
-            onChange={e => setSelectedMetric(e.target.value)}
-            disabled={metricNames.length === 0}
-          >
+          <Label>Metrics to Display</Label>
+          <div className="flex flex-col max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
             {metricNames.map(name => (
-              <option key={name} value={name}>
-                {name}
-              </option>
+              <label key={name} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selectedMetrics.includes(name)}
+                  onChange={() => handleMetricToggle(name)}
+                />
+                <span>{name}</span>
+              </label>
             ))}
-          </select>
+          </div>
         </div>
       </div>
       <div className="mt-8">
         {loading ? (
           <div>Loading chart...</div>
-        ) : chartData.length === 0 ? (
+        ) : chartData.length === 0 || selectedMetrics.length === 0 ? (
           <div>No data for selected range/metric.</div>
         ) : (
           <LineChart data={chartData} metricName={selectedMetric} />
