@@ -21,7 +21,9 @@ export function HealthMetricVisualization() {
   const { user, isLoading: userLoading } = useUser();
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
-  const [visualizationType, setVisualizationType] = useState<'line'>('line');
+  const [visualizationType, setVisualizationType] = useState<
+    'line' | 'bar' | 'scatter'
+  >('line');
   const [metrics, setMetrics] = useState<MetricSet[]>([]);
   const [metricNames, setMetricNames] = useState<string[]>([]);
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
@@ -115,10 +117,13 @@ export function HealthMetricVisualization() {
           <select
             className="border rounded px-2 py-1"
             value={visualizationType}
-            onChange={e => setVisualizationType(e.target.value as 'line')}
+            onChange={e =>
+              setVisualizationType(e.target.value as 'line' | 'bar' | 'scatter')
+            }
           >
             <option value="line">Line Chart</option>
-            {/* Add more options in the future */}
+            <option value="bar">Bar Chart (coming soon)</option>
+            <option value="scatter">Scatter Plot (coming soon)</option>
           </select>
         </div>
         <div>
@@ -142,8 +147,10 @@ export function HealthMetricVisualization() {
           <div>Loading chart...</div>
         ) : chartData.length === 0 || selectedMetrics.length === 0 ? (
           <div>No data for selected range/metric.</div>
+        ) : visualizationType === 'line' ? (
+          <LineChart data={chartData} />
         ) : (
-          <LineChart data={chartData} metricName={selectedMetric} />
+          <div>Visualization type not implemented yet.</div>
         )}
       </div>
     </Card>
