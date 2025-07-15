@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiService from '../services/api';
 import { Button, Card, Input, Label } from './FormComponents';
 import { useUser } from './UserContext';
+import AreaChart from './visualizations/AreaChart';
 import BarChart from './visualizations/BarChart';
 import LineChart from './visualizations/LineChart';
 import ScatterChart from './visualizations/ScatterChart';
@@ -24,7 +25,7 @@ export function HealthMetricVisualization() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [visualizationType, setVisualizationType] = useState<
-    'line' | 'bar' | 'scatter'
+    'line' | 'bar' | 'scatter' | 'area'
   >('line');
   const [metrics, setMetrics] = useState<MetricSet[]>([]);
   const [metricNames, setMetricNames] = useState<string[]>([]);
@@ -120,12 +121,15 @@ export function HealthMetricVisualization() {
             className="border rounded px-2 py-1"
             value={visualizationType}
             onChange={e =>
-              setVisualizationType(e.target.value as 'line' | 'bar' | 'scatter')
+              setVisualizationType(
+                e.target.value as 'line' | 'bar' | 'scatter' | 'area'
+              )
             }
           >
             <option value="line">Line Chart</option>
             <option value="bar">Bar Chart (coming soon)</option>
             <option value="scatter">Scatter Plot (coming soon)</option>
+            <option value="area">Area Chart</option>
           </select>
         </div>
         <div>
@@ -155,6 +159,8 @@ export function HealthMetricVisualization() {
           <BarChart data={chartData} />
         ) : visualizationType === 'scatter' ? (
           <ScatterChart data={chartData} />
+        ) : visualizationType === 'area' ? (
+          <AreaChart data={chartData} />
         ) : (
           <div>Visualization type not implemented yet.</div>
         )}
