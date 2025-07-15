@@ -71,3 +71,5 @@ if not SENTRY_DSN:
 
 DEMO_ADMIN_USERNAME = os.environ.get('DEMO_ADMIN_USERNAME', 'admin')
 DEMO_ADMIN_PASSWORD = os.environ.get('DEMO_ADMIN_PASSWORD', 'admin')
+
+BUCKET_NAME = os.environ.get('S3_BUCKET', 'my-bucket')
