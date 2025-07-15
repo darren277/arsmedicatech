@@ -10,6 +10,11 @@ import LabResults from './pages/LabResults';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
 
+import {
+  HealthMetricTracker,
+  HealthMetricVisualization,
+} from './components/HealthMetricTracker';
+
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 
@@ -142,6 +147,11 @@ const router = createBrowserRouter([
       { path: 'messages', element: <Messages /> },
       { path: 'settings', element: <Settings /> },
       { path: 'lab-results', element: <LabResults /> },
+      { path: 'health-metrics', element: <HealthMetricTracker /> },
+      {
+        path: 'health-metrics-visualization',
+        element: <HealthMetricVisualization />,
+      },
 
       { path: 'organization', element: <Organization /> },
     ],

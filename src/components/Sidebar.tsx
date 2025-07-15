@@ -37,16 +37,26 @@ const Sidebar = () => {
             </li>
           )}
           {userType === 'patient' ? (
-            <li>
-              {user?.id && (
+            <>
+              <li>
+                {user?.id && (
+                  <NavLink
+                    to={`/intake/${user.id}`}
+                    className={({ isActive }) => (isActive ? 'active' : '')}
+                  >
+                    Intake Form
+                  </NavLink>
+                )}
+              </li>
+              <li>
                 <NavLink
-                  to={`/intake/${user.id}`}
+                  to="/health-metrics"
                   className={({ isActive }) => (isActive ? 'active' : '')}
                 >
-                  Intake Form
+                  Health Metrics
                 </NavLink>
-              )}
-            </li>
+              </li>
+            </>
           ) : (
             <>
               <li>

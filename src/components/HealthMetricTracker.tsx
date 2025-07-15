@@ -23,7 +23,7 @@ type MetricSet = {
 };
 
 // New screen for visualizing metrics
-export function HealthMetricVisualization() {
+function HealthMetricVisualization() {
   const { user, isLoading: userLoading } = useUser();
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -188,7 +188,7 @@ export function HealthMetricVisualization() {
   );
 }
 
-export default function HealthMetricTracker() {
+function HealthMetricTracker() {
   const { user, isLoading: userLoading } = useUser();
   const [metrics, setMetrics] = useState<Metric[]>([
     { metric_name: '', metric_value: '', metric_unit: '' },
@@ -388,3 +388,5 @@ export default function HealthMetricTracker() {
     </Card>
   );
 }
+
+export { HealthMetricTracker, HealthMetricVisualization };
