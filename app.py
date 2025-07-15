@@ -3,7 +3,7 @@ Main application file for the Flask server.
 """
 import json
 import time
-from typing import Tuple, Union
+from typing import Any, Dict, Tuple, Union
 
 import sentry_sdk
 import werkzeug
@@ -841,6 +841,49 @@ def remove_clinic_from_organization(org_id: str) -> Tuple[Response, int]:
 
 # Register event handlers for webhook delivery
 register_event_handlers()
+
+
+def validate_plugin_manifest(manifest: Dict[str, Any]) -> bool:
+    """
+    Validate the plugin manifest to ensure it has the required fields.
+    :param manifest: The plugin manifest dictionary.
+    :return: True if valid, False otherwise.
+    """
+    required_fields = ['name', 'version', 'description', 'entry_point']
+    return all(field in manifest for field in required_fields)
+
+
+def load_and_attach_plugins() -> None:
+    """
+    Load and attach plugins to the Flask app.
+    This function should be called after the app is created.
+    """
+    PLUGIN_DIR = 'plugins'
+    import os
+    from importlib import import_module
+
+    # Iterate through all directories in the plugins directory
+    for plugin_name in os.listdir(PLUGIN_DIR):
+        plugin_path = os.path.join(PLUGIN_DIR, plugin_name)
+        if os.path.isdir(plugin_path):
+            try:
+                # validate the plugin manifest
+                manifest_path = os.path.join(plugin_path, 'manifest.json')
+                if not os.path.exists(manifest_path):
+                    logger.error(f"Plugin {plugin_name} is missing manifest.json")
+                    continue
+                with open(manifest_path, 'r') as f:
+                    manifest = json.load(f)
+                if not validate_plugin_manifest(manifest):
+                    logger.error(f"Plugin {plugin_name} manifest is invalid: {manifest}")
+                    continue
+                entry_point = manifest.get('main_py')
+                if plugin_name != manifest.get('name'):
+                    logger.error(f"Plugin {plugin_name} name does not match manifest name: {manifest.get('name')}")
+                    continue
+                import_module(f"{PLUGIN_DIR}.{plugin_name}.py.{entry_point}")
+            except Exception as e:
+                logger.error(f"Failed to load plugin {plugin_name}: {e}")
 
 
 # Register the SSE blueprint
