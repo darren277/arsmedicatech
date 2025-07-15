@@ -3,12 +3,13 @@ Main application file for the Flask server.
 """
 import json
 import time
-from typing import Any, Dict, Tuple, Union
+from pathlib import Path
+from typing import Any, Dict, List, Tuple, Union
 
 import sentry_sdk
 import werkzeug
-from flask import (Blueprint, Flask, Response, jsonify, redirect, request,
-                   session)
+from flask import (Blueprint, Flask, Response, abort, jsonify, redirect,
+                   request, send_from_directory, session)
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
@@ -902,6 +903,39 @@ def load_and_attach_plugins() -> None:
 
 
 load_and_attach_plugins()
+
+
+@app.route('/api/plugins', methods=['GET'])
+def get_plugins():
+    """
+    Get a list of plugins by reading their manifest.json files.
+    """
+    import os
+    PLUGIN_DIR = 'plugins'
+    plugins: List[Dict[str, Any]] = []
+    for plugin_name in os.listdir(PLUGIN_DIR):
+        manifest_path = os.path.join(PLUGIN_DIR, plugin_name, 'manifest.json')
+        if os.path.exists(manifest_path):
+            with open(manifest_path, 'r') as f:
+                manifest = json.load(f)
+                plugins.append({
+                    'name': manifest.get('name'),
+                    'main_js': manifest.get('main_js'),
+                    'description': manifest.get('description'),
+                })
+    return jsonify(plugins), 200
+
+@app.route('/plugin/<plugin_name>', methods=['GET'])
+def serve_plugin_js(plugin_name: str) -> Tuple[Response, int]:
+    import os
+    plugin_js_path = Path(f'plugins/{plugin_name}/js')
+    js_file: str = os.path.join(plugin_js_path, 'index.js')
+    if not os.path.exists(js_file):
+        abort(404)
+    print(f"Serving plugin JS for {plugin_name} from {js_file}")
+    response = send_from_directory(plugin_js_path, 'index.js', mimetype='application/javascript')
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response, 200
 
 
 # Register the SSE blueprint
