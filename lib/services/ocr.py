@@ -91,16 +91,6 @@ class OCRService:
         blocks = response['Blocks']
         return self.get_text(blocks)
 
-    def upload_file_to_s3(self, file: FileStorage, s3_key: str) -> None:
-        """
-        Upload a file to S3.
-        :param file: FileStorage - The file to upload.
-        :param s3_key: str - The key under which to store the file in S3.
-        """
-        s3 = boto3.client('s3')
-        s3.upload_fileobj(file, self.bucket_name, s3_key)
-        print(f"File uploaded to {self.bucket_name}/{s3_key}")
-
 
 if __name__ == '__main__':
     ocr_service = OCRService()
