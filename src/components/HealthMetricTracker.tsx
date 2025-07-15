@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import apiService from '../services/api';
 import { Button, Card, Input, Label } from './FormComponents';
 import { useUser } from './UserContext';
+import BarChart from './visualizations/BarChart';
 import LineChart from './visualizations/LineChart';
+import ScatterChart from './visualizations/ScatterChart';
 
 type Metric = {
   metric_name: string;
@@ -149,6 +151,10 @@ export function HealthMetricVisualization() {
           <div>No data for selected range/metric.</div>
         ) : visualizationType === 'line' ? (
           <LineChart data={chartData} />
+        ) : visualizationType === 'bar' ? (
+          <BarChart data={chartData} />
+        ) : visualizationType === 'scatter' ? (
+          <ScatterChart data={chartData} />
         ) : (
           <div>Visualization type not implemented yet.</div>
         )}
