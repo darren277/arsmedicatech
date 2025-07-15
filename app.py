@@ -27,6 +27,7 @@ from lib.routes.chat import (create_conversation_route,
                              get_conversation_messages_route,
                              get_user_conversations_route, send_message_route)
 from lib.routes.llm_agent import llm_agent_endpoint_route
+from lib.routes.metrics import metrics_bp
 from lib.routes.organizations import get_organizations_route
 from lib.routes.patients import (create_encounter_route,
                                  delete_encounter_route,
@@ -106,6 +107,7 @@ metrics = PrometheusMetrics(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+app.register_blueprint(metrics_bp)
 
 sse_bp = Blueprint('sse', __name__)
 
