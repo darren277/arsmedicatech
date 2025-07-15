@@ -4,6 +4,7 @@ import { Button, Card, Input, Label } from './FormComponents';
 import { useUser } from './UserContext';
 import AreaChart from './visualizations/AreaChart';
 import BarChart from './visualizations/BarChart';
+import Heatmap from './visualizations/Heatmap';
 import LineChart from './visualizations/LineChart';
 import RadarChart from './visualizations/RadarChart';
 import ScatterChart from './visualizations/ScatterChart';
@@ -26,7 +27,7 @@ export function HealthMetricVisualization() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [visualizationType, setVisualizationType] = useState<
-    'line' | 'bar' | 'scatter' | 'area' | 'radar'
+    'line' | 'bar' | 'scatter' | 'area' | 'radar' | 'heatmap'
   >('line');
   const [metrics, setMetrics] = useState<MetricSet[]>([]);
   const [metricNames, setMetricNames] = useState<string[]>([]);
@@ -123,7 +124,13 @@ export function HealthMetricVisualization() {
             value={visualizationType}
             onChange={e =>
               setVisualizationType(
-                e.target.value as 'line' | 'bar' | 'scatter' | 'area' | 'radar'
+                e.target.value as
+                  | 'line'
+                  | 'bar'
+                  | 'scatter'
+                  | 'area'
+                  | 'radar'
+                  | 'heatmap'
               )
             }
           >
@@ -132,6 +139,7 @@ export function HealthMetricVisualization() {
             <option value="scatter">Scatter Plot (coming soon)</option>
             <option value="area">Area Chart</option>
             <option value="radar">Radar Chart</option>
+            <option value="heatmap">Heatmap</option>
           </select>
         </div>
         <div>
@@ -165,6 +173,8 @@ export function HealthMetricVisualization() {
           <AreaChart data={chartData} />
         ) : visualizationType === 'radar' ? (
           <RadarChart data={chartData} date={endDate} />
+        ) : visualizationType === 'heatmap' ? (
+          <Heatmap data={chartData} />
         ) : (
           <div>Visualization type not implemented yet.</div>
         )}
