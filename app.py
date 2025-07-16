@@ -28,6 +28,7 @@ from lib.routes.chat import (create_conversation_route,
                              get_conversation_messages_route,
                              get_user_conversations_route, send_message_route)
 from lib.routes.llm_agent import llm_agent_endpoint_route
+from lib.routes.metrics import metrics_bp
 from lib.routes.organizations import get_organizations_route
 from lib.routes.patients import (create_encounter_route,
                                  delete_encounter_route,
@@ -86,6 +87,8 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow cross-site requests
 # Global OPTIONS handler for CORS preflight
 @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
 @app.route('/<path:path>', methods=['OPTIONS'])
+@metrics_bp.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+@metrics_bp.route('/<path:path>', methods=['OPTIONS'])
 def handle_options(path: str) -> Tuple[Response, int]:
     """
     Global OPTIONS handler to handle CORS preflight requests.
@@ -109,6 +112,7 @@ metrics = PrometheusMetrics(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+app.register_blueprint(metrics_bp)
 
 sse_bp = Blueprint('sse', __name__)
 

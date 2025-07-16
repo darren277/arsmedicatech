@@ -345,6 +345,37 @@ export const organizationAPI = {
     }),
 };
 
+// Metrics API operations
+export const metricsAPI = {
+  // Get all metrics
+  getAll: () => apiService.getAPI('/metrics'),
+
+  // Get all metrics for a user
+  getAllForUser: (userId: string) =>
+    apiService.getAPI(`/metrics/users/${userId}`),
+
+  // Get a specific metric by ID
+  getById: (id: string) => apiService.getAPI(`/metrics/${id}`),
+
+  // Create a new metric
+  create: (metricData: any) => apiService.postAPI('/metrics', metricData),
+
+  // Update a metric
+  update: (id: string, metricData: any) =>
+    apiService.putAPI(`/metrics/${id}`, metricData),
+
+  // Delete a metric
+  delete: (id: string) => apiService.deleteAPI(`/metrics/${id}`),
+
+  // Get metrics for a user on a specific date
+  getForUserByDate: (userId: string, date: string) =>
+    apiService.getAPI(`/metrics/user/${userId}/date/${date}`),
+
+  // Upsert (create or update) metrics for a user on a specific date
+  upsertForUserByDate: (userId: string, date: string, metrics: any[]) =>
+    apiService.postAPI(`/metrics/user/${userId}/date/${date}`, { metrics }),
+};
+
 // File upload API operations
 export const fileUploadAPI = {
   // Get all uploads

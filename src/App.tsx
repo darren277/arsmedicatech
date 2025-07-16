@@ -10,6 +10,11 @@ import LabResults from './pages/LabResults';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
 
+import {
+  HealthMetricTracker,
+  HealthMetricVisualization,
+} from './components/HealthMetricTracker';
+
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 
@@ -153,15 +158,17 @@ const baseRoutes: PluginRoute[] = [
   { path: 'encounters/:encounterId', element: <EncounterDetail /> },
   { path: 'encounters/new', element: <EncounterFormPage /> },
   { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
-  {
-    path: 'patients/:patientId/encounters/new',
-    element: <EncounterFormPage />,
-  },
   { path: 'intake/:patientId', element: <PatientIntakeForm /> },
   { path: 'schedule', element: <Schedule /> },
   { path: 'messages', element: <Messages /> },
   { path: 'settings', element: <Settings /> },
   { path: 'lab-results', element: <LabResults /> },
+
+  { path: 'health-metrics', element: <HealthMetricTracker /> },
+  {
+    path: 'health-metrics-visualization',
+    element: <HealthMetricVisualization />,
+  },
 
   { path: 'organization', element: <Organization /> },
 
