@@ -76,3 +76,9 @@ DEMO_ADMIN_USERNAME = os.environ.get('DEMO_ADMIN_USERNAME', 'admin')
 DEMO_ADMIN_PASSWORD = os.environ.get('DEMO_ADMIN_PASSWORD', 'admin')
 
 BUCKET_NAME = os.environ.get('S3_BUCKET', 'my-bucket')
+
+S3_AWS_ACCESS_KEY_ID = os.environ.get('S3_AWS_ACCESS_KEY_ID', 'your-access-key-id')
+S3_AWS_SECRET_ACCESS_KEY = os.environ.get('S3_SECRET_ACCESS_KEY', 'your-secret-access-key')
+
+TEXTRACT_AWS_ACCESS_KEY_ID = os.environ.get('TEXTRACT_AWS_ACCESS_KEY_ID', 'your-access-key-id')
+TEXTRACT_AWS_SECRET_ACCESS_KEY = os.environ.get('TEXTRACT_AWS_SECRET_ACCESS_KEY', 'your-secret-access-key')

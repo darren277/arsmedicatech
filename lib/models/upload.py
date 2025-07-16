@@ -13,7 +13,7 @@ from werkzeug.datastructures import FileStorage
 
 from lib.data_types import UserID
 from lib.db.surreal import DbController
-from settings import BUCKET_NAME, logger
+from settings import BUCKET_NAME, logger, S3_AWS_ACCESS_KEY_ID, S3_AWS_SECRET_ACCESS_KEY
 
 
 class FileType(Enum):
@@ -106,8 +106,17 @@ class Upload:
         :param s3_key: str - The key under which to store the file in S3.
         """
         try:
-            s3 = boto3.client('s3')
-            s3.upload_fileobj(file, self.bucket_name, s3_key)
+            s3 = boto3.client(
+                's3',
+                aws_access_key_id=S3_AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=S3_AWS_SECRET_ACCESS_KEY,
+            )
+            s3.upload_fileobj(
+                file,
+                self.bucket_name,
+                s3_key,
+                ExtraArgs={'ACL': 'private'}
+            )
             self.s3_key = s3_key
             logger.info(f"File uploaded to {self.bucket_name}/{s3_key}")
         except Exception as e:

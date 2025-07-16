@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 import boto3 # type: ignore
 from werkzeug.datastructures import FileStorage
 
-from settings import BUCKET_NAME
+from settings import BUCKET_NAME, TEXTRACT_AWS_ACCESS_KEY_ID, TEXTRACT_AWS_SECRET_ACCESS_KEY
 
 
 class OCRService:
@@ -17,7 +17,11 @@ class OCRService:
         """
         Initializes the OCRService with a Textract client.
         """
-        self.client = boto3.client('textract')
+        self.client = boto3.client(
+            'textract',
+            aws_access_key_id=TEXTRACT_AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=TEXTRACT_AWS_SECRET_ACCESS_KEY,
+        )
         self.bucket_name = bucket_name
 
     def ocr(self, image_path: str) -> List[Dict[str, Any]]:
