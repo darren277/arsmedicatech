@@ -29,4 +29,8 @@ celery_app.conf.update( # type: ignore
     accept_content=["json"],
     timezone="UTC",
     enable_utc=True,
-) 
+)
+
+
+# Tell Celery to autodiscover tasks in all installed apps/packages
+celery_app.autodiscover_tasks(['lib.services'], related_name='upload_service') # type: ignore
