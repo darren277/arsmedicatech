@@ -1,7 +1,7 @@
 """
 OCR service for calling AWS Textract.
 """
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 import boto3 # type: ignore
 from werkzeug.datastructures import FileStorage
@@ -107,11 +107,29 @@ class OCRService:
         :param pdf_key: str - Key of the PDF file in S3.
         :return: str - Extracted text from the PDF.
         """
-        response = self.client.get_document_text_detection(
-            Document={'S3Object': {'Bucket': self.bucket_name, 'Name': pdf_key}})
+        # Start async job
+        response: Dict[str, Any] = self.client.start_document_text_detection(
+            DocumentLocation={'S3Object': {'Bucket': self.bucket_name, 'Name': pdf_key}}
+        )
+        job_id: str = response['JobId']
 
-        blocks = response['Blocks']
-        return self.get_text(blocks)
+        # Poll for job completion
+        import time
+        while True:
+            result: Dict[str, Any] = self.client.get_document_text_detection(JobId=job_id)
+            status: str = result['JobStatus']
+            logger.warning(f"Textract job status: {status}")
+            if status in ['SUCCEEDED', 'FAILED']:
+                break
+            time.sleep(2)
+
+        if status == 'SUCCEEDED':
+            blocks: List[Dict[str, Any]] = result['Blocks']
+            logger.warning(f"Textract job completed: {len(blocks)} blocks")
+            return extract_text_from_blocks(blocks)
+        else:
+            logger.error(f"Textract job failed: {result}")
+            raise Exception(f"Textract job failed: {result}")
 
     def get_text_from_image_s3(self, image_key: str) -> str:
         """
