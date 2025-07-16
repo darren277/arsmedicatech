@@ -344,4 +344,22 @@ export const organizationAPI = {
     }),
 };
 
+// File upload API operations
+export const fileUploadAPI = {
+  // Get all uploads
+  getAll: () => apiService.getAPI('/uploads'),
+  // Get a specific upload by ID
+  getById: (id: string) => apiService.getAPI(`/uploads/${id}`),
+
+  // Create a new upload
+  create: (uploadData: any) => apiService.postAPI('/uploads', uploadData),
+
+  // Update an upload
+  update: (id: string, uploadData: any) =>
+    apiService.putAPI(`/uploads/${id}`, uploadData),
+
+  // Delete an upload
+  delete: (id: string) => apiService.deleteAPI(`/uploads/${id}`),
+};
+
 export default apiService;
