@@ -39,6 +39,7 @@ from lib.routes.patients import (create_encounter_route,
                                  search_patients_route, update_encounter_route)
 from lib.routes.testing import (debug_session_route, test_crud_route,
                                 test_surrealdb_route)
+from lib.routes.uploads import uploads_bp
 from lib.routes.users import (activate_user_route, change_password_route,
                               check_users_exist_route, deactivate_user_route,
                               get_all_users_route, get_api_usage_route,
@@ -845,10 +846,10 @@ register_event_handlers()
 
 # Register the SSE blueprint
 app.register_blueprint(sse_bp)
+app.register_blueprint(uploads_bp)
 
 from asgiref.wsgi import WsgiToAsgi
 
 asgi_app = WsgiToAsgi(app)
 
 if __name__ == '__main__': app.run(port=PORT, debug=DEBUG, host=HOST)
-
