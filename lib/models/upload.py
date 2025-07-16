@@ -185,9 +185,11 @@ def create_upload(upload: Upload) -> Optional[str]:
         else:
             uploader_link = f"user:{uploader_id}"
         upload_dict = upload.to_dict()
-        upload_dict["uploader"] = {"@link": uploader_link}
+        #upload_dict["uploader"] = {"@link": uploader_link}
+        upload_dict["uploader"] = uploader_link
         result = db.create("upload", upload_dict)
-        logger.debug(f"Upload create result: {result}")
+        #result = db.query("CREATE upload CONTENT $data", {"data": upload_dict})
+        logger.warning(f"Upload create result: {result}")
         if not result:
             logger.warning("db.create returned no result! Upload may not have been saved.")
         if result and 'id' in result:
@@ -227,10 +229,20 @@ def get_uploads_by_user(user_id: UserID) -> List[Dict[str, Any]]:
         id_part = str(user_id)
         if ":" in id_part:
             id_part = id_part.split(":")[-1]
-        # Query using type::thing for record link
-        result = db.query("SELECT * FROM upload WHERE uploader = type::thing('user', $user_id) ORDER BY date_uploaded DESC", 
-                         {"user_id": id_part})
-        return [parse_upload(r) for r in result]
+        uploader_link = f"user:{id_part}"
+
+        logger.warning(f"UPLOADER LINK: {uploader_link}")
+        
+        # Query using uploader link string
+        res = db.query(
+            "SELECT * FROM upload WHERE uploader = $uid ORDER BY date_uploaded DESC",
+            {"uid": uploader_link}
+        )
+        
+        logger.warning(f"RAW DB RESULT: {res}")
+
+        return [parse_upload(r) for r in res]
+        
     except Exception as e:
         logger.error(f"Error getting uploads for user {user_id}: {e}")
         return []
