@@ -87,9 +87,19 @@ class ApiService {
 
   // POST request with API prefix
   async postAPI(endpoint: string, data: any): Promise<any> {
+    // If data is FormData, do not stringify and do not set Content-Type
+    const isFormData =
+      typeof FormData !== 'undefined' && data instanceof FormData;
+    let headers = this.getHeaders();
+    if (isFormData) {
+      // Remove Content-Type so browser sets it with boundary
+      const { ['Content-Type']: _, ...rest } = headers;
+      headers = rest;
+    }
     return this.request('/api' + endpoint, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
+      headers,
     });
   }
 
@@ -333,6 +343,24 @@ export const organizationAPI = {
     apiService.deleteAPIWithBody(`/organizations/${orgId}/clinics`, {
       clinic_id: clinicId,
     }),
+};
+
+// File upload API operations
+export const fileUploadAPI = {
+  // Get all uploads
+  getAll: () => apiService.getAPI('/uploads'),
+  // Get a specific upload by ID
+  getById: (id: string) => apiService.getAPI(`/uploads/${id}`),
+
+  // Create a new upload
+  create: (uploadData: any) => apiService.postAPI('/uploads', uploadData),
+
+  // Update an upload
+  update: (id: string, uploadData: any) =>
+    apiService.putAPI(`/uploads/${id}`, uploadData),
+
+  // Delete an upload
+  delete: (id: string) => apiService.deleteAPI(`/uploads/${id}`),
 };
 
 // Plugin API operations

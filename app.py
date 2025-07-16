@@ -40,6 +40,7 @@ from lib.routes.patients import (create_encounter_route,
                                  search_patients_route, update_encounter_route)
 from lib.routes.testing import (debug_session_route, test_crud_route,
                                 test_surrealdb_route)
+from lib.routes.uploads import uploads_bp
 from lib.routes.users import (activate_user_route, change_password_route,
                               check_users_exist_route, deactivate_user_route,
                               get_all_users_route, get_api_usage_route,
@@ -96,7 +97,8 @@ def handle_options(path: str) -> Tuple[Response, int]:
     origin = request.headers.get('Origin')
     logger.debug(f"Global OPTIONS Origin: {origin}")
     response.headers['Access-Control-Allow-Origin'] = origin or '*'
-    response.headers['Access-Control-Allow-Credentials'] = 'false'
+    #response.headers['Access-Control-Allow-Credentials'] = 'false'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept, Cache-Control'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     response.headers['Access-Control-Max-Age'] = '86400'
@@ -940,10 +942,10 @@ def serve_plugin_js(plugin_name: str) -> Tuple[Response, int]:
 
 # Register the SSE blueprint
 app.register_blueprint(sse_bp)
+app.register_blueprint(uploads_bp)
 
 from asgiref.wsgi import WsgiToAsgi
 
 asgi_app = WsgiToAsgi(app)
 
 if __name__ == '__main__': app.run(port=PORT, debug=DEBUG, host=HOST)
-

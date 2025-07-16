@@ -93,9 +93,20 @@ const Sidebar = () => {
               Settings
             </NavLink>
           </li>
-          {widgets.map((widget) => (
+          <li>
+            <NavLink
+              to="/uploads"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Uploads
+            </NavLink>
+          </li>
+          {widgets.map(widget => (
             <li key={widget.name}>
-              <NavLink to={widget.path} className={({ isActive }) => (isActive ? 'active' : '')}>
+              <NavLink
+                to={widget.path}
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
                 {widget.name}
               </NavLink>
             </li>

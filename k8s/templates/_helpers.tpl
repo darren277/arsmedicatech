@@ -1,4 +1,6 @@
 {{- define "surrealdb.sharedEnv" }}
+- name: S3_BUCKET
+  value: "{{ .Values.s3Bucket }}"
 - name: REDIS_HOST
   value: "{{ .Values.redis.host }}"
 - name: REDIS_PORT

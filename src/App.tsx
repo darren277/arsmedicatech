@@ -29,7 +29,9 @@ import { UserProvider } from './components/UserContext';
 import { useEffect } from 'react';
 import { API_URL } from './env_vars';
 import { usePluginRoutes } from './hooks/usePluginRoutes';
+import FileUpload from './pages/FileUpload';
 import Organization from './pages/Organization';
+import UploadDetails from './pages/UploadDetails';
 import { pluginAPI } from './services/api';
 import logger from './services/logging';
 import { PluginRoute } from './types';
@@ -162,6 +164,9 @@ const baseRoutes: PluginRoute[] = [
   { path: 'lab-results', element: <LabResults /> },
 
   { path: 'organization', element: <Organization /> },
+
+  { path: 'uploads', element: <FileUpload /> },
+  { path: 'uploads/:uploadId', element: <UploadDetails /> },
 ];
 
 function App() {

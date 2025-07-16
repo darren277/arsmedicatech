@@ -120,3 +120,35 @@ test-e2e-report:
 
 test-e2e-install:
 	npm run test:e2e:install
+
+
+# S3
+
+# Create S3 bucket for PDFs...
+s3-create:
+	aws s3api create-bucket --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(S3_BUCKET) | true
+	aws s3api put-public-access-block --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(S3_BUCKET) --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true | true
+	aws s3api put-bucket-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(S3_BUCKET) --policy file://config/s3_iam_bucket_policy.json | true
+
+
+s3-iam:
+	aws iam create-user --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-s3-writer | true
+	aws iam put-user-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-s3-writer --policy-name FlaskS3WritePolicy --policy-document file://config/flask_s3_write_policy.json | true
+	aws iam create-access-key --user-name flask-s3-writer
+
+textract-iam:
+	aws iam create-user --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-textract-user | true
+	aws iam put-user-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-textract-user --policy-name TextractReadPolicy --policy-document file://config/textract_read_write_policy.json | true
+	aws iam create-access-key --user-name flask-textract-user
+
+
+# Celery
+CELERY_IMAGE=celery-worker
+CELERY_VERSION=1.0.0
+
+
+celery-docker:
+	docker build -t $(CELERY_IMAGE):$(CELERY_VERSION) -f Dockerfile.celery .
+
+celery-run:
+	docker run -d --name celery-worker -e CELERY_BROKER_URL=redis://$(REDIS_HOST):$(REDIS_PORT)/1 -e SENTRY_DSN=$(SENTRY_DSN) -e CELERY_RESULT_BACKEND=redis://$(REDIS_HOST):$(REDIS_PORT)/1 $(CELERY_IMAGE):$(CELERY_VERSION)
