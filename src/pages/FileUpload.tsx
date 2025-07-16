@@ -1,6 +1,7 @@
-import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { fileUploadAPI } from '../services/api';
+import logger from '../services/logging';
 
 interface Upload {
   id: string;
@@ -29,10 +30,8 @@ const FileUpload: React.FC = () => {
   // Fetch uploads list
   const fetchUploads = useCallback(async () => {
     try {
-      const res = await axios.get<Upload[]>('/api/uploads', {
-        withCredentials: true,
-      });
-      setUploads(res.data);
+      const res = await fileUploadAPI.getAll();
+      setUploads(res);
     } catch (err) {
       setError('Failed to fetch uploads.');
     }
@@ -55,10 +54,8 @@ const FileUpload: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
       try {
-        const res = await axios.post('/api/uploads', formData, {
-          withCredentials: true,
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        const res = await fileUploadAPI.create(formData);
+        logger.debug('File uploaded successfully:', res);
         setSuccess('File uploaded!');
         fetchUploads();
       } catch (err: any) {
