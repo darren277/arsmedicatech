@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery-worker
+  template:
+    metadata:
+      labels:
+        app: celery-worker
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: celery-worker
+          image: "{{ .Values.flask.image.repository }}:{{ .Values.flask.image.tag }}"
+          imagePullPolicy: "{{ .Values.flask.image.pullPolicy }}"
+          command: ["celery"]
+          args: ["-A", "celery_worker.celery_app", "worker", "--loglevel=info"]
+          env:
+            {{ include "surrealdb.sharedEnv" . | indent 12 }}

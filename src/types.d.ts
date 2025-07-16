@@ -57,3 +57,14 @@ export interface LabResultsData {
   general_chemistry: LabResults;
   serum_proteins: LabResults;
 }
+
+export interface PluginRoute {
+  index?: boolean;
+  path?: string;
+  element: any;
+}
+
+export interface PluginWidget {
+  name: string;
+  path: string;
+}
