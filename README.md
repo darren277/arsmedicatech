@@ -464,3 +464,21 @@ Some of those cases:
 If time permits, I will return to these, but there is so much more value to be gained elsewhere.
 
 As for `disable_error_code = no-any-return`, this one I will likely be returning to sooner than later.
+
+## Celery Worker
+
+1. Make sure Redis is running for Celery.
+2. Start the Celery worker: `celery -A celery_worker.celery_app worker --pool=solo --loglevel=info`.
+3. Ensure Flask app is running and can access Redis and S3.
+
+## Extensions
+
+You can add extensions to the project by creating a new directory under `plugins/` and implementing the required functionality.
+
+There is an example plugin called `hello_world` that demonstrates how to create a simple Flask route.
+
+As for frontend plugins, the feature is very experimental, but there is a mechanism in place.
+
+Install Babel standalone: `npm install @babel/standalone`
+
+You will need to transpile any JSX to JS first: `node plugins/jsx2js.js plugins/hello_world/js/index.jsx plugins/hello_world/js/index.js`

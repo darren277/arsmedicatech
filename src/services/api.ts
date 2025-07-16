@@ -87,9 +87,19 @@ class ApiService {
 
   // POST request with API prefix
   async postAPI(endpoint: string, data: any): Promise<any> {
+    // If data is FormData, do not stringify and do not set Content-Type
+    const isFormData =
+      typeof FormData !== 'undefined' && data instanceof FormData;
+    let headers = this.getHeaders();
+    if (isFormData) {
+      // Remove Content-Type so browser sets it with boundary
+      const { ['Content-Type']: _, ...rest } = headers;
+      headers = rest;
+    }
     return this.request('/api' + endpoint, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
+      headers,
     });
   }
 
@@ -117,6 +127,14 @@ class ApiService {
   // DELETE request with API prefix
   async deleteAPI(endpoint: string): Promise<any> {
     return this.request('/api' + endpoint, { method: 'DELETE' });
+  }
+
+  // DELETE request with API prefix and body
+  async deleteAPIWithBody(endpoint: string, data: any): Promise<any> {
+    return this.request('/api' + endpoint, {
+      method: 'DELETE',
+      body: JSON.stringify(data),
+    });
   }
 
   // Patient-related API calls
@@ -298,6 +316,93 @@ export const encounterAPI = {
   // Search encounters
   search: (query: string) =>
     apiService.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`),
+};
+
+// Organization API operations
+export const organizationAPI = {
+  // Get all organizations
+  getAll: () => apiService.getAPI('/organizations'),
+
+  // Get a specific organization by ID
+  getById: (id: string) => apiService.getAPI(`/organizations/${id}`),
+
+  // Create a new organization
+  create: (orgData: any) => apiService.postAPI('/organizations', orgData),
+
+  // Update an organization
+  update: (id: string, orgData: any) =>
+    apiService.putAPI(`/organizations/${id}`, orgData),
+
+  // Get all clinics for an organization
+  getClinics: (orgId: string) =>
+    apiService.getAPI(`/organizations/${orgId}/clinics`),
+
+  // Add a clinic to an organization
+  addClinic: (orgId: string, clinicId: string) =>
+    apiService.postAPI(`/organizations/${orgId}/clinics`, {
+      clinic_id: clinicId,
+    }),
+
+  // Remove a clinic from an organization
+  removeClinic: (orgId: string, clinicId: string) =>
+    apiService.deleteAPIWithBody(`/organizations/${orgId}/clinics`, {
+      clinic_id: clinicId,
+    }),
+};
+
+// Metrics API operations
+export const metricsAPI = {
+  // Get all metrics
+  getAll: () => apiService.getAPI('/metrics'),
+
+  // Get all metrics for a user
+  getAllForUser: (userId: string) =>
+    apiService.getAPI(`/metrics/users/${userId}`),
+
+  // Get a specific metric by ID
+  getById: (id: string) => apiService.getAPI(`/metrics/${id}`),
+
+  // Create a new metric
+  create: (metricData: any) => apiService.postAPI('/metrics', metricData),
+
+  // Update a metric
+  update: (id: string, metricData: any) =>
+    apiService.putAPI(`/metrics/${id}`, metricData),
+
+  // Delete a metric
+  delete: (id: string) => apiService.deleteAPI(`/metrics/${id}`),
+
+  // Get metrics for a user on a specific date
+  getForUserByDate: (userId: string, date: string) =>
+    apiService.getAPI(`/metrics/user/${userId}/date/${date}`),
+
+  // Upsert (create or update) metrics for a user on a specific date
+  upsertForUserByDate: (userId: string, date: string, metrics: any[]) =>
+    apiService.postAPI(`/metrics/user/${userId}/date/${date}`, { metrics }),
+};
+
+// File upload API operations
+export const fileUploadAPI = {
+  // Get all uploads
+  getAll: () => apiService.getAPI('/uploads'),
+  // Get a specific upload by ID
+  getById: (id: string) => apiService.getAPI(`/uploads/${id}`),
+
+  // Create a new upload
+  create: (uploadData: any) => apiService.postAPI('/uploads', uploadData),
+
+  // Update an upload
+  update: (id: string, uploadData: any) =>
+    apiService.putAPI(`/uploads/${id}`, uploadData),
+
+  // Delete an upload
+  delete: (id: string) => apiService.deleteAPI(`/uploads/${id}`),
+};
+
+// Plugin API operations
+export const pluginAPI = {
+  // Get all plugins
+  getAll: () => apiService.getAPI('/plugins'),
 };
 
 export default apiService;

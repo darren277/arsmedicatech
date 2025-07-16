@@ -64,6 +64,9 @@ OPTIMAL_URL = os.environ.get('OPTIMAL_URL', 'https://optimal.apphosting.services
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
 
+NOTIFICATIONS_CHANNEL = 0
+UPLOADS_CHANNEL = 1
+
 SENTRY_DSN = os.environ.get('SENTRY_DSN', None)
 if not SENTRY_DSN:
     logger.error("SENTRY_DSN is not set. Sentry will not be initialized.")
@@ -71,3 +74,11 @@ if not SENTRY_DSN:
 
 DEMO_ADMIN_USERNAME = os.environ.get('DEMO_ADMIN_USERNAME', 'admin')
 DEMO_ADMIN_PASSWORD = os.environ.get('DEMO_ADMIN_PASSWORD', 'admin')
+
+BUCKET_NAME = os.environ.get('S3_BUCKET', 'my-bucket')
+
+S3_AWS_ACCESS_KEY_ID = os.environ.get('S3_AWS_ACCESS_KEY_ID', 'your-access-key-id')
+S3_AWS_SECRET_ACCESS_KEY = os.environ.get('S3_SECRET_ACCESS_KEY', 'your-secret-access-key')
+
+TEXTRACT_AWS_ACCESS_KEY_ID = os.environ.get('TEXTRACT_AWS_ACCESS_KEY_ID', 'your-access-key-id')
+TEXTRACT_AWS_SECRET_ACCESS_KEY = os.environ.get('TEXTRACT_AWS_SECRET_ACCESS_KEY', 'your-secret-access-key')

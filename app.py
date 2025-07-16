@@ -3,10 +3,13 @@ Main application file for the Flask server.
 """
 import json
 import time
-from typing import Tuple
+from pathlib import Path
+from typing import Any, Dict, List, Tuple, Union
 
 import sentry_sdk
-from flask import Blueprint, Flask, Response, jsonify, request, session
+import werkzeug
+from flask import (Blueprint, Flask, Response, abort, jsonify, redirect,
+                   request, send_from_directory, session)
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
 
@@ -25,7 +28,9 @@ from lib.routes.chat import (create_conversation_route,
                              get_conversation_messages_route,
                              get_user_conversations_route, send_message_route)
 from lib.routes.llm_agent import llm_agent_endpoint_route
+from lib.routes.metrics import metrics_bp
 from lib.routes.optimal import call_optimal_route
+from lib.routes.organizations import get_organizations_route
 from lib.routes.patients import (create_encounter_route,
                                  delete_encounter_route,
                                  get_all_encounters_route,
@@ -37,6 +42,7 @@ from lib.routes.patients import (create_encounter_route,
                                  search_patients_route, update_encounter_route)
 from lib.routes.testing import (debug_session_route, test_crud_route,
                                 test_surrealdb_route)
+from lib.routes.uploads import uploads_bp
 from lib.routes.users import (activate_user_route, change_password_route,
                               check_users_exist_route, deactivate_user_route,
                               get_all_users_route, get_api_usage_route,
@@ -82,6 +88,8 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow cross-site requests
 # Global OPTIONS handler for CORS preflight
 @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
 @app.route('/<path:path>', methods=['OPTIONS'])
+@metrics_bp.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+@metrics_bp.route('/<path:path>', methods=['OPTIONS'])
 def handle_options(path: str) -> Tuple[Response, int]:
     """
     Global OPTIONS handler to handle CORS preflight requests.
@@ -93,7 +101,8 @@ def handle_options(path: str) -> Tuple[Response, int]:
     origin = request.headers.get('Origin')
     logger.debug(f"Global OPTIONS Origin: {origin}")
     response.headers['Access-Control-Allow-Origin'] = origin or '*'
-    response.headers['Access-Control-Allow-Credentials'] = 'false'
+    #response.headers['Access-Control-Allow-Credentials'] = 'false'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept, Cache-Control'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     response.headers['Access-Control-Max-Age'] = '86400'
@@ -104,6 +113,7 @@ metrics = PrometheusMetrics(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+app.register_blueprint(metrics_bp)
 
 sse_bp = Blueprint('sse', __name__)
 
@@ -768,16 +778,187 @@ def call_optimal() -> Tuple[Response, int]:
     """
     return call_optimal_route()
 
+# Organizations endpoints
+@app.route('/api/organizations', methods=['GET'])
+def get_organizations() -> Tuple[Response, int]:
+    """
+    Get a list of organizations.
+    :return: Response object with organizations data.
+    """
+    return get_organizations_route()
+
+@app.route('/api/organizations/<org_id>', methods=['GET'])
+def get_organization(org_id: str) -> Union[Tuple[Response, int], werkzeug.wrappers.response.Response]:
+    """
+    Get a specific organization by ID.
+    :return: Response object with organization data.
+    """
+    print(f"get_organization: {org_id}")
+    if org_id.startswith('User:'):
+        print(f"redirecting to /api/organizations/user/{org_id}")
+        return redirect(f'/api/organizations/user/{org_id}')
+    from lib.routes.organizations import get_organization_route
+    return get_organization_route(org_id)
+
+@app.route('/api/organizations/user/<user_id>', methods=['GET'])
+def get_organization_by_user_id(user_id: str) -> Tuple[Response, int]:
+    """
+    Get a specific organization by ID.
+    :return: Response object with organization data.
+    """
+    from lib.routes.organizations import get_organization_by_user_id_route
+    return get_organization_by_user_id_route(user_id)
+
+@app.route('/api/organizations', methods=['POST'])
+def create_organization_api() -> Tuple[Response, int]:
+    """
+    Create a new organization.
+    :return: Response object with created organization data.
+    """
+    from lib.routes.organizations import create_organization_route
+    return create_organization_route()
+
+@app.route('/api/organizations/<org_id>', methods=['PUT'])
+def update_organization_api(org_id: str) -> Tuple[Response, int]:
+    """
+    Update an organization by ID.
+    :return: Response object with updated organization data.
+    """
+    from lib.routes.organizations import update_organization_route
+    return update_organization_route(org_id)
+
+@app.route('/api/organizations/<org_id>/clinics', methods=['GET'])
+def get_organization_clinics(org_id: str) -> Tuple[Response, int]:
+    """
+    Get all clinics for an organization.
+    :return: Response object with clinics data.
+    """
+    from lib.routes.organizations import get_organization_clinics_route
+    return get_organization_clinics_route(org_id)
+
+@app.route('/api/organizations/<org_id>/clinics', methods=['POST'])
+def add_clinic_to_organization(org_id: str) -> Tuple[Response, int]:
+    """
+    Add a clinic to an organization.
+    :return: Response object with updated organization data.
+    """
+    from lib.routes.organizations import add_clinic_to_organization_route
+    return add_clinic_to_organization_route(org_id)
+
+@app.route('/api/organizations/<org_id>/clinics', methods=['DELETE'])
+def remove_clinic_from_organization(org_id: str) -> Tuple[Response, int]:
+    """
+    Remove a clinic from an organization.
+    :return: Response object with updated organization data.
+    """
+    from lib.routes.organizations import remove_clinic_from_organization_route
+    return remove_clinic_from_organization_route(org_id)
+
+
 # Register event handlers for webhook delivery
 register_event_handlers()
 
 
+def validate_plugin_manifest(manifest: Dict[str, Any]) -> bool:
+    """
+    Validate the plugin manifest to ensure it has the required fields.
+    :param manifest: The plugin manifest dictionary.
+    :return: True if valid, False otherwise.
+    """
+    required_fields = ['name', 'version', 'description']
+    return all(field in manifest for field in required_fields)
+
+def is_plugin_frontend_only(manifest: Dict[str, Any]) -> bool:
+    """
+    Check if the plugin is frontend only.
+    :param manifest: The plugin manifest dictionary.
+    :return: True if frontend only, False otherwise.
+    """
+    if 'main_js' in manifest and not 'main_py' in manifest:
+        return True
+    return False
+
+def load_and_attach_plugins() -> None:
+    """
+    Load and attach plugins to the Flask app.
+    This function should be called after the app is created.
+    """
+    PLUGIN_DIR = 'plugins'
+    import os
+    from importlib import import_module
+
+    # Iterate through all directories in the plugins directory
+    for plugin_name in os.listdir(PLUGIN_DIR):
+        plugin_path = os.path.join(PLUGIN_DIR, plugin_name)
+        if os.path.isdir(plugin_path):
+            try:
+                # validate the plugin manifest
+                manifest_path = os.path.join(plugin_path, 'manifest.json')
+                if not os.path.exists(manifest_path):
+                    logger.error(f"Plugin {plugin_name} is missing manifest.json")
+                    continue
+                with open(manifest_path, 'r') as f:
+                    manifest = json.load(f)
+                if not validate_plugin_manifest(manifest):
+                    logger.error(f"Plugin {plugin_name} manifest is invalid: {manifest}")
+                    continue
+                if is_plugin_frontend_only(manifest):
+                    logger.debug(f"Plugin {plugin_name} is frontend only.")
+                    continue
+                entry_point = manifest.get('main_py')
+                if plugin_name != manifest.get('name'):
+                    logger.error(f"Plugin {plugin_name} name does not match manifest name: {manifest.get('name')}")
+                    continue
+                plugin_module = import_module(f"{PLUGIN_DIR}.{plugin_name}.py.{entry_point.replace('.py', '')}")
+                plugin_bp = plugin_module.plugin_bp
+                app.register_blueprint(plugin_bp)
+                logger.debug(f"Registered plugin {plugin_name} with blueprint {plugin_bp}")
+            except Exception as e:
+                logger.error(f"Failed to load plugin {plugin_name}: {e}")
+
+
+load_and_attach_plugins()
+
+
+@app.route('/api/plugins', methods=['GET'])
+def get_plugins():
+    """
+    Get a list of plugins by reading their manifest.json files.
+    """
+    import os
+    PLUGIN_DIR = 'plugins'
+    plugins: List[Dict[str, Any]] = []
+    for plugin_name in os.listdir(PLUGIN_DIR):
+        manifest_path = os.path.join(PLUGIN_DIR, plugin_name, 'manifest.json')
+        if os.path.exists(manifest_path):
+            with open(manifest_path, 'r') as f:
+                manifest = json.load(f)
+                plugins.append({
+                    'name': manifest.get('name'),
+                    'main_js': manifest.get('main_js'),
+                    'description': manifest.get('description'),
+                })
+    return jsonify(plugins), 200
+
+@app.route('/plugin/<plugin_name>', methods=['GET'])
+def serve_plugin_js(plugin_name: str) -> Tuple[Response, int]:
+    import os
+    plugin_js_path = Path(f'plugins/{plugin_name}/js')
+    js_file: str = os.path.join(plugin_js_path, 'index.js')
+    if not os.path.exists(js_file):
+        abort(404)
+    print(f"Serving plugin JS for {plugin_name} from {js_file}")
+    response = send_from_directory(plugin_js_path, 'index.js', mimetype='application/javascript')
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response, 200
+
+
 # Register the SSE blueprint
 app.register_blueprint(sse_bp)
+app.register_blueprint(uploads_bp)
 
 from asgiref.wsgi import WsgiToAsgi
 
 asgi_app = WsgiToAsgi(app)
 
 if __name__ == '__main__': app.run(port=PORT, debug=DEBUG, host=HOST)
-

@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { usePluginWidgets } from '../hooks/usePluginWidgets';
 import logger from '../services/logging';
 import { useUser } from './UserContext';
 // It is recommended to use an icon library like react-icons
@@ -7,6 +8,7 @@ import { useUser } from './UserContext';
 const Sidebar = () => {
   const { user, isLoading } = useUser();
   const userType = user?.role || 'guest';
+  const widgets = usePluginWidgets();
 
   logger.debug('Sidebar user:', user);
 
@@ -26,17 +28,37 @@ const Sidebar = () => {
               Dashboard
             </NavLink>
           </li>
-          {userType === 'patient' ? (
+          {userType === 'admin' && (
             <li>
-              {user?.id && (
+              <NavLink
+                to="/organization"
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
+                Organization
+              </NavLink>
+            </li>
+          )}
+          {userType === 'patient' ? (
+            <>
+              <li>
+                {user?.id && (
+                  <NavLink
+                    to={`/intake/${user.id}`}
+                    className={({ isActive }) => (isActive ? 'active' : '')}
+                  >
+                    Intake Form
+                  </NavLink>
+                )}
+              </li>
+              <li>
                 <NavLink
-                  to={`/intake/${user.id}`}
+                  to="/health-metrics"
                   className={({ isActive }) => (isActive ? 'active' : '')}
                 >
-                  Intake Form
+                  Health Metrics
                 </NavLink>
-              )}
-            </li>
+              </li>
+            </>
           ) : (
             <>
               <li>
@@ -89,6 +111,24 @@ const Sidebar = () => {
               Settings
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/uploads"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Uploads
+            </NavLink>
+          </li>
+          {widgets.map(widget => (
+            <li key={widget.name}>
+              <NavLink
+                to={widget.path}
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
+                {widget.name}
+              </NavLink>
+            </li>
+          ))}
         </ul>
       </nav>
       <div className="sidebar-footer">

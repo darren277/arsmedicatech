@@ -11,6 +11,8 @@ import OptimalTableDemo from './pages/OptimalTableDemo';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
 
+import { HealthMetricTracker } from './components/HealthMetricTracker';
+
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 
@@ -27,7 +29,33 @@ import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
+import { useEffect } from 'react';
+import { API_URL } from './env_vars';
+import { usePluginRoutes } from './hooks/usePluginRoutes';
+import FileUpload from './pages/FileUpload';
+import Organization from './pages/Organization';
+import UploadDetails from './pages/UploadDetails';
+import { pluginAPI } from './services/api';
 import logger from './services/logging';
+import { PluginRoute } from './types';
+
+function useLoadPlugins() {
+  useEffect(() => {
+    pluginAPI.getAll().then(plugins => {
+      plugins.forEach((plugin: any) => {
+        if (plugin.main_js) {
+          const script = document.createElement('script');
+          script.src = API_URL + `/plugin/${plugin.name}`;
+          script.async = true;
+          console.log('Loading plugin:', script);
+          document.body.appendChild(script);
+        }
+      });
+    });
+  }, []);
+}
+
+const isTestMode = true;
 
 function Home() {
   logger.debug('Home component rendered');
@@ -37,7 +65,6 @@ function Home() {
   // This should load when the user first logs in and then update the state to not run again
   // And during e2e testing, it should always be disabled.
   //const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_TOUR === 'true';
-  const isTestMode = true;
   const [runTour, setRunTour] = useState(!isTestMode);
 
   // Get notification context
@@ -118,37 +145,53 @@ function ErrorPage() {
   );
 }
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Home />,
-    children: [
-      { index: true, element: <Dashboard /> },
-      { path: 'about', element: <About /> },
-      { path: 'contact', element: <Contact /> },
-      { path: 'patients', element: <Patients /> },
-      { path: 'patients/new', element: <PatientForm /> },
-      { path: 'patients/:patientId', element: <PatientDetail /> },
-      { path: 'patients/:patientId/edit', element: <PatientForm /> },
-      { path: 'encounters/:encounterId', element: <EncounterDetail /> },
-      { path: 'encounters/new', element: <EncounterFormPage /> },
-      { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
-      {
-        path: 'patients/:patientId/encounters/new',
-        element: <EncounterFormPage />,
-      },
-      { path: 'intake/:patientId', element: <PatientIntakeForm /> },
-      { path: 'schedule', element: <Schedule /> },
-      { path: 'messages', element: <Messages /> },
-      { path: 'settings', element: <Settings /> },
-      { path: 'lab-results', element: <LabResults /> },
-      { path: 'optimal-table-demo', element: <OptimalTableDemo /> },
-    ],
-    errorElement: <ErrorPage />,
-  },
-]);
+const baseRoutes: PluginRoute[] = [
+  { index: true, element: <Dashboard /> },
+  { path: 'about', element: <About /> },
+  { path: 'contact', element: <Contact /> },
+  { path: 'patients', element: <Patients /> },
+  { path: 'patients/new', element: <PatientForm /> },
+  { path: 'patients/:patientId', element: <PatientDetail /> },
+  { path: 'patients/:patientId/edit', element: <PatientForm /> },
+  { path: 'encounters/:encounterId', element: <EncounterDetail /> },
+  { path: 'encounters/new', element: <EncounterFormPage /> },
+  { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
+  { path: 'intake/:patientId', element: <PatientIntakeForm /> },
+  { path: 'schedule', element: <Schedule /> },
+  { path: 'messages', element: <Messages /> },
+  { path: 'settings', element: <Settings /> },
+  { path: 'lab-results', element: <LabResults /> },
+
+  { path: 'health-metrics', element: <HealthMetricTracker /> },
+
+  { path: 'optimal-table-demo', element: <OptimalTableDemo /> },
+
+  { path: 'organization', element: <Organization /> },
+
+  { path: 'uploads', element: <FileUpload /> },
+  { path: 'uploads/:uploadId', element: <UploadDetails /> },
+];
 
 function App() {
+  let routes;
+
+  if (!isTestMode) {
+    useLoadPlugins();
+    routes = usePluginRoutes(baseRoutes);
+  } else {
+    // For testing, we can use the base routes directly
+    routes = baseRoutes;
+  }
+
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <Home />,
+      children: routes,
+      errorElement: <ErrorPage />,
+    },
+  ]);
+
   return (
     <UserProvider>
       <NotificationProvider>
