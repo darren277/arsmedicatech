@@ -120,3 +120,10 @@ test-e2e-report:
 
 test-e2e-install:
 	npm run test:e2e:install
+
+
+# S3
+
+# Create S3 bucket for PDFs...
+s3-create:
+	aws s3api create-bucket --profile $(AWS_PROFILE) --bucket $(S3_BUCKET) --region $(AWS_REGION)
