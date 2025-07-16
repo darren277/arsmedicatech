@@ -363,4 +363,10 @@ export const fileUploadAPI = {
   delete: (id: string) => apiService.deleteAPI(`/uploads/${id}`),
 };
 
+// Plugin API operations
+export const pluginAPI = {
+  // Get all plugins
+  getAll: () => apiService.getAPI('/plugins'),
+};
+
 export default apiService;

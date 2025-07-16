@@ -14,6 +14,10 @@ Sentry.init({
   sendDefaultPii: true,
 });
 
+// This is for plugins to register
+import React from 'react';
+window.React = React;
+
 ReactDOM.render(<App />, document.getElementById('root'));
 // ReactDOM.render(<h3>Test</h3>, document.getElementById('root'));
 

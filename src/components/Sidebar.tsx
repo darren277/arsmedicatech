@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { usePluginWidgets } from '../hooks/usePluginWidgets';
 import logger from '../services/logging';
 import { useUser } from './UserContext';
 // It is recommended to use an icon library like react-icons
@@ -7,6 +8,7 @@ import { useUser } from './UserContext';
 const Sidebar = () => {
   const { user, isLoading } = useUser();
   const userType = user?.role || 'guest';
+  const widgets = usePluginWidgets();
 
   logger.debug('Sidebar user:', user);
 
@@ -99,6 +101,16 @@ const Sidebar = () => {
               Uploads
             </NavLink>
           </li>
+          {widgets.map(widget => (
+            <li key={widget.name}>
+              <NavLink
+                to={widget.path}
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
+                {widget.name}
+              </NavLink>
+            </li>
+          ))}
         </ul>
       </nav>
       <div className="sidebar-footer">
