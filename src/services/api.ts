@@ -257,6 +257,11 @@ class ApiService {
   async getLabResults(): Promise<any> {
     return this.getAPI('/lab_results');
   }
+
+  // Optimal Service API
+  async callOptimal(tableData: any): Promise<any> {
+    return this.postAPI('/optimal', { tableData });
+  }
 }
 
 // Create a singleton instance

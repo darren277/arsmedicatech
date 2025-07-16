@@ -1,7 +1,13 @@
 """"""
+import os
+import sys
+
 import requests
 
-from settings import OPTIMAL_KEY, OPTIMAL_URL, logger
+# Add the project root to the Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from settings import TEST_OPTIMAL_KEY, OPTIMAL_URL, logger
 
 
 def test_optimal_service():
@@ -23,7 +29,7 @@ def test_optimal_service():
     assert resp_without_api_key.status_code == 403
 
     headers = {
-        'x-api-key': OPTIMAL_KEY
+        'x-api-key': TEST_OPTIMAL_KEY
     }
 
     resp = requests.post(
@@ -64,7 +70,7 @@ def test_optimal():
 
     service = OptimalService(
         url=OPTIMAL_URL,
-        api_key=OPTIMAL_KEY,
+        api_key=TEST_OPTIMAL_KEY,
         schema=hypertension_schema
     )
 

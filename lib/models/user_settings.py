@@ -17,6 +17,7 @@ class UserSettings:
             self,
             user_id: str,
             openai_api_key: Optional[str] = None,
+            optimal_api_key: Optional[str] = None,
             created_at: Optional[str] = None,
             updated_at: Optional[str] = None,
             id: Optional[str] = None
@@ -26,12 +27,14 @@ class UserSettings:
         
         :param user_id: ID of the user these settings belong to
         :param openai_api_key: OpenAI API key (will be encrypted)
+        :param optimal_api_key: Optimal API key (will be encrypted)
         :param created_at: Creation timestamp
         :param updated_at: Last update timestamp
         :param id: Database record ID
         """
         self.user_id = user_id
         self.openai_api_key = openai_api_key
+        self.optimal_api_key = optimal_api_key
         self.created_at = created_at or datetime.now(timezone.utc).isoformat()
         self.updated_at = updated_at or datetime.now(timezone.utc).isoformat()
         self.id = id
@@ -80,24 +83,78 @@ class UserSettings:
         """
         return bool(self.get_openai_api_key())
     
+    def set_optimal_api_key(self, api_key: str) -> None:
+        """
+        Set Optimal API key (will be encrypted)
+
+        :param api_key: Optimal API key to set
+        :raises ValueError: If the API key is invalid
+        :return: None
+        """
+        if not api_key:
+            raise ValueError("Optimal API key cannot be empty")
+        is_valid, error_message = self.validate_optimal_api_key(api_key)
+        if not is_valid:
+            raise ValueError(f"Invalid Optimal API key: {error_message}")
+        self.optimal_api_key = api_key
+        self.updated_at = datetime.now(timezone.utc).isoformat()
+    
+    def get_optimal_api_key(self) -> str:
+        """
+        Get decrypted Optimal API key
+
+        :return: Decrypted Optimal API key, or empty string if not set
+        """
+        if not self.optimal_api_key:
+            logger.debug("No Optimal API key stored in settings")
+            return ""
+        
+        logger.debug(f"Attempting to decrypt Optimal API key (stored length: {len(self.optimal_api_key)})")
+        try:
+            encryption_service = get_encryption_service()
+            result = encryption_service.decrypt_api_key(self.optimal_api_key)
+            logger.debug(f"Optimal API key decryption result length: {len(result)}")
+            return result
+        except Exception as e:
+            logger.error(f"Failed to decrypt Optimal API key: {e}")
+            return ""
+    
+    def has_optimal_api_key(self) -> bool:
+        """
+        Check if user has a valid Optimal API key
+
+        :return: True if Optimal API key is set and valid, False otherwise
+        """
+        return bool(self.get_optimal_api_key())
+    
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert settings to dictionary for database storage
 
         :return: Dictionary representation of user settings
         """
-        # Encrypt API key before storing
-        encrypted_api_key = ""
+        # Encrypt OpenAI API key before storing
+        encrypted_openai_api_key = ""
         if self.openai_api_key:
             try:
                 encryption_service = get_encryption_service()
-                encrypted_api_key = encryption_service.encrypt_api_key(self.openai_api_key)
+                encrypted_openai_api_key = encryption_service.encrypt_api_key(self.openai_api_key)
             except Exception as e:
                 logger.error(f"Failed to encrypt OpenAI API key: {e}")
         
+        # Encrypt Optimal API key before storing
+        encrypted_optimal_api_key = ""
+        if self.optimal_api_key:
+            try:
+                encryption_service = get_encryption_service()
+                encrypted_optimal_api_key = encryption_service.encrypt_api_key(self.optimal_api_key)
+            except Exception as e:
+                logger.error(f"Failed to encrypt Optimal API key: {e}")
+        
         return {
             'user_id': self.user_id,
-            'openai_api_key': encrypted_api_key,
+            'openai_api_key': encrypted_openai_api_key,
+            'optimal_api_key': encrypted_optimal_api_key,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -125,9 +182,12 @@ class UserSettings:
             id=settings_id
         )
         
-        # Store encrypted API key as-is (will be decrypted when accessed)
+        # Store encrypted API keys as-is (will be decrypted when accessed)
         if 'openai_api_key' in data:
             settings.openai_api_key = data['openai_api_key']
+        
+        if 'optimal_api_key' in data:
+            settings.optimal_api_key = data['optimal_api_key']
         
         return settings
     
@@ -148,5 +208,26 @@ class UserSettings:
         
         if len(api_key) != 51:
             return False, "OpenAI API key must be 51 characters long"
+        
+        return True, ""
+    
+    @staticmethod
+    def validate_optimal_api_key(api_key: str) -> tuple[bool, str]:
+        """
+        Validate Optimal API key format
+
+        :param api_key: Optimal API key to validate
+        :return: Tuple (is_valid: bool, error_message: str)
+        """
+        if not api_key:
+            return False, "Optimal API key is required"
+        
+        # Basic validation - Optimal API keys are typically 32 characters long
+        # You may need to adjust this based on the actual Optimal API key format
+        if len(api_key) < 20:
+            return False, "Optimal API key appears to be too short"
+        
+        if len(api_key) > 100:
+            return False, "Optimal API key appears to be too long"
         
         return True, "" 

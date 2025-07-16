@@ -7,13 +7,11 @@ import { tourSteps } from './onboarding/tourSteps';
 import { EncounterDetail } from './pages/EncounterDetail';
 import { EncounterFormPage } from './pages/EncounterForm';
 import LabResults from './pages/LabResults';
+import OptimalTableDemo from './pages/OptimalTableDemo';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
 
-import {
-  HealthMetricTracker,
-  HealthMetricVisualization,
-} from './components/HealthMetricTracker';
+import { HealthMetricTracker } from './components/HealthMetricTracker';
 
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -165,10 +163,8 @@ const baseRoutes: PluginRoute[] = [
   { path: 'lab-results', element: <LabResults /> },
 
   { path: 'health-metrics', element: <HealthMetricTracker /> },
-  {
-    path: 'health-metrics-visualization',
-    element: <HealthMetricVisualization />,
-  },
+
+  { path: 'optimal-table-demo', element: <OptimalTableDemo /> },
 
   { path: 'organization', element: <Organization /> },
 

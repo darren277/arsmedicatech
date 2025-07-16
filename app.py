@@ -29,6 +29,7 @@ from lib.routes.chat import (create_conversation_route,
                              get_user_conversations_route, send_message_route)
 from lib.routes.llm_agent import llm_agent_endpoint_route
 from lib.routes.metrics import metrics_bp
+from lib.routes.optimal import call_optimal_route
 from lib.routes.organizations import get_organizations_route
 from lib.routes.patients import (create_encounter_route,
                                  delete_encounter_route,
@@ -768,6 +769,14 @@ def get_lab_results() -> Tuple[Response, int]:
     )
     return jsonify(lab_results_service.lab_results), 200
 
+@app.route('/api/optimal', methods=['POST'])
+@require_auth
+def call_optimal() -> Tuple[Response, int]:
+    """
+    Process the optimal table data and call the Optimal service.
+    :return: Response object with optimal table data.
+    """
+    return call_optimal_route()
 
 # Organizations endpoints
 @app.route('/api/organizations', methods=['GET'])

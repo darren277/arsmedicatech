@@ -77,6 +77,14 @@ const Sidebar = () => {
                   Lab Results
                 </NavLink>
               </li>
+              <li>
+                <NavLink
+                  to="/optimal-table-demo"
+                  className={({ isActive }) => (isActive ? 'active' : '')}
+                >
+                  Optimal Table Demo
+                </NavLink>
+              </li>
             </>
           )}
           <li>
