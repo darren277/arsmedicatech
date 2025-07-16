@@ -3,8 +3,8 @@ Uploads API Routes
 """
 from typing import Tuple
 
-import boto3 # type: ignore
-from flask import Blueprint, jsonify, request, Response
+import boto3  # type: ignore
+from flask import Blueprint, Response, jsonify, request
 from werkzeug.datastructures import FileStorage
 
 from lib.data_types import UserID
@@ -89,7 +89,7 @@ def list_uploads_route():
 
 @uploads_bp.route('/api/uploads/<upload_id>', methods=['GET'])
 @require_auth
-def get_upload_route(upload_id):
+def get_upload_route(upload_id: str) -> Tuple[Response, int]:
     """
     Get details for a specific upload.
     """
