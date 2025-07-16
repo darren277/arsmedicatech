@@ -12,7 +12,8 @@ def process_upload_task(self, upload_id: str, file_type: str, s3_key: str):
     """
     logger.info(f"[Celery] Processing upload {upload_id} (type={file_type}, s3_key={s3_key})")
     try:
-        update_upload_status(upload_id, UploadStatus.PROCESSING)
+        result = update_upload_status(upload_id, UploadStatus.PROCESSING)
+        logger.debug(f"[Celery] Update upload status result: {result}")
         result_text = ""
         if file_type in ("pdf", "image"):
             ocr_service = OCRService()
@@ -27,8 +28,9 @@ def process_upload_task(self, upload_id: str, file_type: str, s3_key: str):
         else:
             # No processing for text/unknown
             result_text = ""
-        update_upload_status(upload_id, UploadStatus.COMPLETED, processed_text=result_text)
-        logger.info(f"[Celery] Upload {upload_id} processed successfully.")
+        result = update_upload_status(upload_id, UploadStatus.COMPLETED, processed_text=result_text)
+        logger.warning(f"[Celery] Update upload status result: {result}")
+        logger.warning(f"[Celery] Upload {upload_id} processed successfully.")
     except Exception as e:
         logger.error(f"[Celery] Failed to process upload {upload_id}: {e}")
         update_upload_status(upload_id, UploadStatus.FAILED, processed_text=str(e))
