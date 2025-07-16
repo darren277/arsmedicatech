@@ -28,6 +28,7 @@ import { UserProvider } from './components/UserContext';
 
 import FileUpload from './pages/FileUpload';
 import Organization from './pages/Organization';
+import UploadDetails from './pages/UploadDetails';
 import logger from './services/logging';
 
 function Home() {
@@ -147,6 +148,7 @@ const router = createBrowserRouter([
       { path: 'organization', element: <Organization /> },
 
       { path: 'uploads', element: <FileUpload /> },
+      { path: 'uploads/:uploadId', element: <UploadDetails /> },
     ],
     errorElement: <ErrorPage />,
   },
