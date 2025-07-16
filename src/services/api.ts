@@ -87,9 +87,18 @@ class ApiService {
 
   // POST request with API prefix
   async postAPI(endpoint: string, data: any): Promise<any> {
+    // If data is FormData, do not stringify and do not set Content-Type
+    const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+    let headers = this.getHeaders();
+    if (isFormData) {
+      // Remove Content-Type so browser sets it with boundary
+      const { ['Content-Type']: _, ...rest } = headers;
+      headers = rest;
+    }
     return this.request('/api' + endpoint, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
+      headers,
     });
   }
 
