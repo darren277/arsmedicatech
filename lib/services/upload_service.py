@@ -1,10 +1,13 @@
-from celery_worker import celery_app
+"""
+Service for handling file uploads and processing tasks using Celery.
+"""
+from celery import shared_task # type: ignore
 from lib.models.upload import Upload, UploadStatus, update_upload_status
 from lib.services.ocr import OCRService
 from settings import logger
 
 
-@celery_app.task(bind=True)
+@shared_task(bind=True)
 def process_upload_task(self, upload_id: str, file_type: str, s3_key: str):
     """
     Celery task to process an uploaded file (OCR or transcription).
