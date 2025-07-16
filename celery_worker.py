@@ -3,11 +3,13 @@ Celery worker configuration for ArsMedicaTech.
 """
 import os
 
-from celery import Celery # type: ignore
+from celery import Celery  # type: ignore
+
+from settings import REDIS_HOST, REDIS_PORT, UPLOADS_CHANNEL
 
 # You can set these in your .env or settings.py
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", f"redis://{REDIS_HOST}:{REDIS_PORT}/{UPLOADS_CHANNEL}")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", f"redis://{REDIS_HOST}:{REDIS_PORT}/{UPLOADS_CHANNEL}")
 
 
 celery_app = Celery(
