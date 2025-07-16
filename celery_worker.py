@@ -1,6 +1,9 @@
+"""
+Celery worker configuration for ArsMedicaTech.
+"""
 import os
 
-from celery import Celery
+from celery import Celery # type: ignore
 
 # You can set these in your .env or settings.py
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")

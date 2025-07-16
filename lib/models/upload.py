@@ -8,7 +8,7 @@ import uuid
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-import boto3
+import boto3 # type: ignore
 from werkzeug.datastructures import FileStorage
 
 from lib.data_types import UserID

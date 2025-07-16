@@ -1,5 +1,10 @@
-import boto3
-from flask import Blueprint, jsonify, request
+"""
+Uploads API Routes
+"""
+from typing import Tuple
+
+import boto3 # type: ignore
+from flask import Blueprint, jsonify, request, Response
 from werkzeug.datastructures import FileStorage
 
 from lib.data_types import UserID
@@ -14,7 +19,7 @@ uploads_bp = Blueprint('uploads', __name__)
 
 @uploads_bp.route('/api/uploads', methods=['POST'])
 @require_auth
-def upload_file_route():
+def upload_file_route() -> Tuple[Response, int]:
     """
     Upload a file, create Upload record, upload to S3, trigger Celery if needed.
     """

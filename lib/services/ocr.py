@@ -3,7 +3,7 @@ OCR service for calling AWS Textract.
 """
 from typing import List, Dict, Any
 
-import boto3
+import boto3 # type: ignore
 from werkzeug.datastructures import FileStorage
 
 from settings import BUCKET_NAME
@@ -63,6 +63,8 @@ class OCRService:
         :param pdf_file: FileStorage - The PDF file to process.
         :return: str - Extracted text from the PDF.
         """
+        if pdf_file.filename is None:
+            raise ValueError("PDF file must have a filename.")
         return self.get_text_from_pdf(pdf_file.filename)
 
     def get_text_from_pdf_s3(self, pdf_key: str) -> str:
