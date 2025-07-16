@@ -91,6 +91,14 @@ const Sidebar = () => {
               Settings
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/uploads"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Uploads
+            </NavLink>
+          </li>
         </ul>
       </nav>
       <div className="sidebar-footer">
