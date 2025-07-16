@@ -252,20 +252,19 @@ def update_upload_status(upload_id: str, status: UploadStatus, processed_text: s
     db = DbController()
     try:
         db.connect()
-        # Fetch the existing upload record first
-        existing = db.select(f"upload:{upload_id}")
-        if not existing:
-            logger.error(f"Upload {upload_id} not found for update.")
-            return False
-        # Merge updates with existing fields
-        update_data = dict(existing)
-        update_data["status"] = status.value
+        
+        # Build only the fields that can change
+        patch: Dict[str, Any] = {"status": status.value}
         if processed_text:
-            update_data["processed_text"] = processed_text
+            patch["processed_text"] = processed_text
         if task_id:
-            update_data["task_id"] = task_id
-        result = db.update(f"upload:{upload_id}", update_data)
-        logger.warning(f"Upload status update result: {result}")
+            patch["task_id"] = task_id
+
+        # MERGE keeps everything else intact
+        sql = "UPDATE type::thing('upload', $rid) MERGE $data"
+        result = db.query(sql, {"rid": upload_id, "data": patch})
+
+        logger.warning(f"Upload status update MERGE result: {result}")
         return bool(result)
     except Exception as e:
         logger.error(f"Error updating upload status: {e}")
