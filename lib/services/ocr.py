@@ -7,6 +7,35 @@ import boto3 # type: ignore
 from werkzeug.datastructures import FileStorage
 
 from settings import BUCKET_NAME, TEXTRACT_AWS_ACCESS_KEY_ID, TEXTRACT_AWS_SECRET_ACCESS_KEY
+from settings import logger
+
+
+import json
+
+def extract_text_from_blocks(blocks: List[Dict[str, Any]]) -> str:
+    """
+    Extract and return plain text from Textract-style OCR output.
+    Only extracts LINE-level text in reading order.
+    """
+    # Filter only blocks of type 'LINE'
+    line_blocks: List[Dict[str, Any]] = [b for b in blocks if b.get("BlockType") == "LINE" and "Text" in b]
+
+    # Sort by top position, then by left to approximate reading order
+    def sort_key(block: Dict[str, Any]) -> Tuple[float, float]:
+        """
+        Sort key for blocks.
+        :param block: Dict[str, Any] - The block to sort.
+        :return: Tuple[float, float] - The sort key.
+        """
+        top: float = block["Geometry"]["BoundingBox"]["Top"]
+        left: float = block["Geometry"]["BoundingBox"]["Left"]
+        return (round(top, 3), left)
+
+    line_blocks.sort(key=sort_key)
+
+    lines: List[str] = [b["Text"] for b in line_blocks]
+    return "\n".join(lines)
+
 
 
 class OCRService:
