@@ -468,5 +468,5 @@ As for `disable_error_code = no-any-return`, this one I will likely be returning
 ## Celery Worker
 
 1. Make sure Redis is running for Celery.
-2. Start the Celery worker: `celery -A celery_worker.celery_app worker --loglevel=info`.
+2. Start the Celery worker: `celery -A celery_worker.celery_app worker --pool=solo --loglevel=info`.
 3. Ensure Flask app is running and can access Redis and S3.
