@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useNavigate } from 'react-router-dom';
 import { fileUploadAPI } from '../services/api';
 import logger from '../services/logging';
 
@@ -26,6 +27,7 @@ const FileUpload: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Fetch uploads list
   const fetchUploads = useCallback(async () => {
@@ -71,6 +73,12 @@ const FileUpload: React.FC = () => {
     onDrop,
     multiple: false,
   });
+
+  const handleUploadClick = (upload: Upload) => {
+    if (upload.status === 'completed') {
+      navigate(`/uploads/${upload.id}`);
+    }
+  };
 
   return (
     <div style={{ maxWidth: 600, margin: '40px auto', padding: 24 }}>
@@ -139,7 +147,27 @@ const FileUpload: React.FC = () => {
             </thead>
             <tbody>
               {uploads.map(u => (
-                <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <tr
+                  key={u.id}
+                  style={{
+                    borderBottom: '1px solid #f1f5f9',
+                    cursor: u.status === 'completed' ? 'pointer' : 'default',
+                    backgroundColor:
+                      u.status === 'completed' ? '#f8fafc' : 'transparent',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onClick={() => handleUploadClick(u)}
+                  onMouseEnter={e => {
+                    if (u.status === 'completed') {
+                      e.currentTarget.style.backgroundColor = '#e2e8f0';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (u.status === 'completed') {
+                      e.currentTarget.style.backgroundColor = '#f8fafc';
+                    }
+                  }}
+                >
                   <td style={{ padding: 10 }}>{u.file_name}</td>
                   <td style={{ padding: 10 }}>{u.file_type}</td>
                   <td style={{ padding: 10 }}>
