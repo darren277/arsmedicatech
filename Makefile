@@ -140,3 +140,15 @@ textract-iam:
 	aws iam create-user --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-textract-user | true
 	aws iam put-user-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-textract-user --policy-name TextractReadPolicy --policy-document file://config/textract_read_write_policy.json | true
 	aws iam create-access-key --user-name flask-textract-user
+
+
+# Celery
+CELERY_IMAGE=celery-worker
+CELERY_VERSION=1.0.0
+
+
+celery-docker:
+	docker build -t $(CELERY_IMAGE):$(CELERY_VERSION) -f Dockerfile.celery .
+
+celery-run:
+	docker run -d --name celery-worker -e CELERY_BROKER_URL=redis://$(REDIS_HOST):$(REDIS_PORT)/1 -e SENTRY_DSN=$(SENTRY_DSN) -e CELERY_RESULT_BACKEND=redis://$(REDIS_HOST):$(REDIS_PORT)/1 $(CELERY_IMAGE):$(CELERY_VERSION)
