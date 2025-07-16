@@ -293,7 +293,25 @@ def get_upload_by_id(upload_id: str) -> Optional[Dict[str, Any]]:
     db = DbController()
     try:
         db.connect()
-        result = db.select(f"upload:{upload_id}")
+        logger.warning(f"GET UPLOAD BY ID: {upload_id}")
+        if ":" in upload_id:
+            table, rid = upload_id.split(":")
+        else:
+            table, rid = "upload", upload_id
+
+        result = db.query(
+            "SELECT * FROM type::thing($table, $id)",
+            {"table": table, "id": rid}
+        )
+
+        result = result[0]
+        result.pop("id")
+        uploader = result.pop("uploader")
+
+        result["id"] = upload_id
+        result["uploader"] = str(uploader)
+
+        logger.warning(f"GET UPLOAD BY ID RESULT: {result}")
         return result if result else None
     except Exception as e:
         logger.error(f"Error getting upload {upload_id}: {e}")
