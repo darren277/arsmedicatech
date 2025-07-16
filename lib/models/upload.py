@@ -304,15 +304,27 @@ def get_upload_by_id(upload_id: str) -> Optional[Dict[str, Any]]:
             {"table": table, "id": rid}
         )
 
-        result = result[0]
-        result.pop("id")
-        uploader = result.pop("uploader")
+        # db.query returns a list, so we need to get the first item
+        if not result or len(result) == 0:
+            return None
+            
+        upload_data = result[0]  # Get the first (and should be only) item
+        if not upload_data:
+            return None
 
-        result["id"] = upload_id
-        result["uploader"] = str(uploader)
+        # Create a copy to avoid modifying the original
+        upload_dict = dict(upload_data)
+        
+        # Remove the id field and store uploader separately
+        upload_dict.pop("id", None)
+        uploader = upload_dict.pop("uploader", None)
 
-        logger.warning(f"GET UPLOAD BY ID RESULT: {result}")
-        return result if result else None
+        # Add back the fields with proper formatting
+        upload_dict["id"] = upload_id
+        upload_dict["uploader"] = str(uploader) if uploader else ""
+
+        logger.warning(f"GET UPLOAD BY ID RESULT: {upload_dict}")
+        return upload_dict
     except Exception as e:
         logger.error(f"Error getting upload {upload_id}: {e}")
         return None
