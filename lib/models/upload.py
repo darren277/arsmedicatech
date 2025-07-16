@@ -171,22 +171,48 @@ def create_upload(upload: Upload) -> Optional[str]:
     """
     Create an upload record in the database.
     :param upload: Upload - The upload object to create.
-    :return: Optional[str] - The ID of the created upload record.
+    :return: Optional[str] - The ID of the created upload record (just the ID, not 'table:id').
     """
     db = DbController()
     try:
         db.connect()
-        result = db.create("upload", upload.to_dict())
+        # Ensure uploader is stored as a record link (user:<id>)
+        uploader_id = str(upload.uploader)
+        if uploader_id.startswith("user:"):
+            uploader_link = uploader_id
+        elif ":" in uploader_id:
+            uploader_link = f"user:{uploader_id.split(':')[-1]}"
+        else:
+            uploader_link = f"user:{uploader_id}"
+        upload_dict = upload.to_dict()
+        upload_dict["uploader"] = {"@link": uploader_link}
+        result = db.create("upload", upload_dict)
         logger.debug(f"Upload create result: {result}")
-        
+        if not result:
+            logger.warning("db.create returned no result! Upload may not have been saved.")
         if result and 'id' in result:
-            return str(result['id'])
+            full_id = str(result['id'])
+            # Extract just the ID part after the colon if present
+            if ':' in full_id:
+                return full_id.split(':', 1)[1]
+            return full_id
         return None
     except Exception as e:
         logger.error(f"Error creating upload: {e}")
         return None
     finally:
         db.close()
+
+def parse_upload(upload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Parse an upload record into an Upload object.
+    """
+    for key, value in upload.items():
+        if key == "uploader":
+            upload["uploader"] = str(value)
+        elif key == "id":
+            upload["id"] = str(value)
+    return upload
 
 def get_uploads_by_user(user_id: UserID) -> List[Dict[str, Any]]:
     """
@@ -197,14 +223,14 @@ def get_uploads_by_user(user_id: UserID) -> List[Dict[str, Any]]:
     db = DbController()
     try:
         db.connect()
-        result = db.query("SELECT * FROM upload WHERE uploader = $user_id ORDER BY date_uploaded DESC", 
-                         {"user_id": str(user_id)})
-        
-        if result and len(result) > 0:
-            # Extract the result array from the first item
-            uploads = result[0].get('result', []) if isinstance(result[0], dict) else result
-            return uploads if isinstance(uploads, list) else []
-        return []
+        # Always use just the id part for the record link
+        id_part = str(user_id)
+        if ":" in id_part:
+            id_part = id_part.split(":")[-1]
+        # Query using type::thing for record link
+        result = db.query("SELECT * FROM upload WHERE uploader = type::thing('user', $user_id) ORDER BY date_uploaded DESC", 
+                         {"user_id": id_part})
+        return [parse_upload(r) for r in result]
     except Exception as e:
         logger.error(f"Error getting uploads for user {user_id}: {e}")
         return []
@@ -213,24 +239,33 @@ def get_uploads_by_user(user_id: UserID) -> List[Dict[str, Any]]:
 
 def update_upload_status(upload_id: str, status: UploadStatus, processed_text: str = "", task_id: str = "") -> bool:
     """
-    Update the status of an upload.
+    Update the status of an upload, merging with existing fields to avoid overwriting other attributes.
     :param upload_id: str - The ID of the upload to update.
     :param status: UploadStatus - The new status.
     :param processed_text: str - The processed text (optional).
     :param task_id: str - The task ID (optional).
     :return: bool - True if successful, False otherwise.
     """
+    # Normalize upload_id to just the ID part (strip any prefix like 'upload:')
+    if ":" in upload_id:
+        upload_id = upload_id.split(':')[-1]
     db = DbController()
     try:
         db.connect()
-        update_data = {"status": status.value}
+        # Fetch the existing upload record first
+        existing = db.select(f"upload:{upload_id}")
+        if not existing:
+            logger.error(f"Upload {upload_id} not found for update.")
+            return False
+        # Merge updates with existing fields
+        update_data = dict(existing)
+        update_data["status"] = status.value
         if processed_text:
             update_data["processed_text"] = processed_text
         if task_id:
             update_data["task_id"] = task_id
-            
         result = db.update(f"upload:{upload_id}", update_data)
-        logger.debug(f"Upload status update result: {result}")
+        logger.warning(f"Upload status update result: {result}")
         return bool(result)
     except Exception as e:
         logger.error(f"Error updating upload status: {e}")
