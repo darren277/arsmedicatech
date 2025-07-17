@@ -2,6 +2,8 @@ services:
   redis:
     image: redis:latest
     restart: unless-stopped
+    ports:
+      - "6379:6379"
 
   livekit:
     image: livekit/livekit-server:v1.9
