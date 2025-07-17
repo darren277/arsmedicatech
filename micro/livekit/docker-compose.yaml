@@ -1,10 +1,10 @@
 services:
   redis:
-    image: redis:7-alpine
+    image: redis:latest
     restart: unless-stopped
 
   livekit:
-    image: livekit/livekit-server:v1.10
+    image: livekit/livekit-server:v1.9
     restart: unless-stopped
     ports:
       - "7880:7880"         # gRPC / HTTP APIs
@@ -18,7 +18,7 @@ services:
       LIVEKIT_INGRESS_USE_EXTERNAL_IP: "true"
 
   egress:
-    image: livekit/egress:v1.10
+    image: livekit/egress:v1.9
     restart: unless-stopped
     depends_on: [livekit, redis]
     environment:
