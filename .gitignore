@@ -37,3 +37,4 @@ docs/_build
 typings/
 
 micro/livekit/egress.yaml
+micro/livekit/livekit.yaml
