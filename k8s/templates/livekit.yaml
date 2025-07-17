@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: livekit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: livekit
+  template:
+    metadata:
+      labels:
+        app: livekit
+    spec:
+      containers:
+        - name: livekit
+          image: livekit/livekit-server:v1.10
+          ports:
+            - containerPort: 7880 # HTTP API
+            - containerPort: 7881 # WebRTC TCP
+            - containerPort: 3478 # TURN
+          env:
+            - name: LIVEKIT_REDIS_HOST
+              value: {{ .Values.micro.livekit.redis.host }}
+            - name: LIVEKIT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiKey
+            - name: LIVEKIT_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiSecret
+            - name: LIVEKIT_UDP_PORT_START
+              value: "50000"
+            - name: LIVEKIT_UDP_PORT_END
+              value: "50010"
+          securityContext:
+            privileged: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: livekit-secrets
+type: Opaque
+stringData:
+  apiKey: {{ .Values.micro.livekit.api.key }}
+  apiSecret: {{ .Values.micro.livekit.api.secret }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: egress-config
+data:
+  egress.yaml: |
+    api_key: {{ .Values.micro.livekit.api.key }}
+    api_secret: {{ .Values.micro.livekit.api.secret }}
+    ws_url: {{ .Values.micro.livekit.egress.wsUrl }}
+    recording:
+      file_outputs:
+        - filepath: recordings/{{`{{ room_name }}`}}-{{`{{ timestamp }}`}}.mp4
+          output:
+            s3:
+              access_key: {{ .Values.micro.livekit.s3.accessKey }}
+              secret: {{ .Values.micro.livekit.s3.secretKey }}
+              region: {{ .Values.micro.livekit.s3.region }}
+              bucket: {{ .Values.micro.livekit.s3.bucket }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: livekit-egress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: livekit-egress
+  template:
+    metadata:
+      labels:
+        app: livekit-egress
+    spec:
+      containers:
+        - name: egress
+          image: livekit/egress:v1.10
+          volumeMounts:
+            - name: egress-config
+              mountPath: /egress.yaml
+              subPath: egress.yaml
+          env:
+            - name: LIVEKIT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiKey
+            - name: LIVEKIT_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiSecret
+            - name: LIVEKIT_WS_URL
+              value: {{ .Values.micro.livekit.egress.wsUrl }}
+            - name: S3_ACCESS_KEY
+              value: {{ .Values.micro.livekit.s3.accessKey }}
+            - name: S3_SECRET_KEY
+              value: {{ .Values.micro.livekit.s3.secretKey }}
+            - name: S3_BUCKET
+              value: {{ .Values.micro.livekit.s3.bucket }}
+            - name: S3_REGION
+              value: {{ .Values.micro.livekit.s3.region }}
+          command: ["-config-file", "/egress.yaml"]
+      volumes:
+        - name: egress-config
+          configMap:
+            name: egress-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: livekit
+spec:
+  type: NodePort  # or LoadBalancer for public
+  ports:
+    - port: 7880
+      targetPort: 7880
+      name: api
+    - port: 7881
+      targetPort: 7881
+      name: webrtc
+    - port: 3478
+      targetPort: 3478
+      protocol: UDP
+      name: turn
+  selector:
+    app: livekit
