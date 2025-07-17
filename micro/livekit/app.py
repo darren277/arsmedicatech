@@ -1,18 +1,15 @@
 """
 LiveKit Video Recording
 """
+import asyncio
 import os
 import time
-from datetime import timedelta
 from typing import Any, Dict, Tuple
 
 import boto3  # type: ignore[import-untyped]
-import requests
+import requests  # type: ignore[import-untyped]
 from flask import Flask, Response, jsonify, request
-from livekit.api import AccessToken  # type: ignore[import-not-found]
-from livekit.api import EgressClient, VideoGrant
-from livekit.api.egress import (  # type: ignore[import-not-found]
-    EncodedFileOutput, S3Upload)
+from livekit import api  # type: ignore
 
 API_KEY    = os.environ["LIVEKIT_API_KEY"]
 API_SECRET = os.environ["LIVEKIT_API_SECRET"]
@@ -31,15 +28,11 @@ def create_token() -> Tuple[Response, int]:
     room: str = body["room"]
     identity: str = body["identity"]
 
-    token: AccessToken = AccessToken(API_KEY, API_SECRET, identity=identity)
-    token.add_grants([VideoGrant(room_join=True, room=room)])
-    token.ttl = int(timedelta(hours=2).total_seconds())
-    tok: str = token.to_jwt()
+    tok = api.AccessToken().with_identity(identity).with_grants(api.VideoGrants(room_join=True, room=room)).to_jwt() # type: ignore[call-arg]
+
     return jsonify(token=tok), 200
 
 # ---- 2.  start / stop composite recording ----
-egress: EgressClient = EgressClient(SERVER_URL, API_KEY, API_SECRET)
-
 @app.post("/video/start-recording")
 def start_recording() -> Tuple[Response, int]:
     """
@@ -49,15 +42,31 @@ def start_recording() -> Tuple[Response, int]:
     body: Dict[str, Any] = request.get_json() or {}
     room: str = body["room"]
 
-    file_output: EncodedFileOutput = EncodedFileOutput(
-        filepath=f"recordings/{room}-{int(time.time())}.mp4",
-        output=S3Upload(bucket=os.environ["LIVEKIT_RECORDING_BUCKET"])
+    filename = f"recordings/{room}-{int(time.time())}.mp4"
+
+    # Setup request
+    s3_output = api.EncodedFileOutput(
+        filepath=filename,
+        s3=api.S3Upload(
+            bucket=os.environ["LIVEKIT_S3_BUCKET"],
+        )
     )
-    info = egress.start_room_composite(
-        room_name=room, file_outputs=[file_output], layout="speaker"
+    request_obj = api.StartEgressRequest(
+        room_name=room,
+        file_outputs=[s3_output],
+        layout="speaker",
     )
-    egress_id: str = str(getattr(info, "egress_id", ""))
-    return jsonify(egress_id=egress_id), 200
+
+    # Run async LiveKit API call from sync Flask route
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        info = loop.run_until_complete(api.egress.start_egress(request_obj))
+        egress_id = info.egress_id
+        return jsonify(egress_id=egress_id), 200
+    finally:
+        loop.run_until_complete(api.aclose())
+        loop.close()
 
 @app.post("/video/stop-recording")
 def stop_recording() -> Tuple[str, int]:
@@ -69,25 +78,51 @@ def stop_recording() -> Tuple[str, int]:
     egress_id: str = body.get("egress_id", "")
     if not egress_id:
         return "Missing egress_id", 400
-    egress.stop_egress(egress_id)
-    return "", 204
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(api.egress.stop_egress(api.StopEgressRequest(
+            egress_id=egress_id
+        )))
+        return "", 204
+    finally:
+        loop.run_until_complete(api.aclose())
+        loop.close()
 
 # ---- 3.  receive webhooks (room finished, egress finished, etc.) ----
-from livekit.api import TokenVerifier, WebhookReceiver
+from livekit.api import WebhookReceiver, TokenVerifier # type: ignore
 
-verifier: TokenVerifier = TokenVerifier(API_KEY, API_SECRET)
-receiver: WebhookReceiver = WebhookReceiver(verifier)
+verifier = TokenVerifier(
+    api_key=API_KEY,
+    api_secret=API_SECRET,
+)
+receiver = WebhookReceiver(verifier)
 
 @app.post("/livekit/webhook")
-def webhook() -> str:
+def webhook() -> Tuple[str, int]:
     """
     Receive LiveKit webhooks.
     :return: "ok" if successful, or an error message.
     """
-    event: Dict[str, Any] = receiver.receive(request.data.decode(), request.headers["Authorization"])
-    if event["event"] == "egress_ended":
-        print("Recording stored at", event["file"]["location"])  # s3://...
-    return "ok"
+    try:
+        # Decode and verify the webhook event
+        auth_header = request.headers.get("Authorization", "")
+        event = receiver.receive(request.data.decode(), auth_header)
+
+        # Handle event types
+        if event["event"] == "egress_ended":
+            location = event.get("file", {}).get("location", "")
+            print("✅ Recording stored at:", location)
+
+        elif event["event"] == "room_finished":
+            print(f"Room {event.get('room', {}).get('name')} finished")
+
+        # Add more event types if needed
+
+        return "ok", 200
+    except Exception as e:
+        print(f"⚠️ Webhook verification failed: {e}")
+        return "unauthorized", 401
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
