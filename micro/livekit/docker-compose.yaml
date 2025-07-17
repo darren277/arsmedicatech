@@ -31,3 +31,17 @@ services:
     command: ["-c", "tail -f /dev/null"]
     environment:
       EGRESS_CONFIG_FILE: /egress.yaml
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "5001:5001"
+    environment:
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      LIVEKIT_S3_BUCKET: ${LIVEKIT_S3_BUCKET}
+    depends_on:
+      - redis
+      - livekit
