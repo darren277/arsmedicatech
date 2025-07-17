@@ -10,6 +10,7 @@ import '@livekit/components-styles';
 import { useEffect, useState } from 'react';
 import { LIVE_KIT_SERVER_URL } from '../env_vars';
 import { videoAPI } from '../services/api';
+import logger from '../services/logging';
 
 export default function VideoRoom() {
   const [token, setToken] = useState<string>();
@@ -18,7 +19,10 @@ export default function VideoRoom() {
 
   useEffect(() => {
     // fetch a fresh JWT from Flask
-    videoAPI.getToken(roomName, identity).then(r => setToken(r.token));
+    videoAPI.getToken(roomName, identity).then(r => {
+      logger.debug('token', JSON.stringify(r));
+      setToken(r.token);
+    });
   }, []);
 
   if (!token) return <p>loading...</p>;

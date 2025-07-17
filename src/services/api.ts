@@ -426,7 +426,12 @@ class VideoAPI {
     logger.debug('Video API request - Headers:', config.headers);
 
     try {
-      const response = await fetch(url, config);
+      const headers = await this.getHeaders();
+      const configWithHeaders = {
+        ...config,
+        headers,
+      };
+      const response = await fetch(url, configWithHeaders);
       logger.debug('Video API request - Response status:', response.status);
       const data = await response.json();
       logger.debug('Video API request - Response data:', data);
@@ -452,7 +457,10 @@ class VideoAPI {
 
   // Get a video token
   async getToken(room: string, identity: string) {
-    return this.post('/video/token', { room, identity });
+    logger.debug('getToken', JSON.stringify({ room, identity }));
+    const token = await this.post('/video/token', { room, identity });
+    logger.debug('token', token);
+    return token;
   }
 }
 
