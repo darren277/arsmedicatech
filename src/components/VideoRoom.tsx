@@ -7,6 +7,7 @@ import {
   useTracks,
 } from '@livekit/components-react';
 import '@livekit/components-styles';
+import { Track } from 'livekit-client';
 import { useEffect, useState } from 'react';
 import { LIVE_KIT_SERVER_URL } from '../env_vars';
 import { videoAPI } from '../services/api';
@@ -75,7 +76,10 @@ export default function VideoRoom() {
 }
 
 function MyVideoConference() {
-  const tracks = useTracks([{ source: 'camera' }, { source: 'screen_share' }]);
+  const tracks = useTracks([
+    { source: Track.Source.Camera, withPlaceholder: true },
+    { source: Track.Source.ScreenShare, withPlaceholder: true },
+  ]);
   return (
     <GridLayout tracks={tracks}>
       <ParticipantTile />
