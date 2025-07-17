@@ -161,6 +161,7 @@ livekit-local:
 	@echo "Starting LiveKit server locally..."
 	$(ENV_VARS) envsubst < micro/livekit/egress.template.yaml > micro/livekit/egress.yaml
 	cd micro/livekit && PWD=$$(pwd) docker compose build egress
+	cd micro/livekit && PWD=$$(pwd) docker compose build api
 	cd micro/livekit && PWD=$$(pwd) docker compose --env-file .env up -d
 
 # Create S3 bucket for LiveKit recordings...
