@@ -11,7 +11,10 @@ import OptimalTableDemo from './pages/OptimalTableDemo';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
 
-import { HealthMetricTracker } from './components/HealthMetricTracker';
+import {
+  HealthMetricTracker,
+  HealthMetricVisualization,
+} from './components/HealthMetricTracker';
 
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -164,6 +167,10 @@ const baseRoutes: PluginRoute[] = [
   { path: 'lab-results', element: <LabResults /> },
 
   { path: 'health-metrics', element: <HealthMetricTracker /> },
+  {
+    path: 'health-metrics-visualization',
+    element: <HealthMetricVisualization />,
+  },
 
   { path: 'optimal-table-demo', element: <OptimalTableDemo /> },
 
