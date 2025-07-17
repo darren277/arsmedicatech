@@ -448,18 +448,22 @@ class VideoAPI {
     };
   }
 
-  async post(endpoint: string, data: any): Promise<any> {
+  async post(endpoint: string, data: any, signal?: AbortSignal): Promise<any> {
     return this.request(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
+      signal,
     });
   }
 
   // Get a video token
-  async getToken(room: string, identity: string) {
+  async getToken(room: string, identity: string, signal?: AbortSignal) {
     logger.debug('getToken', JSON.stringify({ room, identity }));
-    const token = await this.post('/video/token', { room, identity });
+    const token = await this.post('/video/token', { room, identity }, signal);
     logger.debug('token', token);
+    if (!token) {
+      throw new Error('Failed to retrieve token');
+    }
     return token;
   }
 

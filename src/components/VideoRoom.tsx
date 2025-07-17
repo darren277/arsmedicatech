@@ -10,22 +10,46 @@ import '@livekit/components-styles';
 import { useEffect, useState } from 'react';
 import { LIVE_KIT_SERVER_URL } from '../env_vars';
 import { videoAPI } from '../services/api';
-import logger from '../services/logging';
 
 export default function VideoRoom() {
   const [token, setToken] = useState<string>();
   const roomName = 'demo-room';
   const identity = 'alice';
-
+  // fetch a fresh JWT from Flask
   useEffect(() => {
-    // fetch a fresh JWT from Flask
-    videoAPI.getToken(roomName, identity).then(r => {
-      logger.debug('token', JSON.stringify(r));
-      setToken(r.token);
-    });
-  }, []);
+    // The AbortController is used to cancel the request if the component unmounts.
+    const controller = new AbortController();
 
-  if (!token) return <p>loading...</p>;
+    const fetchToken = async () => {
+      try {
+        const r = await videoAPI.getToken(
+          roomName,
+          identity,
+          controller.signal
+        );
+        setToken(r.token);
+      } catch (error) {
+        // If the request was aborted, we can safely ignore the error.
+        if (controller.signal.aborted) {
+          console.log('Token fetch was aborted.');
+          return;
+        }
+        console.error('Failed to fetch token:', error);
+      }
+    };
+
+    fetchToken();
+
+    // The cleanup function aborts the fetch request on unmount.
+    return () => {
+      controller.abort();
+    };
+  }, []); // Empty dependency array is correct here since roomName and identity are static.
+
+  // A more explicit loading state
+  if (token === '') {
+    return <div>Getting token...</div>;
+  }
 
   return (
     <LiveKitRoom
@@ -33,6 +57,8 @@ export default function VideoRoom() {
       serverUrl={LIVE_KIT_SERVER_URL}
       data-lk-theme="default"
       style={{ height: '100vh' }}
+      // For a better experience we can handle disconnects
+      onDisconnected={() => console.log('Disconnected from room')}
     >
       <MyVideoConference />
       <RoomAudioRenderer />
