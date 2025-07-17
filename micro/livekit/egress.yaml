@@ -7,7 +7,7 @@ recording:
     - filepath: recordings/{{ room_name }}-{{ timestamp }}.mp4
       output:
         s3:
-          access_key: ${S3_ACCESS_KEY}
-          secret:     ${S3_SECRET_KEY}
-          region:     ${S3_REGION}
-          bucket:     ${S3_BUCKET}
+          access_key: ${LIVEKIT_S3_ACCESS_KEY}
+          secret:     ${LIVEKIT_S3_SECRET_KEY}
+          region:     ${LIVEKIT_S3_REGION}
+          bucket:     ${LIVEKIT_S3_BUCKET}
