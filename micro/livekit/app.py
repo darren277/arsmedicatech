@@ -25,21 +25,18 @@ def create_token() -> Tuple[Response, int]:
     Create a LiveKit join token for a specific room and identity.
     :return: A JSON response containing the token.
     """
-    body: Dict[str, Any] = request.json
+    body: Dict[str, Any] = request.json or {}
     room: str = body["room"]
     identity: str = body["identity"]
 
-    tok: str = (
-        AccessToken(API_KEY, API_SECRET)
-        .with_identity(identity)
-        .with_grants(VideoGrant(room_join=True, room=room))
-        .set_valid_for(timedelta(hours=2))
-        .to_jwt()
-    )
+    token: AccessToken = AccessToken(API_KEY, API_SECRET, identity=identity)
+    token.add_grants([VideoGrant(room_join=True, room=room)])
+    token.ttl = int(timedelta(hours=2).total_seconds())
+    tok: str = token.to_jwt()
     return jsonify(token=tok), 200
 
 # ---- 2.  start / stop composite recording ----
-egress = EgressClient(SERVER_URL, API_KEY, API_SECRET)
+egress: EgressClient = EgressClient(SERVER_URL, API_KEY, API_SECRET)
 
 @app.post("/video/start-recording")
 def start_recording() -> Tuple[Response, int]:
@@ -47,16 +44,18 @@ def start_recording() -> Tuple[Response, int]:
     Start a composite recording for a specific room.
     :return: A tuple with the egress ID and HTTP status code 200.
     """
-    room: str = request.json["room"]
+    body: Dict[str, Any] = request.get_json() or {}
+    room: str = body["room"]
 
     file_output: EncodedFileOutput = EncodedFileOutput(
         filepath=f"recordings/{room}-{int(time.time())}.mp4",
         output=S3Upload(bucket=os.environ["LIVEKIT_RECORDING_BUCKET"])
     )
-    info: Any = egress.start_room_composite_egress(
-        room, file=file_output, layout="speaker"
+    info = egress.start_room_composite(
+        room_name=room, file_outputs=[file_output], layout="speaker"
     )
-    return jsonify(egress_id=info.egress_id), 200
+    egress_id: str = str(getattr(info, "egress_id", ""))
+    return jsonify(egress_id=egress_id), 200
 
 @app.post("/video/stop-recording")
 def stop_recording() -> Tuple[str, int]:
@@ -64,15 +63,18 @@ def stop_recording() -> Tuple[str, int]:
     Stop an ongoing egress recording.
     :return: A tuple with an empty string and HTTP status code 204.
     """
-    egress_id: str = request.json["egress_id"]
+    body: Dict[str, Any] = request.get_json() or {}
+    egress_id: str = body.get("egress_id", "")
+    if not egress_id:
+        return "Missing egress_id", 400
     egress.stop_egress(egress_id)
     return "", 204
 
 # ---- 3.  receive webhooks (room finished, egress finished, etc.) ----
 from livekit.api import TokenVerifier, WebhookReceiver
 
-verifier = TokenVerifier(API_KEY, API_SECRET)
-receiver = WebhookReceiver(verifier)
+verifier: TokenVerifier = TokenVerifier(API_KEY, API_SECRET)
+receiver: WebhookReceiver = WebhookReceiver(verifier)
 
 @app.post("/livekit/webhook")
 def webhook() -> str:
