@@ -7,8 +7,8 @@ import {
   useTracks,
 } from '@livekit/components-react';
 import '@livekit/components-styles';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { videoAPI } from '../services/api';
 
 export default function VideoRoom() {
   const [token, setToken] = useState<string>();
@@ -17,9 +17,7 @@ export default function VideoRoom() {
 
   useEffect(() => {
     // fetch a fresh JWT from Flask
-    axios
-      .post('/video/token', { room: roomName, identity })
-      .then(r => setToken(r.data.token));
+    videoAPI.getToken(roomName, identity).then(r => setToken(r.token));
   }, []);
 
   if (!token) return <p>loading...</p>;
