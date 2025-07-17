@@ -30,6 +30,7 @@ import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
 import { useEffect } from 'react';
+import VideoRoom from './components/VideoRoom';
 import { API_URL } from './env_vars';
 import { usePluginRoutes } from './hooks/usePluginRoutes';
 import FileUpload from './pages/FileUpload';
@@ -170,6 +171,8 @@ const baseRoutes: PluginRoute[] = [
 
   { path: 'uploads', element: <FileUpload /> },
   { path: 'uploads/:uploadId', element: <UploadDetails /> },
+
+  { path: 'video', element: <VideoRoom /> },
 ];
 
 function App() {
