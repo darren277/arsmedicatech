@@ -1,0 +1,4 @@
+python-dotenv==1.1.1
+livekit==1.0.11
+livekit-api==1.0.3
+boto3==1.39.7
