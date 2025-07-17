@@ -93,8 +93,8 @@ spec:
               value: "50000"
             - name: LIVEKIT_UDP_PORT_END
               value: "50010"
-          securityContext:
-            privileged: true
+          #securityContext:
+          #  privileged: true
 ---
 apiVersion: v1
 kind: Secret
