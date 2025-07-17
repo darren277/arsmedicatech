@@ -35,7 +35,7 @@ def create_token() -> Tuple[Response, int]:
     room: str = body["room"]
     identity: str = body["identity"]
 
-    tok = api.AccessToken().with_identity(identity).with_grants(api.VideoGrants(room_join=True, room=room)).to_jwt() # type: ignore[call-arg]
+    tok = api.AccessToken(API_KEY, API_SECRET).with_identity(identity).with_grants(api.VideoGrants(room_join=True, room=room)).to_jwt() # type: ignore[call-arg]
 
     return jsonify(token=tok), 200
 
