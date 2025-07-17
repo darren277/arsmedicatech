@@ -22,7 +22,7 @@ export default function VideoRoom() {
       .then(r => setToken(r.data.token));
   }, []);
 
-  if (!token) return <p>loading…</p>;
+  if (!token) return <p>loading...</p>;
 
   return (
     <LiveKitRoom
@@ -33,28 +33,25 @@ export default function VideoRoom() {
     >
       <MyVideoConference />
       <RoomAudioRenderer />
-      <ControlBar
-        additionalControls={room => (
-          <>
-            <button
-              onClick={() =>
-                axios.post('/video/start-recording', { room: roomName })
-              }
-            >
-              Start Recording
-            </button>
-            <button
-              onClick={() =>
-                axios.post('/video/stop-recording', {
-                  egress_id: room.egressId,
-                })
-              }
-            >
-              Stop Recording
-            </button>
-          </>
-        )}
-      />
+      <ControlBar>
+        <button
+          onClick={() =>
+            axios.post('/video/start-recording', { room: roomName })
+          }
+        >
+          Start Recording
+        </button>
+        <button
+          onClick={() =>
+            axios.post('/video/stop-recording', {
+              // provide the correct egress_id here
+              egress_id: undefined,
+            })
+          }
+        >
+          Stop Recording
+        </button>
+      </ControlBar>
     </LiveKitRoom>
   );
 }
