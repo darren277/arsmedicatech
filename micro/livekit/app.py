@@ -9,6 +9,7 @@ from typing import Any, Dict, Tuple
 import boto3  # type: ignore[import-untyped]
 import requests  # type: ignore[import-untyped]
 from flask import Flask, Response, jsonify, request
+from flask_cors import CORS
 from livekit import api  # type: ignore
 
 API_KEY    = os.environ["LIVEKIT_API_KEY"]
@@ -16,6 +17,12 @@ API_SECRET = os.environ["LIVEKIT_API_SECRET"]
 SERVER_URL = os.environ.get("LIVEKIT_URL", "https://your-livekit-domain")
 
 app = Flask(__name__)
+
+CORS(
+    app,
+    supports_credentials=True,
+    origins=["http://localhost:3000", "http://localhost:3012"],
+)
 
 # ---- 1.  mint join tokens ----
 @app.post("/video/token")
