@@ -12,13 +12,12 @@ services:
       - "7880:7880"         # gRPC / HTTP APIs
       - "7881:7881"         # WebRTC over TCP
       - "3478:3478/udp"     # TURN
-      - "50000-50010:50000-50010/udp"
+      - "50000-50100:50000-50100/udp"
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml
+    command: --config /etc/livekit.yaml
     environment:
       LIVEKIT_REDIS_HOST: redis:6379
-      LIVEKIT_KEYS: ${LIVEKIT_KEYS}
-      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
-      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
-      LIVEKIT_INGRESS_USE_EXTERNAL_IP: "true"
 
   egress:
     build:
