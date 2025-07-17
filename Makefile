@@ -152,3 +152,23 @@ celery-docker:
 
 celery-run:
 	docker run -d --name celery-worker -e CELERY_BROKER_URL=redis://$(REDIS_HOST):$(REDIS_PORT)/1 -e SENTRY_DSN=$(SENTRY_DSN) -e CELERY_RESULT_BACKEND=redis://$(REDIS_HOST):$(REDIS_PORT)/1 $(CELERY_IMAGE):$(CELERY_VERSION)
+
+
+# LiveKit
+LIVEKIT_IMAGE=livekit-server
+LIVEKIT_VERSION=1.0.0
+
+livekit-local:
+	@echo "Starting LiveKit server locally..."
+	cd micro/livekit && docker compose up -d
+
+# Create S3 bucket for LiveKit recordings...
+livekit-s3-iam:
+	aws iam create-user --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name livekit-s3-writer | true
+	aws iam put-user-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name livekit-s3-writer --policy-name LiveKitS3WritePolicy --policy-document file://config/livekit_s3_write_policy.json | true
+	aws iam create-access-key --user-name livekit-s3-writer
+
+livekit-s3-create:
+	aws s3api create-bucket --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(LIVEKIT_S3_BUCKET) | true
+	aws s3api put-public-access-block --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(LIVEKIT_S3_BUCKET) --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true | true
+	aws s3api put-bucket-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(LIVEKIT_S3_BUCKET) --policy file://config/livekit_s3_bucket_policy.json | true
