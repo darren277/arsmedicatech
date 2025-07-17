@@ -228,3 +228,66 @@ spec:
       name: turn
   selector:
     app: livekit
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: flask-api-secrets
+type: Opaque
+stringData:
+  s3Bucket: {{ .Values.micro.livekit.s3.bucket }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-api
+  template:
+    metadata:
+      labels:
+        app: flask-api
+    spec:
+      containers:
+        - name: api
+          # IMPORTANT: You must replace this with the actual name of the
+          # Docker image you build and push to a container registry.
+          image: "your-registry/your-flask-api-image:latest"
+          ports:
+            - containerPort: 5001
+          env:
+            # Pull LiveKit credentials from the existing secret
+            - name: LIVEKIT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiKey
+            - name: LIVEKIT_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiSecret
+            # Pull the S3 bucket name from the new secret
+            - name: LIVEKIT_S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: flask-api-secrets
+                  key: s3Bucket
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-api-service
+spec:
+  # ClusterIP is suitable for internal communication.
+  # Change to LoadBalancer if you need to expose this API publicly.
+  type: ClusterIP
+  selector:
+    app: flask-api
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001
