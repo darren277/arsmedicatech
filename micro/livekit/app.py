@@ -6,11 +6,13 @@ import time
 from datetime import timedelta
 from typing import Any, Dict, Tuple
 
-import boto3 # type: ignore[import-untyped]
+import boto3  # type: ignore[import-untyped]
 import requests
 from flask import Flask, Response, jsonify, request
-from livekit.api import AccessToken, EgressClient, VideoGrant # type: ignore[import-not-found]
-from livekit.api.egress import EncodedFileOutput, S3Upload # type: ignore[import-not-found]
+from livekit.api import AccessToken  # type: ignore[import-not-found]
+from livekit.api import EgressClient, VideoGrant
+from livekit.api.egress import (  # type: ignore[import-not-found]
+    EncodedFileOutput, S3Upload)
 
 API_KEY    = os.environ["LIVEKIT_API_KEY"]
 API_SECRET = os.environ["LIVEKIT_API_SECRET"]
