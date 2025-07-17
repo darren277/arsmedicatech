@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import React, { useEffect } from 'react';
+import { sanitizeForSelector } from '../../utils';
 
 // Multi-metric LineChart component using d3
 export default function LineChart({
@@ -88,7 +89,7 @@ export default function LineChart({
         );
       // Dots
       svg
-        .selectAll(`dot-${series.metricName}`)
+        .selectAll(`dot-${sanitizeForSelector(series.metricName)}`)
         .data(chartData)
         .enter()
         .append('circle')
