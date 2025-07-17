@@ -291,3 +291,43 @@ spec:
     - protocol: TCP
       port: 5001
       targetPort: 5001
+---
+  apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-livekit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-livekit
+  template:
+    metadata:
+      labels:
+        app: redis-livekit
+    spec:
+      containers:
+        - name: redis
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+---
+# =================================================================
+#  Service for the dedicated LiveKit Redis instance
+# =================================================================
+# This Service provides a unique DNS name within the cluster
+# for the LiveKit server to connect to.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-livekit-service
+spec:
+  # ClusterIP makes this service only reachable from within the cluster.
+  type: ClusterIP
+  selector:
+    app: redis-livekit
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
