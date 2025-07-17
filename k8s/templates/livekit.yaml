@@ -15,10 +15,67 @@ spec:
       containers:
         - name: livekit
           image: livekit/livekit-server:v1.10
+          #ports:
+          #  - containerPort: 7880 # HTTP API
+          #  - containerPort: 7881 # WebRTC TCP
+          #  - containerPort: 3478 # TURN
           ports:
-            - containerPort: 7880 # HTTP API
-            - containerPort: 7881 # WebRTC TCP
-            - containerPort: 3478 # TURN
+            - name: api
+              containerPort: 7880
+              hostPort: 7880
+            - name: webrtc
+              containerPort: 7881
+              hostPort: 7881
+            - name: turn-udp
+              containerPort: 3478
+              protocol: UDP
+              hostPort: 3478
+            # You need a hostPort for each UDP media port
+            - name: rtp-50000
+              containerPort: 50000
+              protocol: UDP
+              hostPort: 50000
+            # ... and so on for every port in your range
+            - name: rtp-50001
+              containerPort: 50001
+              protocol: UDP
+              hostPort: 50001
+            - name: rtp-50002
+              containerPort: 50002
+              protocol: UDP
+              hostPort: 50002
+            - name: rtp-50003
+              containerPort: 50003
+              protocol: UDP
+              hostPort: 50003
+            - name: rtp-50004
+              containerPort: 50004
+              protocol: UDP
+              hostPort: 50004
+            - name: rtp-50005
+              containerPort: 50005
+              protocol: UDP
+              hostPort: 50005
+            - name: rtp-50006
+              containerPort: 50006
+              protocol: UDP
+              hostPort: 50006
+            - name: rtp-50007
+              containerPort: 50007
+              protocol: UDP
+              hostPort: 50007
+            - name: rtp-50008
+              containerPort: 50008
+              protocol: UDP
+              hostPort: 50008
+            - name: rtp-50009
+              containerPort: 50009
+              protocol: UDP
+              hostPort: 50009
+            - name: rtp-50010
+              containerPort: 50010
+              protocol: UDP
+              hostPort: 50010
           env:
             - name: LIVEKIT_REDIS_HOST
               value: {{ .Values.micro.livekit.redis.host }}
