@@ -9,7 +9,7 @@ from typing import Any, Dict, Tuple
 import boto3  # type: ignore[import-untyped]
 import requests  # type: ignore[import-untyped]
 from flask import Flask, Response, jsonify, request
-from flask_cors import CORS
+from flask_cors import CORS # type: ignore[import-untyped]
 from livekit import api  # type: ignore
 
 API_KEY    = os.environ["LIVEKIT_API_KEY"]
