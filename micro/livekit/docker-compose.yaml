@@ -21,17 +21,13 @@ services:
       LIVEKIT_INGRESS_USE_EXTERNAL_IP: "true"
 
   egress:
-    image: livekit/egress:v1.9
+    build:
+      context: .
+      dockerfile: Dockerfile.egress
+    image: livekit-egress:latest
     restart: unless-stopped
     depends_on: [livekit, redis]
+    entrypoint: ["/bin/sh"]
+    command: ["-c", "tail -f /dev/null"]
     environment:
-      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
-      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
-      LIVEKIT_WS_URL: ws://livekit:7880
-      S3_ACCESS_KEY: ${LIVEKIT_S3_ACCESS_KEY}
-      S3_SECRET_KEY: ${LIVEKIT_S3_SECRET_KEY}
-      S3_REGION:      ${LIVEKIT_S3_REGION}
-      S3_BUCKET:      ${LIVEKIT_S3_BUCKET}
-    volumes:
-      - ./egress.yaml:/egress.yaml:ro
-    command: ["-config-file", "/egress.yaml"]
+      EGRESS_CONFIG_FILE: /egress.yaml

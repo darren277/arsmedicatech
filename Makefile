@@ -155,12 +155,13 @@ celery-run:
 
 
 # LiveKit
-LIVEKIT_IMAGE=livekit-server
-LIVEKIT_VERSION=1.0.0
+ENV_VARS=LIVEKIT_API_KEY=$(LIVEKIT_API_KEY) LIVEKIT_API_SECRET=$(LIVEKIT_API_SECRET) LIVEKIT_S3_ACCESS_KEY=$(LIVEKIT_S3_ACCESS_KEY) LIVEKIT_S3_SECRET_KEY=$(LIVEKIT_S3_SECRET_KEY) LIVEKIT_S3_REGION=$(LIVEKIT_S3_REGION) LIVEKIT_S3_BUCKET=$(LIVEKIT_S3_BUCKET)
 
 livekit-local:
 	@echo "Starting LiveKit server locally..."
-	cd micro/livekit && docker compose up -d
+	$(ENV_VARS) envsubst < micro/livekit/egress.template.yaml > micro/livekit/egress.yaml
+	cd micro/livekit && PWD=$$(pwd) docker compose build egress
+	cd micro/livekit && PWD=$$(pwd) docker compose --env-file .env up -d
 
 # Create S3 bucket for LiveKit recordings...
 livekit-s3-iam:
