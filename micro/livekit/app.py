@@ -90,7 +90,7 @@ def stop_recording() -> Tuple[str, int]:
         loop.close()
 
 # ---- 3.  receive webhooks (room finished, egress finished, etc.) ----
-from livekit.api import WebhookReceiver, TokenVerifier # type: ignore
+from livekit.api import TokenVerifier, WebhookReceiver  # type: ignore
 
 verifier = TokenVerifier(
     api_key=API_KEY,
