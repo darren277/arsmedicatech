@@ -37,21 +37,10 @@ export default function VideoRoom() {
       <MyVideoConference />
       <RoomAudioRenderer />
       <ControlBar>
-        <button
-          onClick={() =>
-            axios.post('/video/start-recording', { room: roomName })
-          }
-        >
+        <button onClick={() => videoAPI.startRecording(roomName)}>
           Start Recording
         </button>
-        <button
-          onClick={() =>
-            axios.post('/video/stop-recording', {
-              // provide the correct egress_id here
-              egress_id: undefined,
-            })
-          }
-        >
+        <button onClick={() => videoAPI.stopRecording('your-egress-id-here')}>
           Stop Recording
         </button>
       </ControlBar>

@@ -462,6 +462,22 @@ class VideoAPI {
     logger.debug('token', token);
     return token;
   }
+
+  async startRecording(room: string) {
+    logger.debug('startRecording', { room });
+    const response = await this.post('/video/start-recording', { room });
+    logger.debug('startRecording response', response);
+    return response;
+  }
+
+  async stopRecording(egressId: string) {
+    logger.debug('stopRecording', { egressId });
+    const response = await this.post('/video/stop-recording', {
+      egress_id: egressId,
+    });
+    logger.debug('stopRecording response', response);
+    return response;
+  }
 }
 
 const videoAPI = new VideoAPI();
