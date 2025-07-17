@@ -10,7 +10,7 @@ services:
       - "7880:7880"         # gRPC / HTTP APIs
       - "7881:7881"         # WebRTC over TCP
       - "3478:3478/udp"     # TURN
-      - "50000-60000:50000-60000/udp"
+      - "50000-50010:50000-50010/udp"
     environment:
       LIVEKIT_REDIS_HOST: redis:6379
       LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
