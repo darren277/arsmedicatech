@@ -1,4 +1,4 @@
-import { API_URL, LIVE_KIT_URL } from '../env_vars';
+import { API_URL, LIVE_KIT_TOKEN_URL } from '../env_vars';
 import authService from './auth';
 import logger from './logging';
 
@@ -408,11 +408,9 @@ export const pluginAPI = {
 // Video API operations
 class VideoAPI {
   baseURL: string;
-  apiURL: string;
 
   constructor() {
-    this.baseURL = LIVE_KIT_URL;
-    this.apiURL = LIVE_KIT_URL + '/video';
+    this.baseURL = LIVE_KIT_TOKEN_URL;
   }
 
   async request(endpoint: string, options: RequestInit = {}): Promise<any> {
@@ -452,18 +450,11 @@ class VideoAPI {
     });
   }
 
-  async postAPI(endpoint: string, data: any): Promise<any> {
-    return this.request('/api' + endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
   // Get a video token
   async getToken(room: string, identity: string) {
-    return this.postAPI('/video/token', { room, identity });
+    return this.post('/video/token', { room, identity });
   }
-};
+}
 
 const videoAPI = new VideoAPI();
 

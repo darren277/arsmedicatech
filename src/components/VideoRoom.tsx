@@ -8,6 +8,7 @@ import {
 } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { useEffect, useState } from 'react';
+import { LIVE_KIT_SERVER_URL } from '../env_vars';
 import { videoAPI } from '../services/api';
 
 export default function VideoRoom() {
@@ -25,7 +26,7 @@ export default function VideoRoom() {
   return (
     <LiveKitRoom
       token={token}
-      serverUrl="wss://your-livekit-domain"
+      serverUrl={LIVE_KIT_SERVER_URL}
       data-lk-theme="default"
       style={{ height: '100vh' }}
     >
