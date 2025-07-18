@@ -89,6 +89,8 @@ spec:
           env:
             - name: LIVEKIT_REDIS_HOST
               value: {{ .Values.micro.livekit.redis.host }}
+            - name: LIVEKIT_PORT
+              value: "7880"
             - name: LIVEKIT_API_KEY
               valueFrom:
                 secretKeyRef:
