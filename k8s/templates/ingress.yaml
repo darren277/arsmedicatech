@@ -33,3 +33,10 @@ spec:
                 name: mcp-server
                 port:
                   number: 9000
+          - path: /livekit
+            pathType: Prefix
+            backend:
+              service:
+                name: livekit-flask-api-service
+                port:
+                  number: 5001
