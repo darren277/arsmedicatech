@@ -45,6 +45,7 @@ spec:
         - name: ecr-secret
       containers:
         - name:   webhooks-migration
+          workingDir: /app
           image: "{{ .Values.flask.image.repository }}:{{ .Values.flask.image.tag }}"
           command: ["python", "lib/migrations/setup_webhooks.py"]
           env:
