@@ -40,3 +40,10 @@ spec:
                 name: livekit-flask-api-service
                 port:
                   number: 5001
+          - path: /rtc
+            pathType: Prefix
+            backend:
+              service:
+                name: livekit
+                port:
+                  number: 7880
