@@ -33,6 +33,9 @@ COPY ./app.py .
 
 COPY ./plugins ./plugins
 
+# Note: This is done so that we can reuse the Flask container for Celery workers
+COPY ./celery_worker.py .
+
 EXPOSE 5000
 
 RUN pip install gunicorn
