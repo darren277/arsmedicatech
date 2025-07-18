@@ -6,6 +6,9 @@ ENV PORT=5000
 
 WORKDIR /app
 
+# This is for whisper for the audio transcription Celery task...
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
 # Install MariaDB connector
 RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
