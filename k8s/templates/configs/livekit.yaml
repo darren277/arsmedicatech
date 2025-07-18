@@ -1,0 +1,33 @@
+# The main HTTP/gRPC API port
+port: 7880
+log_level: info
+
+# CORS configuration to allow connections from your web app
+cors:
+  allow_origins:
+    - "*"
+
+# RTC (WebRTC) configuration
+rtc:
+  # This MUST be the public IP address of the Kubernetes node or Load Balancer
+  # that is exposed to the internet. LiveKit announces this IP to clients.
+  # For cloud providers, you can often use 'use_external_ip: true' instead.
+  node_ip: "{{ .Values.host }}"
+  tcp_port: 7881
+  udp_port: 3478
+  port_range_start: 50000
+  port_range_end: 50010 # Using the 10 ports you requested
+
+# TURN (media relay) configuration
+turn:
+  enabled: true
+  udp_port: 3478
+  # This domain MUST also point to the public IP of your node/load balancer.
+  domain: "{{ .Values.host }}"
+
+# Redis configuration, pointing to the Kubernetes service name
+redis:
+  address: redis-livekit-service:6379
+
+keys:
+  {{ .Values.micro.livekit.api.key }}: {{ .Values.micro.livekit.api.secret }}
