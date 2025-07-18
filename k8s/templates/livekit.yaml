@@ -188,7 +188,9 @@ spec:
               value: {{ .Values.micro.livekit.s3.bucket }}
             - name: S3_REGION
               value: {{ .Values.micro.livekit.s3.region }}
-          command: ["-config-file", "/egress.yaml"]
+          command: [ "egress" ]
+          args: [ "--config", "/egress.yaml" ]
+
       volumes:
         - name: egress-config
           configMap:
