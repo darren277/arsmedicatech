@@ -1,4 +1,6 @@
 {{- define "surrealdb.sharedEnv" }}
+- name: PYTHONPATH
+  value: "/app"
 - name: S3_BUCKET
   value: "{{ .Values.s3Bucket }}"
 - name: REDIS_HOST
