@@ -12,6 +12,10 @@ spec:
       labels:
         app: livekit
     spec:
+      volumes:
+        - name: livekit-config
+          configMap:
+            name: livekit-config
       containers:
         - name: livekit
           image: livekit/livekit-server:latest
@@ -76,6 +80,12 @@ spec:
               containerPort: 50010
               protocol: UDP
               hostPort: 50010
+          volumeMounts:
+            - name: livekit-config
+              mountPath: /etc/livekit.yaml
+              subPath: livekit.yaml
+          command: [ "/livekit-server" ]
+          args: [ "--config", "/etc/livekit.yaml" ]
           env:
             - name: LIVEKIT_REDIS_HOST
               value: {{ .Values.micro.livekit.redis.host }}
