@@ -251,11 +251,12 @@ spec:
       labels:
         app: livekit-flask-api
     spec:
+      imagePullSecrets:
+        - name: ecr-secret
       containers:
         - name: api
-          # IMPORTANT: You must replace this with the actual name of the
-          # Docker image you build and push to a container registry.
-          image: "your-registry/your-flask-api-image:latest"
+          image: "{{ .Values.micro.livekit.api.image.repository }}:{{ .Values.micro.livekit.api.image.tag }}"
+          imagePullPolicy: "{{ .Values.micro.livekit.api.image.pullPolicy }}"
           ports:
             - containerPort: 5001
           env:
