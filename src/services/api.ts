@@ -459,7 +459,7 @@ class VideoAPI {
   // Get a video token
   async getToken(room: string, identity: string, signal?: AbortSignal) {
     logger.debug('getToken', JSON.stringify({ room, identity }));
-    const token = await this.post('/video/token', { room, identity }, signal);
+    const token = await this.post('/livekit/token', { room, identity }, signal);
     logger.debug('token', token);
     if (!token) {
       throw new Error('Failed to retrieve token');
@@ -469,14 +469,14 @@ class VideoAPI {
 
   async startRecording(room: string) {
     logger.debug('startRecording', { room });
-    const response = await this.post('/video/start-recording', { room });
+    const response = await this.post('/livekit/start-recording', { room });
     logger.debug('startRecording response', response);
     return response;
   }
 
   async stopRecording(egressId: string) {
     logger.debug('stopRecording', { egressId });
-    const response = await this.post('/video/stop-recording', {
+    const response = await this.post('/livekit/stop-recording', {
       egress_id: egressId,
     });
     logger.debug('stopRecording response', response);
