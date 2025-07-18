@@ -232,7 +232,7 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: flask-api-secrets
+  name: livekit-flask-api-secrets
 type: Opaque
 stringData:
   s3Bucket: {{ .Values.micro.livekit.s3.bucket }}
@@ -240,16 +240,16 @@ stringData:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-api
+  name: livekit-flask-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: flask-api
+      app: livekit-flask-api
   template:
     metadata:
       labels:
-        app: flask-api
+        app: livekit-flask-api
     spec:
       containers:
         - name: api
@@ -274,19 +274,19 @@ spec:
             - name: LIVEKIT_S3_BUCKET
               valueFrom:
                 secretKeyRef:
-                  name: flask-api-secrets
+                  name: livekit-flask-api-secrets
                   key: s3Bucket
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-api-service
+  name: livekit-flask-api-service
 spec:
   # ClusterIP is suitable for internal communication.
   # Change to LoadBalancer if you need to expose this API publicly.
   type: ClusterIP
   selector:
-    app: flask-api
+    app: livekit-flask-api
   ports:
     - protocol: TCP
       port: 5001
