@@ -34,3 +34,4 @@ celery_app.conf.update( # type: ignore
 
 # Tell Celery to autodiscover tasks in all installed apps/packages
 celery_app.autodiscover_tasks(['lib.services'], related_name='upload_service') # type: ignore
+celery_app.autodiscover_tasks(['lib.services'], related_name='video_transcription') # type: ignore
