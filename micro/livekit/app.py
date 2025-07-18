@@ -12,6 +12,9 @@ from flask import Flask, Response, jsonify, request
 from flask_cors import CORS # type: ignore[import-untyped]
 from livekit import api  # type: ignore
 
+from lib.services.video_transcription import transcribe_video_task  # type: ignore[import-untyped]
+
+
 API_KEY    = os.environ["LIVEKIT_API_KEY"]
 API_SECRET = os.environ["LIVEKIT_API_SECRET"]
 SERVER_URL = os.environ.get("LIVEKIT_URL", "https://your-livekit-domain")
@@ -23,6 +26,7 @@ CORS(
     supports_credentials=True,
     origins=["http://localhost:3000", "http://localhost:3012"],
 )
+
 
 # ---- 1.  mint join tokens ----
 @app.post("/livekit/token")
@@ -119,6 +123,21 @@ def webhook() -> Tuple[str, int]:
         # Handle event types
         if event["event"] == "egress_ended":
             location = event.get("file", {}).get("location", "")
+            room = event.get("room", {}).get("name", "")
+            duration = event.get("file", {}).get("duration", 0)
+
+            if not location:
+                print("⚠️ No file location found in event")
+                return "no file location", 400
+            if not room:
+                print("⚠️ No room name found in event")
+                return "no room name", 400
+            if duration <= 0:
+                print("⚠️ Invalid duration in event")
+                return "invalid duration", 400
+
+            # Kick off async transcription
+            transcribe_video_task.delay(location, room, duration)
             print("✅ Recording stored at:", location)
 
         elif event["event"] == "room_finished":
