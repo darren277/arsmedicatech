@@ -7,11 +7,12 @@ rtc:
   # This MUST be the public IP address of the Kubernetes node or Load Balancer
   # that is exposed to the internet. LiveKit announces this IP to clients.
   # For cloud providers, you can often use 'use_external_ip: true' instead.
-  node_ip: "{{ .Values.host }}"
+  node_ip: "{{ .Values.ip }}"
   tcp_port: 7881
   udp_port: 3478
   port_range_start: 50000
   port_range_end: 50010 # Using the 10 ports you requested
+  #use_external_ip: true
 
 # TURN (media relay) configuration
 turn:
@@ -19,6 +20,7 @@ turn:
   udp_port: 3478
   # This domain MUST also point to the public IP of your node/load balancer.
   domain: "{{ .Values.host }}"
+  #relay_address: "{{ .Values.ip }}"
 
 # Redis configuration, pointing to the Kubernetes service name
 redis:
