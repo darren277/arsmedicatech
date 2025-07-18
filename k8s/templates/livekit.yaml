@@ -199,7 +199,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: livekit
+  name: livekit-service
 spec:
   type: NodePort  # or LoadBalancer for public
   ports:
@@ -214,7 +214,7 @@ spec:
       protocol: UDP
       name: turn
   selector:
-    app: livekit
+    app: livekit-service
 ---
 apiVersion: v1
 kind: Secret
