@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: livekit
-          image: livekit/livekit-server:v1.10
+          image: livekit/livekit-server:latest
           #ports:
           #  - containerPort: 7880 # HTTP API
           #  - containerPort: 7881 # WebRTC TCP
@@ -177,7 +177,7 @@ spec:
     spec:
       containers:
         - name: egress
-          image: livekit/egress:v1.10
+          image: livekit/egress:latest
           volumeMounts:
             - name: egress-config
               mountPath: /egress.yaml
