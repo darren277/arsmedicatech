@@ -25,7 +25,7 @@ CORS(
 )
 
 # ---- 1.  mint join tokens ----
-@app.post("/video/token")
+@app.post("/livekit/token")
 def create_token() -> Tuple[Response, int]:
     """
     Create a LiveKit join token for a specific room and identity.
@@ -40,7 +40,7 @@ def create_token() -> Tuple[Response, int]:
     return jsonify(token=tok), 200
 
 # ---- 2.  start / stop composite recording ----
-@app.post("/video/start-recording")
+@app.post("/livekit/start-recording")
 def start_recording() -> Tuple[Response, int]:
     """
     Start a composite recording for a specific room.
@@ -75,7 +75,7 @@ def start_recording() -> Tuple[Response, int]:
         loop.run_until_complete(api.aclose())
         loop.close()
 
-@app.post("/video/stop-recording")
+@app.post("/livekit/stop-recording")
 def stop_recording() -> Tuple[str, int]:
     """
     Stop an ongoing egress recording.
