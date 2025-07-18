@@ -134,6 +134,8 @@ data:
     api_key: {{ .Values.micro.livekit.api.key }}
     api_secret: {{ .Values.micro.livekit.api.secret }}
     ws_url: {{ .Values.micro.livekit.egress.wsUrl }}
+    redis:
+      address: redis-livekit-service:6379
     recording:
       file_outputs:
         - filepath: recordings/{{`{{ room_name }}`}}-{{`{{ timestamp }}`}}.mp4
