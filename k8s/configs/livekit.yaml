@@ -2,11 +2,6 @@
 port: 7880
 log_level: info
 
-# CORS configuration to allow connections from your web app
-cors:
-  allow_origins:
-    - "*"
-
 # RTC (WebRTC) configuration
 rtc:
   # This MUST be the public IP address of the Kubernetes node or Load Balancer
