@@ -28,6 +28,8 @@ COPY ./lib ./lib
 COPY ./settings.py .
 COPY ./app.py .
 
+COPY ./plugins ./plugins
+
 EXPOSE 5000
 
 RUN pip install gunicorn
@@ -35,4 +37,3 @@ RUN pip install asgiref
 
 #CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
 CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:5000", "app:asgi_app"]
-
