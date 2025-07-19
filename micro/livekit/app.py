@@ -87,6 +87,8 @@ def start_recording() -> Tuple[Response, int]:
             api_secret=API_SECRET,
         )
         try:
+            logger.info(f"Creating egress for room: {room}, filename: {filename}")
+            logger.info(f'Using S3 bucket: {os.environ["LIVEKIT_S3_BUCKET"]}, access_key: {os.environ["LIVEKIT_S3_ACCESS_KEY"]}, secret_key: {os.environ["LIVEKIT_S3_SECRET_KEY"]}')
             request_obj = RoomCompositeEgressRequest(
                 room_name=room,
                 file_outputs=[
@@ -103,6 +105,7 @@ def start_recording() -> Tuple[Response, int]:
                 layout="speaker",
             )
             info = await lk_api.egress.start_room_composite_egress(request_obj)
+            logger.info(f"Egress Info: {info}")
             logger.info(f"Recording started with egress ID: {info.egress_id}")
             #return jsonify(egress_id=info.egress_id), 200
             return info.egress_id  # Return the EgressInfo object
@@ -199,6 +202,8 @@ def webhook() -> Tuple[str, int]:
         auth_header = request.headers.get("Authorization", "")
         event = receiver.receive(request.data.decode(), auth_header)
 
+        logger.info(f"📦 Incoming webhook event: {event}")
+
         # Handle event types
         if event.event == "egress_ended":
             egress_info = event.egress_info
@@ -222,7 +227,7 @@ def webhook() -> Tuple[str, int]:
                 "lib.services.video_transcription.transcribe_video_task",
                 args=(location, room, duration),
             )
-            logger.info("✅ Recording stored at:", location)
+            logger.info(f"✅ Recording stored at: {location} (room: {room}, duration: {duration}s)")
 
         elif event.event == "room_finished":
             room_info = event.room
