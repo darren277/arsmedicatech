@@ -181,6 +181,18 @@ spec:
           env:
             - name: XDG_RUNTIME_DIR
               value: /run/pulse
+            - name: PULSE_RUNTIME_PATH
+              value: /run/pulse
+            - name: PULSE_NO_CONFIG
+              value: "1"
+            - name: PULSE_DISABLE_CONFIG
+              value: "1"
+            - name: PULSE_NO_CLIENT
+              value: "1"
+            - name: PULSE_SERVER
+              value: "unix:/run/pulse/native"
+            - name: NO_AT_BRIDGE
+              value: "1"
             - name: LIVEKIT_API_KEY
               valueFrom:
                 secretKeyRef:
