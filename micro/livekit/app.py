@@ -200,10 +200,11 @@ def webhook() -> Tuple[str, int]:
         event = receiver.receive(request.data.decode(), auth_header)
 
         # Handle event types
-        if event["event"] == "egress_ended":
-            location = event.get("file", {}).get("location", "")
-            room = event.get("room", {}).get("name", "")
-            duration = event.get("file", {}).get("duration", 0)
+        if event.event == "egress_ended":
+            egress_info = event.egress_info
+            location = getattr(egress_info.file, "filename", "")
+            room = getattr(egress_info, "room_name", "")
+            duration = int((getattr(egress_info, "ended_at", 0) - getattr(egress_info, "started_at", 0)) / 1e9)
 
             if not location:
                 logger.info("⚠️ No file location found in event")
@@ -223,8 +224,10 @@ def webhook() -> Tuple[str, int]:
             )
             logger.info("✅ Recording stored at:", location)
 
-        elif event["event"] == "room_finished":
-            logger.info(f"Room {event.get('room', {}).get('name')} finished")
+        elif event.event == "room_finished":
+            room_info = event.room
+            room_name = room_info.name if room_info else "unknown"
+            logger.info(f"Room finished: {room_name}")
 
         # Add more event types if needed
 
