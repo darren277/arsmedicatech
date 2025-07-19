@@ -179,8 +179,14 @@ livekit-s3-create:
 
 livekit-docker-create:
 	aws ecr create-repository --repository-name $(LIVEKIT_API_IMAGE) --region us-east-1 || true
+	aws ecr create-repository --repository-name $(LIVEKIT_EGRESS_IMAGE) --region us-east-1 || true
 
 livekit-docker:
-	docker build --build-arg LIVEKIT_API_KEY=$(LIVEKIT_API_KEY) --build-arg LIVEKIT_API_SECRET=$(LIVEKIT_API_SECRET) --build-arg LIVEKIT_S3_ACCESS_KEY=$(LIVEKIT_S3_ACCESS_KEY) --build-arg LIVEKIT_S3_SECRET_KEY=$(LIVEKIT_S3_SECRET_KEY) --build-arg LIVEKIT_S3_REGION=$(LIVEKIT_S3_REGION) --build-arg LIVEKIT_S3_BUCKET=$(LIVEKIT_S3_BUCKET) -t $(DOCKER_REGISTRY)/arsmedicatech_livekit_api:latest -f micro/livekit/Dockerfile.api ./micro/livekit
-	docker push $(DOCKER_REGISTRY)/arsmedicatech_livekit_api:latest
-	kubectl rollout restart deployment livekit-flask-api --namespace=$(NAMESPACE)
+	docker build --build-arg LIVEKIT_API_KEY=$(LIVEKIT_API_KEY) --build-arg LIVEKIT_API_SECRET=$(LIVEKIT_API_SECRET) --build-arg LIVEKIT_S3_ACCESS_KEY=$(LIVEKIT_S3_ACCESS_KEY) --build-arg LIVEKIT_S3_SECRET_KEY=$(LIVEKIT_S3_SECRET_KEY) --build-arg LIVEKIT_S3_REGION=$(LIVEKIT_S3_REGION) --build-arg LIVEKIT_S3_BUCKET=$(LIVEKIT_S3_BUCKET) -t $(DOCKER_REGISTRY)/$(LIVEKIT_API_IMAGE):$(LIVEKIT_API_VERSION) -f micro/livekit/Dockerfile.api ./micro/livekit
+	docker push $(DOCKER_REGISTRY)/$(LIVEKIT_API_IMAGE):$(LIVEKIT_API_VERSION)
+	kubectl rollout restart deployment $(LIVEKIT_API_DEPLOYMENT) --namespace=$(NAMESPACE)
+
+livekit-egress-docker:
+	docker build -t $(DOCKER_REGISTRY)/$(LIVEKIT_EGRESS_IMAGE):$(LIVEKIT_EGRESS_VERSION) -f micro/livekit/Dockerfile.egress ./micro/livekit
+	docker push $(DOCKER_REGISTRY)/$(LIVEKIT_EGRESS_IMAGE):$(LIVEKIT_EGRESS_VERSION)
+	kubectl rollout restart deployment $(LIVEKIT_EGRESS_DEPLOYMENT) --namespace=$(NAMESPACE)
