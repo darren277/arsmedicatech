@@ -3,11 +3,15 @@ import React, { useEffect } from 'react';
 
 export default function BarChart({
   data,
+  lowerBound,
+  upperBound,
 }: {
   data: {
     metricName: string;
     points: { date: string; value: number | null }[];
   }[];
+  lowerBound?: number | '';
+  upperBound?: number | '';
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -36,7 +40,10 @@ export default function BarChart({
     // Y scale
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(allPoints, d => d.value ?? 0) ?? 1])
+      .domain([
+        lowerBound !== undefined && lowerBound !== '' ? lowerBound : 0,
+        upperBound !== undefined && upperBound !== '' ? upperBound : d3.max(allPoints, d => d.value ?? 0) ?? 1,
+      ])
       .nice()
       .range([height, 0]);
     // Color
@@ -107,7 +114,7 @@ export default function BarChart({
       .attr('dy', '.35em')
       .style('text-anchor', 'end')
       .text(d => d);
-  }, [data]);
+  }, [data, lowerBound, upperBound]);
 
   return <div ref={ref}></div>;
 }

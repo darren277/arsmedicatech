@@ -35,6 +35,8 @@ function HealthMetricVisualization() {
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lowerBound, setLowerBound] = useState<number | ''>('');
+  const [upperBound, setUpperBound] = useState<number | ''>('');
 
   useEffect(() => {
     if (!user?.id) return;
@@ -144,6 +146,30 @@ function HealthMetricVisualization() {
           </select>
         </div>
         <div>
+          <Label>Lower Bound (Y-axis)</Label>
+          <Input
+            type="number"
+            value={lowerBound}
+            onChange={e =>
+              setLowerBound(e.target.value === '' ? '' : Number(e.target.value))
+            }
+            placeholder="Auto"
+            min="0"
+          />
+        </div>
+        <div>
+          <Label>Upper Bound (Y-axis)</Label>
+          <Input
+            type="number"
+            value={upperBound}
+            onChange={e =>
+              setUpperBound(e.target.value === '' ? '' : Number(e.target.value))
+            }
+            placeholder="Auto"
+            min="0"
+          />
+        </div>
+        <div>
           <Label>Metrics to Display</Label>
           <div className="flex flex-col max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
             {metricNames.map(name => (
@@ -165,13 +191,29 @@ function HealthMetricVisualization() {
         ) : chartData.length === 0 || selectedMetrics.length === 0 ? (
           <div>No data for selected range/metric.</div>
         ) : visualizationType === 'line' ? (
-          <LineChart data={chartData} />
+          <LineChart
+            data={chartData}
+            lowerBound={lowerBound}
+            upperBound={upperBound}
+          />
         ) : visualizationType === 'bar' ? (
-          <BarChart data={chartData} />
+          <BarChart
+            data={chartData}
+            lowerBound={lowerBound}
+            upperBound={upperBound}
+          />
         ) : visualizationType === 'scatter' ? (
-          <ScatterChart data={chartData} />
+          <ScatterChart
+            data={chartData}
+            lowerBound={lowerBound}
+            upperBound={upperBound}
+          />
         ) : visualizationType === 'area' ? (
-          <AreaChart data={chartData} />
+          <AreaChart
+            data={chartData}
+            lowerBound={lowerBound}
+            upperBound={upperBound}
+          />
         ) : visualizationType === 'radar' ? (
           <RadarChart data={chartData} date={endDate} />
         ) : visualizationType === 'heatmap' ? (
