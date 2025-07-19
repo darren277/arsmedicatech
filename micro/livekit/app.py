@@ -1,6 +1,8 @@
 """
 LiveKit Video Recording
 """
+from concurrent.futures import ThreadPoolExecutor
+
 import asyncio
 import os
 import time
@@ -25,6 +27,9 @@ celery_app = Celery(
 API_KEY    = os.environ["LIVEKIT_API_KEY"]
 API_SECRET = os.environ["LIVEKIT_API_SECRET"]
 SERVER_URL = os.environ.get("LIVEKIT_URL", "https://your-livekit-domain")
+
+executor = ThreadPoolExecutor()
+
 
 app = Flask(__name__)
 
@@ -56,6 +61,8 @@ def create_token() -> Tuple[Response, int]:
     return jsonify(token=tok), 200
 
 # ---- 2.  start / stop composite recording ----
+from livekit.protocol.egress import EgressInfo, RoomCompositeEgressRequest, EncodedFileOutput, S3Upload # type: ignore[import-untyped]
+
 @app.post("/livekit/start-recording")
 def start_recording() -> Tuple[Response, int]:
     """
@@ -67,29 +74,51 @@ def start_recording() -> Tuple[Response, int]:
 
     filename = f"recordings/{room}-{int(time.time())}.mp4"
 
-    # Setup request
-    s3_output = api.EncodedFileOutput(
-        filepath=filename,
-        s3=api.S3Upload(
-            bucket=os.environ["LIVEKIT_S3_BUCKET"],
+    logger.info(f"Starting recording for room: {room}, filename: {filename}")
+
+    async def run() -> EgressInfo:
+        """
+        Create a LiveKit API client and start egress recording.
+        :return: EgressInfo object containing egress details.
+        """
+        lk_api = api.LiveKitAPI(  # This returns an object with `.egress` and `.aclose()`
+            url=SERVER_URL,
+            api_key=API_KEY,
+            api_secret=API_SECRET,
         )
-    )
-    request_obj = api.StartEgressRequest(
-        room_name=room,
-        file_outputs=[s3_output],
-        layout="speaker",
-    )
+        try:
+            request_obj = RoomCompositeEgressRequest(
+                room_name=room,
+                file_outputs=[
+                    EncodedFileOutput(
+                        filepath=filename,
+                        s3=S3Upload(
+                            bucket=os.environ["LIVEKIT_S3_BUCKET"]
+                        )
+                    )
+                ],
+                layout="speaker",
+            )
+            info = await lk_api.egress.start_room_composite_egress(request_obj)
+            logger.info(f"Recording started with egress ID: {info.egress_id}")
+            #return jsonify(egress_id=info.egress_id), 200
+            return info.egress_id  # Return the EgressInfo object
+        finally:
+            await lk_api.aclose()  # Ensure the API client is closed properly
 
     # Run async LiveKit API call from sync Flask route
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        info = loop.run_until_complete(api.egress.start_egress(request_obj))
-        egress_id = info.egress_id
-        return jsonify(egress_id=egress_id), 200
-    finally:
-        loop.run_until_complete(api.aclose())
-        loop.close()
+    def blocking_call() -> str:
+        """
+        Create a LiveKit API client and start egress recording in a blocking manner.
+        :return: The egress ID as a string.
+        """
+        return asyncio.run(run())
+
+    future = executor.submit(blocking_call)
+    egress_id = future.result()
+
+    return jsonify({"egress_id": egress_id}), 200
+
 
 @app.post("/livekit/stop-recording")
 def stop_recording() -> Tuple[str, int]:
@@ -102,16 +131,50 @@ def stop_recording() -> Tuple[str, int]:
     logger.info(f"Stopping recording with egress ID: {egress_id}")
     if not egress_id:
         return "Missing egress_id", 400
+
+    async def run() -> None:
+        """
+        Create a LiveKit API client and stop the egress recording.
+        :return: None
+        """
+        lk_api = api.LiveKitAPI(
+            url=SERVER_URL,
+            api_key=API_KEY,
+            api_secret=API_SECRET,
+        )
+        try:
+            await lk_api.egress.stop_egress(
+                api.StopEgressRequest(egress_id=egress_id)
+            )
+        except api.twirp_client.TwirpError as te:
+            # Ignore if the egress is already finished/failed
+            if te.code in ("not_found", "failed_precondition"):
+                pass
+            else:
+                raise
+        except Exception as e:
+            logger.info(f"⚠️ Error stopping egress: {e}")
+            raise
+        finally:
+            await lk_api.aclose()
+
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    try:
-        loop.run_until_complete(api.egress.stop_egress(api.StopEgressRequest(
-            egress_id=egress_id
-        )))
-        return "", 204
-    finally:
-        loop.run_until_complete(api.aclose())
-        loop.close()
+
+    def blocking_stop() -> None:
+        """
+        Create a LiveKit API client and stop the egress recording in a blocking manner.
+        :return: None
+        """
+        logger.info(f"Stopping egress with ID: {egress_id}")
+        return asyncio.run(run())
+
+    # Submit async call in background thread
+    future = executor.submit(blocking_stop)
+    future.result()
+
+    return "", 204
+
 
 # ---- 3.  receive webhooks (room finished, egress finished, etc.) ----
 from livekit.api import TokenVerifier, WebhookReceiver  # type: ignore
