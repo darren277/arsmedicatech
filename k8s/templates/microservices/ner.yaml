@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: micro-ner, namespace: {{ .Values.namespace }} }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: micro-ner } }
+  template:
+    metadata:
+      labels:
+        app: micro-ner
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "5000"
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: api
+          image: "{{ .Values.micro.ner.image.repository }}:{{ .Values.micro.ner.image.tag }}"
+          imagePullPolicy: "{{ .Values.micro.ner.image.pullPolicy }}"
+          ports: [ { containerPort: 5000 } ]
+          env:
+            - name: MODEL_NAME
+              value: "{{ .Values.micro.ner.modelName }}"
+---
+apiVersion: v1
+kind: Service
+metadata: { name: micro-ner, namespace: {{ .Values.namespace }} }
+spec:
+  selector: { app: micro-ner }
+  ports: [ { port: 80, targetPort: 5000 } ]
