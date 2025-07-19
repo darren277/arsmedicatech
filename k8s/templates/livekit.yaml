@@ -213,16 +213,9 @@ spec:
               value: {{ .Values.micro.livekit.s3.bucket }}
             - name: S3_REGION
               value: {{ .Values.micro.livekit.s3.region }}
-          command: ["/bin/bash","-c"]
+          #command: ["/bin/bash","-c"]
           #args: [ "--config", "/egress.yaml" ]
-          args:
-            - |
-              exec pulseaudio --start \
-                 --daemonize=false \
-                 --system=true \
-                 --exit-idle-time=-1 \
-                 --log-target=stderr \
-              && exec /egress --config /etc/livekit/egress.yaml
+          command: ["./egress-entrypoint.sh"]
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
