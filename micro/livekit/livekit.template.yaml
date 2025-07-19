@@ -6,6 +6,7 @@ rtc:
   port_range_end: 50100
   #use_external_ip: true
   use_external_ip: false # For local development
+  #node_ip: 'x.x.x.x' # For local development
 redis:
   address: redis:6379
 keys:
