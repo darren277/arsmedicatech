@@ -82,3 +82,5 @@ S3_AWS_SECRET_ACCESS_KEY = os.environ.get('S3_SECRET_ACCESS_KEY', 'your-secret-a
 
 TEXTRACT_AWS_ACCESS_KEY_ID = os.environ.get('TEXTRACT_AWS_ACCESS_KEY_ID', 'your-access-key-id')
 TEXTRACT_AWS_SECRET_ACCESS_KEY = os.environ.get('TEXTRACT_AWS_SECRET_ACCESS_KEY', 'your-secret-access-key')
+
+UMLS_API_KEY = os.environ.get('UMLS_API_KEY', 'your-umls-api-key')
