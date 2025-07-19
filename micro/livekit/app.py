@@ -6,13 +6,20 @@ import os
 import time
 from typing import Any, Dict, Tuple
 
+from celery import Celery
+
 import boto3  # type: ignore[import-untyped]
 import requests  # type: ignore[import-untyped]
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS # type: ignore[import-untyped]
 from livekit import api  # type: ignore
 
-from lib.services.video_transcription import transcribe_video_task  # type: ignore[import-untyped]
+
+celery_app = Celery(
+    "producer",
+    broker=os.getenv("CELERY_BROKER_URL"),
+    backend=os.getenv("CELERY_RESULT_BACKEND")
+)
 
 
 API_KEY    = os.environ["LIVEKIT_API_KEY"]
@@ -143,8 +150,12 @@ def webhook() -> Tuple[str, int]:
                 return "invalid duration", 400
 
             # Kick off async transcription
-            transcribe_video_task.delay(location, room, duration)
-            print("✅ Recording stored at:", location)
+            #transcribe_video_task.delay(location, room, duration)
+            celery_app.send_task(
+                "lib.services.video_transcription.transcribe_video_task",
+                args=(location, room, duration),
+            )
+            logger.info("✅ Recording stored at:", location)
 
         elif event["event"] == "room_finished":
             logger.info(f"Room {event.get('room', {}).get('name')} finished")
