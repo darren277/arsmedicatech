@@ -89,6 +89,10 @@ def start_recording() -> Tuple[Response, int]:
         try:
             logger.info(f"Creating egress for room: {room}, filename: {filename}")
             logger.info(f'Using S3 bucket: {os.environ["LIVEKIT_S3_BUCKET"]}, access_key: {os.environ["LIVEKIT_S3_ACCESS_KEY"]}, secret_key: {os.environ["LIVEKIT_S3_SECRET_KEY"]}')
+
+            # Give time for participants to publish tracks
+            #await asyncio.sleep(5)
+
             request_obj = RoomCompositeEgressRequest(
                 room_name=room,
                 file_outputs=[
@@ -102,7 +106,17 @@ def start_recording() -> Tuple[Response, int]:
                         )
                     )
                 ],
-                layout="speaker",
+                #custom_base_url="https://my-livekit-recorder.test",
+                # does not exist: timeout=30,
+                #layout="speaker",
+                #audio_only=False,
+                #video_only=False,
+                layout="grid",
+                #audio_only=True,
+                #video_only=True,
+
+                #layout="custom",
+                #template=""
             )
             info = await lk_api.egress.start_room_composite_egress(request_obj)
             logger.info(f"Egress Info: {info}")
@@ -197,6 +211,8 @@ def webhook() -> Tuple[str, int]:
     Receive LiveKit webhooks.
     :return: "ok" if successful, or an error message.
     """
+    logger.info(f"Headers: {dict(request.headers)}")
+    logger.info(f"Body: {request.data.decode()}")
     try:
         # Decode and verify the webhook event
         auth_header = request.headers.get("Authorization", "")
@@ -238,7 +254,10 @@ def webhook() -> Tuple[str, int]:
 
         return "ok", 200
     except Exception as e:
+        import traceback
         logger.info(f"⚠️ Webhook verification failed: {e}")
+        traceback_str = ''.join(traceback.format_exception(None, e, e.__traceback__))
+        logger.error(traceback_str)
         return "unauthorized", 401
 
 if __name__ == "__main__":
