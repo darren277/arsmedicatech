@@ -124,7 +124,7 @@ def start_recording() -> Tuple[Response, int]:
 
 
 @app.post("/livekit/stop-recording")
-def stop_recording() -> Tuple[str, int]:
+def stop_recording() -> Tuple[Response, int]:
     """
     Stop an ongoing egress recording.
     :return: A tuple with an empty string and HTTP status code 204.
@@ -133,7 +133,7 @@ def stop_recording() -> Tuple[str, int]:
     egress_id: str = body.get("egress_id", "")
     logger.info(f"Stopping recording with egress ID: {egress_id}")
     if not egress_id:
-        return "Missing egress_id", 400
+        return jsonify({"message": "Missing egress_id"}), 400
 
     async def run() -> None:
         """
@@ -176,7 +176,7 @@ def stop_recording() -> Tuple[str, int]:
     future = executor.submit(blocking_stop)
     future.result()
 
-    return "", 204
+    return jsonify({"message": "recording stopped"}), 200
 
 
 # ---- 3.  receive webhooks (room finished, egress finished, etc.) ----
