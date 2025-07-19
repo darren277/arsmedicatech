@@ -223,6 +223,8 @@ metadata:
 type: Opaque
 stringData:
   s3Bucket: {{ .Values.micro.livekit.s3.bucket }}
+  s3AccessKey: {{ .Values.micro.livekit.s3.accessKey }}
+  s3SecretKey: {{ .Values.micro.livekit.s3.secretKey }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -258,6 +260,16 @@ spec:
                 secretKeyRef:
                   name: livekit-secrets
                   key: apiSecret
+            - name: LIVEKIT_S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-flask-api-secrets
+                  key: s3AccessKey
+            - name: LIVEKIT_S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-flask-api-secrets
+                  key: s3SecretKey
             # Pull the S3 bucket name from the new secret
             - name: LIVEKIT_S3_BUCKET
               valueFrom:

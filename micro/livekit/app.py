@@ -93,7 +93,10 @@ def start_recording() -> Tuple[Response, int]:
                     EncodedFileOutput(
                         filepath=filename,
                         s3=S3Upload(
-                            bucket=os.environ["LIVEKIT_S3_BUCKET"]
+                            bucket=os.environ["LIVEKIT_S3_BUCKET"],
+                            access_key=os.environ["LIVEKIT_S3_ACCESS_KEY"],
+                            secret=os.environ["LIVEKIT_S3_SECRET_KEY"],
+                            region=os.environ.get("LIVEKIT_S3_REGION", "us-east-1"),
                         )
                     )
                 ],
