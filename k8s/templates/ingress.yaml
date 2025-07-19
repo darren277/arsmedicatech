@@ -51,3 +51,10 @@ spec:
                 name: livekit
                 port:
                   number: 7880
+          - path: /twirp
+            pathType: Prefix
+            backend:
+              service:
+                name: livekit
+                port:
+                  number: 7880
