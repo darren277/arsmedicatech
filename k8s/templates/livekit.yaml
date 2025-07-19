@@ -251,8 +251,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: livekit-service
+  annotations:
+    # use HTTP check, port 7880, and the /status path
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-protocol: "http" # "https"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-port: "7880"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-path: "/status"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-check-interval-seconds: "10"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-response-timeout-seconds: "5"
 spec:
-  type: NodePort  # or LoadBalancer for public
+  type: NodePort # Should ideally be a LoadBalancer but we encountered some issues.
   ports:
     - port: 7880
       targetPort: 7880
@@ -264,6 +271,50 @@ spec:
       targetPort: 3478
       protocol: UDP
       name: turn
+    - port: 50000
+      targetPort: 50000
+      protocol: UDP
+      name: rtp-50000
+    - port: 50001
+      targetPort: 50001
+      protocol: UDP
+      name: rtp-50001
+    - port: 50002
+      targetPort: 50002
+      protocol: UDP
+      name: rtp-50002
+    - port: 50003
+      targetPort: 50003
+      protocol: UDP
+      name: rtp-50003
+    - port: 50004
+      targetPort: 50004
+      protocol: UDP
+      name: rtp-50004
+    - port: 50005
+      targetPort: 50005
+      protocol: UDP
+      name: rtp-50005
+    - port: 50006
+      targetPort: 50006
+      protocol: UDP
+      name: rtp-50006
+    - port: 50007
+      targetPort: 50007
+      protocol: UDP
+      name: rtp-50007
+    - port: 50008
+      targetPort: 50008
+      protocol: UDP
+      name: rtp-50008
+    - port: 50009
+      targetPort: 50009
+      protocol: UDP
+      name: rtp-50009
+    - port: 50010
+      targetPort: 50010
+      protocol: UDP
+      name: rtp-50010
   selector:
     app: livekit-service
 ---
