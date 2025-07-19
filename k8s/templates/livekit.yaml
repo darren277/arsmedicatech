@@ -300,6 +300,8 @@ spec:
           ports:
             - containerPort: 5001
           env:
+            - name: LIVEKIT_URL
+              value: "{{ .Values.micro.livekit.url }}"
             # Pull LiveKit credentials from the existing secret
             - name: LIVEKIT_API_KEY
               valueFrom:
