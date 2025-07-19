@@ -40,6 +40,22 @@ export interface SOAPNotesType {
   plan?: string;
 }
 
+export interface EntityType {
+  text: string;
+  label: string;
+  start_char: number;
+  end_char: number;
+  cui?: string;
+  icd10cm?: string;
+  icd10cm_name?: string;
+}
+
+export interface ICDAutoCoderResult {
+  entities: EntityType[];
+  normalized_entities: EntityType[];
+  icd_codes: EntityType[];
+}
+
 export interface LabResult {
   result: number;
   reference_range: [number, number];
