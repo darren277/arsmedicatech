@@ -165,9 +165,13 @@ spec:
       labels:
         app: livekit-egress
     spec:
+      imagePullSecrets:
+        - name: ecr-secret
       containers:
         - name: egress
-          image: livekit/egress:latest
+          #image: livekit/egress:latest
+          image: "{{ .Values.micro.livekit.egress.image.repository }}:{{ .Values.micro.livekit.egress.image.tag }}"
+          imagePullPolicy: "{{ .Values.micro.livekit.egress.image.pullPolicy }}"
           volumeMounts:
             - name: egress-config
               mountPath: /egress.yaml
