@@ -3,11 +3,15 @@ import React, { useEffect } from 'react';
 
 export default function ScatterChart({
   data,
+  lowerBound,
+  upperBound,
 }: {
   data: {
     metricName: string;
     points: { date: string; value: number | null }[];
   }[];
+  lowerBound?: number | '';
+  upperBound?: number | '';
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -46,8 +50,8 @@ export default function ScatterChart({
     const y = d3
       .scaleLinear()
       .domain([
-        d3.min(allParsedPoints, d => d.value) ?? 0,
-        d3.max(allParsedPoints, d => d.value) ?? 1,
+        lowerBound !== undefined && lowerBound !== '' ? lowerBound : d3.min(allParsedPoints, d => d.value) ?? 0,
+        upperBound !== undefined && upperBound !== '' ? upperBound : d3.max(allParsedPoints, d => d.value) ?? 1,
       ])
       .nice()
       .range([height, 0]);
@@ -102,7 +106,7 @@ export default function ScatterChart({
       .attr('dy', '.35em')
       .style('text-anchor', 'end')
       .text(d => d);
-  }, [data]);
+  }, [data, lowerBound, upperBound]);
 
   return <div ref={ref}></div>;
 }

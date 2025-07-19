@@ -3,11 +3,15 @@ import React, { useEffect } from 'react';
 
 export default function AreaChart({
   data,
+  lowerBound,
+  upperBound,
 }: {
   data: {
     metricName: string;
     points: { date: string; value: number | null }[];
   }[];
+  lowerBound?: number | '';
+  upperBound?: number | '';
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -39,8 +43,8 @@ export default function AreaChart({
     const y = d3
       .scaleLinear()
       .domain([
-        d3.min(allParsedPoints, d => d.value as number) ?? 0,
-        d3.max(allParsedPoints, d => d.value as number) ?? 1,
+        lowerBound !== undefined && lowerBound !== '' ? lowerBound : d3.min(allParsedPoints, d => d.value as number) ?? 0,
+        upperBound !== undefined && upperBound !== '' ? upperBound : d3.max(allParsedPoints, d => d.value as number) ?? 1,
       ])
       .nice()
       .range([height, 0]);
@@ -111,7 +115,7 @@ export default function AreaChart({
       .attr('dy', '.35em')
       .style('text-anchor', 'end')
       .text(d => d);
-  }, [data]);
+  }, [data, lowerBound, upperBound]);
 
   return <div ref={ref}></div>;
 }
