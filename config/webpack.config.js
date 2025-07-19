@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 3012;
 
 module.exports = {
   entry: path.resolve(__dirname, '../src/index.tsx'),
@@ -14,7 +14,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            configFile: path.resolve(__dirname, './babel.config.js'), // 👈 explicit path
+            configFile: path.resolve(__dirname, './babel.config.js'),
           },
         },
       },
@@ -28,11 +28,16 @@ module.exports = {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                config: path.resolve(__dirname, './postcss.config.js'), // 👈 explicit path
+                config: path.resolve(__dirname, './postcss.config.js'),
               },
             },
           },
         ],
+      },
+      {
+        test: /\.css$/,
+        include: /node_modules/,
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },

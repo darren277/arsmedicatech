@@ -23,9 +23,9 @@ def test_settings_flow():
     print(f"✅ ENCRYPTION_KEY is set (length: {len(encryption_key)})")
     
     try:
-        from services.user_service import UserService
         from models.user_settings import UserSettings
-        
+        from services.user_service import UserService
+
         # Initialize service
         user_service = UserService()
         user_service.connect()

@@ -6,6 +6,9 @@ ENV PORT=5000
 
 WORKDIR /app
 
+# This is for whisper for the audio transcription Celery task...
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
 # Install MariaDB connector
 RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
@@ -28,6 +31,11 @@ COPY ./lib ./lib
 COPY ./settings.py .
 COPY ./app.py .
 
+COPY ./plugins ./plugins
+
+# Note: This is done so that we can reuse the Flask container for Celery workers
+COPY ./celery_worker.py .
+
 EXPOSE 5000
 
 RUN pip install gunicorn
@@ -35,4 +43,3 @@ RUN pip install asgiref
 
 #CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
 CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:5000", "app:asgi_app"]
-

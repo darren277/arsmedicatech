@@ -29,7 +29,9 @@ class User:
             specialty: Optional[str] = None,
             clinic_name: Optional[str] = None,
             clinic_address: Optional[str] = None,
-            phone: Optional[str] = None
+            phone: Optional[str] = None,
+            max_organizations: int = 1,
+            user_organizations: int = 0
     ) -> None:
         """
         Initialize a User object
@@ -47,6 +49,8 @@ class User:
         :param clinic_name: Name of the clinic (for providers)
         :param clinic_address: Address of the clinic (for providers)
         :param phone: User's phone number
+        :param max_organizations: Maximum number of organizations this user can create (default: 1)
+        :param user_organizations: Current number of organizations created by this user (default: 0)
         """
         self.username = username
         self.email = email
@@ -60,6 +64,8 @@ class User:
         self.clinic_name = clinic_name or ""
         self.clinic_address = clinic_address or ""
         self.phone = phone or ""
+        self.max_organizations = max_organizations
+        self.user_organizations = user_organizations
         
         # Hash password if provided
         self.password_hash: Optional[str] = None
@@ -128,7 +134,9 @@ class User:
             'specialty': self.specialty,
             'clinic_name': self.clinic_name,
             'clinic_address': self.clinic_address,
-            'phone': self.phone
+            'phone': self.phone,
+            'max_organizations': self.max_organizations,
+            'user_organizations': self.user_organizations
         }
     
     @classmethod
@@ -156,7 +164,9 @@ class User:
             specialty=data.get('specialty'),
             clinic_name=data.get('clinic_name'),
             clinic_address=data.get('clinic_address'),
-            phone=data.get('phone')
+            phone=data.get('phone'),
+            max_organizations=data.get('max_organizations', 1),
+            user_organizations=data.get('user_organizations', 0)
         )
         # Set password hash if it exists in the data
         if 'password_hash' in data:
@@ -301,6 +311,33 @@ class User:
         :return: True if user is a patient, False otherwise
         """
         return self.role == 'patient'
+
+    def can_create_organization(self) -> bool:
+        """
+        Check if user can create another organization
+
+        :return: True if user can create more organizations, False otherwise
+        """
+        return self.user_organizations < self.max_organizations
+
+    def get_remaining_organization_slots(self) -> int:
+        """
+        Get the number of organizations the user can still create
+
+        :return: Number of remaining organization slots
+        """
+        return max(0, self.max_organizations - self.user_organizations)
+
+    def increment_organization_count(self) -> None:
+        """
+        Increment the user's organization count when they create a new organization
+
+        :raises ValueError: If user has already reached their organization limit
+        :return: None
+        """
+        if not self.can_create_organization():
+            raise ValueError(f"User has reached their organization limit of {self.max_organizations}")
+        self.user_organizations += 1
 
 
 class UserSession:
