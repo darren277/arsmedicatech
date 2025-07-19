@@ -879,12 +879,12 @@ def get_encounters_by_patient(patient_id: str) -> List[EncounterDict]:
     db.connect()
     
     try:
-        query = "SELECT * FROM encounter WHERE patient = $patient_id ORDER BY date_created DESC"
-        params = {"patient_id": f"patient:{patient_id}"}
+        query = "SELECT * FROM encounter WHERE patient.demographic_no = $patient_id ORDER BY date_created DESC"
+        params = {"patient_id": patient_id}
         
-        logger.debug(f"Executing patient encounters query: {query} with params: {params}")
+        logger.debug(f"Executing query: {query} with params: {params}")
         result = db.query(query, params)
-        logger.debug(f"Patient encounters query result: {result}")
+        logger.debug(f"Query result: {result}")
         
         # Handle the result structure
         if result and len(result) > 0:
@@ -896,13 +896,13 @@ def get_encounters_by_patient(patient_id: str) -> List[EncounterDict]:
             
             if isinstance(encounters, list):
                 serialized_encounters = [serialize_encounter(encounter) for encounter in encounters]
-                logger.debug(f"Serialized patient encounters: {serialized_encounters}")
+                logger.debug(f"Found {len(serialized_encounters)} encounters for patient {patient_id}")
                 return serialized_encounters
             else:
-                logger.debug("Patient encounters is not a list")
+                logger.debug("Encounters is not a list")
                 return []
         else:
-            logger.debug("No patient encounters found")
+            logger.debug("No encounters found for patient")
             return []
     except Exception as e:
         logger.debug(f"Error getting patient encounters: {e}")
