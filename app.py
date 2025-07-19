@@ -33,6 +33,7 @@ from lib.routes.optimal import call_optimal_route
 from lib.routes.organizations import get_organizations_route
 from lib.routes.patients import (create_encounter_route,
                                  delete_encounter_route,
+                                 extract_entities_from_notes_route,
                                  get_all_encounters_route,
                                  get_encounter_by_id_route,
                                  get_encounters_by_patient_route,
@@ -542,6 +543,16 @@ def delete_encounter(encounter_id: str) -> Tuple[Response, int]:
     """
     return delete_encounter_route(encounter_id)
 
+
+@app.route('/api/encounters/extract-entities', methods=['POST'])
+@require_auth
+def extract_entities_from_notes() -> Tuple[Response, int]:
+    """
+    Extract entities and ICD codes from encounter notes.
+    :return: Response object with extracted entities and ICD codes.
+    """
+    return extract_entities_from_notes_route()
+
 @app.route('/api/test_surrealdb', methods=['GET'])
 @require_admin
 def test_surrealdb() -> Tuple[Response, int]:
@@ -743,7 +754,6 @@ def delete_webhook_subscription(subscription_id: str) -> Tuple[Response, int]:
     :return: Response object with webhook subscription deletion status.
     """
     return delete_webhook_subscription_route(subscription_id)
-
 
 @app.route('/api/webhooks/events', methods=['GET'])
 @require_auth
