@@ -219,20 +219,20 @@ spec:
               add:
                 - SYS_PTRACE
 
-          volumes:
-            - name: egress-config
-              configMap:
-                name: egress-config
-            - name: pulse-runtime
-              emptyDir: { }
+      volumes:
+        - name: egress-config
+          configMap:
+            name: egress-config
+        - name: pulse-runtime
+          emptyDir: { }
 
-          initContainers:
-            - name: fix-pulse-dir
-              image: busybox
-              command: [ "sh", "-c", "mkdir -p /run/pulse && chown 1000:1000 /run/pulse" ]
-              volumeMounts:
-                - name: pulse-runtime
-                  mountPath: /run/pulse
+      initContainers:
+        - name: fix-pulse-dir
+          image: busybox
+          command: [ "sh", "-c", "mkdir -p /run/pulse && chown 1000:1000 /run/pulse" ]
+          volumeMounts:
+            - name: pulse-runtime
+              mountPath: /run/pulse
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
