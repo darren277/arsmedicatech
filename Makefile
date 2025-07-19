@@ -205,11 +205,16 @@ livekit-egress-debug-access:
 
 
 # NER
-ner-build:
-	cd micro/ner && docker build -t concept-extractor .
+ner-docker-create:
+	aws ecr create-repository --repository-name $(NER_API_IMAGE) --region us-east-1 || true
+
+ner-docker:
+	docker build -t $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION) -f micro/ner/Dockerfile ./micro/ner
+	docker push $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION)
+	kubectl rollout restart deployment $(NER_API_DEPLOYMENT) --namespace=$(NAMESPACE)
 
 ner-run:
-	docker run -d -p 8000:8000 --name extractor concept-extractor
+	docker run -d -p 8000:8000 --name extractor $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION)
 
 ner-test:
 	curl -X POST http://localhost:8000/extract -H "Content-Type: application/json" -d '{"text":"Patient presents with Type 2 diabetes mellitus and essential hypertension."}
