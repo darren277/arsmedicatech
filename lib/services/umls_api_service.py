@@ -5,6 +5,16 @@ import requests
 from typing import Optional, List, Dict
 import logging
 import time
+from functools import lru_cache
+
+@lru_cache(maxsize=4096)
+def normalize(text) -> Optional[Dict[str, str]]:
+    """
+    Normalize a given text using UMLS API.
+    :param text: str - The text to normalize.
+    :return: Optional[Dict[str, str]] - A dictionary with 'cui', 'name', and 'score' if found, else None.
+    """
+    return umls.search_concept(text)
 
 
 class UMLSApiService:
