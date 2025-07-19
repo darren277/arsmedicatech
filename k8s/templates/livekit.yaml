@@ -316,7 +316,7 @@ spec:
       protocol: UDP
       name: rtp-50010
   selector:
-    app: livekit-service
+    app: livekit
 ---
 apiVersion: v1
 kind: Secret
