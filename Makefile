@@ -154,6 +154,9 @@ celery-run:
 	docker run -d --name celery-worker -e CELERY_BROKER_URL=redis://$(REDIS_HOST):$(REDIS_PORT)/1 -e SENTRY_DSN=$(SENTRY_DSN) -e CELERY_RESULT_BACKEND=redis://$(REDIS_HOST):$(REDIS_PORT)/1 $(CELERY_IMAGE):$(CELERY_VERSION)
 
 
+
+# Microservices
+
 # LiveKit
 ENV_VARS=LIVEKIT_API_KEY=$(LIVEKIT_API_KEY) LIVEKIT_API_SECRET=$(LIVEKIT_API_SECRET) LIVEKIT_S3_ACCESS_KEY=$(LIVEKIT_S3_ACCESS_KEY) LIVEKIT_S3_SECRET_KEY=$(LIVEKIT_S3_SECRET_KEY) LIVEKIT_S3_REGION=$(LIVEKIT_S3_REGION) LIVEKIT_S3_BUCKET=$(LIVEKIT_S3_BUCKET)
 
@@ -198,3 +201,15 @@ livekit-egress-debug:
 
 livekit-egress-debug-access:
 	kubectl exec -it -n arsmedicatech debug-egress -- sh
+
+
+
+# NER
+ner-build:
+	cd micro/ner && docker build -t concept-extractor .
+
+ner-run:
+	docker run -d -p 8000:8000 --name extractor concept-extractor
+
+ner-test:
+	curl -X POST http://localhost:8000/extract -H "Content-Type: application/json" -d '{"text":"Patient presents with Type 2 diabetes mellitus and essential hypertension."}
