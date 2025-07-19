@@ -157,8 +157,11 @@ const baseRoutes: PluginRoute[] = [
   { path: 'patients/new', element: <PatientForm /> },
   { path: 'patients/:patientId', element: <PatientDetail /> },
   { path: 'patients/:patientId/edit', element: <PatientForm /> },
+  {
+    path: 'patients/:patientId/encounters/new',
+    element: <EncounterFormPage />,
+  },
   { path: 'encounters/:encounterId', element: <EncounterDetail /> },
-  { path: 'encounters/new', element: <EncounterFormPage /> },
   { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
   { path: 'intake/:patientId', element: <PatientIntakeForm /> },
   { path: 'schedule', element: <Schedule /> },
