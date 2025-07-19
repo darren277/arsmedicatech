@@ -1,5 +1,9 @@
 FROM livekit/egress:latest
 
+# Using CPU-only version for now
+ENV LIVEKIT_EGRESS_USE_NVIDIA=false
+ENV NVIDIA_VISIBLE_DEVICES=none
+
 USER root
 RUN apt-get update && apt-get install -y pulseaudio && apt-get clean
 RUN apt-get update && apt-get install -y redis-tools iputils-ping curl vim
