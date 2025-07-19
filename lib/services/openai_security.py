@@ -1,15 +1,26 @@
+"""
+OpenAI Security Service
+"""
 import time
-from typing import Dict, Optional, Tuple
-from openai import OpenAI, AuthenticationError, RateLimitError
+from typing import Any, Dict, Optional, Tuple
+
+from openai import AuthenticationError, OpenAI, RateLimitError
+
 from lib.services.user_service import UserService
+from settings import logger
 
 
 class OpenAISecurityService:
-    """Service for managing OpenAI API security, validation, and rate limiting"""
+    """
+    Service for managing OpenAI API security, validation, and rate limiting
+    """
     
-    def __init__(self):
-        self.rate_limit_cache: Dict[str, Dict] = {}
-        self.api_key_cache: Dict[str, Dict] = {}
+    def __init__(self) -> None:
+        """
+        Initialize the OpenAI security service
+        """
+        self.rate_limit_cache: Dict[str, Dict[str, Any]] = {}
+        self.api_key_cache: Dict[str, Dict[str, Any]] = {}
         self.rate_limit_window = 3600  # 1 hour
         self.max_requests_per_hour = 100  # Adjust based on your needs
     
@@ -26,9 +37,9 @@ class OpenAISecurityService:
         try:
             client = OpenAI(api_key=api_key)
             # Make a minimal test request to validate the key
-            print("About to validate API key")
+            logger.debug("About to validate API key")
             response = client.models.list()
-            print(f"[DEBUG] OpenAI API key validation response: {response}")
+            logger.debug(f"OpenAI API key validation response: {response}")
             return True, ""
         except AuthenticationError:
             return False, "Invalid API key"
@@ -119,18 +130,19 @@ class OpenAISecurityService:
         finally:
             user_service.close()
     
-    def log_api_usage(self, user_id: str, model: str, tokens_used: int = 0):
+    def log_api_usage(self, user_id: str, model: str, tokens_used: int = 0) -> None:
         """
         Log API usage for monitoring and billing
         
         :param user_id: User ID
         :param model: Model used
         :param tokens_used: Number of tokens used
+        :return: None
         """
         # TODO: Implement usage logging to database
-        print(f"[USAGE] User {user_id} used {model} with {tokens_used} tokens")
-    
-    def get_usage_stats(self, user_id: str) -> Dict:
+        logger.debug(f"[USAGE] User {user_id} used {model} with {tokens_used} tokens")
+
+    def get_usage_stats(self, user_id: str) -> Dict[str, Any]:
         """
         Get usage statistics for a user
         
@@ -157,7 +169,10 @@ _openai_security_service = None
 
 
 def get_openai_security_service() -> OpenAISecurityService:
-    """Get the global OpenAI security service instance"""
+    """
+    Get the global OpenAI security service instance
+    :return: OpenAISecurityService instance
+    """
     global _openai_security_service
     if _openai_security_service is None:
         _openai_security_service = OpenAISecurityService()

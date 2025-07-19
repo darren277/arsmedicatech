@@ -1,0 +1,46 @@
+services:
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  livekit:
+    image: livekit/livekit-server:latest
+    restart: unless-stopped
+    ports:
+      - "7880:7880"         # gRPC / HTTP APIs
+      - "7881:7881"         # WebRTC over TCP
+      - "3478:3478/udp"     # TURN
+      - "50000-50100:50000-50100/udp"
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml
+    command: --config /etc/livekit.yaml
+    environment:
+      LIVEKIT_REDIS_HOST: redis:6379
+
+  egress:
+    build:
+      context: .
+      dockerfile: Dockerfile.egress
+    image: livekit-egress:latest
+    restart: unless-stopped
+    depends_on: [livekit, redis]
+    entrypoint: ["/bin/sh"]
+    command: ["-c", "tail -f /dev/null"]
+    environment:
+      EGRESS_CONFIG_FILE: /egress.yaml
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "5001:5001"
+    environment:
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      LIVEKIT_S3_BUCKET: ${LIVEKIT_S3_BUCKET}
+    depends_on:
+      - redis
+      - livekit

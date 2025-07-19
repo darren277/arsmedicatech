@@ -19,3 +19,52 @@ export interface Conversation {
   participantId?: string;
   isAI?: boolean;
 }
+
+export interface EncounterType {
+  note_id?: string;
+  date_created?: string;
+  provider_id?: string;
+  note_text?: string;
+  diagnostic_codes?: string[];
+  status?: string;
+  patient?: PatientType;
+  score?: number;
+  highlighted_note?: string;
+}
+
+export interface SOAPNotesType {
+  subjective?: string;
+  objective?: string;
+  assessment?: string;
+  plan?: string;
+}
+
+export interface LabResult {
+  result: number;
+  reference_range: [number, number];
+  units: string | null;
+  description: string;
+  notes?: string;
+}
+
+export interface LabResults {
+  [key: string]: LabResult;
+}
+
+export interface LabResultsData {
+  hematology: LabResults;
+  differential_hematology: LabResults;
+  general_chemistry: LabResults;
+  serum_proteins: LabResults;
+}
+
+export interface PluginRoute {
+  index?: boolean;
+  path?: string;
+  element: any;
+}
+
+export interface PluginWidget {
+  name: string;
+  path: string;
+}

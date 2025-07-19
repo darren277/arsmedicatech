@@ -1,4 +1,14 @@
 {{- define "surrealdb.sharedEnv" }}
+- name: PYTHONPATH
+  value: "/app"
+- name: S3_BUCKET
+  value: "{{ .Values.s3Bucket }}"
+- name: REDIS_HOST
+  value: "{{ .Values.redis.host }}"
+- name: REDIS_PORT
+  value: "{{ .Values.redis.port }}"
+- name: SENTRY_DSN
+  value: "{{ .Values.sentry.dsn }}"
 - name: SURREALDB_NAMESPACE
   value: "{{ .Values.surrealdb.namespace }}"
 - name: SURREALDB_DATABASE

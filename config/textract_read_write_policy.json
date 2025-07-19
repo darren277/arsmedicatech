@@ -1,0 +1,33 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "TextractOnly",
+      "Effect": "Allow",
+      "Action": [
+        "textract:AnalyzeDocument",
+        "textract:DetectDocumentText",
+        "textract:GetDocumentAnalysis",
+        "textract:GetDocumentTextDetection",
+        "textract:StartDocumentAnalysis",
+        "textract:StartDocumentTextDetection"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "S3MinimalAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::arsmedicatech-uploads",
+        "arn:aws:s3:::arsmedicatech-uploads/*",
+        "arn:aws:s3:::arsmedicatech-uploads",
+        "arn:aws:s3:::arsmedicatech-uploads/*"
+      ]
+    }
+  ]
+}

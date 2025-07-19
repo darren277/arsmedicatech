@@ -16,14 +16,14 @@ const SignupPopup = ({
 
   const handleSignupClick = () => {
     onClose();
-    // Navigate to dashboard which will show the signup form
-    navigate('/');
+    // Navigate to dashboard with register parameter to show the signup form
+    navigate('/?auth=register');
   };
 
   const handleLoginClick = () => {
     onClose();
-    // Navigate to dashboard which will show the login form
-    navigate('/');
+    // Navigate to dashboard with login parameter to show the login form
+    navigate('/?auth=login');
   };
 
   return (

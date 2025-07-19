@@ -1,0 +1,25 @@
+FROM livekit/egress:latest
+
+# Using CPU-only version for now
+ENV LIVEKIT_EGRESS_USE_NVIDIA=false
+ENV NVIDIA_VISIBLE_DEVICES=none
+
+USER root
+RUN apt-get update && apt-get install -y pulseaudio && apt-get clean
+RUN apt-get update && apt-get install -y redis-tools iputils-ping curl vim
+
+RUN mkdir -p /run/pulse
+RUN chown -R 1000:1000 /run/pulse
+
+RUN mkdir -p /home/egress/tmp && chown -R 1000:1000 /home/egress
+USER egress
+
+# Copy your already-interpolated config into the image
+COPY egress.yaml /egress.yaml
+COPY egress-entrypoint.sh /egress-entrypoint.sh
+
+#ENTRYPOINT ["/bin/sh"]
+#CMD ["-c", "tail -f /dev/null"]
+#CMD ["egress", "--config", "/egress.yaml"]
+
+ENTRYPOINT ["./egress-entrypoint.sh"]

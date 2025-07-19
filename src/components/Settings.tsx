@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import apiService from '../services/api';
+import logger from '../services/logging';
 import EditProfile from './EditProfile';
 import Profile from './Profile';
 import './Settings.css';
@@ -8,6 +9,7 @@ import { useUser } from './UserContext';
 interface UserSettings {
   user_id: string;
   has_openai_api_key: boolean;
+  has_optimal_api_key: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -46,6 +48,8 @@ const Settings: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
+  const [optimalApiKey, setOptimalApiKey] = useState('');
+  const [showOptimalApiKey, setShowOptimalApiKey] = useState(false);
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
     text: string;
@@ -76,12 +80,12 @@ const Settings: React.FC = () => {
 
   const loadProfile = async () => {
     try {
-      console.log('[DEBUG] loadProfile - Starting profile load');
+      logger.debug('loadProfile - Starting profile load');
       setProfileLoading(true);
 
-      console.log('[DEBUG] loadProfile - Making API request to /profile');
+      logger.debug('loadProfile - Making API request to /profile');
       const response = await apiService.getAPI('/profile');
-      console.log('[DEBUG] loadProfile - API response:', response);
+      logger.debug('loadProfile - API response:', response);
 
       if (response.success) {
         console.log(
@@ -97,7 +101,7 @@ const Settings: React.FC = () => {
       console.error('Error loading profile:', error);
       setMessage({ type: 'error', text: 'Failed to load profile' });
     } finally {
-      console.log('[DEBUG] loadProfile - Setting profileLoading to false');
+      logger.debug('loadProfile - Setting profileLoading to false');
       setProfileLoading(false);
     }
   };
@@ -176,6 +180,80 @@ const Settings: React.FC = () => {
       console.error('Error removing API key:', error);
       const errorMessage =
         error.response?.data?.error || 'Failed to remove API key';
+      setMessage({ type: 'error', text: errorMessage });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveOptimalApiKey = async () => {
+    if (!optimalApiKey.trim()) {
+      setMessage({ type: 'error', text: 'Please enter an Optimal API key' });
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const response = await apiService.postAPI('/settings', {
+        optimal_api_key: optimalApiKey.trim(),
+      });
+
+      if (response.success) {
+        setMessage({
+          type: 'success',
+          text: 'Optimal API key saved successfully',
+        });
+        setOptimalApiKey('');
+        setShowOptimalApiKey(false);
+        // Reload settings to update the has_optimal_api_key status
+        await loadSettings();
+      } else {
+        setMessage({
+          type: 'error',
+          text: response.data.error || 'Failed to save Optimal API key',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error saving Optimal API key:', error);
+      const errorMessage =
+        error.response?.data?.error || 'Failed to save Optimal API key';
+      setMessage({ type: 'error', text: errorMessage });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRemoveOptimalApiKey = async () => {
+    if (
+      !confirm(
+        'Are you sure you want to remove your Optimal API key? This action cannot be undone.'
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const response = await apiService.postAPI('/settings', {
+        optimal_api_key: '', // Empty string to remove the key
+      });
+
+      if (response.success) {
+        setMessage({
+          type: 'success',
+          text: 'Optimal API key removed successfully',
+        });
+        await loadSettings();
+      } else {
+        setMessage({
+          type: 'error',
+          text: response.data.error || 'Failed to remove Optimal API key',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error removing Optimal API key:', error);
+      const errorMessage =
+        error.response?.data?.error || 'Failed to remove Optimal API key';
       setMessage({ type: 'error', text: errorMessage });
     } finally {
       setSaving(false);
@@ -306,6 +384,16 @@ const Settings: React.FC = () => {
           </div>
         </div>
 
+        {user?.role === 'admin' && (
+          <button
+            onClick={() => {
+              throw new Error('Test error for Sentry logging'); // This will trigger an error to test Sentry logging
+            }}
+          >
+            Test Sentry Error
+          </button>
+        )}
+
         <div className="settings-section">
           <h2>OpenAI API Key</h2>
           <p className="section-description">
@@ -363,6 +451,71 @@ const Settings: React.FC = () => {
               <button
                 onClick={handleSaveApiKey}
                 disabled={saving || !openaiApiKey.trim()}
+                className="btn btn-primary"
+              >
+                {saving ? 'Saving...' : 'Save API Key'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="settings-section">
+          <h2>Optimal API Key</h2>
+          <p className="section-description">
+            Your Optimal API key is used to enable mathematical optimization
+            features. It is encrypted and stored securely.
+          </p>
+
+          {settings?.has_optimal_api_key ? (
+            <div className="api-key-status">
+              <div className="status-indicator success">
+                <span className="status-dot"></span>
+                Optimal API key is configured
+              </div>
+              <div className="api-key-actions">
+                <button
+                  onClick={() => setShowOptimalApiKey(!showOptimalApiKey)}
+                  className="btn btn-secondary"
+                >
+                  {showOptimalApiKey ? 'Hide' : 'Show'} API Key
+                </button>
+                <button
+                  onClick={handleRemoveOptimalApiKey}
+                  className="btn btn-danger"
+                  disabled={saving}
+                >
+                  {saving ? 'Removing...' : 'Remove API Key'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="api-key-form">
+              <div className="form-group">
+                <label htmlFor="optimal-api-key">Optimal API Key</label>
+                <div className="input-group">
+                  <input
+                    type={showOptimalApiKey ? 'text' : 'password'}
+                    id="optimal-api-key"
+                    value={optimalApiKey}
+                    onChange={e => setOptimalApiKey(e.target.value)}
+                    placeholder="Enter your Optimal API key..."
+                    className="form-input"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOptimalApiKey(!showOptimalApiKey)}
+                    className="input-toggle"
+                  >
+                    {showOptimalApiKey ? '👁️' : '👁️‍🗨️'}
+                  </button>
+                </div>
+                <small className="form-help">
+                  Your Optimal API key for mathematical optimization services
+                </small>
+              </div>
+              <button
+                onClick={handleSaveOptimalApiKey}
+                disabled={saving || !optimalApiKey.trim()}
                 className="btn btn-primary"
               >
                 {saving ? 'Saving...' : 'Save API Key'}
