@@ -216,5 +216,9 @@ ner-docker:
 ner-run:
 	docker run -d -p 8000:8000 --name extractor $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION)
 
+
+NER_URL=http://localhost:8000/
+NER_URL=https://demo.arsmedicatech.com/ner/
 ner-test:
-	curl -X POST http://localhost:8000/extract -H "Content-Type: application/json" -d '{"text":"Patient presents with Type 2 diabetes mellitus and essential hypertension."}
+	curl -X POST $(NER_URL)extract -H "Content-Type: application/json" -d '{"text":"Patient presents with Type 2 diabetes mellitus and essential hypertension."}'
+
