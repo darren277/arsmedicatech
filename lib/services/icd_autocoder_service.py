@@ -1,10 +1,10 @@
 """
 ICD Autocoder Service.
 """
-from typing import List, TypedDict, Dict
+from typing import Dict, List, TypedDict
 
+from lib.services.umls_api_service import UMLSApiService
 from settings import UMLS_API_KEY
-from umls_api_service import UMLSApiService
 
 
 class Entity(TypedDict):
@@ -95,6 +95,7 @@ class ICDAutoCoderService:
                 else:
                     entity["icd10cm"] = None
                     entity["icd10cm_name"] = None
+        return normalized_entities
 
     def main(self) -> Dict[str, List[Entity]]:
         """
