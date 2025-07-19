@@ -1,0 +1,10 @@
+# Web layer
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# NLP
+scispacy==0.5.5          # first release with py3.12 wheels
+en_core_sci_sm @ https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.5/en_core_sci_sm-0.5.5.tar.gz
+
+# Optional linker dependency with py3.12 wheels
+nmslib-metabrainz==2.1.3
