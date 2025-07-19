@@ -36,7 +36,7 @@ class ExtractionOut(BaseModel):
     entities: list[EntityOut]
 
 
-@app.post("/extract", response_model=ExtractionOut)
+@app.post("/ner/extract", response_model=ExtractionOut)
 async def extract(payload: TextIn) -> ExtractionOut:
     """
     Extract named entities from the provided text.
