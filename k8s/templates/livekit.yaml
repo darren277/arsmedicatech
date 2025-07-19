@@ -142,15 +142,14 @@ data:
     ws_url: {{ .Values.micro.livekit.egress.wsUrl }}
     redis:
       address: redis-livekit-service:6379
-    recording:
-      file_outputs:
-        - filepath: recordings/{{`{{ room_name }}`}}-{{`{{ timestamp }}`}}.mp4
-          output:
-            s3:
-              access_key: {{ .Values.micro.livekit.s3.accessKey }}
-              secret: {{ .Values.micro.livekit.s3.secretKey }}
-              region: {{ .Values.micro.livekit.s3.region }}
-              bucket: {{ .Values.micro.livekit.s3.bucket }}
+    file_outputs:
+      - filepath: recordings/{{`{{ room_name }}`}}-{{`{{ timestamp }}`}}.mp4
+        output:
+          s3:
+            access_key: {{ .Values.micro.livekit.s3.accessKey }}
+            secret: {{ .Values.micro.livekit.s3.secretKey }}
+            region: {{ .Values.micro.livekit.s3.region }}
+            bucket: {{ .Values.micro.livekit.s3.bucket }}
 ---
 apiVersion: apps/v1
 kind: Deployment
