@@ -1,5 +1,7 @@
 # The main HTTP/gRPC API port
 port: 7880
+bind_addresses:
+  - 0.0.0.0
 log_level: info
 
 # RTC (WebRTC) configuration
@@ -7,20 +9,26 @@ rtc:
   # This MUST be the public IP address of the Kubernetes node or Load Balancer
   # that is exposed to the internet. LiveKit announces this IP to clients.
   # For cloud providers, you can often use 'use_external_ip: true' instead.
-  node_ip: "{{ .Values.ip }}"
+  node_ip: "{{ .Values.micro.livekit.loadBalancer.ip }}"
   tcp_port: 7881
   udp_port: 3478
   port_range_start: 50000
   port_range_end: 50010 # Using the 10 ports you requested
-  #use_external_ip: true
+  use_external_ip: true
+  #tls_cert: /etc/livekit/certs/tls.crt
+  #tls_key: /etc/livekit/certs/tls.key
 
 # TURN (media relay) configuration
 turn:
   enabled: true
   udp_port: 3478
   # This domain MUST also point to the public IP of your node/load balancer.
-  domain: "{{ .Values.host }}"
+  #domain: "{{ .Values.host }}"
+  domain: "{{ .Values.micro.livekit.loadBalancer.ip }}"
+  #relay_address: "{{ .Values.micro.livekit.loadBalancer.ip }}"
   #relay_address: "{{ .Values.ip }}"
+  #relay_range_start: 50000
+  #relay_range_end: 50010
 
 # Redis configuration, pointing to the Kubernetes service name
 redis:
