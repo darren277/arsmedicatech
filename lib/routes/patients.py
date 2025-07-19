@@ -12,7 +12,7 @@ from lib.models.patient import (create_encounter, create_patient,
                                 get_encounter_by_id, get_encounters_by_patient,
                                 get_patient_by_id, search_encounter_history,
                                 search_patient_history, update_encounter,
-                                update_patient)
+                                update_patient, serialize_patient)
 from settings import logger
 
 
@@ -82,6 +82,7 @@ def patient_endpoint_route(patient_id: PatientID) -> Tuple[Response, int]:
         patient = get_patient_by_id(patient_id)
         logger.debug(f"Patient result: {patient}")
         if patient:
+            patient = serialize_patient(patient)
             return jsonify(patient), 200
         else:
             return jsonify({"error": "Patient not found"}), 404

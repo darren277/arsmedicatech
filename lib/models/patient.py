@@ -3,6 +3,8 @@ Patient and Encounter Models for SurrealDB
 """
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
+from surrealdb import RecordID
+
 from lib.db.surreal import AsyncDbController, DbController
 from settings import logger
 
@@ -416,7 +418,7 @@ def serialize_encounter(encounter: Any) -> EncounterDict:
     # Handle case where encounter is not a dict
     if not isinstance(encounter, dict):
         if hasattr(encounter, '__str__'):
-            return cast(EncounterDict, {"note_id": str(encounter)})
+            return cast(EncounterDict, {"id": str(encounter.id), "note_id": str(encounter.note_id), "patient": str(encounter.patient)})
         else:
             return cast(EncounterDict, {})
     
@@ -432,6 +434,10 @@ def serialize_encounter(encounter: Any) -> EncounterDict:
             result[key] = str(value)
         elif key == 'patient' and isinstance(value, dict):
             result[key] = serialize_patient(value)
+        elif key == 'patient' and isinstance(value, RecordID):
+            result[key] = str(value)
+        elif key == 'id' and isinstance(value, RecordID):
+            result[key] = str(value)
         else:
             result[key] = value
     return cast(EncounterDict, result)
