@@ -3,9 +3,10 @@
 Test script for the authentication system
 """
 
-import requests
 import json
 import time
+
+import requests
 
 # Configuration
 BASE_URL = "http://localhost:5000/api"

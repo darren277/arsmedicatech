@@ -2,15 +2,16 @@
 """Test script for sending notifications via Redis"""
 
 import json
-import time
-import sys
 import os
+import sys
+import time
 
 # Add the project root to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from lib.services.redis_client import get_redis_connection
 from lib.services.notifications import publish_event_with_buffer
+from lib.services.redis_client import get_redis_connection
+
 
 def test_send_notification(user_id: str, notification_type: str = "new_message"):
     """Send a test notification to a specific user"""

@@ -1,9 +1,10 @@
 """
 Test script to create a patient and immediately retrieve it
 """
+from lib.models.patient import (create_patient, get_all_patients,
+                                get_patient_by_id)
 from settings import BASE_URL
 
-from lib.models.patient import create_patient, get_patient_by_id, get_all_patients
 
 def test_create_and_retrieve():
     print("Testing create and retrieve patient flow...")

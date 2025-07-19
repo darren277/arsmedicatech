@@ -35,9 +35,9 @@ def test_api_key_saving():
         print(f"✅ ENCRYPTION_KEY from env (length: {len(encryption_key)})")
     
     try:
-        from services.user_service import UserService
         from services.encryption import get_encryption_service
-        
+        from services.user_service import UserService
+
         # Initialize services
         user_service = UserService()
         user_service.connect()

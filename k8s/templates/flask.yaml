@@ -29,3 +29,24 @@ metadata: { name: flask-api, namespace: {{ .Values.namespace }} }
 spec:
   selector: { app: flask-api }
   ports: [ { port: 80, targetPort: 5000 } ]
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: webhooks-migration
+  namespace: {{ .Values.namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name:   webhooks-migration
+          workingDir: /app
+          image: "{{ .Values.flask.image.repository }}:{{ .Values.flask.image.tag }}"
+          command: ["python", "lib/migrations/setup_webhooks.py"]
+          env:
+            {{ include "surrealdb.sharedEnv" . | indent 12 }}
