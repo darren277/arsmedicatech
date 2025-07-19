@@ -179,7 +179,7 @@ const baseRoutes: PluginRoute[] = [
   { path: 'uploads', element: <FileUpload /> },
   { path: 'uploads/:uploadId', element: <UploadDetails /> },
 
-  { path: 'video', element: <VideoRoom /> },
+  { path: 'video/:roomId', element: <VideoRoom /> },
 ];
 
 function App() {

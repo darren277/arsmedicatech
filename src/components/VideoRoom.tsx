@@ -11,6 +11,7 @@ import { Track } from 'livekit-client';
 import { useEffect, useState } from 'react';
 import { LIVE_KIT_SERVER_URL } from '../env_vars';
 import { videoAPI } from '../services/api';
+import { useUser } from './UserContext';
 
 function MyCustomControls({ roomName }: { roomName: string }) {
   const [egressId, setEgressId] = useState<string | null>(null);
@@ -71,15 +72,26 @@ function MyCustomControls({ roomName }: { roomName: string }) {
 }
 
 export default function VideoRoom() {
+  const { user, isAuthenticated } = useUser();
+  const [identity, setIdentity] = useState<string>();
+
   const [token, setToken] = useState<string>();
-  const roomName = 'demo-room';
-  const identity = 'alice';
+
+  //const roomName = 'demo-room';
+  const roomName = window.location.pathname.split('/').pop() || 'default-room';
+
   // fetch a fresh JWT from Flask
   useEffect(() => {
     // The AbortController is used to cancel the request if the component unmounts.
     const controller = new AbortController();
 
-    const fetchToken = async () => {
+    if (isAuthenticated && user) {
+      setIdentity(user.username);
+    } else {
+      setIdentity('guest-' + Math.random().toString(36).substring(2, 15));
+    }
+
+    const fetchToken = async (identity: string) => {
       try {
         const r = await videoAPI.getToken(
           roomName,
@@ -97,7 +109,7 @@ export default function VideoRoom() {
       }
     };
 
-    fetchToken();
+    identity && fetchToken(identity);
 
     // The cleanup function aborts the fetch request on unmount.
     return () => {
