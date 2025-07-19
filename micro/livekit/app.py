@@ -27,6 +27,11 @@ CORS(
     origins=["http://localhost:3000", "http://localhost:3012"],
 )
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 # ---- 1.  mint join tokens ----
 @app.post("/livekit/token")
@@ -87,6 +92,7 @@ def stop_recording() -> Tuple[str, int]:
     """
     body: Dict[str, Any] = request.get_json() or {}
     egress_id: str = body.get("egress_id", "")
+    logger.info(f"Stopping recording with egress ID: {egress_id}")
     if not egress_id:
         return "Missing egress_id", 400
     loop = asyncio.new_event_loop()
@@ -127,13 +133,13 @@ def webhook() -> Tuple[str, int]:
             duration = event.get("file", {}).get("duration", 0)
 
             if not location:
-                print("⚠️ No file location found in event")
+                logger.info("⚠️ No file location found in event")
                 return "no file location", 400
             if not room:
-                print("⚠️ No room name found in event")
+                logger.info("⚠️ No room name found in event")
                 return "no room name", 400
             if duration <= 0:
-                print("⚠️ Invalid duration in event")
+                logger.info("⚠️ Invalid duration in event")
                 return "invalid duration", 400
 
             # Kick off async transcription
@@ -141,13 +147,13 @@ def webhook() -> Tuple[str, int]:
             print("✅ Recording stored at:", location)
 
         elif event["event"] == "room_finished":
-            print(f"Room {event.get('room', {}).get('name')} finished")
+            logger.info(f"Room {event.get('room', {}).get('name')} finished")
 
         # Add more event types if needed
 
         return "ok", 200
     except Exception as e:
-        print(f"⚠️ Webhook verification failed: {e}")
+        logger.info(f"⚠️ Webhook verification failed: {e}")
         return "unauthorized", 401
 
 if __name__ == "__main__":
