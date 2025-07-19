@@ -3,6 +3,11 @@ FROM livekit/egress:latest
 USER root
 RUN apt-get update && apt-get install -y pulseaudio && apt-get clean
 RUN apt-get update && apt-get install -y redis-tools iputils-ping curl vim
+
+RUN mkdir -p /run/pulse
+RUN chown -R 1000:1000 /run/pulse
+
+RUN mkdir -p /home/egress/tmp && chown -R 1000:1000 /home/egress
 USER egress
 
 # Copy your already-interpolated config into the image
