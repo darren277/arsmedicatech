@@ -380,6 +380,10 @@ spec:
                 secretKeyRef:
                   name: livekit-flask-api-secrets
                   key: s3Bucket
+            - name: CELERY_BROKER_URL
+              value: "redis://{{ .Values.redis.host }}:{{ .Values.redis.port }}/{{ .Values.redis.celeryDb }}"
+            - name: CELERY_RESULT_BACKEND
+              value: "redis://{{ .Values.redis.host }}:{{ .Values.redis.port }}/{{ .Values.redis.celeryDb }}"
 ---
 apiVersion: v1
 kind: Service
