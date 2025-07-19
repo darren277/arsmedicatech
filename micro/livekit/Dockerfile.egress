@@ -7,7 +7,10 @@ USER egress
 
 # Copy your already-interpolated config into the image
 COPY egress.yaml /egress.yaml
+COPY egress-entrypoint.sh /egress-entrypoint.sh
 
 #ENTRYPOINT ["/bin/sh"]
 #CMD ["-c", "tail -f /dev/null"]
 #CMD ["egress", "--config", "/egress.yaml"]
+
+ENTRYPOINT ["./egress-entrypoint.sh"]
