@@ -1,12 +1,13 @@
-FROM livekit/egress:v1.9
+FROM livekit/egress:latest
+
+USER root
+RUN apt-get update && apt-get install -y pulseaudio && apt-get clean
+RUN apt-get update && apt-get install -y redis-tools iputils-ping curl vim
+USER egress
 
 # Copy your already-interpolated config into the image
 COPY egress.yaml /egress.yaml
 
-USER root
-RUN apt-get update && apt-get install -y redis-tools iputils-ping curl vim
-USER egress
-
-ENTRYPOINT ["/bin/sh"]
-CMD ["-c", "tail -f /dev/null"]
+#ENTRYPOINT ["/bin/sh"]
+#CMD ["-c", "tail -f /dev/null"]
 #CMD ["egress", "--config", "/egress.yaml"]

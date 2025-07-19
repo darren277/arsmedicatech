@@ -176,7 +176,11 @@ spec:
             - name: egress-config
               mountPath: /egress.yaml
               subPath: egress.yaml
+            - name: pulse-runtime
+              mountPath: /run/pulse
           env:
+            - name: XDG_RUNTIME_DIR
+              value: /run/pulse
             - name: LIVEKIT_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -197,9 +201,38 @@ spec:
               value: {{ .Values.micro.livekit.s3.bucket }}
             - name: S3_REGION
               value: {{ .Values.micro.livekit.s3.region }}
-          command: [ "egress" ]
-          args: [ "--config", "/egress.yaml" ]
+          command: ["/bin/bash","-c"]
+          #args: [ "--config", "/egress.yaml" ]
+          args:
+            - |
+              exec pulseaudio --start \
+                 --daemonize=false \
+                 --system=true \
+                 --exit-idle-time=-1 \
+                 --log-target=stderr \
+              && exec /egress --config /etc/livekit/egress.yaml
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - SYS_PTRACE
 
+          volumes:
+            - name: egress-config
+              configMap:
+                name: egress-config
+            - name: pulse-runtime
+              emptyDir: { }
+
+          initContainers:
+            - name: fix-pulse-dir
+              image: busybox
+              command: [ "sh", "-c", "mkdir -p /run/pulse && chown 1000:1000 /run/pulse" ]
+              volumeMounts:
+                - name: pulse-runtime
+                  mountPath: /run/pulse
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
