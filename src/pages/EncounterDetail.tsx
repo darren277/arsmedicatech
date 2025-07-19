@@ -30,38 +30,54 @@ export function EncounterDetail() {
   };
 
   const renderSOAPNotes = (soapNotes: SOAPNotesType) => {
+    // Helper function to format text with preserved newlines
+    const formatText = (text: string) => {
+      if (!text) return 'No notes available';
+      // Replace escaped newlines with actual newlines and preserve formatting
+      return text.replace(/\\n/g, '\n');
+    };
+
     return (
       <div className="space-y-4">
         <div>
           <h4 className="font-semibold text-blue-600">Subjective</h4>
-          <p className="text-gray-700 bg-gray-50 p-3 rounded">
-            {soapNotes.subjective || 'No subjective notes'}
-          </p>
+          <div className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap">
+            {formatText(soapNotes.subjective || '')}
+          </div>
         </div>
         <div>
           <h4 className="font-semibold text-green-600">Objective</h4>
-          <p className="text-gray-700 bg-gray-50 p-3 rounded">
-            {soapNotes.objective || 'No objective notes'}
-          </p>
+          <div className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap">
+            {formatText(soapNotes.objective || '')}
+          </div>
         </div>
         <div>
           <h4 className="font-semibold text-yellow-600">Assessment</h4>
-          <p className="text-gray-700 bg-gray-50 p-3 rounded">
-            {soapNotes.assessment || 'No assessment notes'}
-          </p>
+          <div className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap">
+            {formatText(soapNotes.assessment || '')}
+          </div>
         </div>
         <div>
           <h4 className="font-semibold text-red-600">Plan</h4>
-          <p className="text-gray-700 bg-gray-50 p-3 rounded">
-            {soapNotes.plan || 'No plan notes'}
-          </p>
+          <div className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap">
+            {formatText(soapNotes.plan || '')}
+          </div>
         </div>
       </div>
     );
   };
 
-  const renderNoteText = (noteText: any) => {
-    if (typeof noteText === 'object' && noteText !== null) {
+  const renderNoteText = (noteText: any, noteType?: string) => {
+    // Check if it's SOAP notes based on note_type field or object structure
+    if (
+      noteType === 'soap' ||
+      (typeof noteText === 'object' &&
+        noteText !== null &&
+        'subjective' in noteText &&
+        'objective' in noteText &&
+        'assessment' in noteText &&
+        'plan' in noteText)
+    ) {
       return renderSOAPNotes(noteText as SOAPNotesType);
     }
     return (
@@ -211,7 +227,7 @@ export function EncounterDetail() {
       {/* Notes Section */}
       <div className="mt-8 bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Clinical Notes</h2>
-        {renderNoteText(encounter.note_text)}
+        {renderNoteText(encounter.note_text, encounter.note_type)}
       </div>
 
       {/* Action Buttons */}

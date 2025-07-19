@@ -24,7 +24,8 @@ export interface EncounterType {
   note_id?: string;
   date_created?: string;
   provider_id?: string;
-  note_text?: string;
+  note_text?: string | SOAPNotesType;
+  note_type?: 'soap' | 'text';
   diagnostic_codes?: string[];
   status?: string;
   patient?: PatientType;

@@ -1,6 +1,8 @@
 """
 Patient and Encounter Models for SurrealDB
 """
+import ast
+import json
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from surrealdb import RecordID
@@ -178,7 +180,8 @@ class Encounter:
         statements.append('DEFINE FIELD note_id ON encounter TYPE string ASSERT $value != none;')
         statements.append('DEFINE FIELD date_created ON encounter TYPE string;')
         statements.append('DEFINE FIELD provider_id ON encounter TYPE string;')
-        statements.append('DEFINE FIELD note_text ON encounter TYPE string;')
+        statements.append('DEFINE FIELD note_text ON encounter TYPE any;')
+        statements.append('DEFINE FIELD note_type ON encounter TYPE string;')
         statements.append('DEFINE FIELD diagnostic_codes ON encounter TYPE array;')
 
         statements.append('DEFINE FIELD patient ON encounter TYPE record<patient> ASSERT $value != none;')
@@ -273,22 +276,22 @@ def store_encounter(db: Union[DbController, AsyncDbController], encounter: Encou
     """
     record_id = f"encounter:{encounter.note_id}"
 
-    note_text: str = ""
-
-    # Handle note_text properly - check if soap_notes is a SOAPNotes object or a string
+    # Handle note_text properly - store SOAP notes as objects, not strings
+    note_text: Union[str, Dict[str, Any]] = ""
+    note_type: str = "text"
+    
     if encounter.soap_notes and hasattr(encounter.soap_notes, 'serialize'):
-        note_text = str(encounter.soap_notes.serialize())
+        note_text = encounter.soap_notes.serialize()  # Store as object, not string
+        note_type = "soap"
     else:
-        if encounter.soap_notes:
-            note_text = str(encounter.soap_notes.serialize())
-        else:
-            note_text = encounter.additional_notes or ""
+        note_text = encounter.additional_notes or ""
 
     content_data: Dict[str, Any] = {
         "note_id": str(encounter.note_id),
         "date_created": str(encounter.date_created),
         "provider_id": str(encounter.provider_id),
         "note_text": note_text,
+        "note_type": note_type,
         "diagnostic_codes": encounter.diagnostic_codes
     }
 
@@ -297,6 +300,7 @@ def store_encounter(db: Union[DbController, AsyncDbController], encounter: Encou
                         date_created = $date_created,
                         provider_id = $provider_id,
                         note_text = $note_text,
+                        note_type = $note_type,
                         diagnostic_codes = $diagnostic_codes,
                         patient = {patient_id}
     """
@@ -438,6 +442,34 @@ def serialize_encounter(encounter: Any) -> EncounterDict:
             result[key] = str(value)
         elif key == 'id' and isinstance(value, RecordID):
             result[key] = str(value)
+        elif key == 'note_text' and isinstance(value, str):
+            logger.debug(f"Processing note_text: {value[:100]}...")  # Log first 100 chars
+            # Check if this is a JSON string or Python dict string that should be parsed as SOAP notes
+            try:
+                # First try JSON parsing
+                parsed = json.loads(value)
+                if isinstance(parsed, dict) and all(k in parsed for k in ['subjective', 'objective', 'assessment', 'plan']):
+                    logger.debug("Successfully parsed as JSON SOAP notes")
+                    result[key] = parsed
+                    result['note_type'] = 'soap'
+                    return result
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.debug(f"JSON parsing failed: {e}")
+                pass
+            
+            # If JSON parsing failed, try Python literal_eval for Python dict strings
+            try:
+                parsed = ast.literal_eval(value)
+                if isinstance(parsed, dict) and all(k in parsed for k in ['subjective', 'objective', 'assessment', 'plan']):
+                    logger.debug("Successfully parsed as Python dict SOAP notes")
+                    result[key] = parsed
+                    result['note_type'] = 'soap'
+                else:
+                    logger.debug("Parsed as dict but not SOAP notes")
+                    result[key] = value
+            except (ValueError, SyntaxError, TypeError) as e:
+                logger.debug(f"Python literal_eval failed: {e}")
+                result[key] = value
         else:
             result[key] = value
     return cast(EncounterDict, result)
@@ -936,12 +968,30 @@ def create_encounter(encounter_data: Dict[str, Any], patient_id: str) -> Encount
             encounter_data["note_id"] = str(new_id)
             logger.debug(f"Generated note_id: {new_id}")
         
+        # Handle SOAP notes vs plain text
+        note_text = encounter_data.get("note_text")
+        soap_notes = None
+        additional_notes = ""
+        
+        if isinstance(note_text, dict) and all(k in note_text for k in ['subjective', 'objective', 'assessment', 'plan']):
+            # This is SOAP notes
+            soap_notes = SOAPNotes(
+                subjective=str(note_text.get('subjective', '')),
+                objective=str(note_text.get('objective', '')),
+                assessment=str(note_text.get('assessment', '')),
+                plan=str(note_text.get('plan', ''))
+            )
+        else:
+            # This is plain text
+            additional_notes = str(note_text or "")
+        
         # Create Encounter object
         encounter = Encounter(
             note_id=encounter_data["note_id"],
             date_created=str(encounter_data.get("date_created") or ""),
             provider_id=str(encounter_data.get("provider_id") or ""),
-            additional_notes=str(encounter_data.get("note_text") or ""),
+            soap_notes=soap_notes,
+            additional_notes=additional_notes,
             diagnostic_codes=encounter_data.get("diagnostic_codes", [])
         )
         
@@ -985,7 +1035,7 @@ def update_encounter(encounter_id: str, encounter_data: Dict[str, Any]) -> Encou
     try:
         # List of valid encounter fields
         valid_fields = {
-            "date_created", "provider_id", "note_text", "diagnostic_codes", "status"
+            "date_created", "provider_id", "note_text", "note_type", "diagnostic_codes", "status"
         }
 
         # Only include fields present in encounter_data and valid for the encounter
