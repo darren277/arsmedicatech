@@ -258,6 +258,17 @@ class ApiService {
     return this.getAPI('/lab_results');
   }
 
+  // Extract entities from encounter notes
+  async extractEntitiesFromNotes(
+    noteText: any,
+    noteType: string
+  ): Promise<any> {
+    return this.postAPI('/encounters/extract-entities', {
+      note_text: noteText,
+      note_type: noteType,
+    });
+  }
+
   // Optimal Service API
   async callOptimal(tableData: any): Promise<any> {
     return this.postAPI('/optimal', { tableData });
@@ -316,6 +327,13 @@ export const encounterAPI = {
   // Search encounters
   search: (query: string) =>
     apiService.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`),
+
+  // Extract entities from encounter notes
+  extractEntitiesFromNotes: (noteText: any, noteType: string) =>
+    apiService.postAPI('/encounters/extract-entities', {
+      note_text: noteText,
+      note_type: noteType,
+    }),
 };
 
 // Organization API operations
