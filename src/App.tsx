@@ -11,7 +11,10 @@ import OptimalTableDemo from './pages/OptimalTableDemo';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
 
-import { HealthMetricTracker } from './components/HealthMetricTracker';
+import {
+  HealthMetricTracker,
+  HealthMetricVisualization,
+} from './components/HealthMetricTracker';
 
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -30,6 +33,7 @@ import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
 import { useEffect } from 'react';
+import VideoRoom from './components/VideoRoom';
 import { API_URL } from './env_vars';
 import { usePluginRoutes } from './hooks/usePluginRoutes';
 import FileUpload from './pages/FileUpload';
@@ -163,6 +167,10 @@ const baseRoutes: PluginRoute[] = [
   { path: 'lab-results', element: <LabResults /> },
 
   { path: 'health-metrics', element: <HealthMetricTracker /> },
+  {
+    path: 'health-metrics-visualization',
+    element: <HealthMetricVisualization />,
+  },
 
   { path: 'optimal-table-demo', element: <OptimalTableDemo /> },
 
@@ -170,6 +178,8 @@ const baseRoutes: PluginRoute[] = [
 
   { path: 'uploads', element: <FileUpload /> },
   { path: 'uploads/:uploadId', element: <UploadDetails /> },
+
+  { path: 'video/:roomId', element: <VideoRoom /> },
 ];
 
 function App() {

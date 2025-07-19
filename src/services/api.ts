@@ -1,4 +1,4 @@
-import { API_URL } from '../env_vars';
+import { API_URL, LIVE_KIT_TOKEN_URL } from '../env_vars';
 import authService from './auth';
 import logger from './logging';
 
@@ -404,5 +404,88 @@ export const pluginAPI = {
   // Get all plugins
   getAll: () => apiService.getAPI('/plugins'),
 };
+
+// Video API operations
+class VideoAPI {
+  baseURL: string;
+
+  constructor() {
+    this.baseURL = LIVE_KIT_TOKEN_URL;
+  }
+
+  async request(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const url = `${this.baseURL}${endpoint}`;
+    const config = {
+      headers: this.getHeaders(),
+      credentials: 'include' as RequestCredentials,
+      ...options,
+    };
+
+    logger.debug('Video API request - URL:', url);
+    logger.debug('Video API request - Method:', options.method || 'GET');
+    logger.debug('Video API request - Headers:', config.headers);
+
+    try {
+      const headers = await this.getHeaders();
+      const configWithHeaders = {
+        ...config,
+        headers,
+      };
+      const response = await fetch(url, configWithHeaders);
+      logger.debug('Video API request - Response status:', response.status);
+      const data = await response.json();
+      logger.debug('Video API request - Response data:', data);
+      return data;
+    } catch (error) {
+      console.error('Video API request failed:', error);
+      throw error;
+    }
+  }
+
+  async getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+    };
+  }
+
+  async post(endpoint: string, data: any, signal?: AbortSignal): Promise<any> {
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      signal,
+    });
+  }
+
+  // Get a video token
+  async getToken(room: string, identity: string, signal?: AbortSignal) {
+    logger.debug('getToken', JSON.stringify({ room, identity }));
+    const token = await this.post('/livekit/token', { room, identity }, signal);
+    logger.debug('token', token);
+    if (!token) {
+      throw new Error('Failed to retrieve token');
+    }
+    return token;
+  }
+
+  async startRecording(room: string) {
+    logger.debug('startRecording', { room });
+    const response = await this.post('/livekit/start-recording', { room });
+    logger.debug('startRecording response', response);
+    return response;
+  }
+
+  async stopRecording(egressId: string) {
+    logger.debug('stopRecording', { egressId });
+    const response = await this.post('/livekit/stop-recording', {
+      egress_id: egressId,
+    });
+    logger.debug('stopRecording response', response);
+    return response;
+  }
+}
+
+const videoAPI = new VideoAPI();
+
+export { videoAPI };
 
 export default apiService;

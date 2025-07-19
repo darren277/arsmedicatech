@@ -482,3 +482,48 @@ As for frontend plugins, the feature is very experimental, but there is a mechan
 Install Babel standalone: `npm install @babel/standalone`
 
 You will need to transpile any JSX to JS first: `node plugins/jsx2js.js plugins/hello_world/js/index.jsx plugins/hello_world/js/index.js`
+
+## LiveKit
+
+| Config field (YAML)                | Default                                | Purpose in practice                                                                                    | Expose to Internet?        |
+| ---------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------- |
+| **`port`** (top level)             | `7880`                                 | REST/HTTP **and** “/rtc” WebSocket *if* you also set `rtc.port` to the same value.                     | **Yes** (TCP)              |
+| **`rtc.port`**                     | *unset* ⇒ falls back to `rtc.tcp_port` | **WebSocket signalling endpoint**. Must equal the host/port your frontend connects to (`wss://…/rtc`). | **Yes** (TCP)              |
+| **`rtc.tcp_port`**                 | `7881`                                 | ICE **media‑fallback over TCP** (if UDP blocked on client). Not used for HTTP.                         | Yes (TCP)                  |
+| **`rtc.udp_port`**                 | `3478`                                 | ICE host candidate over UDP (sometimes called “UDP‑ICE” or “STUN reflexive”).                          | Yes (UDP)                  |
+| **`turn.udp_port`**                | `3478` (often same as above)           | TURN allocation (UDP).                                                                                 | Yes (UDP)                  |
+| **`turn.tls_port`**                | `5349` (if enabled)                    | TURN allocation over TLS/TCP (optional).                                                               | Yes (TCP)                  |
+| **`turn.relay_range_start / end`** | `30000–40000` dev/prod defaults        | **UDP relay ports** where media actually flows when TURN is in use.                                    | Yes (UDP, the whole range) |
+
+
+```mermaid
+flowchart LR
+    subgraph Browser / Client
+        A[JavaScript SDK<br/>wss://host/rtc] -->|HTTP Upgrade| B(WebSocket)
+        B -->|ICE Gathering| C(ICE<br/>candidates)
+    end
+
+    subgraph Ingress / LB
+        D1[/"443 or 80 → 7880<br/>(TLS termination)"/]
+        D2[/"3478 (UDP)"/]
+        D3[/"7881 (TCP)"/]
+        D4[/"50000‑50010&nbsp;(UDP relay)"/]
+    end
+
+    subgraph LiveKit Pod
+        LK1[[`port` 7880<br/>REST + /rtc WS]]
+        LK2[[`rtc.tcp_port` 7881<br/>TCP ICE]]
+        LK3[[`rtc.udp_port` 3478<br/>STUN / UDP ICE]]
+        LK4[["TURN server<br/>3478 (udp/tls)<br/>relay 50000‑50010"]]
+    end
+
+    %% connections
+    A --> D1
+    D1 --> LK1
+
+    B -.-> D3
+    D3 -.-> LK2
+
+    C -. UDP ICE .-> D2 -.-> LK3
+    C -. TURN relay .-> D4 -.-> LK4
+```

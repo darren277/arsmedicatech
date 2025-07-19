@@ -1,0 +1,19 @@
+port: 7880
+log_level: info
+rtc:
+  tcp_port: 7881
+  port_range_start: 50000
+  port_range_end: 50100
+  #use_external_ip: true
+  use_external_ip: false # For local development
+  #node_ip: 'x.x.x.x' # For local development
+redis:
+  address: redis:6379
+keys:
+  ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+turn:
+  enabled: true
+  udp_port: 3478
+  domain: localhost
+  # domain: <turn.myhost.com>  # Optional for local, required for production
+  # tls_port: 3478            # Optional, for TURN/TLS
