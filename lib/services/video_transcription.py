@@ -2,8 +2,12 @@
 Video transcription Celery task service.
 """
 import os, tempfile, subprocess, pathlib
-import boto3     # or minio
-import whisper
+
+import boto3 # type: ignore
+# or minio
+
+import whisper # type: ignore
+
 from celery import shared_task # type: ignore
 from settings import logger
 
