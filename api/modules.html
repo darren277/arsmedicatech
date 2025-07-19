@@ -367,10 +367,13 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="models.html#module-models.user">models.user module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="models.html#models.user.User"><code class="docutils literal notranslate"><span class="pre">User</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.can_create_organization"><code class="docutils literal notranslate"><span class="pre">User.can_create_organization()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.from_dict"><code class="docutils literal notranslate"><span class="pre">User.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.get_full_name"><code class="docutils literal notranslate"><span class="pre">User.get_full_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.get_remaining_organization_slots"><code class="docutils literal notranslate"><span class="pre">User.get_remaining_organization_slots()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.has_role"><code class="docutils literal notranslate"><span class="pre">User.has_role()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.hash_password"><code class="docutils literal notranslate"><span class="pre">User.hash_password()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.increment_organization_count"><code class="docutils literal notranslate"><span class="pre">User.increment_organization_count()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.is_admin"><code class="docutils literal notranslate"><span class="pre">User.is_admin()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.is_patient"><code class="docutils literal notranslate"><span class="pre">User.is_patient()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.is_provider"><code class="docutils literal notranslate"><span class="pre">User.is_provider()</span></code></a></li>
@@ -395,10 +398,14 @@
 <li class="toctree-l3"><a class="reference internal" href="models.html#models.user_settings.UserSettings"><code class="docutils literal notranslate"><span class="pre">UserSettings</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.from_dict"><code class="docutils literal notranslate"><span class="pre">UserSettings.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.get_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.get_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.get_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.get_optimal_api_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.has_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.has_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.has_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.has_optimal_api_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.set_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.set_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.set_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.set_optimal_api_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.to_dict"><code class="docutils literal notranslate"><span class="pre">UserSettings.to_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.validate_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.validate_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.validate_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.validate_optimal_api_key()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -631,14 +638,17 @@
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.deactivate_user"><code class="docutils literal notranslate"><span class="pre">UserService.deactivate_user()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_all_users"><code class="docutils literal notranslate"><span class="pre">UserService.get_all_users()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.get_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.get_optimal_api_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_by_email"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_by_email()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_by_id"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_by_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_by_username"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_by_username()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_settings"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_settings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.has_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.has_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.has_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.has_optimal_api_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.logout"><code class="docutils literal notranslate"><span class="pre">UserService.logout()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.save_user_settings"><code class="docutils literal notranslate"><span class="pre">UserService.save_user_settings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.update_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.update_openai_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.update_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.update_optimal_api_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.update_user"><code class="docutils literal notranslate"><span class="pre">UserService.update_user()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.validate_session"><code class="docutils literal notranslate"><span class="pre">UserService.validate_session()</span></code></a></li>
 </ul>

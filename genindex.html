@@ -132,6 +132,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/models.html#models.appointment.Appointment.can_be_cancelled">can_be_cancelled() (models.appointment.Appointment method)</a>
 </li>
+      <li><a href="api/models.html#models.user.User.can_create_organization">can_create_organization() (models.user.User method)</a>
+</li>
       <li><a href="api/services.html#services.scheduling.SchedulingService.cancel_appointment">cancel_appointment() (services.scheduling.SchedulingService method)</a>
 </li>
       <li><a href="api/routes.html#routes.appointments.cancel_appointment_route">cancel_appointment_route() (in module routes.appointments)</a>
@@ -533,12 +535,12 @@
 </li>
       <li><a href="api/models.html#models.appointment.Appointment.get_datetime">get_datetime() (models.appointment.Appointment method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/models.html#models.appointment.Appointment.get_duration_minutes">get_duration_minutes() (models.appointment.Appointment method)</a>
 </li>
       <li><a href="api/models.html#models.patient.get_encounter_by_id">get_encounter_by_id() (in module models.patient)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/routes.html#routes.patients.get_encounter_by_id_route">get_encounter_by_id_route() (in module routes.patients)</a>
 </li>
       <li><a href="api/models.html#models.patient.get_encounters_by_patient">get_encounters_by_patient() (in module models.patient)</a>
@@ -561,6 +563,12 @@
       </ul></li>
       <li><a href="api/services.html#services.openai_security.get_openai_security_service">get_openai_security_service() (in module services.openai_security)</a>
 </li>
+      <li><a href="api/models.html#models.user_settings.UserSettings.get_optimal_api_key">get_optimal_api_key() (models.user_settings.UserSettings method)</a>
+
+      <ul>
+        <li><a href="api/services.html#services.user_service.UserService.get_optimal_api_key">(services.user_service.UserService method)</a>
+</li>
+      </ul></li>
       <li><a href="api/models.html#models.patient.get_patient_by_id">get_patient_by_id() (in module models.patient)</a>
 </li>
       <li><a href="api/services.html#services.redis_client.get_redis_connection">get_redis_connection() (in module services.redis_client)</a>
@@ -571,6 +579,8 @@
         <li><a href="api/db.html#db.surreal_graph.GraphController.get_relations">(db.surreal_graph.GraphController method)</a>
 </li>
       </ul></li>
+      <li><a href="api/models.html#models.user.User.get_remaining_organization_slots">get_remaining_organization_slots() (models.user.User method)</a>
+</li>
       <li><a href="api/services.html#services.openai_security.OpenAISecurityService.get_usage_stats">get_usage_stats() (services.openai_security.OpenAISecurityService method)</a>
 </li>
       <li><a href="api/services.html#services.openai_security.OpenAISecurityService.get_user_api_key_with_validation">get_user_api_key_with_validation() (services.openai_security.OpenAISecurityService method)</a>
@@ -621,10 +631,16 @@
         <li><a href="api/services.html#services.user_service.UserService.has_openai_api_key">(services.user_service.UserService method)</a>
 </li>
       </ul></li>
-      <li><a href="api/models.html#models.user.User.has_role">has_role() (models.user.User method)</a>
+      <li><a href="api/models.html#models.user_settings.UserSettings.has_optimal_api_key">has_optimal_api_key() (models.user_settings.UserSettings method)</a>
+
+      <ul>
+        <li><a href="api/services.html#services.user_service.UserService.has_optimal_api_key">(services.user_service.UserService method)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/models.html#models.user.User.has_role">has_role() (models.user.User method)</a>
+</li>
       <li><a href="api/models.html#models.user.User.hash_password">hash_password() (models.user.User static method)</a>
 </li>
       <li><a href="api/services.html#services.optimal.OptimalService.headers">headers (services.optimal.OptimalService property)</a>
@@ -640,6 +656,8 @@
       <li><a href="api/services.html#services.apis.ICD10Code">ICD10Code (class in services.apis)</a>
 </li>
       <li><a href="api/models.html#models.icd.import_icd_codes">import_icd_codes() (in module models.icd)</a>
+</li>
+      <li><a href="api/models.html#models.user.User.increment_organization_count">increment_organization_count() (models.user.User method)</a>
 </li>
       <li><a href="api/logger.html#logger.Logger.info">info() (logger.Logger method)</a>
 </li>
@@ -1362,6 +1380,8 @@
       </ul></li>
       <li><a href="api/models.html#models.user_settings.UserSettings.set_openai_api_key">set_openai_api_key() (models.user_settings.UserSettings method)</a>
 </li>
+      <li><a href="api/models.html#models.user_settings.UserSettings.set_optimal_api_key">set_optimal_api_key() (models.user_settings.UserSettings method)</a>
+</li>
       <li><a href="api/types.html#types.DynamicClassAttribute.setter">setter() (types.DynamicClassAttribute method)</a>
 </li>
       <li><a href="api/routes.html#routes.users.settings_route">settings_route() (in module routes.users)</a>
@@ -1467,9 +1487,11 @@
 </li>
       <li><a href="api/routes.html#routes.patients.update_encounter_route">update_encounter_route() (in module routes.patients)</a>
 </li>
+      <li><a href="api/services.html#services.user_service.UserService.update_openai_api_key">update_openai_api_key() (services.user_service.UserService method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/services.html#services.user_service.UserService.update_openai_api_key">update_openai_api_key() (services.user_service.UserService method)</a>
+      <li><a href="api/services.html#services.user_service.UserService.update_optimal_api_key">update_optimal_api_key() (services.user_service.UserService method)</a>
 </li>
       <li><a href="api/models.html#models.patient.update_patient">update_patient() (in module models.patient)</a>
 </li>
@@ -1506,6 +1528,8 @@
       <li><a href="api/models.html#models.user.User.validate_email">validate_email() (models.user.User static method)</a>
 </li>
       <li><a href="api/models.html#models.user_settings.UserSettings.validate_openai_api_key">validate_openai_api_key() (models.user_settings.UserSettings static method)</a>
+</li>
+      <li><a href="api/models.html#models.user_settings.UserSettings.validate_optimal_api_key">validate_optimal_api_key() (models.user_settings.UserSettings static method)</a>
 </li>
       <li><a href="api/models.html#models.user.User.validate_password">validate_password() (models.user.User static method)</a>
 </li>
