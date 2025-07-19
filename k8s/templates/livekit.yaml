@@ -16,6 +16,9 @@ spec:
         - name: livekit-config
           configMap:
             name: livekit-config
+        - name: tls
+          secret:
+            secretName: livekit-tls
       containers:
         - name: livekit
           image: livekit/livekit-server:latest
@@ -84,6 +87,9 @@ spec:
             - name: livekit-config
               mountPath: /etc/livekit.yaml
               subPath: livekit.yaml
+            - name: tls
+              mountPath: /etc/livekit/certs
+              readOnly: true
           command: [ "/livekit-server" ]
           args: [ "--config", "/etc/livekit.yaml" ]
           env:
@@ -191,10 +197,19 @@ spec:
           command: [ "egress" ]
           args: [ "--config", "/egress.yaml" ]
 
-      volumes:
-        - name: egress-config
-          configMap:
-            name: egress-config
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: livekit-cert
+  namespace: arsmedicatech
+spec:
+  secretName: livekit-tls
+  dnsNames:
+    - demo.arsmedicatech.com
+  issuerRef:
+    name: letsencrypt-arsmedicatech
+    kind: ClusterIssuer
 ---
 apiVersion: v1
 kind: Service
