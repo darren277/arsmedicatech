@@ -20,6 +20,8 @@ documentation for details.
    CONTRIBUTING
    DONATE
 
+   RUNNING_LOCALLY
+
    app
    api/modules
 

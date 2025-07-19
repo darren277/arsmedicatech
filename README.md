@@ -10,6 +10,10 @@ I also opened up the Discussions section for this repository for anyone who woul
 
 Also, check out <https://github.com/users/darren277/projects/1> to see what's currently being worked on and what's on the backlog.
 
+On running the app locally, please see: [RUNNING_LOCALLY.md](docs/source/RUNNING_LOCALLY.md).
+
+For immediate onboarding assistance and getting to know the repo, check it out on [GitCompass](https://gitcompass-web.fly.dev/public/analysis/sr4ryxuc4b7k).
+
 ---
 
 ## 🚀 Purpose & Vision
