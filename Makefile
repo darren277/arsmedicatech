@@ -190,3 +190,11 @@ livekit-egress-docker:
 	docker build -t $(DOCKER_REGISTRY)/$(LIVEKIT_EGRESS_IMAGE):$(LIVEKIT_EGRESS_VERSION) -f micro/livekit/Dockerfile.egress ./micro/livekit
 	docker push $(DOCKER_REGISTRY)/$(LIVEKIT_EGRESS_IMAGE):$(LIVEKIT_EGRESS_VERSION)
 	kubectl rollout restart deployment $(LIVEKIT_EGRESS_DEPLOYMENT) --namespace=$(NAMESPACE)
+
+livekit-egress-debug:
+	kubectl delete pod debug-egress -n arsmedicatech --ignore-not-found
+	kubectl patch serviceaccount default -n arsmedicatech -p '{"imagePullSecrets":[{"name":"ecr-secret"}]}'
+	kubectl run debug-egress -n arsmedicatech --rm -it --image=$(DOCKER_REGISTRY)/$(LIVEKIT_EGRESS_IMAGE):$(LIVEKIT_EGRESS_VERSION) --restart=Never --command -- sleep 3600
+
+livekit-egress-debug-access:
+	kubectl exec -it -n arsmedicatech debug-egress -- sh
