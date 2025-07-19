@@ -1,5 +1,4 @@
-# ---------- build stage ----------
-FROM python:3.12-slim as base
+FROM python:3.12-slim AS base
 
 # system deps for spaCy CPU wheels
 RUN apt-get update && \
@@ -15,8 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Pre-download model so the image is self-contained
 RUN python -m spacy validate
 
-COPY app/ ./app
+COPY ./main.py ./main.py
 ENV PYTHONPATH=/app
 
+EXPOSE 5000
+
 # ---------- runtime ----------
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
