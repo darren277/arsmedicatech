@@ -22,19 +22,30 @@ export function EncounterDetail() {
 
   // Set up global click handler for entity clicks
   useEffect(() => {
-    // Add global click handler for entity clicks
-    (window as any).handleEntityClick = (entityJson: string) => {
-      try {
-        const entity = JSON.parse(entityJson);
-        handleEntityClick(entity);
-      } catch (error) {
-        console.error('Error parsing entity JSON:', error);
+    // Add event listener for entity clicks using event delegation
+    const handleEntityClickEvent = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (target.classList.contains('entity-highlight')) {
+        const entityId = target.getAttribute('data-entity-id');
+        if (
+          entityId &&
+          (window as any).entityData &&
+          (window as any).entityData[entityId]
+        ) {
+          const entity = (window as any).entityData[entityId];
+          handleEntityClick(entity);
+        }
       }
     };
 
+    // Add event listener to document
+    document.addEventListener('click', handleEntityClickEvent);
+
     // Cleanup on unmount
     return () => {
-      delete (window as any).handleEntityClick;
+      document.removeEventListener('click', handleEntityClickEvent);
+      // Clean up global entity data
+      delete (window as any).entityData;
     };
   }, []);
 
@@ -60,6 +71,12 @@ export function EncounterDetail() {
 
     setIsExtractingEntities(true);
     try {
+      // Debug: Log the exact text being sent to backend
+      const noteText =
+        typeof encounter.note_text === 'string'
+          ? encounter.note_text
+          : JSON.stringify(encounter.note_text);
+
       const result = await encounterAPI.extractEntitiesFromNotes(
         encounter.note_text,
         encounter.note_type || 'text'
@@ -100,39 +117,60 @@ export function EncounterDetail() {
       return text.replace(/\\n/g, '\n');
     };
 
-    // Helper function to highlight entities in text
-    const highlightEntities = (text: string) => {
+    // Helper function to highlight entities in a section of text
+    const highlightEntitiesInSection = (
+      sectionText: string,
+      sectionName: string
+    ) => {
       if (!entities.length) {
-        return formatText(text);
+        return formatText(sectionText);
       }
+
+      let result = sectionText;
+      let offset = 0;
 
       // Sort entities by start position to process them in order
       const sortedEntities = [...entities].sort(
         (a, b) => a.start_char - b.start_char
       );
 
-      let result = formatText(text);
-      let offset = 0;
+      sortedEntities.forEach((entity, index) => {
+        // Try to find the entity text in the current section
+        const entityText = entity.text;
 
-      sortedEntities.forEach(entity => {
-        const start = entity.start_char + offset;
-        const end = entity.end_char + offset;
+        // Search in the entire section text
+        const foundIndex = result.indexOf(entityText);
 
-        if (start >= 0 && end <= result.length && start < end) {
-          const before = result.substring(0, start);
-          const entityText = result.substring(start, end);
-          const after = result.substring(end);
+        if (foundIndex !== -1) {
+          const actualStart = foundIndex;
+          const actualEnd = actualStart + entityText.length;
 
-          const spanWrapper = `<span class="bg-yellow-200 cursor-pointer hover:bg-yellow-300 border-b-2 border-yellow-400" onclick="window.handleEntityClick('${JSON.stringify(entity).replace(/'/g, "\\'")}')">${entityText}</span>`;
+          const before = result.substring(0, actualStart);
+          const after = result.substring(actualEnd);
+
+          // Use data attributes instead of inline onclick to avoid escaping issues
+          const entityId = `entity-${index}-${sectionName}`;
+          const spanWrapper = `<span class="bg-yellow-200 cursor-pointer hover:bg-yellow-300 border-b-2 border-yellow-400 entity-highlight" data-entity-id="${entityId}">${entityText}</span>`;
 
           result = `${before}${spanWrapper}${after}`;
 
-          // Update offset for next entity - calculate actual length difference
+          // Store entity data in a global object for later retrieval
+          if (!(window as any).entityData) {
+            (window as any).entityData = {};
+          }
+          (window as any).entityData[entityId] = entity;
+
+          // Update offset for next entity
           offset += spanWrapper.length - entityText.length;
+        } else {
+          console.log(
+            `Entity ${index}: Could not find "${entityText}" in ${sectionName}`
+          );
         }
       });
 
-      return result;
+      // Now format the text with highlights already in place
+      return formatText(result);
     };
 
     return (
@@ -142,7 +180,10 @@ export function EncounterDetail() {
           <div
             className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap"
             dangerouslySetInnerHTML={{
-              __html: highlightEntities(soapNotes.subjective || ''),
+              __html: highlightEntitiesInSection(
+                soapNotes.subjective || '',
+                'subjective'
+              ),
             }}
           />
         </div>
@@ -151,7 +192,10 @@ export function EncounterDetail() {
           <div
             className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap"
             dangerouslySetInnerHTML={{
-              __html: highlightEntities(soapNotes.objective || ''),
+              __html: highlightEntitiesInSection(
+                soapNotes.objective || '',
+                'objective'
+              ),
             }}
           />
         </div>
@@ -160,7 +204,10 @@ export function EncounterDetail() {
           <div
             className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap"
             dangerouslySetInnerHTML={{
-              __html: highlightEntities(soapNotes.assessment || ''),
+              __html: highlightEntitiesInSection(
+                soapNotes.assessment || '',
+                'assessment'
+              ),
             }}
           />
         </div>
@@ -169,7 +216,7 @@ export function EncounterDetail() {
           <div
             className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap"
             dangerouslySetInnerHTML={{
-              __html: highlightEntities(soapNotes.plan || ''),
+              __html: highlightEntitiesInSection(soapNotes.plan || '', 'plan'),
             }}
           />
         </div>
