@@ -1,7 +1,7 @@
 """
 ICD Autocoder Service.
 """
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from lib.services.umls_api_service import UMLSApiService
 from settings import UMLS_API_KEY
@@ -16,8 +16,8 @@ class Entity(TypedDict, total=False):
     start_char: int
     end_char: int
     cui: Optional[str]
-    icd10cm: Optional[str]
-    icd10cm_name: Optional[str]
+    icd10cm: Optional[Union[str, int]]
+    icd10cm_name: Optional[Union[str, int]]
 
 
 def deduplicate(entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

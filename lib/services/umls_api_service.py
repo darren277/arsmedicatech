@@ -1,11 +1,12 @@
 """
 UMLS API Service.
 """
-import requests
-from typing import Optional, List, Dict, Union
 import logging
 import time
 from functools import lru_cache
+from typing import Dict, List, Optional, Union
+
+import requests
 
 #INTERVAL = 0.05 # 20 requests per second
 COURTESY_PADDING = 0.005
@@ -29,7 +30,7 @@ class UMLSApiService:
 
     def search_concept(
         self,
-        term: str,
+        term: Optional[Union[str, int]],
         sabs: Optional[List[str]] = None,
         search_type: str = "words",
         return_id_type: str = "concept",
