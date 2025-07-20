@@ -8,13 +8,15 @@ from flask import Response, jsonify, request
 
 from lib.data_types import PatientID
 from lib.db.surreal import DbController
-from lib.models.patient import (create_encounter, create_patient,
-                                delete_encounter, delete_patient,
-                                get_all_encounters, get_all_patients,
-                                get_encounter_by_id, get_encounters_by_patient,
-                                get_patient_by_id, search_encounter_history,
-                                search_patient_history, serialize_patient,
-                                update_encounter, update_patient)
+from lib.models.patient.main import (create_encounter, create_patient,
+                                     delete_encounter, delete_patient,
+                                     get_all_encounters, get_all_patients,
+                                     get_encounter_by_id,
+                                     get_encounters_by_patient,
+                                     get_patient_by_id,
+                                     search_encounter_history,
+                                     search_patient_history, serialize_patient,
+                                     update_encounter, update_patient)
 from lib.services.auth_decorators import get_current_user
 from lib.services.icd_autocoder_service import ICDAutoCoderService
 from settings import logger

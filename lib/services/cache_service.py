@@ -4,8 +4,8 @@ Cache service for managing entity extraction results.
 from typing import Any, Dict, List, Optional, Union
 
 from lib.db.surreal import AsyncDbController, DbController
-from lib.models.patient import (create_text_hash, get_entity_cache,
-                                store_entity_cache)
+from lib.models.patient.caching import (create_text_hash, get_entity_cache,
+                                        store_entity_cache)
 from settings import logger
 
 

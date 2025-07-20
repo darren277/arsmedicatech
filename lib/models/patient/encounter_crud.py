@@ -8,20 +8,10 @@ from typing import Any, Dict, List, Union, cast
 from surrealdb import RecordID  # type: ignore[import-untyped]
 
 from lib.db.surreal import AsyncDbController, DbController
-from lib.models.patient.common import \
-    EncounterDict  # type: ignore[import-untyped]
-from lib.models.patient.common import \
-    PatientDict  # type: ignore[import-untyped]
-from lib.models.patient.common import \
-    serialize_encounter  # type: ignore[import-untyped]
-from lib.models.patient.common import \
+from lib.models.patient.common import EncounterDict, PatientDict
+from lib.models.patient.encounter_model import Encounter, SOAPNotes
+from lib.models.patient.patient_crud import \
     serialize_patient  # type: ignore[import-untyped]
-from lib.models.patient.encounter_model import \
-    Encounter  # type: ignore[import-untyped]
-from lib.models.patient.encounter_model import \
-    SOAPNotes  # type: ignore[import-untyped]
-from lib.models.patient.patient_model import \
-    Patient  # type: ignore[import-untyped]
 from settings import logger
 
 
@@ -555,4 +545,3 @@ def delete_encounter(encounter_id: str) -> bool:
         return False
     finally:
         db.close()
-

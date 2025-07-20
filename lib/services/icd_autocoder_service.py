@@ -4,8 +4,8 @@ ICD Autocoder Service.
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from lib.db.surreal import DbController
-from lib.models.patient import (create_text_hash, get_entity_cache,
-                                store_entity_cache)
+from lib.models.patient.caching import (create_text_hash, get_entity_cache,
+                                        store_entity_cache)
 from lib.services.umls_api_service import UMLSApiService
 from settings import UMLS_API_KEY, logger
 

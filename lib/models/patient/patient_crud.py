@@ -1,14 +1,12 @@
 """
 CRUD operations for Patient model.
 """
-import ast
-import datetime
-import json
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
-
-from surrealdb import RecordID  # type: ignore[import-untyped]
+from typing import Any, Dict, List, Union, cast
 
 from lib.db.surreal import AsyncDbController, DbController
+from lib.models.patient.common import PatientDict
+from lib.models.patient.encounter_crud import add_some_placeholder_encounters
+from lib.models.patient.patient_model import Patient
 from settings import logger
 
 

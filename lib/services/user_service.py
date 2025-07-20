@@ -131,7 +131,8 @@ class UserService:
                 # If the user is a patient, create a corresponding Patient record
                 if user.role == "patient" and user.id:
                     try:
-                        from lib.models.patient import create_patient
+                        from lib.models.patient.patient_crud import \
+                            create_patient
                         user_id = str(user.id)
                         if ':' in user_id:
                             patient_id = user_id.split(':', 1)[1]
