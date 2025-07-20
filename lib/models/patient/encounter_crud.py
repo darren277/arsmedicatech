@@ -77,29 +77,6 @@ def store_encounter(db: Union[DbController, AsyncDbController], encounter: Encou
         return {}
 
 
-def add_some_placeholder_encounters(db: Union[DbController, AsyncDbController], patient_id: str) -> None:
-    """
-    Adds some placeholder encounters for testing purposes.
-
-    :param db: DbController instance connected to SurrealDB.
-    :param patient_id: Patient ID in the format 'patient:<demographic_no>'.
-    :return: None
-    """
-    import random
-    from datetime import datetime, timedelta
-
-    # Generate 5 random encounters
-    for i in range(5):
-        note_id = random.randint(100, 999)
-        date_created = datetime.now() - timedelta(days=random.randint(1, 30))
-        provider_id = f"provider-{random.randint(1, 10)}"
-        note_text = f"This is a placeholder note text for encounter {i+1}."
-        diagnostic_codes = [f"code-{random.randint(100, 999)}"]
-
-        encounter = Encounter(str(note_id), date_created.isoformat(), provider_id, additional_notes=note_text, diagnostic_codes=diagnostic_codes)
-        store_encounter(db, encounter, patient_id)
-
-
 def serialize_encounter(encounter: Any) -> EncounterDict:
     """
     Serializes an encounter dictionary to ensure all IDs are strings and handles RecordID types.
