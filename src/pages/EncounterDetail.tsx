@@ -118,10 +118,12 @@ export function EncounterDetail() {
           const entityText = result.substring(start, end);
           const after = result.substring(end);
 
-          result = `${before}<span class="bg-yellow-200 cursor-pointer hover:bg-yellow-300 border-b-2 border-yellow-400" onclick="window.handleEntityClick('${JSON.stringify(entity).replace(/'/g, "\\'")}')">${entityText}</span>${after}`;
+          const spanWrapper = `<span class="bg-yellow-200 cursor-pointer hover:bg-yellow-300 border-b-2 border-yellow-400" onclick="window.handleEntityClick('${JSON.stringify(entity).replace(/'/g, "\\'")}')">${entityText}</span>`;
 
-          // Update offset for next entity
-          offset += 47; // Length of the span wrapper
+          result = `${before}${spanWrapper}${after}`;
+
+          // Update offset for next entity - calculate actual length difference
+          offset += spanWrapper.length - entityText.length;
         }
       });
 
