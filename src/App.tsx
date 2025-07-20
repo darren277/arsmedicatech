@@ -10,6 +10,7 @@ import LabResults from './pages/LabResults';
 import OptimalTableDemo from './pages/OptimalTableDemo';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
+import UserNotesPage from './pages/UserNotesPage';
 
 import {
   HealthMetricTracker,
@@ -183,6 +184,8 @@ const baseRoutes: PluginRoute[] = [
   { path: 'uploads/:uploadId', element: <UploadDetails /> },
 
   { path: 'video/:roomId', element: <VideoRoom /> },
+
+  { path: 'notes', element: <UserNotesPage /> },
 ];
 
 function App() {

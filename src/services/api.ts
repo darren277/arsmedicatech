@@ -506,4 +506,27 @@ const videoAPI = new VideoAPI();
 
 export { videoAPI };
 
+// User Notes API operations
+export const userNotesAPI = {
+  // Get all user notes
+  getAll: () => apiService.getAPI('/user-notes'),
+
+  // Get a specific user note by ID
+  getById: (id: string) => apiService.getAPI(`/user-notes/${id}`),
+
+  // Create a new user note
+  create: (noteData: any) => apiService.postAPI('/user-notes', noteData),
+
+  // Update an existing user note
+  update: (id: string, noteData: any) =>
+    apiService.putAPI(`/user-notes/${id}`, noteData),
+
+  // Delete a user note
+  delete: (id: string) => apiService.deleteAPI(`/user-notes/${id}`),
+
+  // Search user notes
+  search: (query: string) =>
+    apiService.getAPI(`/user-notes?search=${encodeURIComponent(query)}`),
+};
+
 export default apiService;

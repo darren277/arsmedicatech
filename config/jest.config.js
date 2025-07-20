@@ -13,6 +13,12 @@ module.exports = {
 
     // Use identity-obj-proxy for all style files
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+
+    // Mock MDXEditor CSS imports
+    '^@mdxeditor/editor/style.css$': 'identity-obj-proxy',
+
+    // Mock MDXEditor package
+    '^@mdxeditor/editor$': '<rootDir>/__mocks__/mdxEditorMock.js',
   },
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',

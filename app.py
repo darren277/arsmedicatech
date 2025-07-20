@@ -45,6 +45,9 @@ from lib.routes.patients import (create_encounter_route,
 from lib.routes.testing import (debug_session_route, test_crud_route,
                                 test_surrealdb_route)
 from lib.routes.uploads import uploads_bp
+from lib.routes.user_notes import (create_note_route, delete_note_route,
+                                   get_note_by_id_route, get_user_notes_route,
+                                   update_note_route)
 from lib.routes.users import (activate_user_route, change_password_route,
                               check_users_exist_route, deactivate_user_route,
                               get_all_users_route, get_api_usage_route,
@@ -874,6 +877,53 @@ def remove_clinic_from_organization(org_id: str) -> Tuple[Response, int]:
     """
     from lib.routes.organizations import remove_clinic_from_organization_route
     return remove_clinic_from_organization_route(org_id)
+
+
+# User Notes endpoints
+@app.route('/api/user-notes', methods=['GET'])
+@require_auth
+def get_user_notes() -> Tuple[Response, int]:
+    """
+    Get all notes for the current user.
+    :return: Response object with user notes data.
+    """
+    return get_user_notes_route()
+
+@app.route('/api/user-notes', methods=['POST'])
+@require_auth
+def create_note() -> Tuple[Response, int]:
+    """
+    Create a new note for the current user.
+    :return: Response object with created note data.
+    """
+    return create_note_route()
+
+@app.route('/api/user-notes/<note_id>', methods=['GET'])
+@require_auth
+def get_note_by_id(note_id: str) -> Tuple[Response, int]:
+    """
+    Get a specific note by ID.
+    :return: Response object with note data.
+    """
+    return get_note_by_id_route(note_id)
+
+@app.route('/api/user-notes/<note_id>', methods=['PUT'])
+@require_auth
+def update_note(note_id: str) -> Tuple[Response, int]:
+    """
+    Update a note by ID.
+    :return: Response object with updated note data.
+    """
+    return update_note_route(note_id)
+
+@app.route('/api/user-notes/<note_id>', methods=['DELETE'])
+@require_auth
+def delete_note(note_id: str) -> Tuple[Response, int]:
+    """
+    Delete a note by ID.
+    :return: Response object with deletion status.
+    """
+    return delete_note_route(note_id)
 
 
 # Register event handlers for webhook delivery

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Tuple
 
 from flask import Response, jsonify, request, session
 
-from lib.models.user import User
+from lib.models.user.user import User
 from lib.services.auth_decorators import get_current_user, get_current_user_id
 from lib.services.openai_security import get_openai_security_service
 from lib.services.user_service import UserService

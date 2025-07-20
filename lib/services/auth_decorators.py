@@ -2,11 +2,11 @@
 Authentication decorators for Flask routes.
 """
 from functools import wraps
-from typing import Any, Callable, Optional, TypeVar, cast, List
+from typing import Any, Callable, List, Optional, TypeVar, cast
 
 from flask import g, jsonify, request, session
 
-from lib.models.user import UserSession
+from lib.models.user.user_session import UserSession
 from lib.services.user_service import UserService
 from settings import logger
 
