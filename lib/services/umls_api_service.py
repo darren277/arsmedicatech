@@ -11,15 +11,6 @@ from functools import lru_cache
 COURTESY_PADDING = 0.005
 INTERVAL = 0.05 + COURTESY_PADDING # 20 requests per second with padding
 
-@lru_cache(maxsize=4096)
-def normalize(text) -> Optional[Dict[str, str]]:
-    """
-    Normalize a given text using UMLS API.
-    :param text: str - The text to normalize.
-    :return: Optional[Dict[str, str]] - A dictionary with 'cui', 'name', and 'score' if found, else None.
-    """
-    return umls.search_concept(text)
-
 
 class UMLSApiService:
     """
@@ -187,3 +178,12 @@ class UMLSApiService:
             }
             for item in items
         ]
+
+@lru_cache(maxsize=4096)
+def normalize(umls: UMLSApiService, text: str) -> Optional[Dict[str, str]]:
+    """
+    Normalize a given text using UMLS API.
+    :param text: str - The text to normalize.
+    :return: Optional[Dict[str, str]] - A dictionary with 'cui', 'name', and 'score' if found, else None.
+    """
+    return umls.search_concept(text)
