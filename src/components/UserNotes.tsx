@@ -52,6 +52,11 @@ const UserNotes: React.FC<{
   onSave?: (note: UserNote) => void;
 }> = ({ note, onSave }) => {
   const [markdown, setMarkdown] = useState(note?.content || '');
+  const [title, setTitle] = useState(note?.title || '');
+  const [noteType, setNoteType] = useState<'private' | 'shared'>(
+    note?.note_type || 'private'
+  );
+  const [tags, setTags] = useState<string[]>(note?.tags || []);
   const [isEditing, setIsEditing] = useState(!note);
 
   const handleSave = () => {
@@ -63,9 +68,16 @@ const UserNotes: React.FC<{
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">
-          {note ? note.title : 'New Note'}
-        </h2>
+        <div className="flex-1 mr-4">
+          <input
+            type="text"
+            placeholder="Note title..."
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl font-semibold"
+            disabled={!isEditing}
+          />
+        </div>
         <div className="flex space-x-2">
           {isEditing && (
             <button
@@ -83,6 +95,41 @@ const UserNotes: React.FC<{
           </button>
         </div>
       </div>
+
+      {isEditing && (
+        <div className="mb-4 flex space-x-4">
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Type:</label>
+            <select
+              value={noteType}
+              onChange={e =>
+                setNoteType(e.target.value as 'private' | 'shared')
+              }
+              className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="private">Private</option>
+              <option value="shared">Shared</option>
+            </select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Tags:</label>
+            <input
+              type="text"
+              placeholder="tag1, tag2, tag3..."
+              value={tags.join(', ')}
+              onChange={e =>
+                setTags(
+                  e.target.value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag)
+                )
+              }
+              className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      )}
 
       <MDXEditor
         markdown={markdown}
