@@ -154,6 +154,9 @@ celery-run:
 	docker run -d --name celery-worker -e CELERY_BROKER_URL=redis://$(REDIS_HOST):$(REDIS_PORT)/1 -e SENTRY_DSN=$(SENTRY_DSN) -e CELERY_RESULT_BACKEND=redis://$(REDIS_HOST):$(REDIS_PORT)/1 $(CELERY_IMAGE):$(CELERY_VERSION)
 
 
+
+# Microservices
+
 # LiveKit
 ENV_VARS=LIVEKIT_API_KEY=$(LIVEKIT_API_KEY) LIVEKIT_API_SECRET=$(LIVEKIT_API_SECRET) LIVEKIT_S3_ACCESS_KEY=$(LIVEKIT_S3_ACCESS_KEY) LIVEKIT_S3_SECRET_KEY=$(LIVEKIT_S3_SECRET_KEY) LIVEKIT_S3_REGION=$(LIVEKIT_S3_REGION) LIVEKIT_S3_BUCKET=$(LIVEKIT_S3_BUCKET)
 
@@ -198,3 +201,24 @@ livekit-egress-debug:
 
 livekit-egress-debug-access:
 	kubectl exec -it -n arsmedicatech debug-egress -- sh
+
+
+
+# NER
+ner-docker-create:
+	aws ecr create-repository --repository-name $(NER_API_IMAGE) --region us-east-1 || true
+
+ner-docker:
+	docker build -t $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION) -f micro/ner/Dockerfile ./micro/ner
+	docker push $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION)
+	kubectl rollout restart deployment $(NER_API_DEPLOYMENT) --namespace=$(NAMESPACE)
+
+ner-run:
+	docker run -d -p 8000:8000 --name extractor $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION)
+
+
+NER_URL=http://localhost:8000/
+NER_URL=https://demo.arsmedicatech.com/ner/
+ner-test:
+	curl -X POST $(NER_URL)extract -H "Content-Type: application/json" -d '{"text":"Patient presents with Type 2 diabetes mellitus and essential hypertension."}'
+

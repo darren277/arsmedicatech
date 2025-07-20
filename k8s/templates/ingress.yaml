@@ -58,3 +58,10 @@ spec:
                 name: livekit
                 port:
                   number: 7880
+          - path: /ner
+            pathType: Prefix
+            backend:
+              service:
+                name: micro-ner
+                port:
+                  number: 80

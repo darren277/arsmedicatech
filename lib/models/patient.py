@@ -1,7 +1,12 @@
 """
 Patient and Encounter Models for SurrealDB
 """
+import ast
+import datetime
+import json
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
+
+from surrealdb import RecordID  # type: ignore[import-untyped]
 
 from lib.db.surreal import AsyncDbController, DbController
 from settings import logger
@@ -176,7 +181,8 @@ class Encounter:
         statements.append('DEFINE FIELD note_id ON encounter TYPE string ASSERT $value != none;')
         statements.append('DEFINE FIELD date_created ON encounter TYPE string;')
         statements.append('DEFINE FIELD provider_id ON encounter TYPE string;')
-        statements.append('DEFINE FIELD note_text ON encounter TYPE string;')
+        statements.append('DEFINE FIELD note_text ON encounter TYPE any;')
+        statements.append('DEFINE FIELD note_type ON encounter TYPE string;')
         statements.append('DEFINE FIELD diagnostic_codes ON encounter TYPE array;')
 
         statements.append('DEFINE FIELD patient ON encounter TYPE record<patient> ASSERT $value != none;')
@@ -271,22 +277,22 @@ def store_encounter(db: Union[DbController, AsyncDbController], encounter: Encou
     """
     record_id = f"encounter:{encounter.note_id}"
 
-    note_text: str = ""
-
-    # Handle note_text properly - check if soap_notes is a SOAPNotes object or a string
+    # Handle note_text properly - store SOAP notes as objects, not strings
+    note_text: Union[str, Dict[str, Any]] = ""
+    note_type: str = "text"
+    
     if encounter.soap_notes and hasattr(encounter.soap_notes, 'serialize'):
-        note_text = str(encounter.soap_notes.serialize())
+        note_text = encounter.soap_notes.serialize()  # Store as object, not string
+        note_type = "soap"
     else:
-        if encounter.soap_notes:
-            note_text = str(encounter.soap_notes.serialize())
-        else:
-            note_text = encounter.additional_notes or ""
+        note_text = encounter.additional_notes or ""
 
     content_data: Dict[str, Any] = {
         "note_id": str(encounter.note_id),
         "date_created": str(encounter.date_created),
         "provider_id": str(encounter.provider_id),
         "note_text": note_text,
+        "note_type": note_type,
         "diagnostic_codes": encounter.diagnostic_codes
     }
 
@@ -295,6 +301,7 @@ def store_encounter(db: Union[DbController, AsyncDbController], encounter: Encou
                         date_created = $date_created,
                         provider_id = $provider_id,
                         note_text = $note_text,
+                        note_type = $note_type,
                         diagnostic_codes = $diagnostic_codes,
                         patient = {patient_id}
     """
@@ -380,6 +387,8 @@ def add_some_placeholder_patients(db: Union[DbController, AsyncDbController]) ->
         add_some_placeholder_encounters(db, f"patient:{demographic_no}")
 
 
+# TODO: This is still not working 100%.
+# Let's write some unit tests to find other edge cases.
 def serialize_patient(patient: Any) -> PatientDict:
     """
     Serializes a patient dictionary to ensure all IDs are strings and handles RecordID types.
@@ -416,7 +425,7 @@ def serialize_encounter(encounter: Any) -> EncounterDict:
     # Handle case where encounter is not a dict
     if not isinstance(encounter, dict):
         if hasattr(encounter, '__str__'):
-            return cast(EncounterDict, {"note_id": str(encounter)})
+            return cast(EncounterDict, {"id": str(encounter.id), "note_id": str(encounter.note_id), "patient": str(encounter.patient)})
         else:
             return cast(EncounterDict, {})
     
@@ -432,6 +441,38 @@ def serialize_encounter(encounter: Any) -> EncounterDict:
             result[key] = str(value)
         elif key == 'patient' and isinstance(value, dict):
             result[key] = serialize_patient(value)
+        elif key == 'patient' and isinstance(value, RecordID):
+            result[key] = str(value)
+        elif key == 'id' and isinstance(value, RecordID):
+            result[key] = str(value)
+        elif key == 'note_text' and isinstance(value, str):
+            logger.debug(f"Processing note_text: {value[:100]}...")  # Log first 100 chars
+            # Check if this is a JSON string or Python dict string that should be parsed as SOAP notes
+            try:
+                # First try JSON parsing
+                parsed = json.loads(value)
+                if isinstance(parsed, dict) and all(k in parsed for k in ['subjective', 'objective', 'assessment', 'plan']):
+                    logger.debug("Successfully parsed as JSON SOAP notes")
+                    result[key] = parsed
+                    result['note_type'] = 'soap'
+                    return result
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.debug(f"JSON parsing failed: {e}")
+                pass
+            
+            # If JSON parsing failed, try Python literal_eval for Python dict strings
+            try:
+                parsed = ast.literal_eval(value)
+                if isinstance(parsed, dict) and all(k in parsed for k in ['subjective', 'objective', 'assessment', 'plan']):
+                    logger.debug("Successfully parsed as Python dict SOAP notes")
+                    result[key] = parsed
+                    result['note_type'] = 'soap'
+                else:
+                    logger.debug("Parsed as dict but not SOAP notes")
+                    result[key] = value
+            except (ValueError, SyntaxError, TypeError) as e:
+                logger.debug(f"Python literal_eval failed: {e}")
+                result[key] = value
         else:
             result[key] = value
     return cast(EncounterDict, result)
@@ -873,12 +914,12 @@ def get_encounters_by_patient(patient_id: str) -> List[EncounterDict]:
     db.connect()
     
     try:
-        query = "SELECT * FROM encounter WHERE patient = $patient_id ORDER BY date_created DESC"
-        params = {"patient_id": f"patient:{patient_id}"}
+        query = "SELECT * FROM encounter WHERE patient.demographic_no = $patient_id ORDER BY date_created DESC"
+        params = {"patient_id": patient_id}
         
-        logger.debug(f"Executing patient encounters query: {query} with params: {params}")
+        logger.debug(f"Executing query: {query} with params: {params}")
         result = db.query(query, params)
-        logger.debug(f"Patient encounters query result: {result}")
+        logger.debug(f"Query result: {result}")
         
         # Handle the result structure
         if result and len(result) > 0:
@@ -890,13 +931,13 @@ def get_encounters_by_patient(patient_id: str) -> List[EncounterDict]:
             
             if isinstance(encounters, list):
                 serialized_encounters = [serialize_encounter(encounter) for encounter in encounters]
-                logger.debug(f"Serialized patient encounters: {serialized_encounters}")
+                logger.debug(f"Found {len(serialized_encounters)} encounters for patient {patient_id}")
                 return serialized_encounters
             else:
-                logger.debug("Patient encounters is not a list")
+                logger.debug("Encounters is not a list")
                 return []
         else:
-            logger.debug("No patient encounters found")
+            logger.debug("No encounters found for patient")
             return []
     except Exception as e:
         logger.debug(f"Error getting patient encounters: {e}")
@@ -930,12 +971,30 @@ def create_encounter(encounter_data: Dict[str, Any], patient_id: str) -> Encount
             encounter_data["note_id"] = str(new_id)
             logger.debug(f"Generated note_id: {new_id}")
         
+        # Handle SOAP notes vs plain text
+        note_text = encounter_data.get("note_text")
+        soap_notes = None
+        additional_notes = ""
+        
+        if isinstance(note_text, dict) and all(k in note_text for k in ['subjective', 'objective', 'assessment', 'plan']):
+            # This is SOAP notes
+            soap_notes = SOAPNotes(
+                subjective=str(note_text.get('subjective', '')),
+                objective=str(note_text.get('objective', '')),
+                assessment=str(note_text.get('assessment', '')),
+                plan=str(note_text.get('plan', ''))
+            )
+        else:
+            # This is plain text
+            additional_notes = str(note_text or "")
+        
         # Create Encounter object
         encounter = Encounter(
             note_id=encounter_data["note_id"],
             date_created=str(encounter_data.get("date_created") or ""),
             provider_id=str(encounter_data.get("provider_id") or ""),
-            additional_notes=str(encounter_data.get("note_text") or ""),
+            soap_notes=soap_notes,
+            additional_notes=additional_notes,
             diagnostic_codes=encounter_data.get("diagnostic_codes", [])
         )
         
@@ -979,7 +1038,7 @@ def update_encounter(encounter_id: str, encounter_data: Dict[str, Any]) -> Encou
     try:
         # List of valid encounter fields
         valid_fields = {
-            "date_created", "provider_id", "note_text", "diagnostic_codes", "status"
+            "date_created", "provider_id", "note_text", "note_type", "diagnostic_codes", "status"
         }
 
         # Only include fields present in encounter_data and valid for the encounter
@@ -1057,6 +1116,91 @@ def delete_encounter(encounter_id: str) -> bool:
         return False
     finally:
         db.close()
+
+
+def store_entity_cache(db: Union[DbController, AsyncDbController], text_hash: str, entities: List[Dict[str, Any]], note_type: str = 'text') -> bool:
+    """
+    Store entity extraction results in SurrealDB for caching.
+    
+    :param db: DbController instance connected to SurrealDB.
+    :param text_hash: SHA256 hash of the original text for cache key
+    :param entities: List of extracted entities (without position data)
+    :param note_type: Type of note (soap or text)
+    :return: True if successful, False otherwise
+    """
+    try:
+        # Remove position data for storage (keep only the essential entity info)
+        entities_for_storage = []
+        for entity in entities:
+            entity_copy = {
+                "text": entity.get("text", ""),
+                "label": entity.get("label", ""),
+                "cui": entity.get("cui"),
+                "icd10cm": entity.get("icd10cm"),
+                "icd10cm_name": entity.get("icd10cm_name")
+            }
+            entities_for_storage.append(entity_copy)
+        
+        cache_data = {
+            "text_hash": text_hash,
+            "entities": entities_for_storage,
+            "note_type": note_type,
+            "created_at": datetime.datetime.utcnow().isoformat(),
+            "entity_count": len(entities_for_storage)
+        }
+        
+        # Store in SurrealDB
+        result = db.query(
+            "CREATE entity_cache CONTENT $cache_data",
+            {"cache_data": cache_data}
+        )
+        
+        logger.debug(f"Stored entity cache for hash: {text_hash}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error storing entity cache: {e}")
+        return False
+
+
+def get_entity_cache(db: Union[DbController, AsyncDbController], text_hash: str) -> Optional[Dict[str, Any]]:
+    """
+    Retrieve entity extraction results from SurrealDB cache.
+    
+    :param db: DbController instance connected to SurrealDB
+    :param text_hash: SHA256 hash of the original text
+    :return: Cached entity data if found, None otherwise
+    """
+    if isinstance(db, AsyncDbController):
+        logger.error("AsyncDbController not supported for get_entity_cache")
+        return None
+    try:
+        result = db.query(
+            "SELECT * FROM entity_cache WHERE text_hash = $text_hash LIMIT 1",
+            {"text_hash": text_hash}
+        )
+        
+        if result and len(result) > 0 and result[0].get("result"):
+            cache_data = result[0]["result"][0]
+            logger.debug(f"Retrieved entity cache for hash: {text_hash}")
+            return cache_data
+        
+        return None
+        
+    except Exception as e:
+        logger.error(f"Error retrieving entity cache: {e}")
+        return None
+
+
+def create_text_hash(text: str) -> str:
+    """
+    Create a SHA256 hash of the text for cache key.
+    
+    :param text: Text to hash
+    :return: SHA256 hash string
+    """
+    import hashlib
+    return hashlib.sha256(text.encode('utf-8')).hexdigest()
 
 
 #create_schema()
