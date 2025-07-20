@@ -263,8 +263,14 @@ const UserNotesScreen: React.FC = () => {
   const handleSaveNote = async (note: UserNote) => {
     try {
       if (note.id) {
-        // Update existing note
-        const response = await userNotesAPI.update(note.id, note);
+        // Update existing note - only send the fields to update, not the entire note object
+        const updateData = {
+          title: note.title,
+          content: note.content,
+          note_type: note.note_type,
+          tags: note.tags,
+        };
+        const response = await userNotesAPI.update(note.id, updateData);
         if (response.success) {
           setNotes(notes.map(n => (n.id === note.id ? response.note : n)));
           setSelectedNote(response.note);

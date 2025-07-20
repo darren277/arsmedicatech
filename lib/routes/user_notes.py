@@ -212,7 +212,7 @@ def create_note_route() -> Tuple[Response, int]:
                     "success": True,
                     "message": message,
                     "note": {
-                        "id": note.id,
+                        "id": str(note.id),
                         "title": note.title,
                         "content": note.content,
                         "note_type": note.note_type,

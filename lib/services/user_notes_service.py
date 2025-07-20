@@ -3,6 +3,8 @@ User Notes Service for managing user notes.
 """
 from typing import Any, Dict, List, Optional
 
+from surrealdb import RecordID
+
 from lib.db.surreal import DbController
 from lib.models.user.user_notes import UserNote
 from settings import logger
@@ -107,8 +109,8 @@ class UserNotesService:
             result = self.db.create('UserNote', note.to_dict())
             logger.debug(f"Database create result: {result}")
             
-            if result and isinstance(result, list) and len(result) > 0:
-                created_note_data = result[0]  # type: ignore
+            if result:
+                created_note_data = result # type: ignore
                 created_note = UserNote.from_dict(created_note_data)
                 logger.debug(f"Note created successfully: {created_note.id}")
                 return True, "Note created successfully", created_note
@@ -130,10 +132,13 @@ class UserNotesService:
         """
         try:
             logger.debug(f"get_note_by_id - note_id: {note_id}, user_id: {user_id}")
+
+            if note_id.startswith('UserNote:'):
+                note_id = note_id.split(':')[1]
             
             result = self.db.query(
                 "SELECT * FROM UserNote WHERE id = $note_id AND (user_id = $user_id OR note_type = 'shared')",
-                {"note_id": note_id, "user_id": user_id}
+                {"note_id": RecordID('UserNote', note_id), "user_id": user_id}
             )
             
             if result and len(result) > 0:

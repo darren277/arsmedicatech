@@ -24,6 +24,14 @@ class SurrealWrapper:
         :param data: Dictionary of data to update
         :return: Updated record
         """
+        if sum([1 for c in record if c == ':']) > 1:
+            #raise ValueError("Record ID must be in the format 'table:id'")
+            # Hacky workaround for now...
+            # TODO: Make this type of thing more consistent throughout the app by using `RecordID` as a type hint more thoroughly.
+            # This means a duplicate key prefix like `UserNote:UserNote:...`
+            record_arr = record.split(':')
+            record = ':'.join(record_arr[1:])
+            print(f"SurrealDB update record (fixed): {record}")
         return self._client.update(record, data)
     
     def create(self, table_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
