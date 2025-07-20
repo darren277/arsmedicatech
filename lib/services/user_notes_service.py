@@ -3,7 +3,7 @@ User Notes Service for managing user notes.
 """
 from typing import Any, Dict, List, Optional
 
-from surrealdb import RecordID
+from surrealdb import RecordID # type: ignore
 
 from lib.db.surreal import DbController
 from lib.models.user.user_notes import UserNote
