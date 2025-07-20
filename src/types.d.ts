@@ -54,6 +54,7 @@ export interface ICDAutoCoderResult {
   entities: EntityType[];
   normalized_entities: EntityType[];
   icd_codes: EntityType[];
+  cached?: boolean;
 }
 
 export interface LabResult {

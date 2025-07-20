@@ -74,6 +74,14 @@ export function EncounterDetail() {
 
       setEntities(allEntities);
       console.log('Extracted entities:', allEntities);
+
+      // Show cache status to user
+      if (result.cached) {
+        console.log('Results loaded from cache');
+        // You could add a toast notification here if you have a notification system
+      } else {
+        console.log('Results processed with UMLS API');
+      }
     } catch (error) {
       console.error('Error extracting entities:', error);
       alert('Failed to extract entities. Please try again.');
