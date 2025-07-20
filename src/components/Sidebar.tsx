@@ -129,6 +129,14 @@ const Sidebar = () => {
               </NavLink>
             </li>
           ))}
+          <li>
+            <NavLink
+              to="/notes"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Notes
+            </NavLink>
+          </li>
         </ul>
       </nav>
       <div className="sidebar-footer">
