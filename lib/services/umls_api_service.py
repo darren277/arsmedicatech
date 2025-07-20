@@ -86,11 +86,12 @@ class UMLSApiService:
         """
         Search UMLS for a given string and return top matching concept info.
         """
-        st = self._get_service_ticket()
+        #st = self._get_service_ticket()
 
         params = {
             "string": term,
-            "ticket": st,
+            #"ticket": st,
+            "apiKey": self.api_key,
             "searchType": search_type,
             "returnIdType": return_id_type,
         }
@@ -122,10 +123,11 @@ class UMLSApiService:
         """
         Return all atom names/synonyms for a given CUI.
         """
-        st = self._get_service_ticket()
+        #st = self._get_service_ticket()
         response = self.session.get(
             f"{self.base_url}/rest/content/current/CUI/{cui}/atoms",
-            params={"ticket": st},
+            #params={"ticket": st},
+            params={"apiKey": self.api_key},
         )
 
         time.sleep(INTERVAL)
@@ -163,10 +165,11 @@ class UMLSApiService:
         """
         Return all ICD-10-CM codes mapped from a given UMLS CUI.
         """
-        st = self._get_service_ticket()
+        #st = self._get_service_ticket()
         response = self.session.get(
             f"{self.base_url}/rest/crosswalk/current/source/UMLS/{cui}",
-            params={"ticket": st, "targetSource": "ICD10CM"},
+            #params={"ticket": st, "targetSource": "ICD10CM"},
+            params={"apiKey": self.api_key, "targetSource": "ICD10CM"},
         )
 
         time.sleep(INTERVAL)
