@@ -10,13 +10,19 @@ import spacy, logging, subprocess, sys
 MODEL = os.environ.get("MODEL_NAME", "en_core_web_sm")  # default to small English model
 PIPE_DISABLE = ["parser", "lemmatizer"]  # we only need NER
 
+import time
+print("Starting load...")
+t0 = time.time()
+
 # Lazy-load with download fallback (useful for local dev runs)
 try:
     nlp = spacy.load(MODEL, disable=PIPE_DISABLE)
 except OSError:
-    logging.warning(f"{MODEL} not found – downloading …")
+    logging.warning(f"{MODEL} not found – downloading...")
     subprocess.run([sys.executable, "-m", "spacy", "download", MODEL], check=True)
     nlp = spacy.load(MODEL, disable=PIPE_DISABLE)
+
+print(f"Model loaded in {time.time() - t0:.2f} seconds")
 
 app = FastAPI(title="Concept Extraction API", version="0.1.0")
 
