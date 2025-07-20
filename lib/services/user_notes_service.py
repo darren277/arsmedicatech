@@ -136,9 +136,14 @@ class UserNotesService:
             if note_id.startswith('UserNote:'):
                 note_id = note_id.split(':')[1]
             
+            # Handle user_id prefix if present
+            query_user_id = user_id
+            if not user_id.startswith('User:'):
+                query_user_id = f'User:{user_id}'
+
             result = self.db.query(
                 "SELECT * FROM UserNote WHERE id = $note_id AND (user_id = $user_id OR note_type = 'shared')",
-                {"note_id": RecordID('UserNote', note_id), "user_id": user_id}
+                {"note_id": RecordID('UserNote', note_id), "user_id": query_user_id}
             )
             
             if result and len(result) > 0:
@@ -251,17 +256,30 @@ class UserNotesService:
             
             # Update in database
             logger.debug(f"Updating note {note_id} with data: {updates}")
+
+            # Use SQL UPDATE query instead of db.update() method
+            set_clause = ", ".join([f"{k} = ${k}" for k in updates.keys()])
+            query = f"UPDATE UserNote SET {set_clause} WHERE id = $note_id RETURN *"
             
-            result = self.db.update(f'UserNote:{note_id}', updates)
+            # Extract the actual ID part from note_id
+            actual_id = note_id
+            if note_id.startswith('UserNote:'):
+                actual_id = note_id.split(':')[1]
+            
+            params = {**updates, "note_id": RecordID('UserNote', actual_id)}
+            
+            result = self.db.query(query, params)
             logger.debug(f"Database update result: {result}")
             
-            if result:
-                # Get updated note
-                updated_note = self.get_note_by_id(note_id, user_id)
-                if updated_note:
+            if result and len(result) > 0:
+                # Use the result from the UPDATE query directly
+                try:
+                    note_data = result[0]
+                    updated_note = UserNote.from_dict(note_data)
                     return True, "Note updated successfully", updated_note
-                else:
-                    return False, "Failed to retrieve updated note", None
+                except Exception as e:
+                    logger.error(f"Error creating UserNote from UPDATE result: {e}")
+                    return False, f"Failed to create note object: {str(e)}", None
             else:
                 return False, "Failed to update note", None
                 
