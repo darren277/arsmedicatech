@@ -178,7 +178,7 @@ export function EncounterDetail() {
         <div>
           <h4 className="font-semibold text-blue-600">Subjective</h4>
           <div
-            className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap"
+            className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap text-left"
             dangerouslySetInnerHTML={{
               __html: highlightEntitiesInSection(
                 soapNotes.subjective || '',
@@ -190,7 +190,7 @@ export function EncounterDetail() {
         <div>
           <h4 className="font-semibold text-green-600">Objective</h4>
           <div
-            className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap"
+            className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap text-left"
             dangerouslySetInnerHTML={{
               __html: highlightEntitiesInSection(
                 soapNotes.objective || '',
@@ -202,7 +202,7 @@ export function EncounterDetail() {
         <div>
           <h4 className="font-semibold text-yellow-600">Assessment</h4>
           <div
-            className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap"
+            className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap text-left"
             dangerouslySetInnerHTML={{
               __html: highlightEntitiesInSection(
                 soapNotes.assessment || '',
@@ -214,7 +214,7 @@ export function EncounterDetail() {
         <div>
           <h4 className="font-semibold text-red-600">Plan</h4>
           <div
-            className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap"
+            className="text-gray-700 bg-gray-50 p-3 rounded whitespace-pre-wrap text-left"
             dangerouslySetInnerHTML={{
               __html: highlightEntitiesInSection(soapNotes.plan || '', 'plan'),
             }}
