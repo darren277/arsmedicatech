@@ -2,7 +2,7 @@
 UMLS API Service.
 """
 import requests
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 import logging
 import time
 from functools import lru_cache
@@ -33,7 +33,7 @@ class UMLSApiService:
         sabs: Optional[List[str]] = None,
         search_type: str = "words",
         return_id_type: str = "concept",
-    ) -> Optional[Dict[str, str]]:
+    ) -> Optional[Dict[str, Optional[Union[str, int]]]]:
         """
         Search UMLS for a given string and return top matching concept info.
         """
@@ -87,7 +87,7 @@ class UMLSApiService:
 
     def normalize_entities(
         self,
-        entities: List[Dict[str, str]],
+        entities: List[Dict[str, Optional[Union[str, int]]]],
         sabs: Optional[List[str]] = ["SNOMEDCT_US", "ICD10CM"]
     ) -> List[Dict]:
         """
@@ -108,7 +108,7 @@ class UMLSApiService:
                 results.append({**ent, "cui": None, "preferred_name": None, "score": 0})
         return results
 
-    def get_icd10cm_from_cui(self, cui: str) -> List[Dict[str, str]]:
+    def get_icd10cm_from_cui(self, cui: str) -> List[Dict[str, Optional[Union[str, int]]]]:
         """
         Return all ICD-10-CM codes mapped from a given UMLS CUI.
         """
@@ -134,10 +134,10 @@ class UMLSApiService:
         ]
 
 @lru_cache(maxsize=4096)
-def normalize(umls: UMLSApiService, text: str) -> Optional[Dict[str, str]]:
+def normalize(umls: UMLSApiService, text: str) -> Optional[Dict[str, Optional[Union[str, int]]]]:
     """
     Normalize a given text using UMLS API.
     :param text: str - The text to normalize.
-    :return: Optional[Dict[str, str]] - A dictionary with 'cui', 'name', and 'score' if found, else None.
+    :return: Optional[Dict[str, Optional[Union[str, int]]]] - A dictionary with 'cui', 'name', and 'score' if found, else None.
     """
     return umls.search_concept(text)

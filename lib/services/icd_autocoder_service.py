@@ -1,13 +1,13 @@
 """
 ICD Autocoder Service.
 """
-from typing import Dict, List, TypedDict
+from typing import Any, Dict, List, Optional, TypedDict
 
 from lib.services.umls_api_service import UMLSApiService
 from settings import UMLS_API_KEY
 
 
-class Entity(TypedDict):
+class Entity(TypedDict, total=False):
     """
     Represents a named entity extracted from text.
     """
@@ -15,16 +15,19 @@ class Entity(TypedDict):
     label: str
     start_char: int
     end_char: int
+    cui: Optional[str]
+    icd10cm: Optional[str]
+    icd10cm_name: Optional[str]
 
 
-def deduplicate(entities: List) -> List:
+def deduplicate(entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Deduplicate entities based on their text content.
     :param entities: List - A list of entities, each with a 'text' attribute.
     :return: List - A list of deduplicated entities, keeping the longest version of each unique text.
     """
-    seen = set()
-    deduped = []
+    seen: set[str] = set()
+    deduped: List[Dict[str, Any]] = []
     for s in sorted(entities, key=lambda x: -(len(x['text']))): # keep longest form
         key = s['text'].lower().strip(" .,:;")
         if key not in seen:
@@ -84,16 +87,33 @@ class ICDAutoCoderService:
 
         Returns a list of normalized entities.
         """
-        normalized_entities = []
+        # Convert List[Entity] to List[Dict[str, Any]] for the UMLS service
+        entities_as_dicts = [
+            {
+                "text": entity["text"],  # type: ignore
+                "label": entity["label"],  # type: ignore
+                "start_char": entity["start_char"],  # type: ignore
+                "end_char": entity["end_char"]  # type: ignore
+            }
+            for entity in ner_entities
+        ]
 
-        normalized = self.umls_service.normalize_entities(ner_entities)
-
-        for entry in normalized:
-            print(entry)
+        normalized: List[Dict[str, Any]] = self.umls_service.normalize_entities(entities_as_dicts)  # type: ignore
+        
+        normalized_entities = [
+            Entity(
+                text=str(entity.get("text", "")),
+                label=str(entity.get("label", "")),
+                start_char=int(entity.get("start_char", 0)),
+                end_char=int(entity.get("end_char", 0)),
+                cui=entity.get("cui")
+            )
+            for entity in normalized
+        ]
 
         return normalized_entities
 
-    def match_icd_codes(self, normalized_entities: List[Entity]) -> List[Dict[str, str]]:
+    def match_icd_codes(self, normalized_entities: List[Entity]) -> List[Entity]:
         """
         Match ICD-10-CM codes to normalized entities using UMLS API.
         This method updates the entities with ICD-10-CM codes if available.
@@ -102,8 +122,8 @@ class ICDAutoCoderService:
         """
         for entity in normalized_entities:
             print("Processing entity:", entity)
-            if entity.get("cui"):
-                icd_matches = self.umls_service.get_icd10cm_from_cui(entity["cui"])
+            if entity.get("cui"):  # type: ignore
+                icd_matches = self.umls_service.get_icd10cm_from_cui(entity["cui"])  # type: ignore
                 if icd_matches:
                     # Pick first match (or apply ranking/scoring logic)
                     entity["icd10cm"] = icd_matches[0]["code"]
@@ -119,18 +139,38 @@ class ICDAutoCoderService:
         """
         # Step 1: Extract entities from text
         original_entities = self.ner_concept_extraction(self.text)
-        disease_entities = [entity['text'] for entity in original_entities if entity['label'] == 'DISEASE']
+        
+        # Filter for disease entities and convert to the format expected by deduplicate
+        disease_entities = [
+            {"text": entity["text"], "label": entity["label"]}  # type: ignore
+            for entity in original_entities 
+            if entity["label"] == 'DISEASE'  # type: ignore
+        ]
         deduplicated_entities = deduplicate(disease_entities)
 
         print("Number of Entities Extracted:", len(deduplicated_entities))
 
         # Step 2: Normalize entities using UMLS
-        normalized_entities = self.normalize_entities(deduplicated_entities)
+        # Convert back to Entity format for normalization
+        entities_for_normalization = [
+            Entity(
+                text=entity["text"],
+                label=entity["label"],
+                start_char=0,  # We don't have position info after deduplication
+                end_char=len(entity["text"])
+            )
+            for entity in deduplicated_entities
+        ]
+        normalized_entities = self.normalize_entities(entities_for_normalization)
         print("Normalized Entities:", normalized_entities)
 
-        # Step 3: Match ICD codes (not implemented yet)
+        # Step 3: Match ICD codes
         entities_with_icd_codes = self.match_icd_codes(normalized_entities)
         print("Matched ICD Codes:", entities_with_icd_codes)
 
-        return entities_with_icd_codes
+        return {
+            "entities": original_entities,
+            "normalized_entities": normalized_entities,
+            "icd_codes": entities_with_icd_codes
+        }
 

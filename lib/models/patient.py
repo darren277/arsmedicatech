@@ -5,7 +5,7 @@ import ast
 import json
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
-from surrealdb import RecordID
+from surrealdb import RecordID  # type: ignore[import-untyped]
 
 from lib.db.surreal import AsyncDbController, DbController
 from settings import logger
