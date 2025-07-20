@@ -7,6 +7,10 @@ import logging
 import time
 from functools import lru_cache
 
+#INTERVAL = 0.05 # 20 requests per second
+COURTESY_PADDING = 0.005
+INTERVAL = 0.05 + COURTESY_PADDING # 20 requests per second with padding
+
 @lru_cache(maxsize=4096)
 def normalize(text) -> Optional[Dict[str, str]]:
     """
@@ -21,6 +25,10 @@ class UMLSApiService:
     """
     A wrapper for interacting with the UMLS REST API.
     Handles TGT/ST authentication, concept search, and normalization.
+
+    ToS:
+    "In order to avoid overloading our servers, NLM requires that users send no more than 20 requests per second per IP address."
+    "To limit the number of requests that you send to the APIs, NLM recommends caching results for a 12-24 hour period."
     """
 
     def __init__(self, api_key: str, base_url: str = "https://uts-ws.nlm.nih.gov"):
@@ -92,6 +100,8 @@ class UMLSApiService:
 
         response = self.session.get(f"{self.base_url}/rest/search/current", params=params)
 
+        time.sleep(INTERVAL)
+
         if response.status_code != 200:
             logging.warning(f"UMLS search failed for '{term}': {response.status_code}")
             return None
@@ -117,6 +127,8 @@ class UMLSApiService:
             f"{self.base_url}/rest/content/current/CUI/{cui}/atoms",
             params={"ticket": st},
         )
+
+        time.sleep(INTERVAL)
 
         if response.status_code != 200:
             logging.warning(f"Failed to get atoms for CUI {cui}")
@@ -156,6 +168,8 @@ class UMLSApiService:
             f"{self.base_url}/rest/crosswalk/current/source/UMLS/{cui}",
             params={"ticket": st, "targetSource": "ICD10CM"},
         )
+
+        time.sleep(INTERVAL)
 
         if response.status_code != 200:
             logging.warning(f"Failed ICD10CM crosswalk for CUI {cui}")
