@@ -22,16 +22,24 @@ class Entity(TypedDict, total=False):
 
 def deduplicate(entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Deduplicate entities based on their text content.
-    :param entities: List - A list of entities, each with a 'text' attribute.
+    Deduplicate entities based on their text content while preserving position information.
+    
+    This function keeps the longest version of each unique entity text while preserving
+    the original character positions (start_char, end_char) from the first occurrence
+    of that entity in the text. This is important for frontend highlighting.
+    
+    :param entities: List - A list of entities, each with a 'text' attribute and position info.
     :return: List - A list of deduplicated entities, keeping the longest version of each unique text.
     """
     seen: set[str] = set()
     deduped: List[Dict[str, Any]] = []
-    for s in sorted(entities, key=lambda x: -(len(x['text']))): # keep longest form
-        key = s['text'].lower().strip(" .,:;")
+    
+    # Sort by text length (longest first) to keep the most specific version
+    # The position information is preserved from the original entity
+    for entity in sorted(entities, key=lambda x: -(len(x['text']))):
+        key = entity['text'].lower().strip(" .,:;")
         if key not in seen:
-            deduped.append(s)
+            deduped.append(entity)
             seen.add(key)
     return deduped
 
@@ -140,24 +148,33 @@ class ICDAutoCoderService:
         # Step 1: Extract entities from text
         original_entities = self.ner_concept_extraction(self.text)
         
-        # Filter for disease entities and convert to the format expected by deduplicate
+        # Filter for disease entities and preserve all position information
         disease_entities = [
-            {"text": entity["text"], "label": entity["label"]}  # type: ignore
+            {
+                "text": entity["text"],  # type: ignore
+                "label": entity["label"],  # type: ignore
+                "start_char": entity["start_char"],  # type: ignore
+                "end_char": entity["end_char"]  # type: ignore
+            }
             for entity in original_entities 
             if entity["label"] == 'DISEASE'  # type: ignore
         ]
         deduplicated_entities = deduplicate(disease_entities)
 
         print("Number of Entities Extracted:", len(deduplicated_entities))
+        print("Deduplicated entities with positions:", [
+            f"{e['text']} ({e['start_char']}-{e['end_char']})" 
+            for e in deduplicated_entities
+        ])
 
         # Step 2: Normalize entities using UMLS
-        # Convert back to Entity format for normalization
+        # Convert to Entity format for normalization, preserving positions
         entities_for_normalization = [
             Entity(
                 text=entity["text"],
                 label=entity["label"],
-                start_char=0,  # We don't have position info after deduplication
-                end_char=len(entity["text"])
+                start_char=entity["start_char"],
+                end_char=entity["end_char"]
             )
             for entity in deduplicated_entities
         ]
