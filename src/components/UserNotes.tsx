@@ -58,10 +58,58 @@ const UserNotes: React.FC<{
   );
   const [tags, setTags] = useState<string[]>(note?.tags || []);
   const [isEditing, setIsEditing] = useState(!note);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    if (onSave && note) {
-      onSave({ ...note, content: markdown });
+  const handleSave = async () => {
+    if (!title.trim()) {
+      alert('Please enter a title for the note');
+      return;
+    }
+
+    if (!markdown.trim()) {
+      alert('Please enter some content for the note');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const noteData = {
+        title: title.trim(),
+        content: markdown,
+        note_type: noteType,
+        tags: tags,
+      };
+
+      let savedNote: UserNote;
+
+      if (note?.id) {
+        // Update existing note
+        const response = await userNotesAPI.update(note.id, noteData);
+        if (response.success) {
+          savedNote = response.note;
+        } else {
+          throw new Error(response.error || 'Failed to update note');
+        }
+      } else {
+        // Create new note
+        const response = await userNotesAPI.create(noteData);
+        if (response.success) {
+          savedNote = response.note;
+        } else {
+          throw new Error(response.error || 'Failed to create note');
+        }
+      }
+
+      if (onSave) {
+        onSave(savedNote);
+      }
+    } catch (error) {
+      console.error('Error saving note:', error);
+      alert(
+        `Error saving note: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -82,9 +130,10 @@ const UserNotes: React.FC<{
           {isEditing && (
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              disabled={isSaving}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:bg-blue-400"
             >
-              Save
+              {isSaving ? 'Saving...' : 'Save'}
             </button>
           )}
           <button
@@ -187,7 +236,7 @@ const UserNotesScreen: React.FC = () => {
   const loadNotes = async () => {
     try {
       setIsLoading(true);
-      const response = await apiService.get('/api/user-notes');
+      const response = await userNotesAPI.getAll();
       if (response.success) {
         setNotes(response.notes);
       } else {
@@ -215,17 +264,14 @@ const UserNotesScreen: React.FC = () => {
     try {
       if (note.id) {
         // Update existing note
-        const response = await apiService.put(
-          `/api/user-notes/${note.id}`,
-          note
-        );
+        const response = await userNotesAPI.update(note.id, note);
         if (response.success) {
           setNotes(notes.map(n => (n.id === note.id ? response.note : n)));
           setSelectedNote(response.note);
         }
       } else {
         // Create new note
-        const response = await apiService.post('/api/user-notes', note);
+        const response = await userNotesAPI.create(note);
         if (response.success) {
           setNotes([response.note, ...notes]);
           setSelectedNote(response.note);
@@ -242,7 +288,7 @@ const UserNotesScreen: React.FC = () => {
     if (!confirm('Are you sure you want to delete this note?')) return;
 
     try {
-      const response = await apiService.delete(`/api/user-notes/${noteId}`);
+      const response = await userNotesAPI.delete(noteId);
       if (response.success) {
         setNotes(notes.filter(n => n.id !== noteId));
         if (selectedNote?.id === noteId) {
