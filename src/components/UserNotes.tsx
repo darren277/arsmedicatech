@@ -2,7 +2,7 @@
 import { MDXEditor } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
 import React, { useEffect, useState } from 'react';
-import apiService from '../services/api';
+import { userNotesAPI } from '../services/api';
 
 // Import all the plugins we need
 import {
