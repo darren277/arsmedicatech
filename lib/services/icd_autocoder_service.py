@@ -118,20 +118,19 @@ class ICDAutoCoderService:
         Main method to run the service.
         """
         # Step 1: Extract entities from text
-        entities = self.ner_concept_extraction(self.text)
-        print("Extracted Entities:", entities)
+        original_entities = self.ner_concept_extraction(self.text)
+        disease_entities = [entity['text'] for entity in original_entities if entity['label'] == 'DISEASE']
+        deduplicated_entities = deduplicate(disease_entities)
+
+        print("Number of Entities Extracted:", len(deduplicated_entities))
 
         # Step 2: Normalize entities using UMLS
-        normalized_entities = self.normalize_entities(entities)
+        normalized_entities = self.normalize_entities(deduplicated_entities)
         print("Normalized Entities:", normalized_entities)
 
         # Step 3: Match ICD codes (not implemented yet)
-        icd_codes = self.match_icd_codes(normalized_entities)
-        print("Matched ICD Codes:", icd_codes)
+        entities_with_icd_codes = self.match_icd_codes(normalized_entities)
+        print("Matched ICD Codes:", entities_with_icd_codes)
 
-        return dict(
-            entities=entities,
-            normalized_entities=normalized_entities,
-            icd_codes=icd_codes
-        )
+        return entities_with_icd_codes
 
