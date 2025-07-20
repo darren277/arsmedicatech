@@ -76,4 +76,4 @@ class EntityCacheService:
         return {
             "total_cached_entities": 0,
             "cache_enabled": False
-        } 
+        }

@@ -65,15 +65,12 @@ export function EncounterDetail() {
         encounter.note_type || 'text'
       );
 
-      // Combine all entities from the result
-      const allEntities = [
-        ...(result.entities || []),
-        ...(result.normalized_entities || []),
-        ...(result.icd_codes || []),
-      ];
+      // Use only the final processed entities (icd_codes) to avoid duplicates
+      // These contain the normalized entities with ICD codes
+      const finalEntities = result.icd_codes || [];
 
-      setEntities(allEntities);
-      console.log('Extracted entities:', allEntities);
+      setEntities(finalEntities);
+      console.log('Extracted entities:', finalEntities);
 
       // Show cache status to user
       if (result.cached) {
