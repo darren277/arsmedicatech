@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from lib.db.surreal import DbController
 from lib.models.user import User, UserSession
-from lib.models.user_settings import UserSettings
+from lib.models.user.user_settings import UserSettings
 from settings import logger
 
 
