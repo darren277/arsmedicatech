@@ -57,6 +57,7 @@ class ICDAutoCoderService:
 
         self.umls_service = UMLSApiService(api_key=UMLS_API_KEY)
         self.db = DbController()
+        self.db.connect()
 
     def ner_concept_extraction(self, text: str) -> List[Entity]:
         """
