@@ -82,7 +82,7 @@ class UMLSApiService:
         sabs: Optional[List[str]] = None,
         search_type: str = "words",
         return_id_type: str = "concept",
-    ) -> Optional[Dict]:
+    ) -> Optional[Dict[str, str]]:
         """
         Search UMLS for a given string and return top matching concept info.
         """
@@ -119,7 +119,7 @@ class UMLSApiService:
             "score": top.get("score"),
         }
 
-    def get_atoms_for_cui(self, cui: str) -> List[Dict]:
+    def get_atoms_for_cui(self, cui: str) -> List[Dict[str, str]]:
         """
         Return all atom names/synonyms for a given CUI.
         """
@@ -161,7 +161,7 @@ class UMLSApiService:
                 results.append({**ent, "cui": None, "preferred_name": None, "score": 0})
         return results
 
-    def get_icd10cm_from_cui(self, cui: str) -> List[Dict]:
+    def get_icd10cm_from_cui(self, cui: str) -> List[Dict[str, str]]:
         """
         Return all ICD-10-CM codes mapped from a given UMLS CUI.
         """
