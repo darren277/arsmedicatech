@@ -387,6 +387,8 @@ def add_some_placeholder_patients(db: Union[DbController, AsyncDbController]) ->
         add_some_placeholder_encounters(db, f"patient:{demographic_no}")
 
 
+# TODO: This is still not working 100%.
+# Let's write some unit tests to find other edge cases.
 def serialize_patient(patient: Any) -> PatientDict:
     """
     Serializes a patient dictionary to ensure all IDs are strings and handles RecordID types.
