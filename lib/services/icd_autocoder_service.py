@@ -17,6 +17,22 @@ class Entity(TypedDict):
     end_char: int
 
 
+def deduplicate(entities: List) -> List:
+    """
+    Deduplicate entities based on their text content.
+    :param entities: List - A list of entities, each with a 'text' attribute.
+    :return: List - A list of deduplicated entities, keeping the longest version of each unique text.
+    """
+    seen = set()
+    deduped = []
+    for s in sorted(entities, key=lambda x: -(len(x['text']))): # keep longest form
+        key = s['text'].lower().strip(" .,:;")
+        if key not in seen:
+            deduped.append(s)
+            seen.add(key)
+    return deduped
+
+
 class ICDAutoCoderService:
     """
     A service for extracting named entities from text using an external NER API and then normalizing them using UMLS.
