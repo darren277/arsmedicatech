@@ -58,3 +58,11 @@ async def extract(payload: TextIn) -> ExtractionOut:
         for e in doc.ents
     ]
     return ExtractionOut(entities=ents)
+
+
+@app.get("/ner/ready")
+async def ready() -> dict:
+    """
+    Check if the service is ready.
+    """
+    return {"status": "ready", "model": MODEL}
