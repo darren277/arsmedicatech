@@ -4,7 +4,8 @@ User Service for managing user accounts, authentication, and settings.
 from typing import Any, Dict, List, Optional
 
 from lib.db.surreal import DbController
-from lib.models.user import User, UserSession
+from lib.models.user.user import User
+from lib.models.user.user_session import UserSession
 from lib.models.user.user_settings import UserSettings
 from settings import logger
 

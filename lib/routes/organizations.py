@@ -9,7 +9,7 @@ from flask import Response, jsonify, request
 
 from lib.db.surreal import DbController
 from lib.models.organization import Organization, create_organization
-from lib.models.user import User
+from lib.models.user.user import User
 from settings import logger
 
 
