@@ -3,8 +3,11 @@ ICD Autocoder Service.
 """
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
+from lib.db.surreal import DbController
+from lib.models.patient import (create_text_hash, get_entity_cache,
+                                store_entity_cache)
 from lib.services.umls_api_service import UMLSApiService
-from settings import UMLS_API_KEY
+from settings import UMLS_API_KEY, logger
 
 
 class Entity(TypedDict, total=False):
@@ -53,6 +56,7 @@ class ICDAutoCoderService:
         self.text = text
 
         self.umls_service = UMLSApiService(api_key=UMLS_API_KEY)
+        self.db = DbController()
 
     def ner_concept_extraction(self, text: str) -> List[Entity]:
         """
@@ -141,10 +145,39 @@ class ICDAutoCoderService:
                     entity["icd10cm_name"] = None
         return normalized_entities
 
-    def main(self) -> Dict[str, List[Entity]]:
+    def main(self) -> Dict[str, Any]:
         """
-        Main method to run the service.
+        Main method to run the service with caching support.
         """
+        # Create hash of the text for caching
+        text_hash = create_text_hash(self.text)
+        
+        # Check cache first
+        cached_result = get_entity_cache(self.db, text_hash)
+        if cached_result:
+            logger.info(f"Using cached entity results for text hash: {text_hash}")
+            # Convert cached entities back to Entity format with dummy positions
+            cached_entities = []
+            for entity in cached_result.get("entities", []):
+                cached_entities.append(Entity(
+                    text=entity.get("text", ""),
+                    label=entity.get("label", ""),
+                    start_char=0,  # Dummy position since we don't store positions
+                    end_char=len(entity.get("text", "")),
+                    cui=entity.get("cui"),
+                    icd10cm=entity.get("icd10cm"),
+                    icd10cm_name=entity.get("icd10cm_name")
+                ))
+            
+            return {
+                "entities": cached_entities,
+                "normalized_entities": cached_entities,
+                "icd_codes": cached_entities,
+                "cached": True
+            }
+        
+        logger.info(f"No cache found for text hash: {text_hash}, processing with UMLS API")
+        
         # Step 1: Extract entities from text
         original_entities = self.ner_concept_extraction(self.text)
         
@@ -185,9 +218,24 @@ class ICDAutoCoderService:
         entities_with_icd_codes = self.match_icd_codes(normalized_entities)
         print("Matched ICD Codes:", entities_with_icd_codes)
 
+        # Store results in cache (convert Entity objects to dictionaries)
+        entities_for_cache = []
+        for entity in entities_with_icd_codes:
+            entities_for_cache.append({
+                "text": entity["text"],  # type: ignore
+                "label": entity["label"],  # type: ignore
+                "cui": entity.get("cui"),
+                "icd10cm": entity.get("icd10cm"),
+                "icd10cm_name": entity.get("icd10cm_name")
+            })
+        
+        store_entity_cache(self.db, text_hash, entities_for_cache, "text")  # type: ignore
+        logger.info(f"Stored entity results in cache for text hash: {text_hash}")
+
         return {
             "entities": original_entities,
             "normalized_entities": normalized_entities,
-            "icd_codes": entities_with_icd_codes
+            "icd_codes": entities_with_icd_codes,
+            "cached": False
         }
 

@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Tuple, Union
 from flask import Response, jsonify, request
 
 from lib.data_types import PatientID
+from lib.db.surreal import DbController
 from lib.models.patient import (create_encounter, create_patient,
                                 delete_encounter, delete_patient,
                                 get_all_encounters, get_all_patients,
@@ -319,3 +320,23 @@ def extract_entities_from_notes_route() -> Tuple[Response, int]:
     except Exception as e:
         logger.error(f"Error in extract_entities_from_notes_route: {e}")
         return jsonify({"error": f"Failed to process notes: {str(e)}"}), 500
+
+
+def get_cache_stats_route() -> Tuple[Response, int]:
+    """
+    Get entity cache statistics.
+    
+    Returns:
+    {
+        "total_cached_entities": 123,
+        "cache_enabled": true
+    }
+    """
+    try:
+        from lib.services.cache_service import EntityCacheService
+        db = DbController()
+        stats = EntityCacheService.get_cache_stats(db)
+        return jsonify(stats), 200
+    except Exception as e:
+        logger.error(f"Error getting cache stats: {e}")
+        return jsonify({"error": f"Failed to get cache stats: {str(e)}"}), 500

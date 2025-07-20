@@ -35,6 +35,7 @@ from lib.routes.patients import (create_encounter_route,
                                  delete_encounter_route,
                                  extract_entities_from_notes_route,
                                  get_all_encounters_route,
+                                 get_cache_stats_route,
                                  get_encounter_by_id_route,
                                  get_encounters_by_patient_route,
                                  patch_intake_route, patient_endpoint_route,
@@ -552,6 +553,16 @@ def extract_entities_from_notes() -> Tuple[Response, int]:
     :return: Response object with extracted entities and ICD codes.
     """
     return extract_entities_from_notes_route()
+
+
+@app.route('/api/encounters/cache-stats', methods=['GET'])
+@require_auth
+def get_cache_stats() -> Tuple[Response, int]:
+    """
+    Get entity cache statistics.
+    :return: Response object with cache statistics.
+    """
+    return get_cache_stats_route()
 
 @app.route('/api/test_surrealdb', methods=['GET'])
 @require_admin
