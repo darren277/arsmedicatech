@@ -89,7 +89,7 @@ const UserNotes: React.FC<{
         onChange={setMarkdown}
         readOnly={!isEditing}
         className="min-h-[400px] border border-gray-300 rounded-lg"
-        contentEditableClassName="prose max-w-none p-4"
+        contentEditableClassName="prose max-w-none p-4 text-left"
         plugins={[
           headingsPlugin(),
           listsPlugin(),
