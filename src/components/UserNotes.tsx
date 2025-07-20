@@ -4,6 +4,31 @@ import '@mdxeditor/editor/style.css';
 import React, { useEffect, useState } from 'react';
 import apiService from '../services/api';
 
+// Import all the plugins we need
+import {
+  BoldItalicUnderlineToggles,
+  CreateLink,
+  InsertImage,
+  InsertTable,
+  ListsToggle,
+  UndoRedo,
+  codeBlockPlugin,
+  codeMirrorPlugin,
+  diffSourcePlugin,
+  frontmatterPlugin,
+  headingsPlugin,
+  imagePlugin,
+  linkDialogPlugin,
+  linkPlugin,
+  listsPlugin,
+  markdownShortcutPlugin,
+  quotePlugin,
+  sandpackPlugin,
+  tablePlugin,
+  thematicBreakPlugin,
+  toolbarPlugin,
+} from '@mdxeditor/editor';
+
 interface UserNote {
   id: string;
   title: string;
@@ -65,6 +90,36 @@ const UserNotes: React.FC<{
         readOnly={!isEditing}
         className="min-h-[400px] border border-gray-300 rounded-lg"
         contentEditableClassName="prose max-w-none p-4"
+        plugins={[
+          headingsPlugin(),
+          listsPlugin(),
+          quotePlugin(),
+          thematicBreakPlugin(),
+          markdownShortcutPlugin(),
+          linkPlugin(),
+          linkDialogPlugin(),
+          imagePlugin(),
+          tablePlugin(),
+          codeBlockPlugin(),
+          codeMirrorPlugin({
+            codeBlockLanguages: { js: 'JavaScript', css: 'CSS', txt: 'text' },
+          }),
+          sandpackPlugin(),
+          frontmatterPlugin(),
+          diffSourcePlugin(),
+          toolbarPlugin({
+            toolbarContents: () => (
+              <>
+                <UndoRedo />
+                <BoldItalicUnderlineToggles />
+                <ListsToggle />
+                <CreateLink />
+                <InsertImage />
+                <InsertTable />
+              </>
+            ),
+          }),
+        ]}
       />
     </div>
   );
