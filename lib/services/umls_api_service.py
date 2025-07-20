@@ -26,46 +26,6 @@ class UMLSApiService:
         self.api_key = api_key
         self.base_url = base_url
         self.session = requests.Session()
-        self.tgt = None
-        self.last_auth_time = 0
-        self.auth_interval = 8 * 60  # TGT expires every ~8 minutes
-
-    def _authenticate(self):
-        """
-        Obtain a TGT (ticket-granting ticket) for session reuse.
-        """
-        auth_url = f"{self.base_url}/restful/isValidServiceTicket"
-        tgt_url = f"{self.base_url}/cas/v1/apiKey"
-
-        response = self.session.post(
-            tgt_url,
-            data={"apikey": self.api_key},
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-        )
-
-        if response.status_code != 201:
-            raise RuntimeError("UMLS authentication failed: " + response.text)
-
-        self.tgt = response.headers["location"]
-        self.last_auth_time = time.time()
-
-    def _get_service_ticket(self) -> str:
-        """
-        Request a single-use ST from the TGT.
-        """
-        if self.tgt is None or (time.time() - self.last_auth_time > self.auth_interval):
-            self._authenticate()
-
-        response = self.session.post(
-            self.tgt,
-            data={"service": f"{self.base_url}/rest"},
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-        )
-
-        if response.status_code != 200:
-            raise RuntimeError("UMLS service ticket retrieval failed: " + response.text)
-
-        return response.text
 
     def search_concept(
         self,
@@ -77,11 +37,9 @@ class UMLSApiService:
         """
         Search UMLS for a given string and return top matching concept info.
         """
-        #st = self._get_service_ticket()
 
         params = {
             "string": term,
-            #"ticket": st,
             "apiKey": self.api_key,
             "searchType": search_type,
             "returnIdType": return_id_type,
@@ -114,10 +72,8 @@ class UMLSApiService:
         """
         Return all atom names/synonyms for a given CUI.
         """
-        #st = self._get_service_ticket()
         response = self.session.get(
             f"{self.base_url}/rest/content/current/CUI/{cui}/atoms",
-            #params={"ticket": st},
             params={"apiKey": self.api_key},
         )
 
@@ -156,10 +112,8 @@ class UMLSApiService:
         """
         Return all ICD-10-CM codes mapped from a given UMLS CUI.
         """
-        #st = self._get_service_ticket()
         response = self.session.get(
             f"{self.base_url}/rest/crosswalk/current/source/UMLS/{cui}",
-            #params={"ticket": st, "targetSource": "ICD10CM"},
             params={"apiKey": self.api_key, "targetSource": "ICD10CM"},
         )
 
