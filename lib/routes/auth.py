@@ -3,18 +3,19 @@ Auth routes for handling authentication with AWS Cognito and federated identity 
 """
 import base64
 import secrets
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, Union
 from urllib import parse
 
 import requests
-from flask import jsonify, redirect, request, session, url_for
+from flask import Response, jsonify, redirect, request, session, url_for
+from werkzeug.wrappers.response import Response as BaseResponse
 
 from lib.services.user_service import UserService
 from settings import (CLIENT_ID, CLIENT_SECRET, COGNITO_DOMAIN, LOGOUT_URI,
                       REDIRECT_URI, logger)
 
 
-def auth_callback_route():
+def cognito_login_route() -> Union[Tuple[Response, int], BaseResponse]:
     # Handle error returned from Cognito
     error = request.args.get('error')
     error_description = request.args.get('error_description')
@@ -121,7 +122,7 @@ def auth_callback_route():
     return jsonify({'error': 'Unknown error occurred during authentication'}), 500
 
 
-def auth_logout_route():
+def auth_logout_route() -> BaseResponse:
     session.clear()
 
     logout_url = (

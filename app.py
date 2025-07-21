@@ -12,6 +12,7 @@ from flask import (Blueprint, Flask, Response, abort, jsonify, redirect,
                    request, send_from_directory, session)
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
+from werkzeug.wrappers.response import Response as BaseResponse
 
 from lib.dummy_data import DUMMY_CONVERSATIONS
 from lib.event_handlers import register_event_handlers
@@ -24,6 +25,7 @@ from lib.routes.appointments import (cancel_appointment_route,
                                      get_appointments_route,
                                      get_available_slots_route,
                                      update_appointment_route)
+from lib.routes.auth import auth_logout_route, cognito_login_route
 from lib.routes.chat import (create_conversation_route,
                              get_conversation_messages_route,
                              get_user_conversations_route, send_message_route)
@@ -925,6 +927,21 @@ def delete_note(note_id: str) -> Tuple[Response, int]:
     """
     return delete_note_route(note_id)
 
+@app.route('/api/auth/cognito', methods=['GET', 'POST'])
+def cognito_login() -> Union[Tuple[Response, int], BaseResponse]:
+    """
+    Cognito login endpoint.
+    :return: Response object with login status.
+    """
+    return cognito_login_route()
+
+@app.route('/api/auth/logout', methods=['GET'])
+def auth_logout() -> BaseResponse:
+    """
+    Logout endpoint.
+    :return: Response object with logout status.
+    """
+    return auth_logout_route()
 
 # Register event handlers for webhook delivery
 register_event_handlers()
