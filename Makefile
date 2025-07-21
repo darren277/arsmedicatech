@@ -224,6 +224,36 @@ ner-test:
 
 
 
+
+
+
+# Google Cloud credentials
+
+# First, run `gcloud auth login` to authenticate via browser.
+
+# Had to do some of the initial configuration for the project and consent screen manually on the GCP console.
+# See README.
+
+.PHONY: gcloud-init
+gcloud-init:
+	gcloud config set project $(GCP_PROJECT_ID)
+	gcloud services enable iap.googleapis.com
+	gcloud auth application-default set-quota-project $(GCP_PROJECT_ID)
+	gcloud alpha iap oauth-brands create --application_title="$(APP_NAME)" --support_email="$(SUPPORT_EMAIL)"
+	gcloud services enable iam.googleapis.com
+	gcloud services enable cloudresourcemanager.googleapis.com
+	gcloud services enable oauth2.googleapis.com
+
+.PHONY: gcloud-client
+gcloud-client:
+	gcloud alpha iam oauth-clients create --display_name="$(APP_NAME)" --redirect_uris="$(CALLBACK_URL)"
+
+.PHONY: gcloud-credentials
+gcloud-credentials:
+	gcloud alpha iam oauth-clients list
+
+
+
 # Makefile for AWS Cognito deployment on Windows
 # Requires: AWS CLI, Make for Windows (GnuWin32, or via Git Bash, or WSL)
 
