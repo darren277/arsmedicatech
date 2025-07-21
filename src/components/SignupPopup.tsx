@@ -1,33 +1,42 @@
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GOOGLE_LOGO } from '../env_vars';
+import RoleSelect from './RoleSelect';
 import './SignupPopup.css';
 
 const GOOGLE_AUTH_URL = '/auth/cognito'; // Adjust this to your backend's federated login endpoint
+
+interface SignupPopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSwitchToLogin?: () => void;
+}
 
 const SignupPopup = ({
   isOpen,
   onClose,
   onSwitchToLogin,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onSwitchToLogin?: () => void;
-}): JSX.Element | null => {
+}: SignupPopupProps): JSX.Element | null => {
   const navigate = useNavigate();
+  const [role, setRole] = useState('patient');
 
   if (!isOpen) return null;
 
   const handleSignupClick = () => {
     onClose();
-    // Navigate to dashboard with register parameter to show the signup form
     navigate('/?auth=register');
   };
 
   const handleLoginClick = () => {
     onClose();
-    // Navigate to dashboard with login parameter to show the login form
     navigate('/?auth=login');
   };
+
+  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRole(e.target.value);
+  };
+
+  const googleAuthUrl = `/auth/cognito?role=${encodeURIComponent(role)}`;
 
   return (
     <div className="signup-popup-overlay" onClick={onClose}>
@@ -66,8 +75,9 @@ const SignupPopup = ({
           </div>
 
           <div className="popup-actions">
+            <RoleSelect value={role} onChange={handleRoleChange} />
             <a
-              href={GOOGLE_AUTH_URL}
+              href={googleAuthUrl}
               className="popup-google-button"
               style={{
                 display: 'flex',

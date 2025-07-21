@@ -77,6 +77,9 @@ def auth_callback_route():
                 logger.error("Missing email or username in federated login response")
                 return jsonify({'error': 'Missing email or username from identity provider'}), 400
 
+            # Get role from query param, default to 'patient'
+            role_from_query = request.args.get('role', 'patient')
+
             user_service = UserService()
             user_service.connect()
             try:
@@ -90,7 +93,7 @@ def auth_callback_route():
                         password=random_password,
                         first_name=first_name,
                         last_name=last_name,
-                        role='patient'  # or another default role
+                        role=role_from_query
                     )
                     if not success or not user:
                         logger.error(f"Failed to create user from federated login: {message}")
