@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import authService from '../services/auth';
 import logger from '../services/logging';
 import './LoginForm.css';
-import RoleSelect from './RoleSelect';
 
 const LoginForm = ({
   onLogin,
@@ -107,7 +106,6 @@ const LoginForm = ({
             ×
           </button>
         )}
-        <RoleSelect value={formData.role} onChange={e => handleChange(e)} />
         <h2>Welcome Back</h2>
         <p className="login-subtitle">Sign in to your account</p>
 
