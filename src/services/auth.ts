@@ -237,6 +237,11 @@ class AuthService {
       'Content-Type': 'application/json',
     };
   }
+
+  getFederatedSignInUrl(role: string): string {
+    // Returns the backend URL to initiate Cognito OAuth with the selected role
+    return `${API_URL}/api/auth/cognito?role=${encodeURIComponent(role)}`;
+  }
 }
 
 // Create a singleton instance

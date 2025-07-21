@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GOOGLE_LOGO } from '../env_vars';
+import authService from '../services/auth';
 import RoleSelect from './RoleSelect';
 import './SignupPopup.css';
-
-const GOOGLE_AUTH_URL = '/auth/cognito'; // Adjust this to your backend's federated login endpoint
 
 interface SignupPopupProps {
   isOpen: boolean;
@@ -36,7 +35,10 @@ const SignupPopup = ({
     setRole(e.target.value);
   };
 
-  const googleAuthUrl = `/auth/cognito?role=${encodeURIComponent(role)}`;
+  const handleGoogleSignup = () => {
+    const url = authService.getFederatedSignInUrl(role);
+    window.location.assign(url);
+  };
 
   return (
     <div className="signup-popup-overlay" onClick={onClose}>
@@ -76,8 +78,9 @@ const SignupPopup = ({
 
           <div className="popup-actions">
             <RoleSelect value={role} onChange={handleRoleChange} />
-            <a
-              href={googleAuthUrl}
+            <button
+              type="button"
+              onClick={handleGoogleSignup}
               className="popup-google-button"
               style={{
                 display: 'flex',
@@ -102,7 +105,7 @@ const SignupPopup = ({
                 style={{ width: 22, height: 22, marginRight: 8 }}
               />
               Sign up with Google
-            </a>
+            </button>
             <button className="popup-signup-button" onClick={handleSignupClick}>
               Sign Up Now
             </button>
