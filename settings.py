@@ -84,3 +84,17 @@ TEXTRACT_AWS_ACCESS_KEY_ID = os.environ.get('TEXTRACT_AWS_ACCESS_KEY_ID', 'your-
 TEXTRACT_AWS_SECRET_ACCESS_KEY = os.environ.get('TEXTRACT_AWS_SECRET_ACCESS_KEY', 'your-secret-access-key')
 
 UMLS_API_KEY = os.environ.get('UMLS_API_KEY', 'your-umls-api-key')
+
+
+# AWS Cognito Configuration
+AWS_REGION = os.environ.get('AWS_REGION', 'us-east-1')
+COGNITO_DOMAIN = os.environ.get('COGNITO_DOMAIN', 'your-domain')
+USER_POOL_ID = os.environ.get('USER_POOL_ID', 'your-user-pool-id')
+CLIENT_ID = os.environ.get('USER_POOL_CLIENT_ID', 'your-app-client-id')
+CLIENT_SECRET = os.environ.get('USER_POOL_CLIENT_SECRET', 'your-app-client-secret')
+
+
+REDIRECT_URI = f'http://localhost:{PORT}/callback' if DEBUG else 'https://demo.arsmedicatech.com/callback'
+COGNITO_LOGIN_URL = f'https://{COGNITO_DOMAIN}/oauth2/authorize?client_id={CLIENT_ID}&response_type=code&scope=openid+email+profile&redirect_uri={REDIRECT_URI}&identity_provider=Google'
+
+LOGOUT_URI = f"http://localhost:{PORT}/" if DEBUG else "https://demo.arsmedicatech.com/"
