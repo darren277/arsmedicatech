@@ -1,5 +1,8 @@
 import { useNavigate } from 'react-router-dom';
+import { GOOGLE_LOGO } from '../env_vars';
 import './SignupPopup.css';
+
+const GOOGLE_AUTH_URL = '/auth/cognito'; // Adjust this to your backend's federated login endpoint
 
 const SignupPopup = ({
   isOpen,
@@ -63,6 +66,33 @@ const SignupPopup = ({
           </div>
 
           <div className="popup-actions">
+            <a
+              href={GOOGLE_AUTH_URL}
+              className="popup-google-button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#fff',
+                border: '1px solid #ccc',
+                borderRadius: 4,
+                padding: '8px 16px',
+                marginBottom: 12,
+                textDecoration: 'none',
+                color: '#444',
+                fontWeight: 500,
+                fontSize: 16,
+                cursor: 'pointer',
+                gap: 10,
+              }}
+            >
+              <img
+                src={GOOGLE_LOGO}
+                alt="Google"
+                style={{ width: 22, height: 22, marginRight: 8 }}
+              />
+              Sign up with Google
+            </a>
             <button className="popup-signup-button" onClick={handleSignupClick}>
               Sign Up Now
             </button>

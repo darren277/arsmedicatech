@@ -12,4 +12,13 @@ const LIVE_KIT_SERVER_URL = 'wss://demo.arsmedicatech.com';
 // kubectl get svc livekit-service -n arsmedicatech
 //const LIVE_KIT_SERVER_URL = 'wss://157.230.198.31:7880';
 
-export { API_URL, LIVE_KIT_SERVER_URL, LIVE_KIT_TOKEN_URL, SENTRY_DSN };
+const GOOGLE_LOGO =
+  'https://darrenmackenzie-chalice-bucket.s3.us-east-1.amazonaws.com/icons/Google_logo.svg';
+
+export {
+  API_URL,
+  GOOGLE_LOGO,
+  LIVE_KIT_SERVER_URL,
+  LIVE_KIT_TOKEN_URL,
+  SENTRY_DSN,
+};

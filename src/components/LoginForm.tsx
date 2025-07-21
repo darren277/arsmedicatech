@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import authService from '../services/auth';
 import logger from '../services/logging';
 import './LoginForm.css';
@@ -15,6 +15,7 @@ const LoginForm = ({
   const [formData, setFormData] = useState({
     username: '',
     password: '',
+    role: 'patient',
   });
   interface Errors {
     username?: string;
@@ -24,7 +25,9 @@ const LoginForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -103,6 +106,52 @@ const LoginForm = ({
             ×
           </button>
         )}
+        <div className="form-group" style={{ marginBottom: 24 }}>
+          <label
+            htmlFor="role"
+            style={{ fontWeight: 500, marginBottom: 4, display: 'block' }}
+          >
+            You are a...
+          </label>
+          <select
+            id="role"
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            style={{
+              width: '100%',
+              padding: '8px',
+              borderRadius: 4,
+              border: '1px solid #ccc',
+              fontSize: 16,
+            }}
+          >
+            <option value="patient">
+              Individual (looking to manage or better understand their own
+              health)
+            </option>
+            <option value="provider">
+              Healthcare provider (not affiliated with an existing clinic in our
+              system)
+            </option>
+            <option value="administrator">Administrator for a clinic</option>
+          </select>
+          <div style={{ marginTop: 8 }}>
+            <a
+              href="/about/roles"
+              style={{
+                fontSize: 14,
+                color: '#007bff',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+              }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              If you are unsure, read more here.
+            </a>
+          </div>
+        </div>
         <h2>Welcome Back</h2>
         <p className="login-subtitle">Sign in to your account</p>
 
