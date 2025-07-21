@@ -74,11 +74,12 @@ k8s-encryption-key:
 	@python3 -c "import secrets, string; print('ENCRYPTION_KEY=' + ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32)))"
 	kubectl create secret generic encryption-key --from-literal=ENCRYPTION_KEY=your_generated_key_here --namespace=$(NAMESPACE) || true
 
-SECRETS=--set surrealdb.secret.user=$(SURREALDB_USER) --set surrealdb.secret.pass=$(SURREALDB_PASS) --set migration-openai.apiKey=$(MIGRATION_OPENAI_API_KEY)
+SECRETS=--set surrealdb.secret.user=$(SURREALDB_USER) --set surrealdb.secret.pass=$(SURREALDB_PASS) --set migration-openai.apiKey=$(MIGRATION_OPENAI_API_KEY) --set cognito-secret.userPoolClientSecret=$(USER_POOL_CLIENT_SECRET)
 
 k8s-create-secrets:
 	kubectl create secret generic surreal-secret --from-literal=user=$(SURREALDB_USER) --from-literal=pass=$(SURREALDB_PASS) --namespace=$(NAMESPACE) || true
 	kubectl create secret generic migration-openai-secret --from-literal=apiKey=$(MIGRATION_OPENAI_API_KEY) --namespace=$(NAMESPACE) || true
+	kubectl create secret generic cognito-secret --from-literal=userPoolClientSecret=$(USER_POOL_CLIENT_SECRET) --namespace=$(NAMESPACE) || true
 
 k8s-deploy: k8s-create-secrets
 	kubectl create namespace $(NAMESPACE) || true
