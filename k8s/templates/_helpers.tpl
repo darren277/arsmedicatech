@@ -1,4 +1,6 @@
 {{- define "surrealdb.sharedEnv" }}
+- name: DEBUG
+  value: "false"
 - name: PYTHONPATH
   value: "/app"
 - name: S3_BUCKET

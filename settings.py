@@ -40,7 +40,7 @@ if not ENCRYPTION_KEY:
 print("ENCRYPTION_KEY:", "SET" if ENCRYPTION_KEY else "NOT SET")
 
 PORT = os.environ.get('PORT', 5000)
-DEBUG = os.environ.get('DEBUG', True)
+DEBUG = True if os.environ.get('DEBUG', 'true').lower() in ('true', '1', 't') else False
 HOST = os.environ.get('HOST', '0.0.0.0')
 
 print("PORT:", PORT)
