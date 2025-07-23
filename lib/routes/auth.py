@@ -14,6 +14,26 @@ from lib.services.user_service import UserService
 from settings import (CLIENT_ID, CLIENT_SECRET, COGNITO_DOMAIN, LOGOUT_URI,
                       REDIRECT_URI, logger)
 
+def generate_safe_username(email: str, sub: str) -> str:
+    """
+    Generate a safe username based on email or sub (Cognito subject ID).
+    :param email: The user's email address.
+    :param sub: The Cognito subject ID (unique identifier for the user).
+    :return: A safe username string that is at least 3 characters long and no longer than 30 characters.
+    """
+    import re
+
+    base = email.split('@')[0] if email else f"user_{sub[:8]}"
+
+    # Strip invalid characters
+    base = re.sub(r'[^a-zA-Z0-9_]', '_', base)
+
+    # Pad if too short
+    if len(base) < 3:
+        base = f"{base}_{sub[:4]}"
+
+    # Truncate if too long
+    return base[:30]
 
 def cognito_login_route() -> Union[Tuple[Response, int], BaseResponse]:
     # Handle error returned from Cognito
