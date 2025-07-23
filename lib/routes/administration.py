@@ -42,8 +42,7 @@ def get_clinics_route(organization_id: str) -> Tuple[Response, int]:
     if getattr(g, 'user_role', None) not in ('admin', 'administrator', 'superadmin'):
         return jsonify({"error": "Unauthorized"}), 403
     service = get_admin_service()
-    import asyncio
-    clinics: List[ClinicType] = asyncio.run(service.get_clinics(organization_id))
+    clinics: List[ClinicType] = service.get_clinics(organization_id)
     return jsonify(clinics), 200
 
 @require_auth
