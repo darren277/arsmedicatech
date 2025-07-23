@@ -15,6 +15,10 @@ from prometheus_flask_exporter import PrometheusMetrics
 
 from lib.dummy_data import DUMMY_CONVERSATIONS
 from lib.event_handlers import register_event_handlers
+from lib.routes.administration import (get_administrators_route,
+                                       get_clinics_route,
+                                       get_organizations_route,
+                                       get_patients_route, get_providers_route)
 from lib.routes.appointments import (cancel_appointment_route,
                                      confirm_appointment_route,
                                      create_appointment_route,
@@ -1031,5 +1035,11 @@ app.register_blueprint(uploads_bp)
 from asgiref.wsgi import WsgiToAsgi
 
 asgi_app = WsgiToAsgi(app)
+
+app.add_url_rule('/admin/organizations', view_func=get_organizations_route, methods=['GET'])
+app.add_url_rule('/admin/clinics', view_func=get_clinics_route, methods=['GET'])
+app.add_url_rule('/admin/patients', view_func=get_patients_route, methods=['GET'])
+app.add_url_rule('/admin/providers', view_func=get_providers_route, methods=['GET'])
+app.add_url_rule('/admin/administrators', view_func=get_administrators_route, methods=['GET'])
 
 if __name__ == '__main__': app.run(port=PORT, debug=DEBUG, host=HOST)
