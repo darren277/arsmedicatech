@@ -5,6 +5,8 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
+from dateutil.parser import isoparse
+
 
 class UserSession:
     """
@@ -52,7 +54,14 @@ class UserSession:
 
         if expires_at:
             try:
-                expires = datetime.fromisoformat(expires_at)
+                if not isinstance(expires_at, str):
+                    # expires_at <class 'int'> 1753196293
+                    # 2025-07-22 13:58:14,043 - logger - ERROR - Failed to create/update user in database: expires_at must be in ISO format (logger.py:122)
+                    if isinstance(expires_at, int):
+                        expires_at = datetime.fromtimestamp(expires_at, tz=timezone.utc).isoformat()
+                    else:
+                        raise ValueError("expires_at must be a string in ISO format")
+                expires = isoparse(expires_at)
                 if expires < datetime.fromisoformat(created_at or datetime.now(timezone.utc).isoformat()):
                     raise ValueError("expires_at must be after created_at")
             except ValueError:
