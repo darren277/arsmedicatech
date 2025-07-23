@@ -19,6 +19,16 @@ class AuthService {
     }
   }
 
+  private buildAuthHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    return headers;
+  }
+
   async login(username: string, password: string) {
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
@@ -87,10 +97,7 @@ class AuthService {
       if (this.token) {
         await fetch(`${API_URL}/api/auth/logout`, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: this.buildAuthHeaders(),
           credentials: 'include',
         });
       }
@@ -105,15 +112,11 @@ class AuthService {
   }
 
   async getCurrentUser(): Promise<any> {
-    if (!this.token) {
-      return null;
-    }
+    // TODO: What was this even for? if (!this.token) {return null;}
 
     try {
       const response = await fetch(`${API_URL}/api/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-        },
+        headers: this.buildAuthHeaders(),
         credentials: 'include',
       });
 
@@ -140,10 +143,7 @@ class AuthService {
     try {
       const response = await fetch(`${API_URL}/api/auth/change-password`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: this.buildAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify({
           current_password: currentPassword,
@@ -171,9 +171,8 @@ class AuthService {
     try {
       const response = await fetch(`${API_URL}/api/admin/setup`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.buildAuthHeaders(),
+        credentials: 'include',
       });
 
       const data = await response.json();
