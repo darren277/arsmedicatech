@@ -54,7 +54,24 @@ const Administration: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [admins, setAdmins] = useState<Admin[]>([]);
 
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
+
   useEffect(() => {
+    // TODO: Allow user to select organization if role is superadmin
+
+    adminAPI
+      .getOrganizationId()
+      .then(response => {
+        if (response.data && response.data.id) {
+          setOrganizationId(response.data.id);
+        } else {
+          console.error('Failed to fetch organization ID');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching organization ID:', error);
+      });
+
     const fetchData = async () => {
       // TODO: Fetch user role from API or context
       setRole('administrator'); // or "superadmin"
@@ -62,10 +79,12 @@ const Administration: React.FC = () => {
       role === 'superadmin' &&
         setOrganizations(await adminAPI.getOrganizations());
 
-      setClinics(await adminAPI.getClinics());
-      setProviders(await adminAPI.getProviders());
-      setPatients(await adminAPI.getPatients());
-      setAdmins(await adminAPI.getAdministrators());
+      if (organizationId) {
+        setClinics(await adminAPI.getClinics(organizationId));
+        setProviders(await adminAPI.getProviders(organizationId));
+        setPatients(await adminAPI.getPatients(organizationId));
+        setAdmins(await adminAPI.getAdministrators(organizationId));
+      }
     };
     fetchData();
   }, []);

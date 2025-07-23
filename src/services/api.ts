@@ -531,20 +531,27 @@ export const userNotesAPI = {
 
 // Admin API operations
 export const adminAPI = {
+  // Get organization id for user
+  getOrganizationId: () => apiService.getAPI('/admin/my_organization'),
+
   // Get all organizations
-  getOrganizations: () => apiService.get('/admin/organizations'),
+  getOrganizations: () => apiService.getAPI('/admin/organizations'),
 
   // Get all clinics
-  getClinics: () => apiService.get('/admin/clinics'),
+  getClinics: (organizationId: string) =>
+    apiService.getAPI(`/admin/clinics/${organizationId}`),
 
   // Get all patients
-  getPatients: () => apiService.get('/admin/patients'),
+  getPatients: (organizationId: string) =>
+    apiService.getAPI(`/admin/patients/${organizationId}`),
 
   // Get all providers
-  getProviders: () => apiService.get('/admin/providers'),
+  getProviders: (organizationId: string) =>
+    apiService.getAPI(`/admin/providers/${organizationId}`),
 
   // Get all administrators
-  getAdministrators: () => apiService.get('/admin/administrators'),
+  getAdministrators: (organizationId: string) =>
+    apiService.getAPI(`/admin/administrators/${organizationId}`),
 };
 
 export default apiService;
