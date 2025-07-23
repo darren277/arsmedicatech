@@ -58,8 +58,6 @@ def get_patients_route() -> Tuple[Response, int]:
     return jsonify(patients), 200
 
 @require_auth
-def get_providers_route():
-    if getattr(g, 'user_role', None) not in ('admin', 'superadmin'):
 def get_providers_route() -> Tuple[Response, int]:
     """
     Route to get all providers.
