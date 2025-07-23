@@ -76,8 +76,9 @@ const Administration: React.FC = () => {
       // TODO: Fetch user role from API or context
       setRole('administrator'); // or "superadmin"
 
-      role === 'superadmin' &&
+      if (role === 'superadmin') {
         setOrganizations(await adminAPI.getOrganizations());
+      }
 
       if (organizationId) {
         setClinics(await adminAPI.getClinics(organizationId));
