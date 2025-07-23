@@ -1088,10 +1088,49 @@ from asgiref.wsgi import WsgiToAsgi
 
 asgi_app = WsgiToAsgi(app)
 
-app.add_url_rule('/admin/organizations', view_func=get_organizations_route, methods=['GET'])
-app.add_url_rule('/admin/clinics', view_func=get_clinics_route, methods=['GET'])
-app.add_url_rule('/admin/patients', view_func=get_patients_route, methods=['GET'])
-app.add_url_rule('/admin/providers', view_func=get_providers_route, methods=['GET'])
-app.add_url_rule('/admin/administrators', view_func=get_administrators_route, methods=['GET'])
+@app.route('/admin/organizations', methods=['GET'])
+def get_organizations_route() -> Tuple[Response, int]:
+    """
+    Get a list of organizations.
+    :return: Response object with organizations data.
+    """
+    return get_organizations_route()
+
+@app.route('/admin/clinics/<org_id>', methods=['GET'])
+def get_clinics_route(org_id: str) -> Tuple[Response, int]:
+    """
+    Get a list of clinics.
+    :param org_id: The ID of the organization to retrieve clinics for.
+    :return: Response object with clinics data.
+    """
+    return get_clinics_route(org_id)
+
+@app.route('/admin/patients/<org_id>', methods=['GET'])
+def get_patients_route(org_id: str) -> Tuple[Response, int]:
+    """
+    Get a list of patients.
+    :param org_id: The ID of the organization to retrieve patients for.
+    :return: Response object with patients data.
+    """
+    return get_patients_route(org_id)
+
+@app.route('/admin/providers/<org_id>', methods=['GET'])
+def get_providers_route(org_id: str) -> Tuple[Response, int]:
+    """
+    Get a list of providers.
+    :param org_id: The ID of the organization to retrieve providers for.
+    :return: Response object with providers data.
+    """
+    return get_providers_route(org_id)
+
+@app.route('/admin/administrators/<org_id>', methods=['GET'])
+def get_administrators_route(org_id: str) -> Tuple[Response, int]:
+    """
+    Get a list of administrators.
+    :param org_id: The ID of the organization to retrieve administrators for.
+    :return: Response object with administrators data.
+    """
+    return get_administrators_route(org_id)
+
 
 if __name__ == '__main__': app.run(port=PORT, debug=DEBUG, host=HOST)
