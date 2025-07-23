@@ -108,7 +108,8 @@ class UserService:
             password: str,
             first_name: Optional[str] = None,
             last_name: Optional[str] = None,
-            role: str = "patient"
+            role: str = "patient",
+            is_federated: bool = False
     ) -> tuple[bool, str, Optional[User]]:
         """
         Create a new user account
@@ -119,6 +120,7 @@ class UserService:
         :param first_name: First name of the user (optional)
         :param last_name: Last name of the user (optional)
         :param role: Role of the user (default is "patient")
+        :param is_federated: Whether the user is created via federated login (default is False)
         
         :return: (success, message, user_object)
         """
@@ -132,9 +134,10 @@ class UserService:
             if not valid:
                 return False, msg, None
             
-            valid, msg = User.validate_password(password)
-            if not valid:
-                return False, msg, None
+            if not is_federated:
+                valid, msg = User.validate_password(password)
+                if not valid:
+                    return False, msg, None
             
             # Check if username already exists
             existing_user = self.get_user_by_username(username)
