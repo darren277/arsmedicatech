@@ -35,19 +35,46 @@ def require_auth(f: Callable[..., Any]) -> Callable[..., Any]:
         # Get token from request headers or session
         token = request.headers.get('Authorization')
         if token and token.startswith('Bearer '):
-            token = token[7:]  # Remove 'Bearer ' prefix
-            logger.debug(f"Got Bearer token: {token[:10]}...")
-        
+            if token == 'null':
+                logger.debug("Received 'null' token, treating as no token.")
+                token = None
+            else:
+                token = token[7:]
+                logger.debug(f"Got Bearer token: {token[:10]}...")
+
         if not token:
-            token = session.get('auth_token') # type: ignore
-            token = str(token) if token is not None else None # type: ignore
+            token = session.get('auth_token')
+            token = str(token) if token is not None else None
             logger.debug(f"Got session token: {token[:10] if token else 'None'}...")
-        
+
+        # SESSION-BASED AUTH: If no token, but user_id is present in session, allow
         if not token:
-            logger.debug("No token found")
-            return jsonify({"error": "Authentication required"}), 401
-        
-        # Validate session
+            logger.debug("No token found. Trying session-based auth.")
+            user_id = session.get('user_id')
+            if not user_id:
+                logger.debug("No user_id found in session.")
+                return jsonify({"error": "Authentication required"}), 401
+
+            logger.debug(f"No token, but user_id found in session: {user_id}")
+            g.user_id = str(user_id)
+            user_service = UserService()
+            user_service.connect()
+            try:
+                user = user_service.get_user_by_id(str(user_id))
+                if not user:
+                    logger.debug("User not found for user_id in session.")
+                    return jsonify({"error": "User not found"}), 401
+                g.user_session = user
+                g.user_role = user.role
+                logger.debug("Returning early from session-based auth")
+                return f(*args, **kwargs)
+            except Exception as e:
+                logger.error(f"Error in session-based auth: {e}")
+                return jsonify({"error": "Internal server error"}), 500
+            finally:
+                user_service.close()
+
+        # TOKEN-BASED AUTH: If token is present, validate as before
         user_service = UserService()
         user_service.connect()
         try:
@@ -56,17 +83,20 @@ def require_auth(f: Callable[..., Any]) -> Callable[..., Any]:
             if not user_session:
                 logger.debug("Session validation failed")
                 return jsonify({"error": "Invalid or expired session"}), 401
-            
+
             logger.debug(f"Session validated for user: {user_session.username}")
-            # Add user info to request context
             g.user_session = user_session
             g.user_id = user_session.user_id
             g.user_role = user_session.role
-            
+
+            logger.debug("Returning early from token-based auth")
             return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Error in token-based auth: {e}")
+            return jsonify({"error": "Internal server error"}), 500
         finally:
             user_service.close()
-    
+
     return cast(Callable[..., Any], decorated_function)
 
 
