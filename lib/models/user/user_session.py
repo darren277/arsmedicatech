@@ -5,6 +5,8 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
+from dateutil.parser import isoparse  # type: ignore[import-untyped]
+
 
 class UserSession:
     """
@@ -17,7 +19,8 @@ class UserSession:
             username: str,
             role: str,
             created_at: Optional[str] = None,
-            expires_at: Optional[str] = None
+            expires_at: Optional[str] = None,
+            session_token: Optional[str] = None
     ) -> None:
         """
         Initialize a UserSession object
@@ -26,6 +29,7 @@ class UserSession:
         :param role: User's role (patient, provider, admin)
         :param created_at: Creation timestamp (ISO format)
         :param expires_at: Expiration timestamp (ISO format, defaults to 24 hours from now)
+        :param session_token: Optional pre-generated token [for federated sign in], if None a new one will be generated
         :raises ValueError: If user_id or username is empty
         :raises ValueError: If role is not one of the valid roles
         :raises ValueError: If created_at or expires_at is not in ISO format
@@ -50,7 +54,14 @@ class UserSession:
 
         if expires_at:
             try:
-                expires = datetime.fromisoformat(expires_at)
+                if not isinstance(expires_at, str):
+                    # expires_at <class 'int'> 1753196293
+                    # 2025-07-22 13:58:14,043 - logger - ERROR - Failed to create/update user in database: expires_at must be in ISO format (logger.py:122)
+                    if isinstance(expires_at, int):
+                        expires_at = datetime.fromtimestamp(expires_at, tz=timezone.utc).isoformat()
+                    else:
+                        raise ValueError("expires_at must be a string in ISO format")
+                expires = isoparse(expires_at)
                 if expires < datetime.fromisoformat(created_at or datetime.now(timezone.utc).isoformat()):
                     raise ValueError("expires_at must be after created_at")
             except ValueError:
@@ -61,10 +72,13 @@ class UserSession:
         self.created_at = created_at or datetime.now(timezone.utc).isoformat()
         self.expires_at = expires_at or (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
 
-        try:
-            self.token = secrets.token_urlsafe(32)
-        except Exception as e:
-            raise ValueError(f"Failed to generate token: {e}")
+        if session_token:
+            self.session_token = session_token
+        else:
+            try:
+                self.session_token = secrets.token_urlsafe(32)
+            except Exception as e:
+                raise ValueError(f"Failed to generate token: {e}")
     
     def is_expired(self) -> bool:
         """
@@ -90,7 +104,7 @@ class UserSession:
             'role': self.role,
             'created_at': self.created_at,
             'expires_at': self.expires_at,
-            'token': self.token
+            'session_token': self.session_token
         }
     
     @classmethod
@@ -109,6 +123,6 @@ class UserSession:
             expires_at=data.get('expires_at')
         )
         # Set the token from the data if it exists
-        if 'token' in data:
-            session.token = data['token']
+        if 'session_token' in data:
+            session.session_token = data['session_token']
         return session

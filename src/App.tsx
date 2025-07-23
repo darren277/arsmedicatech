@@ -39,6 +39,7 @@ import { API_URL } from './env_vars';
 import { usePluginRoutes } from './hooks/usePluginRoutes';
 import FileUpload from './pages/FileUpload';
 import Organization from './pages/Organization';
+import RoleDescriptions from './pages/RoleDescriptions';
 import UploadDetails from './pages/UploadDetails';
 import { pluginAPI } from './services/api';
 import logger from './services/logging';
@@ -186,6 +187,8 @@ const baseRoutes: PluginRoute[] = [
   { path: 'video/:roomId', element: <VideoRoom /> },
 
   { path: 'notes', element: <UserNotesPage /> },
+
+  { path: 'about/roles', element: <RoleDescriptions /> },
 ];
 
 function App() {

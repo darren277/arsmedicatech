@@ -12,6 +12,7 @@ from flask import (Blueprint, Flask, Response, abort, jsonify, redirect,
                    request, send_from_directory, session)
 from flask_cors import CORS
 from prometheus_flask_exporter import PrometheusMetrics
+from werkzeug.wrappers.response import Response as BaseResponse
 
 from lib.dummy_data import DUMMY_CONVERSATIONS
 from lib.event_handlers import register_event_handlers
@@ -28,6 +29,7 @@ from lib.routes.appointments import (cancel_appointment_route,
                                      get_appointments_route,
                                      get_available_slots_route,
                                      update_appointment_route)
+from lib.routes.auth import auth_logout_route, cognito_login_route
 from lib.routes.chat import (create_conversation_route,
                              get_conversation_messages_route,
                              get_user_conversations_route, send_message_route)
@@ -74,7 +76,8 @@ from lib.services.lab_results import (LabResultsService,
                                       serum_proteins)
 from lib.services.notifications import publish_event_with_buffer
 from lib.services.redis_client import get_redis_connection
-from settings import DEBUG, FLASK_SECRET_KEY, HOST, PORT, SENTRY_DSN, logger
+from settings import (CLIENT_ID, COGNITO_DOMAIN, DEBUG, FLASK_SECRET_KEY, HOST,
+                      PORT, REDIRECT_URI, SENTRY_DSN, logger)
 
 #from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -90,9 +93,30 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"], "supports_credentials": True, "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization"]}})
 
 app.secret_key = FLASK_SECRET_KEY
-app.config['SESSION_COOKIE_SECURE'] = False  # Allow HTTP in development
-app.config['SESSION_COOKIE_HTTPONLY'] = False  # Allow JavaScript access
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow cross-site requests
+
+app.config["SESSION_COOKIE_NAME"] = "amt_session"
+app.config["SESSION_TYPE"] = "filesystem"
+
+if DEBUG:
+    app.config.update(
+        SESSION_COOKIE_SECURE=False,  # False only on http://localhost
+        SESSION_COOKIE_SAMESITE='Lax',  # 'Lax' if SPA and API are same origin
+        SESSION_COOKIE_DOMAIN=None  # No domain set for local development
+    )
+else:
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,  # False only on http://localhost
+        SESSION_COOKIE_SAMESITE='None',  # 'Lax' if SPA and API are same origin
+        SESSION_COOKIE_DOMAIN='.arsmedicatech.com'  # leading dot, covers sub-domains
+    )
+
+@app.route("/api/debug/session_v2")
+def debug_session_v2():
+    return jsonify({
+        "user_id": session.get("user_id"),
+        "auth_token": session.get("auth_token"),
+        "session_keys": list(session.keys()),
+    })
 
 # Global OPTIONS handler for CORS preflight
 @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
@@ -929,6 +953,34 @@ def delete_note(note_id: str) -> Tuple[Response, int]:
     """
     return delete_note_route(note_id)
 
+@app.route('/auth/login/cognito')
+def login_cognito():
+    role = request.args.get('role', 'patient')
+    cognito_url = (
+        f"https://{COGNITO_DOMAIN}/oauth2/authorize"
+        f"?response_type=code"
+        f"&client_id={CLIENT_ID}"
+        f"&redirect_uri={REDIRECT_URI}"  # e.g., https://demo.arsmedicatech.com/auth/cognito
+        f"&scope=openid+email+profile"
+        f"&state={role}"
+    )
+    return redirect(cognito_url)
+
+@app.route('/auth/callback', methods=['GET', 'POST'])
+def cognito_callback() -> Union[Tuple[Response, int], BaseResponse]:
+    """
+    Cognito login endpoint.
+    :return: Response object with login status.
+    """
+    return cognito_login_route()
+
+@app.route('/auth/logout', methods=['GET'])
+def auth_logout() -> BaseResponse:
+    """
+    Logout endpoint.
+    :return: Response object with logout status.
+    """
+    return auth_logout_route()
 
 # Register event handlers for webhook delivery
 register_event_handlers()

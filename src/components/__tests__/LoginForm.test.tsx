@@ -61,9 +61,7 @@ describe('LoginForm', () => {
 
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /sign in/i })
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('login-submit')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /sign up/i })
     ).toBeInTheDocument();
@@ -79,7 +77,7 @@ describe('LoginForm', () => {
       />
     );
 
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -102,7 +100,7 @@ describe('LoginForm', () => {
     // Type only spaces, which should be trimmed and considered empty
     await user.type(usernameInput, '   ');
 
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -126,7 +124,7 @@ describe('LoginForm', () => {
     const passwordInput = screen.getByLabelText(/password/i);
     await user.type(passwordInput, 'weak');
 
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
     await user.click(submitButton);
 
     // The actual component only validates required fields, not password strength
@@ -159,7 +157,7 @@ describe('LoginForm', () => {
     await user.type(usernameInput, 'testuser');
     await user.type(passwordInput, 'TestPass123');
 
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -196,7 +194,7 @@ describe('LoginForm', () => {
       />
     );
 
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -239,7 +237,7 @@ describe('LoginForm', () => {
     await user.type(usernameInput, 'testuser');
     await user.type(passwordInput, 'TestPass123');
 
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
     await user.click(submitButton);
 
     expect(submitButton).toBeDisabled();
