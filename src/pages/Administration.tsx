@@ -1,6 +1,7 @@
 import { Box, Tab, Tabs, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import React, { useEffect, useState } from 'react';
+import { adminAPI } from '../services/api';
 
 // Dummy types
 
@@ -54,30 +55,17 @@ const Administration: React.FC = () => {
   const [admins, setAdmins] = useState<Admin[]>([]);
 
   useEffect(() => {
-    // TODO: Fetch user role from API or context
-    setRole('administrator'); // or "superadmin"
+    const fetchData = async () => {
+      // TODO: Fetch user role from API or context
+      setRole('administrator'); // or "superadmin"
 
-    // TODO: Fetch data for each entity from your API
-    setOrganizations([
-      { id: 'org1', name: 'HealthOrg One' },
-      { id: 'org2', name: 'HealthOrg Two' },
-    ]);
-    setClinics([
-      { id: 'clinic1', name: 'Clinic Alpha' },
-      { id: 'clinic2', name: 'Clinic Beta' },
-    ]);
-    setProviders([
-      { id: 'prov1', name: 'Dr. Smith' },
-      { id: 'prov2', name: 'Dr. Jones' },
-    ]);
-    setPatients([
-      { id: 'pat1', name: 'John Doe' },
-      { id: 'pat2', name: 'Jane Roe' },
-    ]);
-    setAdmins([
-      { id: 'admin1', email: 'admin1@example.com' },
-      { id: 'admin2', email: 'admin2@example.com' },
-    ]);
+      setOrganizations(await adminAPI.getOrganizations());
+      setClinics(await adminAPI.getClinics());
+      setProviders(await adminAPI.getProviders());
+      setPatients(await adminAPI.getPatients());
+      setAdmins(await adminAPI.getAdministrators());
+    };
+    fetchData();
   }, []);
 
   const getRows = () => {
@@ -120,9 +108,13 @@ const Administration: React.FC = () => {
         <DataGrid
           rows={getRows()}
           columns={getColumns()}
-          pageSize={5}
-          rowsPerPageOptions={[5, 10, 20]}
-          disableSelectionOnClick
+          pageSizeOptions={[5, 10, 20]}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 5, page: 0 },
+            },
+          }}
+          disableRowSelectionOnClick
           disableColumnMenu
           // For superadmin, make sure all actions are read-only
           // For administrator, you can add edit/delete actions here
