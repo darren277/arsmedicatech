@@ -136,7 +136,6 @@ const LoginForm = ({
               <span className="error-message">{errors.username}</span>
             )}
           </div>
-
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -153,12 +152,15 @@ const LoginForm = ({
               <span className="error-message">{errors.password}</span>
             )}
           </div>
-
           <GoogleAuthButton onClick={handleGoogleSignin}>
             Sign in with Google
           </GoogleAuthButton>
-
-          <button type="submit" className="login-button" disabled={isLoading}>
+          <button
+            type="submit"
+            className="login-button"
+            disabled={isLoading}
+            data-testid="login-submit"
+          >
             {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
