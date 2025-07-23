@@ -135,7 +135,18 @@ def cognito_login_route() -> Union[Tuple[Response, int], BaseResponse]:
                 session['user_id'] = user.id
                 session['auth_token'] = tokens['id_token']
                 session_token = tokens['id_token']
-                user_service.create_session(user_id=user.id, username=user.username, role=role_from_query, session_token=session_token, expires_at=claims["exp"])
+
+                if not user.id:
+                    logger.error("User ID is missing after creation")
+                    return jsonify({'error': 'User ID is missing'}), 500
+
+                user_service.create_session(
+                    user_id=user.id,
+                    username=user.username,
+                    role=role_from_query,
+                    session_token=session_token,
+                    expires_at=claims["exp"]
+                )
                 session.modified = True
                 return redirect(APP_URL)
             except Exception as e:

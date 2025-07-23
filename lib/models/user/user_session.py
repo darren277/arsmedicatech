@@ -5,7 +5,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
-from dateutil.parser import isoparse
+from dateutil.parser import isoparse  # type: ignore[import-untyped]
 
 
 class UserSession:
@@ -124,5 +124,5 @@ class UserSession:
         )
         # Set the token from the data if it exists
         if 'session_token' in data:
-            session.token = data['session_token']
+            session.session_token = data['session_token']
         return session
