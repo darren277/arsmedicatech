@@ -72,7 +72,8 @@ from lib.services.lab_results import (LabResultsService,
                                       serum_proteins)
 from lib.services.notifications import publish_event_with_buffer
 from lib.services.redis_client import get_redis_connection
-from settings import DEBUG, FLASK_SECRET_KEY, HOST, PORT, SENTRY_DSN, logger
+from settings import (CLIENT_ID, COGNITO_DOMAIN, DEBUG, FLASK_SECRET_KEY, HOST,
+                      PORT, REDIRECT_URI, SENTRY_DSN, logger)
 
 #from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -948,15 +949,28 @@ def delete_note(note_id: str) -> Tuple[Response, int]:
     """
     return delete_note_route(note_id)
 
-@app.route('/api/auth/cognito', methods=['GET', 'POST'])
-def cognito_login() -> Union[Tuple[Response, int], BaseResponse]:
+@app.route('/auth/login/cognito')
+def login_cognito():
+    role = request.args.get('role', 'patient')
+    cognito_url = (
+        f"https://{COGNITO_DOMAIN}/oauth2/authorize"
+        f"?response_type=code"
+        f"&client_id={CLIENT_ID}"
+        f"&redirect_uri={REDIRECT_URI}"  # e.g., https://demo.arsmedicatech.com/auth/cognito
+        f"&scope=openid+email+profile"
+        f"&state={role}"
+    )
+    return redirect(cognito_url)
+
+@app.route('/auth/callback', methods=['GET', 'POST'])
+def cognito_callback() -> Union[Tuple[Response, int], BaseResponse]:
     """
     Cognito login endpoint.
     :return: Response object with login status.
     """
     return cognito_login_route()
 
-@app.route('/api/auth/logout', methods=['GET'])
+@app.route('/auth/logout', methods=['GET'])
 def auth_logout() -> BaseResponse:
     """
     Logout endpoint.
