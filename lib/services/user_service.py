@@ -1,6 +1,7 @@
 """
 User Service for managing user accounts, authentication, and settings.
 """
+import uuid
 from typing import Any, Dict, List, Optional
 
 from lib.db.surreal import DbController
@@ -54,6 +55,51 @@ class UserService:
         :return: None
         """
         self.db.close()
+
+
+    def create_session(
+            self,
+            user_id: str,
+            username: str,
+            role: str,
+            session_token: str,
+            created_at: Optional[str] = None,
+            expires_at: Optional[str] = None
+    ) -> UserSession:
+        """
+        Create a new user session [for federated login]
+
+        :param user_id: ID of the user for whom to create the session
+        :param username: Username of the user for whom to create the session
+        :param role: Role of the user (patient, provider, admin)
+        :param session_token: Authentication token for the session
+        :param created_at: Creation timestamp (ISO format, optional)
+        :param expires_at: Expiration timestamp (ISO format, optional)
+
+        :return: UserSession object
+        """
+        user_session = UserSession(
+            user_id=user_id,
+            username=username,
+            role=role,
+            created_at=created_at,
+            expires_at=expires_at,
+            session_token=session_token
+        )
+
+        self.connect()
+
+        session_data = user_session.to_dict()
+        session_id = str(uuid.uuid4()).replace('-', '')
+        record_id = f"Session:{session_id}"
+
+        self.db.query(
+            f"CREATE {record_id} SET user_id = $user_id, username = $username, role = $role, "
+            f"created_at = $created_at, expires_at = $expires_at, session_token = $session_token;",
+            session_data
+        )
+
+        return user_session
     
     def create_user(
             self,
