@@ -1,5 +1,8 @@
 import '@testing-library/jest-dom';
 
+process.env.API_URL = 'http://localhost:3123';
+process.env.SENTRY_DSN = 'https://1234567890.ingest.sentry.io/1234567890';
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -48,12 +51,12 @@ beforeAll(() => {
     }
     originalError.call(console, ...args);
   };
-  
+
   console.warn = (...args: any[]) => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('componentWillReceiveProps') ||
-       args[0].includes('componentWillUpdate'))
+        args[0].includes('componentWillUpdate'))
     ) {
       return;
     }
@@ -64,4 +67,4 @@ beforeAll(() => {
 afterAll(() => {
   console.error = originalError;
   console.warn = originalWarn;
-}); 
+});

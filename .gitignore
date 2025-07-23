@@ -38,3 +38,6 @@ typings/
 
 micro/livekit/egress.yaml
 micro/livekit/livekit.yaml
+
+config/*.apps.googleusercontent.com.json
+config.py

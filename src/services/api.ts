@@ -7,7 +7,7 @@ class ApiService {
   apiURL: string;
 
   constructor() {
-    this.baseURL = API_URL;
+    this.baseURL = API_URL ?? '';
     this.apiURL = API_URL + '/api';
   }
 

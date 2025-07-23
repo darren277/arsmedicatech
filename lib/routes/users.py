@@ -396,14 +396,14 @@ def login_route() -> Tuple[Response, int]:
             assert user_session is not None, "User session should not be None on successful authentication"
 
             # Store token and user_id in session
-            session['auth_token'] = user_session.token
+            session['auth_token'] = user_session.session_token
             session['user_id'] = user_session.user_id
-            logger.debug(f"Stored session token: {user_session.token[:10]}...")
+            logger.debug(f"Stored session token: {user_session.session_token[:10]}...")
             logger.debug(f"Stored session user_id: {user_session.user_id}")
 
             return jsonify({
                 "message": message,
-                "token": user_session.token,
+                "token": user_session.session_token,
                 "user": {
                     "id": user_session.user_id,
                     "username": user_session.username,
