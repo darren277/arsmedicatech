@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import authService from '../services/auth';
 import logger from '../services/logging';
+import GoogleAuthButton from './GoogleAuthButton';
 import './LoginForm.css';
 
 const LoginForm = ({
@@ -98,6 +99,11 @@ const LoginForm = ({
     }
   };
 
+  const handleGoogleSignin = () => {
+    const url = authService.getFederatedSignInUrl('');
+    window.location.assign(url);
+  };
+
   return (
     <div className="login-container">
       <div className="login-form">
@@ -147,6 +153,10 @@ const LoginForm = ({
               <span className="error-message">{errors.password}</span>
             )}
           </div>
+
+          <GoogleAuthButton onClick={handleGoogleSignin}>
+            Sign in with Google
+          </GoogleAuthButton>
 
           <button type="submit" className="login-button" disabled={isLoading}>
             {isLoading ? 'Signing In...' : 'Sign In'}

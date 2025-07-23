@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GOOGLE_LOGO } from '../env_vars';
 import authService from '../services/auth';
+import GoogleAuthButton from './GoogleAuthButton';
 import RoleSelect from './RoleSelect';
 import './SignupPopup.css';
 
@@ -78,34 +78,9 @@ const SignupPopup = ({
 
           <div className="popup-actions">
             <RoleSelect value={role} onChange={handleRoleChange} />
-            <button
-              type="button"
-              onClick={handleGoogleSignup}
-              className="popup-google-button"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: '#fff',
-                border: '1px solid #ccc',
-                borderRadius: 4,
-                padding: '8px 16px',
-                marginBottom: 12,
-                textDecoration: 'none',
-                color: '#444',
-                fontWeight: 500,
-                fontSize: 16,
-                cursor: 'pointer',
-                gap: 10,
-              }}
-            >
-              <img
-                src={GOOGLE_LOGO}
-                alt="Google"
-                style={{ width: 22, height: 22, marginRight: 8 }}
-              />
+            <GoogleAuthButton onClick={handleGoogleSignup}>
               Sign up with Google
-            </button>
+            </GoogleAuthButton>
             <button className="popup-signup-button" onClick={handleSignupClick}>
               Sign Up Now
             </button>
