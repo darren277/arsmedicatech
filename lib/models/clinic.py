@@ -37,6 +37,7 @@ class ClinicType(TypedDict):
     location: GeoJSONPoint
     longitude: float
     latitude: float
+    organization_id: str
 
 
 class Clinic:
@@ -52,7 +53,8 @@ class Clinic:
             zip_code: str,
             country: str,
             longitude: float,
-            latitude: float
+            latitude: float,
+            organization_id: str = ""
     ) -> None:
         """
         Initializes a Clinic object.
@@ -75,9 +77,10 @@ class Clinic:
         self.country = country
         self.longitude = longitude
         self.latitude = latitude
+        self.organization_id = organization_id
 
     @staticmethod
-    def from_db(data: ClinicType) -> 'Clinic':
+    def from_db(data: dict[str, Any]) -> 'Clinic':
         """
         Creates a Clinic object from a dictionary representation typically retrieved from the database.
 
@@ -95,7 +98,8 @@ class Clinic:
             zip_code=data.get('address', {}).get('zip', ''),
             country=data.get('address', {}).get('country', ''),
             longitude=data.get('location', {}).get('coordinates', [0, 0])[0],
-            latitude=data.get('location', {}).get('coordinates', [0, 0])[1]
+            latitude=data.get('location', {}).get('coordinates', [0, 0])[1],
+            organization_id=data.get('organization_id', '')
         )
 
 
@@ -126,7 +130,10 @@ class Clinic:
                 "zip": self.zip_code,
                 "country": self.country
             },
-            "location": self.to_geojson_point()
+            "location": self.to_geojson_point(),
+            "longitude": self.longitude,
+            "latitude": self.latitude,
+            "organization_id": self.organization_id
         }
 
     def __repr__(self) -> str:

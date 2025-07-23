@@ -18,7 +18,8 @@ class Patient:
             location: Optional[Tuple[str, str, str, str]] = None,
             sex: Optional[str] = None,
             phone: Optional[str] = None,
-            email: Optional[str] = None
+            email: Optional[str] = None,
+            organization_id: Optional[str] = None
     ) -> None:
         """
         Initializes a Patient instance.
@@ -39,6 +40,7 @@ class Patient:
         self.sex = sex
         self.phone = phone
         self.email = email
+        self.organization_id = organization_id
         self.address = None
 
         self.alerts: List[Any] = []
@@ -65,8 +67,7 @@ class Patient:
         statements.append('DEFINE FIELD phone ON patient TYPE string;')
         statements.append('DEFINE FIELD email ON patient TYPE string;')
         statements.append('DEFINE FIELD location ON patient TYPE array;')
-
+        statements.append('DEFINE FIELD organization_id ON patient TYPE string;')
         statements.append('DEFINE INDEX idx_patient_demographic_no ON patient FIELDS demographic_no UNIQUE;')
-
         return statements
 
