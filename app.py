@@ -88,9 +88,30 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3012", "http://127.0.0.1:3012", "https://demo.arsmedicatech.com"], "supports_credentials": True, "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization"]}})
 
 app.secret_key = FLASK_SECRET_KEY
-app.config['SESSION_COOKIE_SECURE'] = False  # Allow HTTP in development
-app.config['SESSION_COOKIE_HTTPONLY'] = False  # Allow JavaScript access
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow cross-site requests
+
+app.config["SESSION_COOKIE_NAME"] = "amt_session"
+app.config["SESSION_TYPE"] = "filesystem"
+
+if DEBUG:
+    app.config.update(
+        SESSION_COOKIE_SECURE=False,  # False only on http://localhost
+        SESSION_COOKIE_SAMESITE='Lax',  # 'Lax' if SPA and API are same origin
+        SESSION_COOKIE_DOMAIN=None  # No domain set for local development
+    )
+else:
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,  # False only on http://localhost
+        SESSION_COOKIE_SAMESITE='None',  # 'Lax' if SPA and API are same origin
+        SESSION_COOKIE_DOMAIN='.arsmedicatech.com'  # leading dot, covers sub-domains
+    )
+
+@app.route("/api/debug/session_v2")
+def debug_session_v2():
+    return jsonify({
+        "user_id": session.get("user_id"),
+        "auth_token": session.get("auth_token"),
+        "session_keys": list(session.keys()),
+    })
 
 # Global OPTIONS handler for CORS preflight
 @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
