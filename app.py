@@ -831,14 +831,6 @@ def call_optimal() -> Tuple[Response, int]:
     return call_optimal_route()
 
 # Organizations endpoints
-@app.route('/api/organizations', methods=['GET'])
-def get_organizations() -> Tuple[Response, int]:
-    """
-    Get a list of organizations.
-    :return: Response object with organizations data.
-    """
-    return get_organizations_route()
-
 @app.route('/api/organizations/<org_id>', methods=['GET'])
 def get_organization(org_id: str) -> Union[Tuple[Response, int], werkzeug.wrappers.response.Response]:
     """
