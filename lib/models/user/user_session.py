@@ -90,7 +90,7 @@ class UserSession:
             'role': self.role,
             'created_at': self.created_at,
             'expires_at': self.expires_at,
-            'token': self.token
+            'session_token': self.session_token
         }
     
     @classmethod
@@ -109,6 +109,6 @@ class UserSession:
             expires_at=data.get('expires_at')
         )
         # Set the token from the data if it exists
-        if 'token' in data:
-            session.token = data['token']
+        if 'session_token' in data:
+            session.token = data['session_token']
         return session

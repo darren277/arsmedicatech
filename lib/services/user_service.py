@@ -257,14 +257,14 @@ class UserService:
             # Store session in database
             try:
                 self.db.create('Session', session.to_dict())
-                logger.debug(f"Session stored in database: {session.token[:10]}...")
+                logger.debug(f"Session stored in database: {session.session_token[:10]}...")
                 
                 # Also keep in memory for faster access
-                self.active_sessions[session.token] = session
+                self.active_sessions[session.session_token] = session
             except Exception as e:
                 logger.debug(f"Error storing session in database: {e}")
                 # Fallback to memory-only storage
-                self.active_sessions[session.token] = session
+                self.active_sessions[session.session_token] = session
             
             return True, "Authentication successful", session
             
@@ -368,7 +368,7 @@ class UserService:
         # If not in memory, check database
         try:
             result = self.db.query(
-                "SELECT * FROM Session WHERE token = $session_token",
+                "SELECT * FROM Session WHERE session_token = $session_token",
                 {"session_token": token}
             )
             
@@ -404,7 +404,7 @@ class UserService:
         # Remove from database
         try:
             result = self.db.query(
-                "SELECT * FROM Session WHERE token = $session_token",
+                "SELECT * FROM Session WHERE session_token = $session_token",
                 {"session_token": token}
             )
             
