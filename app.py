@@ -1088,7 +1088,7 @@ from asgiref.wsgi import WsgiToAsgi
 
 asgi_app = WsgiToAsgi(app)
 
-@app.route('/admin/organizations', methods=['GET'])
+@app.route('/api/admin/organizations', methods=['GET'])
 def get_organizations_route() -> Tuple[Response, int]:
     """
     Get a list of organizations.
@@ -1096,7 +1096,7 @@ def get_organizations_route() -> Tuple[Response, int]:
     """
     return get_organizations_route()
 
-@app.route('/admin/clinics/<org_id>', methods=['GET'])
+@app.route('/api/admin/clinics/<org_id>', methods=['GET'])
 def get_clinics_route(org_id: str) -> Tuple[Response, int]:
     """
     Get a list of clinics.
@@ -1105,7 +1105,7 @@ def get_clinics_route(org_id: str) -> Tuple[Response, int]:
     """
     return get_clinics_route(org_id)
 
-@app.route('/admin/patients/<org_id>', methods=['GET'])
+@app.route('/api/admin/patients/<org_id>', methods=['GET'])
 def get_patients_route(org_id: str) -> Tuple[Response, int]:
     """
     Get a list of patients.
@@ -1114,7 +1114,7 @@ def get_patients_route(org_id: str) -> Tuple[Response, int]:
     """
     return get_patients_route(org_id)
 
-@app.route('/admin/providers/<org_id>', methods=['GET'])
+@app.route('/api/admin/providers/<org_id>', methods=['GET'])
 def get_providers_route(org_id: str) -> Tuple[Response, int]:
     """
     Get a list of providers.
@@ -1123,7 +1123,7 @@ def get_providers_route(org_id: str) -> Tuple[Response, int]:
     """
     return get_providers_route(org_id)
 
-@app.route('/admin/administrators/<org_id>', methods=['GET'])
+@app.route('/api/admin/administrators/<org_id>', methods=['GET'])
 def get_administrators_route(org_id: str) -> Tuple[Response, int]:
     """
     Get a list of administrators.
