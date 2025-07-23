@@ -56,8 +56,9 @@ docker-flask:
 	docker push $(DOCKER_REGISTRY)/$(FLASK_IMAGE):$(FLASK_VERSION)
 	kubectl rollout restart deployment $(FLASK_DEPLOYMENT) --namespace=$(NAMESPACE)
 
+REACT_BUILD_ARGS=--build-arg PORT=$(REACT_PORT) --build-arg API_URL=$(API_URL) --build-arg SENTRY_DSN=$(SENTRY_DSN)
 docker-react:
-	docker build --build-arg PORT=$(REACT_PORT) --build-arg API_URL=$(API_URL) -t $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION) -f Dockerfile.react .
+	docker build $(REACT_BUILD_ARGS) -t $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION) -f Dockerfile.react .
 	docker push $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION)
 	kubectl rollout restart deployment $(REACT_DEPLOYMENT) --namespace=$(NAMESPACE)
 

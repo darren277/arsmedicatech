@@ -98,3 +98,17 @@ REDIRECT_URI = f'http://localhost:{PORT}/auth/callback' if DEBUG else 'https://d
 COGNITO_LOGIN_URL = f'https://{COGNITO_DOMAIN}/oauth2/authorize?client_id={CLIENT_ID}&response_type=code&scope=openid+email+profile&redirect_uri={REDIRECT_URI}&identity_provider=Google'
 
 LOGOUT_URI = f"http://localhost:{PORT}/" if DEBUG else "https://demo.arsmedicatech.com/"
+
+
+REACT_PORT = os.environ.get('REACT_PORT', 3000)
+APP_URL = f'http://localhost:{REACT_PORT}/' if DEBUG else 'https://demo.arsmedicatech.com/'
+
+
+print("COGNITO DOMAIN:", COGNITO_DOMAIN)
+print("USER POOL ID:", USER_POOL_ID)
+print("CLIENT ID:", CLIENT_ID)
+
+print("REDIRECT URI:", REDIRECT_URI)
+print("COGNITO LOGIN URL:", COGNITO_LOGIN_URL)
+
+print("APP URL:", APP_URL)
