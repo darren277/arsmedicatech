@@ -3,10 +3,10 @@ import '@testing-library/jest-dom';
 import { TextDecoder, TextEncoder } from 'util';
 
 if (typeof global.TextEncoder === 'undefined') {
-  global.TextEncoder = TextEncoder;
+  global.TextEncoder = TextEncoder as any;
 }
 if (typeof global.TextDecoder === 'undefined') {
-  global.TextDecoder = TextDecoder;
+  global.TextDecoder = TextDecoder as any;
 }
 
 process.env.API_URL = 'http://localhost:3123';
