@@ -59,7 +59,9 @@ const Administration: React.FC = () => {
       // TODO: Fetch user role from API or context
       setRole('administrator'); // or "superadmin"
 
-      setOrganizations(await adminAPI.getOrganizations());
+      role === 'superadmin' &&
+        setOrganizations(await adminAPI.getOrganizations());
+
       setClinics(await adminAPI.getClinics());
       setProviders(await adminAPI.getProviders());
       setPatients(await adminAPI.getPatients());
@@ -71,7 +73,7 @@ const Administration: React.FC = () => {
   const getRows = () => {
     switch (TABS[activeTab].key) {
       case 'organizations':
-        return organizations;
+        return role === 'superadmin' ? organizations : [];
       case 'clinics':
         return clinics;
       case 'providers':
