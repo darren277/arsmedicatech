@@ -1,5 +1,14 @@
 import '@testing-library/jest-dom';
 
+import { TextDecoder, TextEncoder } from 'util';
+
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = TextEncoder;
+}
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = TextDecoder;
+}
+
 process.env.API_URL = 'http://localhost:3123';
 process.env.SENTRY_DSN = 'https://1234567890.ingest.sentry.io/1234567890';
 
