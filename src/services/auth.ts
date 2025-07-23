@@ -239,7 +239,7 @@ class AuthService {
 
   getFederatedSignInUrl(role: string): string {
     // Returns the backend URL to initiate Cognito OAuth with the selected role
-    return `${API_URL}/api/auth/cognito?role=${encodeURIComponent(role)}`;
+    return `${API_URL}/auth/login/cognito?role=${encodeURIComponent(role)}`;
   }
 }
 
