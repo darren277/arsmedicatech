@@ -17,7 +17,8 @@ class UserSession:
             username: str,
             role: str,
             created_at: Optional[str] = None,
-            expires_at: Optional[str] = None
+            expires_at: Optional[str] = None,
+            session_token: Optional[str] = None
     ) -> None:
         """
         Initialize a UserSession object
@@ -26,6 +27,7 @@ class UserSession:
         :param role: User's role (patient, provider, admin)
         :param created_at: Creation timestamp (ISO format)
         :param expires_at: Expiration timestamp (ISO format, defaults to 24 hours from now)
+        :param session_token: Optional pre-generated token [for federated sign in], if None a new one will be generated
         :raises ValueError: If user_id or username is empty
         :raises ValueError: If role is not one of the valid roles
         :raises ValueError: If created_at or expires_at is not in ISO format
@@ -61,10 +63,13 @@ class UserSession:
         self.created_at = created_at or datetime.now(timezone.utc).isoformat()
         self.expires_at = expires_at or (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
 
-        try:
-            self.token = secrets.token_urlsafe(32)
-        except Exception as e:
-            raise ValueError(f"Failed to generate token: {e}")
+        if session_token:
+            self.session_token = session_token
+        else:
+            try:
+                self.session_token = secrets.token_urlsafe(32)
+            except Exception as e:
+                raise ValueError(f"Failed to generate token: {e}")
     
     def is_expired(self) -> bool:
         """
