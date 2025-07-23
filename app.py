@@ -1082,7 +1082,7 @@ from asgiref.wsgi import WsgiToAsgi
 asgi_app = WsgiToAsgi(app)
 
 @app.route('/api/admin/organizations', methods=['GET'])
-def get_organizations_route() -> Tuple[Response, int]:
+def get_organizations() -> Tuple[Response, int]:
     """
     Get a list of organizations.
     :return: Response object with organizations data.
@@ -1113,7 +1113,7 @@ def get_my_organization() -> Tuple[Response, int]:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/admin/clinics/<org_id>', methods=['GET'])
-def get_clinics_route(org_id: str) -> Tuple[Response, int]:
+def get_clinics(org_id: str) -> Tuple[Response, int]:
     """
     Get a list of clinics.
     :param org_id: The ID of the organization to retrieve clinics for.
@@ -1122,7 +1122,7 @@ def get_clinics_route(org_id: str) -> Tuple[Response, int]:
     return get_clinics_route(org_id)
 
 @app.route('/api/admin/patients/<org_id>', methods=['GET'])
-def get_patients_route(org_id: str) -> Tuple[Response, int]:
+def get_patients(org_id: str) -> Tuple[Response, int]:
     """
     Get a list of patients.
     :param org_id: The ID of the organization to retrieve patients for.
@@ -1131,7 +1131,7 @@ def get_patients_route(org_id: str) -> Tuple[Response, int]:
     return get_patients_route(org_id)
 
 @app.route('/api/admin/providers/<org_id>', methods=['GET'])
-def get_providers_route(org_id: str) -> Tuple[Response, int]:
+def get_providers(org_id: str) -> Tuple[Response, int]:
     """
     Get a list of providers.
     :param org_id: The ID of the organization to retrieve providers for.
@@ -1140,7 +1140,7 @@ def get_providers_route(org_id: str) -> Tuple[Response, int]:
     return get_providers_route(org_id)
 
 @app.route('/api/admin/administrators/<org_id>', methods=['GET'])
-def get_administrators_route(org_id: str) -> Tuple[Response, int]:
+def get_administrators(org_id: str) -> Tuple[Response, int]:
     """
     Get a list of administrators.
     :param org_id: The ID of the organization to retrieve administrators for.
