@@ -11,6 +11,12 @@ from lib.models.user.user_settings import UserSettings
 from settings import logger
 
 
+class UserNotAffiliatedError(Exception):
+    """
+    Exception raised when a user is not affiliated with an organization.
+    """
+    pass
+
 class UserService:
     """
     Service for managing user accounts, authentication, and settings.
@@ -56,6 +62,23 @@ class UserService:
         """
         self.db.close()
 
+    def get_organization_id(self, user_id: str) -> str:
+        """
+        Get organization ID for a user
+        :param user_id: ID of the user
+        :return: Organization ID as a string
+        """
+        self.db.connect()
+        result = self.db.query(
+            "SELECT organization_id FROM User WHERE id = $user_id",
+            {"user_id": user_id}
+        )
+        if result and len(result) > 0:
+            organization_id = result[0].get('organization_id')
+            if organization_id:
+                return organization_id
+            raise UserNotAffiliatedError(f"Organization ID not found for user {user_id}")
+        raise ValueError("User not found or has no organization ID")
 
     def create_session(
             self,

@@ -76,6 +76,7 @@ from lib.services.lab_results import (LabResultsService,
                                       serum_proteins)
 from lib.services.notifications import publish_event_with_buffer
 from lib.services.redis_client import get_redis_connection
+from lib.services.user_service import UserNotAffiliatedError, UserService
 from settings import (CLIENT_ID, COGNITO_DOMAIN, DEBUG, FLASK_SECRET_KEY, HOST,
                       PORT, REDIRECT_URI, SENTRY_DSN, logger)
 
@@ -1087,6 +1088,29 @@ def get_organizations_route() -> Tuple[Response, int]:
     :return: Response object with organizations data.
     """
     return get_organizations_route()
+
+@app.route('/api/admin/my_organization', methods=['GET'])
+def get_my_organization() -> Tuple[Response, int]:
+    """
+    Get the organization of the current user.
+    :return: Response object with organization data.
+    """
+    current_user = session.get('user_id')
+    if not current_user:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    user_service = UserService()
+    try:
+        org_d = user_service.get_organization_id(current_user)
+        if not org_d:
+            return jsonify({"error": "Organization not found"}), 404
+        return jsonify(dict(org_id=org_d)), 200
+    except UserNotAffiliatedError as e:
+        logger.error(f"User {current_user} is not affiliated with an organization: {e}")
+        return jsonify({"error": str(e)}), 403
+    except Exception as e:
+        logger.error(f"Error getting organization for user {current_user}: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/admin/clinics/<org_id>', methods=['GET'])
 def get_clinics_route(org_id: str) -> Tuple[Response, int]:
