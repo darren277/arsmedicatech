@@ -250,7 +250,7 @@ class User:
         :param role: User role to validate
         :return: Tuple (is_valid: bool, error_message: str)
         """
-        valid_roles = ['patient', 'provider', 'admin']
+        valid_roles = ['patient', 'provider', 'admin', 'administrator', 'superadmin']
         if role not in valid_roles:
             return False, f"Role must be one of: {', '.join(valid_roles)}"
         return True, ""
