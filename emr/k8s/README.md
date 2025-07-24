@@ -85,11 +85,20 @@ oscar:
   replicas: 3
 
 ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts:
-    - host: emr.mycompany.com
-      paths:
-        - path: /
-          pathType: Prefix
+    emr:
+      host: emr.mycompany.com
+      path: /
+      pathType: Prefix
+  tls:
+    secretName: oscar-emr-tls
+    host: emr.mycompany.com
 ```
 
 ## Accessing the Application
