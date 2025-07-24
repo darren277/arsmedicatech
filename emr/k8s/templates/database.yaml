@@ -16,6 +16,8 @@ spec:
       labels:
         app: oscar-db
     spec:
+      imagePullSecrets:
+        - name: ecr-secret
       securityContext:
         runAsUser: {{ .Values.security.runAsUser }}
         runAsGroup: {{ .Values.security.runAsGroup }}

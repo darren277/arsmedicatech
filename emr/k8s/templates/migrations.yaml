@@ -7,6 +7,8 @@ spec:
   backoffLimit: 0
   template:
     spec:
+      imagePullSecrets:
+        - name: ecr-secret
       restartPolicy: Never
       containers:
         - name: migrate
