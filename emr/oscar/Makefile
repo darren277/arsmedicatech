@@ -28,3 +28,7 @@ migrations-docker:
 
 k8s-auth:
 	kubectl create secret docker-registry ecr-secret --docker-server=$(DOCKER_REGISTRY) --docker-username=AWS --docker-password=$(DOCKER_PASSWORD) --namespace=$(NAMESPACE)
+
+k8s-deploy:
+	kubectl create namespace $(NAMESPACE) || true
+	helm upgrade --install $(NAMESPACE) ../k8s --namespace $(NAMESPACE) -f ../k8s/values.yaml
