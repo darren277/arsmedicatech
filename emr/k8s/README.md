@@ -53,6 +53,11 @@ kubectl delete pvc oscar-documents-pvc -n oscar-emr
 kubectl delete pvc oscar-logs-pvc -n oscar-emr
 ```
 
+To uninstall the Helm release:
+```bash
+helm uninstall oscar-emr --namespace oscar-emr
+```
+
 ## Configuration
 
 ### Values.yaml
