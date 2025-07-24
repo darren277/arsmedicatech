@@ -9,14 +9,14 @@ spec:
   ingressClassName: {{ .Values.ingress.className }}
   tls:
     - hosts:
-        - {{ .Values.host | quote }}
+        - {{ .Values.ingress.hosts.emr.host | quote }}
       secretName: {{ .secretName }}
   rules:
-    - host: {{ .Values.host | quote }}
+    - host: {{ .Values.ingress.hosts.emr.host | quote }}
       http:
         paths:
-          - path: {{ .Values.path }}
-            pathType: {{ .Values.pathType }}
+          - path: {{ .Values.ingress.hosts.emr.path }}
+            pathType: {{ .Values.ingress.hosts.emr.pathType }}
             backend:
               service:
                 name: oscar-web
