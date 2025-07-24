@@ -2,7 +2,9 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: oscar-db-migrations
-  namespace: oscar-emr
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: oscar-web
 spec:
   backoffLimit: 0
   template:
