@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: oscar-db-migrations
+  namespace: oscar-emr
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: { { .Values.migrations.image.repository } }:{{ .Values.migrations.image.tag }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Running migrations..." &&
+              mysql -h oscar-db -u oscar -poscarpw oscar < /migrations/oscarinit.sql &&
+              mysql -h oscar-db -u oscar -poscarpw oscar < /migrations/oscardata.sql &&
+              mysql -h oscar-db -u oscar -poscarpw oscar < /migrations/initcaisi.sql &&
+              mysql -h oscar-db -u oscar -poscarpw oscar < /migrations/initcaisi_data.sql &&
+              mysql -h oscar-db -u oscar -poscarpw oscar < /migrations/patch19.sql
