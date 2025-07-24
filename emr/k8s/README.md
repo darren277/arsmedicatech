@@ -28,8 +28,11 @@ This Helm chart deploys the OSCAR EMR (Electronic Medical Records) system on Kub
 
 2. **Install the chart**:
    ```bash
+   # Create namespace if it doesn't exist
+   kubectl create namespace oscar-emr
+   
    # Basic installation
-   helm install oscar-emr ./emr/k8s
+   helm install oscar-emr ./emr/k8s --namespace oscar-emr
 
    # With custom values
    helm install oscar-emr ./emr/k8s -f custom-values.yaml
@@ -43,6 +46,12 @@ This Helm chart deploys the OSCAR EMR (Electronic Medical Records) system on Kub
    helm status oscar-emr
    kubectl get all -n oscar-emr
    ```
+
+If you need to delete the PVCs:
+```bash
+kubectl delete pvc oscar-documents-pvc -n oscar-emr
+kubectl delete pvc oscar-logs-pvc -n oscar-emr
+```
 
 ## Configuration
 
