@@ -1,0 +1,23 @@
+api_key: ${LIVEKIT_API_KEY}
+api_secret: ${LIVEKIT_API_SECRET}
+ws_url: ws://livekit:7880
+insecure: true
+storage:
+  s3:
+    access_key: ${LIVEKIT_S3_ACCESS_KEY}
+    secret:     ${LIVEKIT_S3_SECRET_KEY}
+    region:     ${LIVEKIT_S3_REGION}
+    bucket:     ${LIVEKIT_S3_BUCKET}
+redis:
+  address: redis:6379
+  db: 0
+recording:
+  # default file output for every egress request
+  file_outputs:
+    - filepath: recordings/{{ room_name }}-{{ timestamp }}.mp4
+      output:
+        s3:
+          access_key: ${LIVEKIT_S3_ACCESS_KEY}
+          secret:     ${LIVEKIT_S3_SECRET_KEY}
+          region:     ${LIVEKIT_S3_REGION}
+          bucket:     ${LIVEKIT_S3_BUCKET}

@@ -1,4 +1,4 @@
-import API_URL from '../env_vars';
+import { API_URL } from '../env_vars';
 
 class AuthService {
   token: string | null;
@@ -6,7 +6,27 @@ class AuthService {
 
   constructor() {
     this.token = localStorage.getItem('auth_token');
-    this.user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    // Safely parse user data from localStorage
+    try {
+      const userData = localStorage.getItem('user');
+      this.user = userData ? JSON.parse(userData) : null;
+    } catch (error) {
+      console.warn('Failed to parse user data from localStorage:', error);
+      this.user = null;
+      // Clean up invalid data
+      localStorage.removeItem('user');
+    }
+  }
+
+  private buildAuthHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    return headers;
   }
 
   async login(username: string, password: string) {
@@ -77,10 +97,7 @@ class AuthService {
       if (this.token) {
         await fetch(`${API_URL}/api/auth/logout`, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: this.buildAuthHeaders(),
           credentials: 'include',
         });
       }
@@ -95,15 +112,11 @@ class AuthService {
   }
 
   async getCurrentUser(): Promise<any> {
-    if (!this.token) {
-      return null;
-    }
+    // TODO: What was this even for? if (!this.token) {return null;}
 
     try {
       const response = await fetch(`${API_URL}/api/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-        },
+        headers: this.buildAuthHeaders(),
         credentials: 'include',
       });
 
@@ -130,10 +143,7 @@ class AuthService {
     try {
       const response = await fetch(`${API_URL}/api/auth/change-password`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: this.buildAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify({
           current_password: currentPassword,
@@ -161,9 +171,8 @@ class AuthService {
     try {
       const response = await fetch(`${API_URL}/api/admin/setup`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: this.buildAuthHeaders(),
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -226,6 +235,11 @@ class AuthService {
       Authorization: `Bearer ${this.token}`,
       'Content-Type': 'application/json',
     };
+  }
+
+  getFederatedSignInUrl(role: string): string {
+    // Returns the backend URL to initiate Cognito OAuth with the selected role
+    return `${API_URL}/auth/login/cognito?role=${encodeURIComponent(role)}`;
   }
 }
 

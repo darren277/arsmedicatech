@@ -1,0 +1,446 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: livekit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: livekit
+  template:
+    metadata:
+      labels:
+        app: livekit
+    spec:
+      volumes:
+        - name: livekit-config
+          configMap:
+            name: livekit-config
+        - name: tls
+          secret:
+            secretName: livekit-tls
+      containers:
+        - name: livekit
+          image: livekit/livekit-server:latest
+          #ports:
+          #  - containerPort: 7880 # HTTP API
+          #  - containerPort: 7881 # WebRTC TCP
+          #  - containerPort: 3478 # TURN
+          ports:
+            - name: api
+              containerPort: 7880
+              hostPort: 7880
+            - name: webrtc
+              containerPort: 7881
+              hostPort: 7881
+            - name: turn-udp
+              containerPort: 3478
+              protocol: UDP
+              hostPort: 3478
+            # You need a hostPort for each UDP media port
+            - name: rtp-50000
+              containerPort: 50000
+              protocol: UDP
+              hostPort: 50000
+            # ... and so on for every port in your range
+            - name: rtp-50001
+              containerPort: 50001
+              protocol: UDP
+              hostPort: 50001
+            - name: rtp-50002
+              containerPort: 50002
+              protocol: UDP
+              hostPort: 50002
+            - name: rtp-50003
+              containerPort: 50003
+              protocol: UDP
+              hostPort: 50003
+            - name: rtp-50004
+              containerPort: 50004
+              protocol: UDP
+              hostPort: 50004
+            - name: rtp-50005
+              containerPort: 50005
+              protocol: UDP
+              hostPort: 50005
+            - name: rtp-50006
+              containerPort: 50006
+              protocol: UDP
+              hostPort: 50006
+            - name: rtp-50007
+              containerPort: 50007
+              protocol: UDP
+              hostPort: 50007
+            - name: rtp-50008
+              containerPort: 50008
+              protocol: UDP
+              hostPort: 50008
+            - name: rtp-50009
+              containerPort: 50009
+              protocol: UDP
+              hostPort: 50009
+            - name: rtp-50010
+              containerPort: 50010
+              protocol: UDP
+              hostPort: 50010
+          volumeMounts:
+            - name: livekit-config
+              mountPath: /etc/livekit.yaml
+              subPath: livekit.yaml
+            - name: tls
+              mountPath: /etc/livekit/certs
+              readOnly: true
+          command: [ "/livekit-server" ]
+          args: [ "--config", "/etc/livekit.yaml" ]
+          env:
+            - name: LIVEKIT_REDIS_HOST
+              value: {{ .Values.micro.livekit.redis.host }}
+            - name: LIVEKIT_PORT
+              value: "7880"
+            - name: LIVEKIT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiKey
+            - name: LIVEKIT_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiSecret
+            - name: LIVEKIT_UDP_PORT_START
+              value: "50000"
+            - name: LIVEKIT_UDP_PORT_END
+              value: "50010"
+          #securityContext:
+          #  privileged: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: livekit-config
+data:
+  livekit.yaml: |-
+{{ tpl (.Files.Get "configs/livekit.yaml") . | indent 4 }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: livekit-secrets
+type: Opaque
+stringData:
+  apiKey: {{ .Values.micro.livekit.api.key }}
+  apiSecret: {{ .Values.micro.livekit.api.secret }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: egress-config
+data:
+  egress.yaml: |
+    api_key: {{ .Values.micro.livekit.api.key }}
+    api_secret: {{ .Values.micro.livekit.api.secret }}
+    ws_url: {{ .Values.micro.livekit.egress.wsUrl }}
+    redis:
+      address: redis-livekit-service:6379
+    file_outputs:
+      - filepath: recordings/{{`{{ room_name }}`}}-{{`{{ timestamp }}`}}.mp4
+        output:
+          s3:
+            access_key: {{ .Values.micro.livekit.s3.accessKey }}
+            secret: {{ .Values.micro.livekit.s3.secretKey }}
+            region: {{ .Values.micro.livekit.s3.region }}
+            bucket: {{ .Values.micro.livekit.s3.bucket }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: livekit-egress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: livekit-egress
+  template:
+    metadata:
+      labels:
+        app: livekit-egress
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: egress
+          #image: livekit/egress:latest
+          image: "{{ .Values.micro.livekit.egress.image.repository }}:{{ .Values.micro.livekit.egress.image.tag }}"
+          imagePullPolicy: "{{ .Values.micro.livekit.egress.image.pullPolicy }}"
+          volumeMounts:
+            - name: egress-config
+              mountPath: /egress.yaml
+              subPath: egress.yaml
+            - name: pulse-runtime
+              mountPath: /run/pulse
+          env:
+            - name: XDG_RUNTIME_DIR
+              value: /run/pulse
+            - name: PULSE_RUNTIME_PATH
+              value: /run/pulse
+            - name: PULSE_NO_CONFIG
+              value: "1"
+            - name: PULSE_DISABLE_CONFIG
+              value: "1"
+            - name: PULSE_NO_CLIENT
+              value: "1"
+            - name: PULSE_SERVER
+              value: "unix:/run/pulse/native"
+            - name: NO_AT_BRIDGE
+              value: "1"
+            - name: LIVEKIT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiKey
+            - name: LIVEKIT_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiSecret
+            - name: LIVEKIT_WS_URL
+              value: {{ .Values.micro.livekit.egress.wsUrl }}
+            - name: S3_ACCESS_KEY
+              value: {{ .Values.micro.livekit.s3.accessKey }}
+            - name: S3_SECRET_KEY
+              value: {{ .Values.micro.livekit.s3.secretKey }}
+            - name: S3_BUCKET
+              value: {{ .Values.micro.livekit.s3.bucket }}
+            - name: S3_REGION
+              value: {{ .Values.micro.livekit.s3.region }}
+          #command: ["/bin/bash","-c"]
+          #args: [ "--config", "/egress.yaml" ]
+          command: ["./egress-entrypoint.sh"]
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - SYS_PTRACE
+
+      volumes:
+        - name: egress-config
+          configMap:
+            name: egress-config
+        - name: pulse-runtime
+          emptyDir: { }
+
+      initContainers:
+        - name: fix-pulse-dir
+          image: busybox
+          command: [ "sh", "-c", "mkdir -p /run/pulse && chown 1000:1000 /run/pulse" ]
+          volumeMounts:
+            - name: pulse-runtime
+              mountPath: /run/pulse
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: livekit-cert
+  namespace: arsmedicatech
+spec:
+  secretName: livekit-tls
+  dnsNames:
+    - demo.arsmedicatech.com
+  issuerRef:
+    name: letsencrypt-arsmedicatech
+    kind: ClusterIssuer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: livekit-service
+  annotations:
+    # use HTTP check, port 7880, and the /status path
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-protocol: "http" # "https"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-port: "7880"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-path: "/status"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-check-interval-seconds: "10"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-response-timeout-seconds: "5"
+spec:
+  type: NodePort # Should ideally be a LoadBalancer but we encountered some issues.
+  ports:
+    - port: 7880
+      targetPort: 7880
+      name: api
+    - port: 7881
+      targetPort: 7881
+      name: webrtc
+    - port: 3478
+      targetPort: 3478
+      protocol: UDP
+      name: turn
+    - port: 50000
+      targetPort: 50000
+      protocol: UDP
+      name: rtp-50000
+    - port: 50001
+      targetPort: 50001
+      protocol: UDP
+      name: rtp-50001
+    - port: 50002
+      targetPort: 50002
+      protocol: UDP
+      name: rtp-50002
+    - port: 50003
+      targetPort: 50003
+      protocol: UDP
+      name: rtp-50003
+    - port: 50004
+      targetPort: 50004
+      protocol: UDP
+      name: rtp-50004
+    - port: 50005
+      targetPort: 50005
+      protocol: UDP
+      name: rtp-50005
+    - port: 50006
+      targetPort: 50006
+      protocol: UDP
+      name: rtp-50006
+    - port: 50007
+      targetPort: 50007
+      protocol: UDP
+      name: rtp-50007
+    - port: 50008
+      targetPort: 50008
+      protocol: UDP
+      name: rtp-50008
+    - port: 50009
+      targetPort: 50009
+      protocol: UDP
+      name: rtp-50009
+    - port: 50010
+      targetPort: 50010
+      protocol: UDP
+      name: rtp-50010
+  selector:
+    app: livekit
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: livekit-flask-api-secrets
+type: Opaque
+stringData:
+  s3Bucket: {{ .Values.micro.livekit.s3.bucket }}
+  s3AccessKey: {{ .Values.micro.livekit.s3.accessKey }}
+  s3SecretKey: {{ .Values.micro.livekit.s3.secretKey }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: livekit-flask-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: livekit-flask-api
+  template:
+    metadata:
+      labels:
+        app: livekit-flask-api
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: api
+          image: "{{ .Values.micro.livekit.api.image.repository }}:{{ .Values.micro.livekit.api.image.tag }}"
+          imagePullPolicy: "{{ .Values.micro.livekit.api.image.pullPolicy }}"
+          ports:
+            - containerPort: 5001
+          env:
+            - name: LIVEKIT_URL
+              value: "{{ .Values.micro.livekit.url }}"
+            # Pull LiveKit credentials from the existing secret
+            - name: LIVEKIT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiKey
+            - name: LIVEKIT_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-secrets
+                  key: apiSecret
+            - name: LIVEKIT_S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-flask-api-secrets
+                  key: s3AccessKey
+            - name: LIVEKIT_S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-flask-api-secrets
+                  key: s3SecretKey
+            # Pull the S3 bucket name from the new secret
+            - name: LIVEKIT_S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-flask-api-secrets
+                  key: s3Bucket
+            - name: CELERY_BROKER_URL
+              value: "redis://{{ .Values.redis.host }}:{{ .Values.redis.port }}/{{ .Values.redis.celeryDb }}"
+            - name: CELERY_RESULT_BACKEND
+              value: "redis://{{ .Values.redis.host }}:{{ .Values.redis.port }}/{{ .Values.redis.celeryDb }}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: livekit-flask-api-service
+spec:
+  # ClusterIP is suitable for internal communication.
+  # Change to LoadBalancer if you need to expose this API publicly.
+  type: ClusterIP
+  selector:
+    app: livekit-flask-api
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-livekit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-livekit
+  template:
+    metadata:
+      labels:
+        app: redis-livekit
+    spec:
+      containers:
+        - name: redis
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+---
+# =================================================================
+#  Service for the dedicated LiveKit Redis instance
+# =================================================================
+# This Service provides a unique DNS name within the cluster
+# for the LiveKit server to connect to.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-livekit-service
+spec:
+  # ClusterIP makes this service only reachable from within the cluster.
+  type: ClusterIP
+  selector:
+    app: redis-livekit
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379

@@ -2,6 +2,18 @@
 
 **ArsMedicaTech** is an integrated clinical platform designed to support a wide range of use cases across modern healthcare workflows. Combining a flexible backend architecture with cutting-edge AI tools and EMR interoperability, the project aims to deliver a unified, extensible interface for providers, patients, and researchers.
 
+**A note about interest in this project**: Right now it is still in early stages, and I contribute to it when I can, but if anyone stumbles upon this and finds that it has the potential to do a lot of good, I am willing to upscale my efforts.
+
+If anyone has any new ideas, suggestions, questions, would like to contribute, or would like to express even a general interest in the project, I can be reached via the e-mail address in my profile <https://github.com/darren277>.
+
+I also opened up the Discussions section for this repository for anyone who would like to suggest anything or express any interest at all.
+
+Also, check out <https://github.com/users/darren277/projects/1> to see what's currently being worked on and what's on the backlog.
+
+On running the app locally, please see: [RUNNING_LOCALLY.md](docs/source/RUNNING_LOCALLY.md).
+
+For immediate onboarding assistance and getting to know the repo, check it out on [GitCompass](https://gitcompass-web.fly.dev/public/analysis/sr4ryxuc4b7k).
+
 ---
 
 ## 🚀 Purpose & Vision
@@ -85,11 +97,39 @@ ArsMedicaTech is built to support the evolving digital needs of healthcare. Its 
 
 This project is still in active development, and contributions are welcome. Whether you're a clinician, developer, designer, or informatician, there's room for you in the ArsMedicaTech community.
 
+See also: [`CONTRIBUTING.md`](./docs/source/CONTRIBUTING.md) for guidelines on how to contribute.
+
+Or, alternatively, another way to contribute is to [sponsor the project](./docs/source/DONATE.md) to help fund development and maintenance.
+
+But, most importantly of all at this early stage, simply expressing any interest, either openly in [our discussions section](https://github.com/darren277/arsmedicatech/discussions), or privately via email ([see profile](https://github.com/darren277)), would be a major start.
+
 ---
 
-## 📄 License
+## 🛡️ License & Reciprocity
 
-***TBD** — Will be updated upon reaching MVP milestone.*
+ArsMedicaTech is released under the **GNU Affero General Public License v3 (AGPL-3.0-or-later)**.  
+⚖️  Any party that deploys a modified version as a network service **must publicly release its source code under the same license**.  
+This server-side copyleft keeps improvements transparent while ensuring patients retain freedom and auditability.
+
+> *Short version*: Use it, improve it, even run it commercially - but if you host or sell a modified edition you **must** give the community those changes.
+
+---
+
+## ❓ Commercial-Use FAQ (abridged)
+
+| Question | Answer                                                                                                                               |
+|----------|--------------------------------------------------------------------------------------------------------------------------------------|
+| **Can we run our own hosted instance for our clinic?** | Yes. Just leave the copyright headers intact and publish any code changes per AGPL §13.                                              |
+| **Can we charge patients or hospitals?** | We won’t police fair cost-recovery.  We do ask you keep fees **reasonable and non-exploitative**, and upstream your improvements.    |
+| **Can we rebrand and close-source extra features?** | No.  Any derivative network service must remain AGPL.  Proprietary forks violate the license.                                        |
+| **How can we give back?** | • Submit pull requests  • Fund upstream development (see [`DONATE.md`](./docs/source/DONATE.md))  • Offer pro-bono clinical feedback |
+
+---
+
+## ❤️ Supporting the Project
+
+This project is sustained by community donations rather than venture capital.  
+If ArsMedicaTech helps your patients or practice, please consider a small monthly sponsorship.  Details in [`DONATE.md`](./DONATE.md).
 
 ---
 
@@ -396,3 +436,114 @@ Integration with External Data: To fill out a large knowledge graph, you can loo
 [Optimal](https://optimal.apphosting.services) is an API for mathematical optimization-as-a-service. It is actually another project of mine.
 
 The use case implemented here is for individuals (patients or healthcare providers) to mathematically calculate an optimal diet for a particular condition. The first example provided is for managing hypertension.
+
+## Documentation
+
+To generate docs: `sphinx-apidoc -o docs/source/api lib`.
+To build the docs: `sphinx-build -b html docs/source docs/_build/html`.
+
+To test before build: `sphinx-build -v -b html docs docs/_build/html`.
+
+### TODO
+
+WARNING: autodoc: failed to import module 'mcp_server' from module 'llm.mcp'; the following exception was raised:
+No module named 'trees' [autodoc.import_object]
+WARNING: autodoc: failed to import module 'trees' from module 'llm.mcp'; the following exception was raised:
+No module named 'mcp_init' [autodoc.import_object]
+
+## MyPy
+
+mypy --explicit-package-bases lib settings.py
+
+### Some Notes on Edge Cases
+
+I tried to limit my use of `# type: ignore` as much as possible, but I encountered a few edge cases that were more trouble than the static typing was worth (for the time being, at least).
+
+Some of those cases:
+* SurrealDB controller methods with ambiguous signatures.
+* Flask `session` object.
+* The `Faker` library.
+* And a few other very isolated cases.
+
+If time permits, I will return to these, but there is so much more value to be gained elsewhere.
+
+As for `disable_error_code = no-any-return`, this one I will likely be returning to sooner than later.
+
+## Celery Worker
+
+1. Make sure Redis is running for Celery.
+2. Start the Celery worker: `celery -A celery_worker.celery_app worker --pool=solo --loglevel=info`.
+3. Ensure Flask app is running and can access Redis and S3.
+
+## Extensions
+
+You can add extensions to the project by creating a new directory under `plugins/` and implementing the required functionality.
+
+There is an example plugin called `hello_world` that demonstrates how to create a simple Flask route.
+
+As for frontend plugins, the feature is very experimental, but there is a mechanism in place.
+
+Install Babel standalone: `npm install @babel/standalone`
+
+You will need to transpile any JSX to JS first: `node plugins/jsx2js.js plugins/hello_world/js/index.jsx plugins/hello_world/js/index.js`
+
+## LiveKit
+
+| Config field (YAML)                | Default                                | Purpose in practice                                                                                    | Expose to Internet?        |
+| ---------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------- |
+| **`port`** (top level)             | `7880`                                 | REST/HTTP **and** “/rtc” WebSocket *if* you also set `rtc.port` to the same value.                     | **Yes** (TCP)              |
+| **`rtc.port`**                     | *unset* ⇒ falls back to `rtc.tcp_port` | **WebSocket signalling endpoint**. Must equal the host/port your frontend connects to (`wss://…/rtc`). | **Yes** (TCP)              |
+| **`rtc.tcp_port`**                 | `7881`                                 | ICE **media‑fallback over TCP** (if UDP blocked on client). Not used for HTTP.                         | Yes (TCP)                  |
+| **`rtc.udp_port`**                 | `3478`                                 | ICE host candidate over UDP (sometimes called “UDP‑ICE” or “STUN reflexive”).                          | Yes (UDP)                  |
+| **`turn.udp_port`**                | `3478` (often same as above)           | TURN allocation (UDP).                                                                                 | Yes (UDP)                  |
+| **`turn.tls_port`**                | `5349` (if enabled)                    | TURN allocation over TLS/TCP (optional).                                                               | Yes (TCP)                  |
+| **`turn.relay_range_start / end`** | `30000–40000` dev/prod defaults        | **UDP relay ports** where media actually flows when TURN is in use.                                    | Yes (UDP, the whole range) |
+
+
+```mermaid
+flowchart LR
+    subgraph Browser / Client
+        A[JavaScript SDK<br/>wss://host/rtc] -->|HTTP Upgrade| B(WebSocket)
+        B -->|ICE Gathering| C(ICE<br/>candidates)
+    end
+
+    subgraph Ingress / LB
+        D1[/"443 or 80 → 7880<br/>(TLS termination)"/]
+        D2[/"3478 (UDP)"/]
+        D3[/"7881 (TCP)"/]
+        D4[/"50000‑50010&nbsp;(UDP relay)"/]
+    end
+
+    subgraph LiveKit Pod
+        LK1[[`port` 7880<br/>REST + /rtc WS]]
+        LK2[[`rtc.tcp_port` 7881<br/>TCP ICE]]
+        LK3[[`rtc.udp_port` 3478<br/>STUN / UDP ICE]]
+        LK4[["TURN server<br/>3478 (udp/tls)<br/>relay 50000‑50010"]]
+    end
+
+    %% connections
+    A --> D1
+    D1 --> LK1
+
+    B -.-> D3
+    D3 -.-> LK2
+
+    C -. UDP ICE .-> D2 -.-> LK3
+    C -. TURN relay .-> D4 -.-> LK4
+```
+
+## Authentication
+
+### GCP
+
+#### Manual Steps (for personal accounts):
+
+1. Go to the [Google Cloud Console Credentials page](https://console.cloud.google.com/apis/credentials).
+2. Select your project.
+3. If prompted, configure the OAuth consent screen.
+* Choose "External" if you want users outside your Google account.
+* Fill in the required fields (app name, support email, etc.).
+4. Create OAuth 2.0 Client ID credentials:
+* Application type: Web application
+* Authorized redirect URIs: (e.g., https://yourdomain.com/callback)
+* Save and copy the Client ID and Client Secret.

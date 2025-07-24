@@ -1,16 +1,61 @@
-""""""
+"""
+This module defines a Clinic class and provides functions to interact with a SurrealDB database.
+"""
 import json
-
-from surrealdb import Surreal
+from typing import Any, Dict, List, TypedDict
 
 from lib.db.surreal import AsyncDbController
+from settings import logger
+
+
+class GeoJSONPoint(TypedDict):
+    """
+    A TypedDict for GeoJSON Point objects, defining the expected structure.
+    This is useful for type checking and IDE support.
+    """
+    type: str
+    coordinates: List[float]
+
+class Address(TypedDict):
+    """
+    A TypedDict for Address objects, defining the expected structure.
+    This is useful for type checking and IDE support.
+    """
+    street: str
+    city: str
+    state: str
+    zip: str
+    country: str
+
+class ClinicType(TypedDict):
+    """
+    A TypedDict for Clinic objects, defining the expected structure.
+    This is useful for type checking and IDE support.
+    """
+    name: str
+    address: Address
+    location: GeoJSONPoint
+    longitude: float
+    latitude: float
+    organization_id: str
 
 
 class Clinic:
     """
     Represents a medical clinic with its address and geospatial location.
     """
-    def __init__(self, name: str, street: str, city: str, state: str, zip_code: str, longitude: float, latitude: float):
+    def __init__(
+            self,
+            name: str,
+            street: str,
+            city: str,
+            state: str,
+            zip_code: str,
+            country: str,
+            longitude: float,
+            latitude: float,
+            organization_id: str = ""
+    ) -> None:
         """
         Initializes a Clinic object.
 
@@ -20,6 +65,7 @@ class Clinic:
             city (str): The city.
             state (str): The state or province.
             zip_code (str): The postal or ZIP code.
+            country (str): The country.
             longitude (float): The longitude of the clinic's location.
             latitude (float): The latitude of the clinic's location.
         """
@@ -28,24 +74,73 @@ class Clinic:
         self.city = city
         self.state = state
         self.zip_code = zip_code
+        self.country = country
         self.longitude = longitude
         self.latitude = latitude
+        self.organization_id = organization_id
 
-    def to_geojson_point(self) -> dict:
+    @staticmethod
+    def from_db(data: dict[str, Any]) -> 'Clinic':
+        """
+        Creates a Clinic object from a dictionary representation typically retrieved from the database.
+
+        Args:
+            data (Dict[str, Any]): A dictionary containing clinic attributes.
+
+        Returns:
+            Clinic: An instance of the Clinic class.
+        """
+        return Clinic(
+            name=data.get('name', ''),
+            street=data.get('address', {}).get('street', ''),
+            city=data.get('address', {}).get('city', ''),
+            state=data.get('address', {}).get('state', ''),
+            zip_code=data.get('address', {}).get('zip', ''),
+            country=data.get('address', {}).get('country', ''),
+            longitude=data.get('location', {}).get('coordinates', [0, 0])[0],
+            latitude=data.get('location', {}).get('coordinates', [0, 0])[1],
+            organization_id=data.get('organization_id', '')
+        )
+
+
+    def to_geojson_point(self) -> GeoJSONPoint:
         """
         Converts the clinic's location to a GeoJSON Point dictionary.
         Note: GeoJSON specifies longitude, then latitude.
+
+        :return: A dictionary representing the clinic's location in GeoJSON format.
         """
         return {
             "type": "Point",
             "coordinates": [self.longitude, self.latitude]
         }
 
-    def __repr__(self):
+    def to_dict(self) -> ClinicType:
+        """
+        Converts the Clinic object to a dictionary representation.
+
+        :return: A dictionary containing the clinic's attributes.
+        """
+        return {
+            "name": self.name,
+            "address": {
+                "street": self.street,
+                "city": self.city,
+                "state": self.state,
+                "zip": self.zip_code,
+                "country": self.country
+            },
+            "location": self.to_geojson_point(),
+            "longitude": self.longitude,
+            "latitude": self.latitude,
+            "organization_id": self.organization_id
+        }
+
+    def __repr__(self) -> str:
         """
         Provides a string representation of the Clinic object.
         """
-        return (f"Clinic(name='{self.name}', address='{self.street}, {self.city}, {self.state} {self.zip_code}', location=({self.longitude}, {self.latitude}))")
+        return (f"Clinic(name='{self.name}', address='{self.street}, {self.city}, {self.state} {self.zip_code}, {self.country}', location=({self.longitude}, {self.latitude}))")
 
 def generate_surrealql_create_query(clinic: Clinic, table_name: str = "clinic") -> str:
     """
@@ -59,13 +154,14 @@ def generate_surrealql_create_query(clinic: Clinic, table_name: str = "clinic") 
         str: A SurrealQL CREATE statement string.
     """
     # Using a dictionary to build the SET clause for clarity and easier JSON conversion
-    data_to_set = {
+    data_to_set: Dict[str, Any] = {
         "name": clinic.name,
         "address": {
             "street": clinic.street,
             "city": clinic.city,
             "state": clinic.state,
-            "zip": clinic.zip_code
+            "zip": clinic.zip_code,
+            "country": clinic.country
         },
         "location": clinic.to_geojson_point()
     }
@@ -85,16 +181,17 @@ def generate_surrealql_create_query(clinic: Clinic, table_name: str = "clinic") 
 
 if __name__ == '__main__':
     # Define a schema for the clinic table for strong data typing.
-    print("-- Schema Definition (run this once)")
-    print("DEFINE TABLE clinic SCHEMAFULL;")
-    print("DEFINE FIELD name ON clinic TYPE string;")
-    print("DEFINE FIELD address ON clinic TYPE object;")
-    print("DEFINE FIELD address.street ON clinic TYPE string;")
-    print("DEFINE FIELD address.city ON clinic TYPE string;")
-    print("DEFINE FIELD address.state ON clinic TYPE string;")
-    print("DEFINE FIELD address.zip ON clinic TYPE string;")
-    print("DEFINE FIELD location ON clinic TYPE geometry (point);")
-    print("-" * 30)
+    logger.debug("-- Schema Definition (run this once)")
+    logger.debug("DEFINE TABLE clinic SCHEMAFULL;")
+    logger.debug("DEFINE FIELD name ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address ON clinic TYPE object;")
+    logger.debug("DEFINE FIELD address.street ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address.city ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address.state ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address.zip ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address.country ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD location ON clinic TYPE geometry (point);")
+    logger.debug("-" * 30)
 
     # Create instances of the Clinic class for some sample clinics.
     # Coordinates are in (longitude, latitude) order.
@@ -104,6 +201,7 @@ if __name__ == '__main__':
         city="Metropolis",
         state="CA",
         zip_code="90210",
+        country="USA",
         longitude=-118.40,
         latitude=34.07
     )
@@ -114,6 +212,7 @@ if __name__ == '__main__':
         city="Metropolis",
         state="CA",
         zip_code="90212",
+        country="USA",
         longitude=-118.42,
         latitude=34.09
     )
@@ -124,36 +223,40 @@ if __name__ == '__main__':
         city="Bayview",
         state="CA",
         zip_code="90215",
+        country="USA",
         longitude=-118.49,
         latitude=34.01
     )
 
     # Generate and print the SurrealQL queries
-    print("-- Generated SurrealQL CREATE Statements")
+    logger.debug("-- Generated SurrealQL CREATE Statements")
     query1 = generate_surrealql_create_query(clinic1)
-    print(query1)
+    logger.debug(query1)
 
     query2 = generate_surrealql_create_query(clinic2)
-    print(query2)
+    logger.debug(query2)
 
     query3 = generate_surrealql_create_query(clinic3)
-    print(query3)
+    logger.debug(query3)
 
     # Example of how you might query this data
-    print("-" * 30)
-    print("-- Example Query: Find clinics within 5km of a point")
+    logger.debug("-" * 30)
+    logger.debug("-- Example Query: Find clinics within 5km of a point")
     # A point somewhere in Metropolis
     search_point_lon = -118.41
     search_point_lat = 34.08
-    print(f"SELECT name, address, location, geo::distance(location, ({search_point_lon}, {search_point_lat})) AS distance")
-    print(f"FROM clinic")
-    print(f"WHERE geo::distance(location, ({search_point_lon}, {search_point_lat})) < 5000;")
+    logger.debug(f"SELECT name, address, location, geo::distance(location, ({search_point_lon}, {search_point_lat})) AS distance")
+    logger.debug(f"FROM clinic")
+    logger.debug(f"WHERE geo::distance(location, ({search_point_lon}, {search_point_lat})) < 5000;")
 
 
 client = AsyncDbController()
 
 
-async def create_clinic(clinic: Clinic):
+from typing import Optional
+
+
+async def create_clinic(clinic: Clinic) -> Optional[str]:
     """
     Asynchronously creates a clinic record in the SurrealDB database.
 
@@ -161,15 +264,15 @@ async def create_clinic(clinic: Clinic):
         clinic (Clinic): The clinic object to be created in the database.
 
     Returns:
-        str: The ID of the created clinic record.
+        Optional[str]: The ID of the created clinic record, or None if creation failed.
     """
     query = generate_surrealql_create_query(clinic)
     result = await client.query(query)
-    print('result', type(result), result)
+    logger.debug('result', type(result), result)
     return result[0]['id'] if result else None
 
 
-async def get_clinic_by_id(clinic_id: str):
+async def get_clinic_by_id(clinic_id: str) -> Optional[Dict[str, Any]]:
     """
     Asynchronously retrieves a clinic record by its ID.
 
@@ -184,7 +287,7 @@ async def get_clinic_by_id(clinic_id: str):
     return result[0] if result else None
 
 
-async def get_all_clinics():
+async def get_all_clinics() -> List[Dict[str, Any]]:
     """
     Asynchronously retrieves all clinic records from the database.
 
@@ -196,7 +299,7 @@ async def get_all_clinics():
     return result if result else []
 
 
-async def search_clinics_by_location(longitude: float, latitude: float, radius: float = 5000):
+async def search_clinics_by_location(longitude: float, latitude: float, radius: float = 5000) -> List[Dict[str, Any]]:
     """
     Asynchronously searches for clinics within a specified radius of a given location.
 
@@ -217,7 +320,7 @@ async def search_clinics_by_location(longitude: float, latitude: float, radius: 
     return result if result else []
 
 
-async def update_clinic(clinic_id: str, clinic: Clinic):
+async def update_clinic(clinic_id: str, clinic: Clinic) -> bool:
     """
     Asynchronously updates a clinic record in the database.
 
@@ -235,7 +338,8 @@ async def update_clinic(clinic_id: str, clinic: Clinic):
             street: '{clinic.street}',
             city: '{clinic.city}',
             state: '{clinic.state}',
-            zip: '{clinic.zip_code}'
+            zip: '{clinic.zip_code}',
+            country: '{clinic.country}'
         }},
         location = {json.dumps(clinic.to_geojson_point())}
     ;
@@ -244,7 +348,7 @@ async def update_clinic(clinic_id: str, clinic: Clinic):
     return len(result) > 0
 
 
-async def delete_clinic(clinic_id: str):
+async def delete_clinic(clinic_id: str) -> bool:
     """
     Asynchronously deletes a clinic record from the database.
 
@@ -272,11 +376,19 @@ def km_m(meters: float) -> float:
     return meters * 1000
 
 
-def test():
+def test() -> None:
+    """
+    Test function to demonstrate the functionality of the Clinic class and database operations.
+    :return: None
+    """
     import asyncio
     import random
 
-    async def run_tests():
+    async def run_tests() -> None:
+        """
+        Runs a series of tests to demonstrate the functionality of the Clinic class and database operations.
+        :return: None
+        """
         await client.connect()
 
         random_name = f"Clinic {random.randint(1, 1000)}"
@@ -291,28 +403,31 @@ def test():
             city="Test City",
             state="TS",
             zip_code="12345",
+            country="USA",
             longitude=lon,
             latitude=lat
         )
         clinic_id = await create_clinic(clinic)
-        print(f"Created clinic with ID: {clinic_id}")
+        logger.debug(f"Created clinic with ID: {clinic_id}")
 
         # Retrieve the clinic by ID
-        retrieved_clinic = await get_clinic_by_id(clinic_id)
-        print(f"Retrieved clinic: {retrieved_clinic}")
+        retrieved_clinic = None
+        if clinic_id is not None:
+            retrieved_clinic = await get_clinic_by_id(clinic_id)
+        logger.debug(f"Retrieved clinic: {retrieved_clinic}")
 
         # Update the clinic
         #clinic.name = "Updated Test Clinic"
         #updated = await update_clinic(clinic_id, clinic)
-        #print(f"Clinic updated: {updated}")
+        #logger.debug(f"Clinic updated: {updated}")
 
         # Search clinics by location
         nearby_clinics = await search_clinics_by_location(-118.0, 34.0, radius=km_m(100))
-        print(f"Nearby clinics: {nearby_clinics}")
+        logger.debug(f"Nearby clinics: {nearby_clinics}")
 
         # Delete the clinic
         #deleted = await delete_clinic(clinic_id)
-        #print(f"Clinic deleted: {deleted}")
+        #logger.debug(f"Clinic deleted: {deleted}")
 
     asyncio.run(run_tests())
 

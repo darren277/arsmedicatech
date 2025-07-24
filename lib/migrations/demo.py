@@ -1,31 +1,38 @@
-""""""
+"""
+Some demo code to create patients and encounters in the database.
+"""
+from typing import Any, Dict
+
 from lib.db.surreal import DbController
-from lib.migrations.demo_utils import PatientFactory, EncounterFactory, select_n_random_rows_from_csv
-from lib.models.patient import create_schema, store_patient, store_encounter
+from lib.migrations.demo_utils import (EncounterFactory, PatientFactory,
+                                       select_n_random_rows_from_csv)
+from lib.models.patient.main import store_encounter, store_patient
+from settings import logger
 
 
-def create_n_patients(n):
+def create_n_patients(n: int = 5) -> None:
+    """
+    Create a number of patients with encounters and diagnostic codes.
+    :param n: Number of patients to create.
+    :return: None
+    """
     db = DbController(namespace='arsmedicatech', database='patients')
 
     path = r'section111validicd10-jan2025_0_sample.csv'
-    for i in range(n):
-        patient = PatientFactory()
+    for _ in range(n):
+        patient = PatientFactory(factory_class=None)  # Replace None with the appropriate class if needed
 
-        encounter = EncounterFactory()
-        encounter.diagnostic_codes = select_n_random_rows_from_csv(path, 3)
+        encounter = EncounterFactory(factory_class=None)  # Replace None with the appropriate class if needed
+        encounter.diagnostic_codes = select_n_random_rows_from_csv(path, 3) # type: ignore
 
-        print(patient.first_name, patient.last_name, patient.date_of_birth, patient.phone, patient.sex, patient.email)
-        print(patient.location)
-        print(encounter.note_id, encounter.date_created, encounter.provider_id, encounter.diagnostic_codes)
-        print(encounter.note_text)
-        print("------")
+        logger.debug(patient.first_name, patient.last_name, patient.date_of_birth, patient.phone, patient.sex, patient.email)
 
-        result = store_patient(db, patient)
+        result: Dict[str, Any] = store_patient(db, patient) # type: ignore
 
-        result = result[0]['result'][0]
-        patient_id = str(result['id'])
+        result = result['result'][0]
+        patient_id = str(result.get('id', ''))
 
-        store_encounter(db, encounter, patient_id)
+        store_encounter(db, encounter, patient_id) # type: ignore
 
     db.close()
 
@@ -35,12 +42,16 @@ def create_n_patients(n):
 #create_n_patients(5)
 
 
-def create_forms():
+def create_forms() -> None:
+    """
+    Create a demo form structure and a sample form submission.
+    :return: None
+    """
     # document store for forms of arbitrary structure...
     db = DbController(namespace='arsmedicatech', database='patients')
     db.connect()
 
-    patient_registration_form_structure = {
+    patient_registration_form_structure: Dict[str, Any] = {
         "form_name": "Patient Registration",
         "form_fields": [
             {"field_id": "first_name", "field_name": "First Name", "field_type": "text", "required": True},
@@ -50,7 +61,9 @@ def create_forms():
         ]
     }
 
-    patient_registration_form = {
+    print("Creating patient registration form structure...", patient_registration_form_structure)
+
+    patient_registration_form: Dict[str, Any] = {
         "form_name": "patient_registration",
         "form_data": {
             "first_name": "Richard",
@@ -61,11 +74,17 @@ def create_forms():
     }
 
     result = db.create('forms', patient_registration_form)
-    print(result)
+    logger.debug(str(result))
 
 
 
 
-create_forms()
+if __name__ == "__main__":
+    # Uncomment to create patients and encounters
+    # create_n_patients(5)
+
+    # Uncomment to create forms
+    # create_forms()
+    ...
 
 

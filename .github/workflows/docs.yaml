@@ -1,0 +1,40 @@
+name: Deploy Docs to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      ENCRYPTION_KEY: "test-encryption-key-for-ci-123456789"
+      SENTRY_DSN: "test-sentry-dsn-for-ci-123456789"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install MariaDB Connector/C
+        run: sudo apt-get update && sudo apt-get install -y libmariadb-dev
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install sphinx myst-parser sphinx-autodoc-typehints
+
+      - name: Build docs
+        run: |
+          sphinx-build -b html docs/source docs/build/html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          publish_dir: docs/build/html

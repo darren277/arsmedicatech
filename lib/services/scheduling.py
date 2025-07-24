@@ -2,34 +2,85 @@
 Scheduling service for managing appointments
 """
 from datetime import datetime, timedelta
-from typing import List, Optional, Tuple, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple
+
+from lib.events import (
+    AppointmentCreated,
+    AppointmentUpdated,
+    AppointmentCancelled,
+    AppointmentConfirmed,
+    AppointmentCompleted
+)
+from lib.infra.event_bus import event_bus
+
 from lib.db.surreal import DbController
-from lib.models.appointment import Appointment, AppointmentStatus, AppointmentType
+from lib.models.appointment import Appointment, AppointmentStatus
+from settings import logger
 
 
 class SchedulingService:
-    def __init__(self):
+    """
+    Service for managing appointments
+    """
+    def __init__(self) -> None:
+        """
+        Initialize the scheduling service
+        This sets up the database controller for appointment management.
+        :return: None
+        """
         self.db = DbController()
     
-    def connect(self):
-        """Connect to database"""
-        self.db.connect()
+    def connect(self) -> None:
+        """
+        Connect to database
+
+        This method establishes a connection to the database.
+        If the connection fails, it logs the error and raises an exception.
+        :raises Exception: If the database connection fails
+
+        :return: None
+        """
+        try:
+            self.db.connect()
+        except Exception as e:
+            logger.error(f"Error connecting to database: {e}")
+            raise e
     
-    def close(self):
-        """Close database connection"""
+    def close(self) -> None:
+        """
+        Close database connection
+
+        This method closes the connection to the database.
+
+        :return: None
+        """
         self.db.close()
     
-    def create_appointment(self, 
-                          patient_id: str,
-                          provider_id: str,
-                          appointment_date: str,
-                          start_time: str,
-                          end_time: str,
-                          appointment_type: str = "consultation",
-                          notes: str = None,
-                          location: str = None) -> Tuple[bool, str, Optional[Appointment]]:
+    def create_appointment(
+            self,
+            patient_id: str,
+            provider_id: str,
+            appointment_date: str,
+            start_time: str,
+            end_time: str,
+            appointment_type: str = "consultation",
+            notes: Optional[str] = None,
+            location: Optional[str] = None
+    ) -> Tuple[bool, str, Optional[Appointment]]:
         """
         Create a new appointment
+
+        This method creates a new appointment in the database.
+        It validates the input parameters, checks for time conflicts, and saves the appointment.
+
+        :param patient_id: ID of the patient
+        :param provider_id: ID of the provider
+        :param appointment_date: Date of the appointment in YYYY-MM-DD format
+        :param start_time: Start time of the appointment in HH:MM format
+        :param end_time: End time of the appointment in HH:MM format
+        :param appointment_type: Type of the appointment (default is "consultation")
+        :param notes: Additional notes for the appointment (optional)
+        :param location: Location of the appointment (optional)
         
         :return: (success, message, appointment)
         """
@@ -67,11 +118,27 @@ class SchedulingService:
                 notes=notes,
                 location=location
             )
-            
+
             # Save to database
             result = self.db.create('appointment', appointment.to_dict())
             if result:
                 appointment.id = result.get('id')
+
+                # Publish event after successful database save
+                if appointment.id:
+                    event_bus.publish(
+                        AppointmentCreated(
+                            appointment_id=str(appointment.id),
+                            patient_id=appointment.patient_id,
+                            provider_id=appointment.provider_id,
+                            appointment_date=appointment.appointment_date,
+                            start_time=appointment.start_time,
+                            end_time=appointment.end_time,
+                            appointment_type=appointment.appointment_type,
+                            occurred_at=datetime.now()
+                        )
+                    )
+
                 return True, "Appointment created successfully", appointment
             else:
                 return False, "Failed to create appointment", None
@@ -80,18 +147,36 @@ class SchedulingService:
             return False, f"Error creating appointment: {str(e)}", None
     
     def get_appointment(self, appointment_id: str) -> Optional[Appointment]:
-        """Get appointment by ID"""
+        """
+        Get appointment by ID
+
+        This method retrieves an appointment from the database by its ID.
+        :param appointment_id: ID of the appointment to retrieve
+        :return: Appointment object if found, None otherwise
+        """
         try:
-            result = self.db.get('appointment', appointment_id)
-            if result:
-                return Appointment.from_dict(result)
+            query = "SELECT * FROM appointment WHERE id = $id"
+            params = {"id": appointment_id}
+            results = self.db.query(query, params)
+            if results:
+                for result in results:
+                    if result.get('result'):
+                        for record in result['result']:
+                            return Appointment.from_dict(record)
             return None
         except Exception as e:
-            print(f"Error getting appointment: {e}")
+            logger.error(f"Error getting appointment: {e}")
             return None
     
-    def get_appointments_by_date(self, date: str, provider_id: str = None) -> List[Appointment]:
-        """Get appointments for a specific date"""
+    def get_appointments_by_date(self, date: str, provider_id: Optional[str] = None) -> List[Appointment]:
+        """
+        Get appointments for a specific date
+
+        This method retrieves all appointments for a given date, optionally filtered by provider ID.
+        :param date: Date in YYYY-MM-DD format
+        :param provider_id: Optional provider ID to filter appointments
+        :return: List of Appointment objects for the specified date
+        """
         try:
             query = "SELECT * FROM appointment WHERE appointment_date = $date"
             params = {"date": date}
@@ -103,7 +188,7 @@ class SchedulingService:
             query += " ORDER BY start_time"
             
             results = self.db.query(query, params)
-            appointments = []
+            appointments: List[Appointment] = []
             
             for result in results:
                 if result.get('result'):
@@ -112,11 +197,17 @@ class SchedulingService:
             
             return appointments
         except Exception as e:
-            print(f"Error getting appointments by date: {e}")
+            logger.error(f"Error getting appointments by date: {e}")
             return []
     
     def get_appointments_by_patient(self, patient_id: str) -> List[Appointment]:
-        """Get all appointments for a patient"""
+        """
+        Get all appointments for a patient
+
+        This method retrieves all appointments for a specific patient, ordered by date and time.
+        :param patient_id: ID of the patient
+        :return: List of Appointment objects for the specified patient
+        """
         try:
             query = """
                 SELECT * FROM appointment 
@@ -124,7 +215,7 @@ class SchedulingService:
                 ORDER BY appointment_date DESC, start_time DESC
             """
             results = self.db.query(query, {"patient_id": patient_id})
-            appointments = []
+            appointments: List[Appointment] = []
             
             for result in results:
                 if result.get('result'):
@@ -133,11 +224,19 @@ class SchedulingService:
             
             return appointments
         except Exception as e:
-            print(f"Error getting appointments by patient: {e}")
+            logger.error(f"Error getting appointments by patient: {e}")
             return []
     
-    def get_appointments_by_provider(self, provider_id: str, start_date: str = None, end_date: str = None) -> List[Appointment]:
-        """Get appointments for a provider within a date range"""
+    def get_appointments_by_provider(self, provider_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> List[Appointment]:
+        """
+        Get appointments for a provider within a date range
+
+        This method retrieves all appointments for a specific provider, optionally filtered by a date range.
+        :param provider_id: ID of the provider
+        :param start_date: Start date in YYYY-MM-DD format (optional)
+        :param end_date: End date in YYYY-MM-DD format (optional)
+        :return: List of Appointment objects for the specified provider and date range
+        """
         try:
             query = "SELECT * FROM appointment WHERE provider_id = $provider_id"
             params = {"provider_id": provider_id}
@@ -150,65 +249,78 @@ class SchedulingService:
             query += " ORDER BY appointment_date, start_time"
             
             results = self.db.query(query, params)
-            appointments = []
-            
+            appointments: List[Appointment] = []
+
             for result in results:
                 if result.get('result'):
                     for record in result['result']:
                         appointments.append(Appointment.from_dict(record))
-            
+
             return appointments
         except Exception as e:
-            print(f"Error getting appointments by provider: {e}")
+            logger.error(f"Error getting appointments by provider: {e}")
             return []
     
     def get_all_appointments(self) -> List[Appointment]:
-        """Get all appointments (for debugging)"""
+        """
+        Get all appointments (for debugging)
+
+        This method retrieves all appointments from the database, ordered by date and time.
+        It is primarily used for debugging purposes to ensure the appointment table is functioning correctly.
+        :return: List of all Appointment objects
+        """
         try:
-            print("[DEBUG] get_all_appointments: Starting query...")
+            logger.debug("get_all_appointments: Starting query...")
             
             # First, let's see what tables exist
-            print("[DEBUG] Checking what tables exist...")
+            logger.debug("Checking what tables exist...")
             tables_query = "INFO FOR DB"
             tables_result = self.db.query(tables_query, {})
-            print(f"[DEBUG] Tables query result: {tables_result}")
+            logger.debug(f"Tables query result: {tables_result}")
             
             # Try a simple query to see what's in the appointment table
-            print("[DEBUG] Trying simple SELECT query...")
+            logger.debug("Trying simple SELECT query...")
             simple_query = "SELECT * FROM appointment"
             simple_result = self.db.query(simple_query, {})
-            print(f"[DEBUG] Simple query result: {simple_result}")
+            logger.debug(f"Simple query result: {simple_result}")
             
             # Now try the full query
             query = "SELECT * FROM appointment ORDER BY appointment_date, start_time"
-            print(f"[DEBUG] Executing query: {query}")
+            logger.debug(f"Executing query: {query}")
             results = self.db.query(query, {})
-            print(f"[DEBUG] Full query results: {results}")
-            
-            appointments = []
-            
+            logger.debug(f"Full query results: {results}")
+
+            appointments: List[Appointment] = []
+
             for result in results:
-                print(f"[DEBUG] Processing result: {result}")
+                logger.debug(f"Processing result: {result}")
                 # The result is already the record, not nested under 'result'
-                if isinstance(result, dict):
-                    print(f"[DEBUG] Processing record: {result}")
-                    appointments.append(Appointment.from_dict(result))
-                elif result.get('result'):
+                logger.debug(f"Processing record: {result}")
+                appointments.append(Appointment.from_dict(result))
+                if result.get('result'):
                     # Fallback for nested structure
                     for record in result['result']:
-                        print(f"[DEBUG] Processing nested record: {record}")
+                        logger.debug(f"Processing nested record: {record}")
                         appointments.append(Appointment.from_dict(record))
             
-            print(f"[DEBUG] Final appointments list: {appointments}")
+            logger.debug(f"Final appointments list: {appointments}")
             return appointments
         except Exception as e:
-            print(f"Error getting all appointments: {e}")
+            logger.error(f"Error getting all appointments: {e}")
             import traceback
-            print(f"[ERROR] Traceback: {traceback.format_exc()}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return []
     
     def update_appointment(self, appointment_id: str, updates: Dict[str, Any]) -> Tuple[bool, str]:
-        """Update an appointment"""
+        """
+        Update an appointment
+
+        This method updates an existing appointment with the provided fields.
+        It checks for time conflicts if the appointment date or time is being updated.
+        :param appointment_id: ID of the appointment to update
+        :param updates: Dictionary of fields to update (e.g., {'start_time': '10:00', 'notes': 'Updated notes'})
+        :return: (success, message)
+        """
         try:
             # Get current appointment
             appointment = self.get_appointment(appointment_id)
@@ -236,11 +348,27 @@ class SchedulingService:
                 if hasattr(appointment, key):
                     setattr(appointment, key, value)
             
-            appointment.updated_at = datetime.utcnow().isoformat()
-            
+            from datetime import timezone
+            appointment.updated_at = datetime.now(timezone.utc).isoformat()
+
             # Save to database
-            result = self.db.update('appointment', appointment_id, appointment.to_dict())
+            result = self.db.update(appointment_id, appointment.to_dict())
             if result:
+                # Publish event after successful database update
+                event_bus.publish(
+                    AppointmentUpdated(
+                        appointment_id=appointment_id,
+                        patient_id=appointment.patient_id,
+                        provider_id=appointment.provider_id,
+                        appointment_date=appointment.appointment_date,
+                        start_time=appointment.start_time,
+                        end_time=appointment.end_time,
+                        appointment_type=appointment.appointment_type,
+                        status=appointment.status,
+                        changes=updates,
+                        occurred_at=datetime.now()
+                    )
+                )
                 return True, "Appointment updated successfully"
             else:
                 return False, "Failed to update appointment"
@@ -248,8 +376,16 @@ class SchedulingService:
         except Exception as e:
             return False, f"Error updating appointment: {str(e)}"
     
-    def cancel_appointment(self, appointment_id: str, reason: str = None) -> Tuple[bool, str]:
-        """Cancel an appointment"""
+    def cancel_appointment(self, appointment_id: str, reason: Optional[str] = None) -> Tuple[bool, str]:
+        """
+        Cancel an appointment
+
+        This method cancels an existing appointment by updating its status to 'cancelled'.
+        It appends a cancellation note with the provided reason.
+        :param appointment_id: ID of the appointment to cancel
+        :param reason: Reason for cancellation (optional)
+        :return: (success, message)
+        """
         try:
             appointment = self.get_appointment(appointment_id)
             if not appointment:
@@ -262,14 +398,33 @@ class SchedulingService:
                 'status': AppointmentStatus.CANCELLED.value,
                 'notes': f"{appointment.notes}\n\nCancelled: {reason or 'No reason provided'}"
             }
-            
-            return self.update_appointment(appointment_id, updates)
+
+            success, message = self.update_appointment(appointment_id, updates)
+            if success:
+                # Publish cancellation event
+                event_bus.publish(
+                    AppointmentCancelled(
+                        appointment_id=appointment_id,
+                        patient_id=appointment.patient_id,
+                        provider_id=appointment.provider_id,
+                        reason=reason,
+                        occurred_at=datetime.now()
+                    )
+                )
+
+            return success, message
             
         except Exception as e:
             return False, f"Error cancelling appointment: {str(e)}"
     
     def confirm_appointment(self, appointment_id: str) -> Tuple[bool, str]:
-        """Confirm an appointment"""
+        """
+        Confirm an appointment
+
+        This method confirms an existing appointment by updating its status to 'confirmed'.
+        :param appointment_id: ID of the appointment to confirm
+        :return: (success, message)
+        """
         try:
             appointment = self.get_appointment(appointment_id)
             if not appointment:
@@ -279,13 +434,31 @@ class SchedulingService:
                 return False, "Appointment is not in scheduled status"
             
             updates = {'status': AppointmentStatus.CONFIRMED.value}
-            return self.update_appointment(appointment_id, updates)
+            success, message = self.update_appointment(appointment_id, updates)
+            if success:
+                # Publish confirmation event
+                event_bus.publish(
+                    AppointmentConfirmed(
+                        appointment_id=appointment_id,
+                        patient_id=appointment.patient_id,
+                        provider_id=appointment.provider_id,
+                        occurred_at=datetime.now()
+                    )
+                )
+
+            return success, message
             
         except Exception as e:
             return False, f"Error confirming appointment: {str(e)}"
     
     def complete_appointment(self, appointment_id: str) -> Tuple[bool, str]:
-        """Mark appointment as completed"""
+        """
+        Mark appointment as completed
+
+        This method marks an existing appointment as completed by updating its status to 'completed'.
+        :param appointment_id: ID of the appointment to complete
+        :return: (success, message)
+        """
         try:
             appointment = self.get_appointment(appointment_id)
             if not appointment:
@@ -295,13 +468,34 @@ class SchedulingService:
                 return False, "Appointment cannot be marked as completed"
             
             updates = {'status': AppointmentStatus.COMPLETED.value}
-            return self.update_appointment(appointment_id, updates)
+            success, message = self.update_appointment(appointment_id, updates)
+            if success:
+                # Publish completion event
+                event_bus.publish(
+                    AppointmentCompleted(
+                        appointment_id=appointment_id,
+                        patient_id=appointment.patient_id,
+                        provider_id=appointment.provider_id,
+                        occurred_at=datetime.now()
+                    )
+                )
+
+            return success, message
             
         except Exception as e:
             return False, f"Error completing appointment: {str(e)}"
     
     def get_available_slots(self, provider_id: str, date: str, duration_minutes: int = 30) -> List[Dict[str, str]]:
-        """Get available time slots for a provider on a specific date"""
+        """
+        Get available time slots for a provider on a specific date
+
+        This method retrieves available time slots for a provider on a given date.
+        It checks existing appointments and creates time slots based on business hours (9 AM to 5 PM).
+        :param provider_id: ID of the provider
+        :param date: Date in YYYY-MM-DD format
+        :param duration_minutes: Duration of each time slot in minutes (default is 30 minutes)
+        :return: List of available time slots as dictionaries with 'start_time' and 'end_time'
+        """
         try:
             # Get existing appointments for the date
             appointments = self.get_appointments_by_date(date, provider_id)
@@ -311,7 +505,7 @@ class SchedulingService:
             business_end = datetime.strptime('17:00', '%H:%M')
             
             # Create time slots
-            slots = []
+            slots: List[Dict[str, str]] = []
             current_time = business_start
             
             while current_time + timedelta(minutes=duration_minutes) <= business_end:
@@ -336,11 +530,21 @@ class SchedulingService:
             return slots
             
         except Exception as e:
-            print(f"Error getting available slots: {e}")
+            logger.error(f"Error getting available slots: {e}")
             return []
     
-    def _check_time_conflict(self, provider_id: str, date: str, start_time: str, end_time: str, exclude_id: str = None) -> Optional[str]:
-        """Check for time conflicts with existing appointments"""
+    def _check_time_conflict(self, provider_id: str, date: str, start_time: str, end_time: str, exclude_id: Optional[str] = None) -> Optional[str]:
+        """
+        Check for time conflicts with existing appointments
+
+        This method checks if the provided time range conflicts with any existing appointments for a provider on a specific date.
+        :param provider_id: ID of the provider
+        :param date: Date in YYYY-MM-DD format
+        :param start_time: Start time in HH:MM format
+        :param end_time: End time in HH:MM format
+        :param exclude_id: Optional appointment ID to exclude from conflict check (e.g., when updating an appointment)
+        :return: None if no conflict, or a string message indicating the conflict
+        """
         try:
             appointments = self.get_appointments_by_date(date, provider_id)
             
@@ -357,11 +561,20 @@ class SchedulingService:
             return None
             
         except Exception as e:
-            print(f"Error checking time conflict: {e}")
+            logger.error(f"Error checking time conflict: {e}")
             return "Error checking availability"
     
     def _times_overlap(self, start1: str, end1: str, start2: str, end2: str) -> bool:
-        """Check if two time ranges overlap"""
+        """
+        Check if two time ranges overlap
+
+        This method checks if two time ranges overlap based on their start and end times.
+        :param start1: Start time of the first range in HH:MM format
+        :param end1: End time of the first range in HH:MM format
+        :param start2: Start time of the second range in HH:MM format
+        :param end2: End time of the second range in HH:MM format
+        :return: True if the time ranges overlap, False otherwise
+        """
         try:
             s1 = datetime.strptime(start1, '%H:%M')
             e1 = datetime.strptime(end1, '%H:%M')

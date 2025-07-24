@@ -6,6 +6,7 @@ import SignupPopup from '../components/SignupPopup';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import { appointmentService } from '../services/appointments';
 import authService from '../services/auth';
+import logger from '../services/logging';
 import './Schedule.css';
 
 interface Appointment {
@@ -41,9 +42,9 @@ const Schedule = () => {
     const loadAppointments = async () => {
       if (isAuthenticated) {
         try {
-          console.log('Loading appointments from backend...');
+          logger.debug('Loading appointments from backend...');
           const response = await appointmentService.getAppointments();
-          console.log('Backend appointments response:', response);
+          logger.debug('Backend appointments response:', response);
 
           // Convert backend appointments to frontend format
           const convertedAppointments = response.appointments.map(apt => ({
@@ -57,7 +58,7 @@ const Schedule = () => {
             notes: apt.notes,
             location: apt.location,
           }));
-          console.log('Converted appointments:', convertedAppointments);
+          logger.debug('Converted appointments:', convertedAppointments);
           setAppointments(convertedAppointments);
         } catch (error) {
           console.error('Error loading appointments:', error);
@@ -73,7 +74,7 @@ const Schedule = () => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && isAuthenticated) {
-        console.log('Page became visible, refreshing appointments...');
+        logger.debug('Page became visible, refreshing appointments...');
         const loadAppointments = async () => {
           try {
             const response = await appointmentService.getAppointments();
@@ -106,7 +107,7 @@ const Schedule = () => {
     value: Value,
     event?: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    console.log('Calendar change - value:', value);
+    logger.debug('Calendar change - value:', value);
 
     if (!isAuthenticated) {
       showSignupPopup();
@@ -122,7 +123,7 @@ const Schedule = () => {
       selectedDate = new Date();
     }
 
-    console.log('Setting selected date:', selectedDate);
+    logger.debug('Setting selected date:', selectedDate);
     setCalendarValue(selectedDate);
     setSelectedDate(selectedDate);
     setIsModalOpen(true);
@@ -135,18 +136,18 @@ const Schedule = () => {
   const refreshAppointments = async () => {
     if (isAuthenticated) {
       try {
-        console.log('Refreshing appointments...');
+        logger.debug('Refreshing appointments...');
 
         const response = await appointmentService.getAppointments();
 
         if (!response.appointments || response.appointments.length === 0) {
-          console.log('No appointments returned from backend');
+          logger.debug('No appointments returned from backend');
           setAppointments([]);
           return;
         }
 
         const convertedAppointments = response.appointments.map(apt => {
-          console.log('Converting appointment:', apt);
+          logger.debug('Converting appointment:', apt);
           return {
             id: apt.id,
             patientName: `Patient ${apt.patient_id}`,
@@ -160,20 +161,20 @@ const Schedule = () => {
           };
         });
         setAppointments(convertedAppointments);
-        console.log('Appointments refreshed:', convertedAppointments);
+        logger.debug('Appointments refreshed:', convertedAppointments);
       } catch (error) {
         console.error('Error refreshing appointments:', error);
         console.error('Error details:', {
-          message: error.message,
-          stack: error.stack,
-          name: error.name,
+          message: (error as Error).message,
+          stack: (error as Error).stack,
+          name: (error as Error).name,
         });
       }
     }
   };
 
   const handleAppointmentSubmit = async (appointmentData: any) => {
-    console.log('Appointment submitted:', appointmentData);
+    logger.debug('Appointment submitted:', appointmentData);
     setIsSubmitting(true);
     setError('');
 
@@ -189,12 +190,12 @@ const Schedule = () => {
         location: appointmentData.location,
       };
 
-      console.log('Sending to backend:', backendData);
+      logger.debug('Sending to backend:', backendData);
 
       // Send to backend
       const newBackendAppointment =
         await appointmentService.createAppointment(backendData);
-      console.log('Backend response:', newBackendAppointment);
+      logger.debug('Backend response:', newBackendAppointment);
 
       // Refresh the appointments list from the backend
       await refreshAppointments();
@@ -308,10 +309,10 @@ const Schedule = () => {
               </button>
               <button
                 onClick={() => {
-                  console.log('New Appointment button clicked');
+                  logger.debug('New Appointment button clicked');
                   setSelectedDate(new Date());
                   setIsModalOpen(true);
-                  console.log('Modal should be open:', true);
+                  logger.debug('Modal should be open:', true);
                 }}
                 className="btn-primary"
               >
@@ -398,7 +399,7 @@ const Schedule = () => {
       <AppointmentForm
         isOpen={isModalOpen}
         onClose={() => {
-          console.log('Modal closing');
+          logger.debug('Modal closing');
           setIsModalOpen(false);
           setSelectedDate(null);
         }}

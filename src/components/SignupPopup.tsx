@@ -1,29 +1,43 @@
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import authService from '../services/auth';
+import GoogleAuthButton from './GoogleAuthButton';
+import RoleSelect from './RoleSelect';
 import './SignupPopup.css';
+
+interface SignupPopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSwitchToLogin?: () => void;
+}
 
 const SignupPopup = ({
   isOpen,
   onClose,
   onSwitchToLogin,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onSwitchToLogin?: () => void;
-}): JSX.Element | null => {
+}: SignupPopupProps): JSX.Element | null => {
   const navigate = useNavigate();
+  const [role, setRole] = useState('patient');
 
   if (!isOpen) return null;
 
   const handleSignupClick = () => {
     onClose();
-    // Navigate to dashboard which will show the signup form
-    navigate('/');
+    navigate('/?auth=register');
   };
 
   const handleLoginClick = () => {
     onClose();
-    // Navigate to dashboard which will show the login form
-    navigate('/');
+    navigate('/?auth=login');
+  };
+
+  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRole(e.target.value);
+  };
+
+  const handleGoogleSignup = () => {
+    const url = authService.getFederatedSignInUrl(role);
+    window.location.assign(url);
   };
 
   return (
@@ -63,6 +77,10 @@ const SignupPopup = ({
           </div>
 
           <div className="popup-actions">
+            <RoleSelect value={role} onChange={handleRoleChange} />
+            <GoogleAuthButton onClick={handleGoogleSignup}>
+              Sign up with Google
+            </GoogleAuthButton>
             <button className="popup-signup-button" onClick={handleSignupClick}>
               Sign Up Now
             </button>

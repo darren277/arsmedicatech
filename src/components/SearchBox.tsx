@@ -17,7 +17,7 @@ export default function SearchBox({
       </div>
       <input
         type="text"
-        placeholder="Search patient histories..."
+        placeholder="Search patients and encounters..."
         className="search-input"
         value={value}
         onChange={e => onChange(e.target.value)}
