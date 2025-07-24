@@ -20,6 +20,15 @@ spec:
         runAsUser: {{ .Values.security.runAsUser }}
         runAsGroup: {{ .Values.security.runAsGroup }}
         fsGroup: {{ .Values.security.fsGroup }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: doks.digitalocean.com/node-pool
+                    operator: In
+                    values:
+                      - {{ .Values.nodePool }}
       containers:
         - name: mariadb
           image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
