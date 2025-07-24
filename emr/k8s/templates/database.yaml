@@ -106,4 +106,4 @@ spec:
       targetPort: 3306
   selector:
     app: oscar-db
-  clusterIP: None 
+  clusterIP: None

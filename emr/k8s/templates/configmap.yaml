@@ -27,4 +27,4 @@ data:
     document_dir=/var/lib/OscarDocument
     
     # Timezone
-    timezone={{ .Values.oscar.env.timezone }} 
+    timezone={{ .Values.oscar.env.timezone }}

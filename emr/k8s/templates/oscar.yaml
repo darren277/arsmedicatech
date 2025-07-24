@@ -92,4 +92,4 @@ spec:
       port: 443
       targetPort: {{ .Values.oscar.ports.https }}
   selector:
-    app: oscar-web 
+    app: oscar-web
