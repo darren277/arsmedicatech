@@ -1,9 +1,11 @@
 FROM tomcat:9.0-jdk11
 
+ARG OSCAR_VERSION=19.4835
+
 # Copy the OSCAR WAR into Tomcat's webapps folder.
 # Adjust the name of the WAR file to match your build.
 #https://bitbucket.org/oscaremr/oscar/downloads/oscar-19.4690.war
-RUN wget -O /usr/local/tomcat/webapps/oscar.war https://bitbucket.org/oscaremr/oscar/downloads/oscar-19.4690.war
+RUN wget -O /usr/local/tomcat/webapps/oscar.war https://bitbucket.org/oscaremr/oscar/downloads/oscar-$OSCAR_VERSION.war
 ##COPY oscar-19.war /usr/local/tomcat/webapps/oscar.war
 
 RUN apt-get update && apt-get install -y vim nano wget mariadb-client && rm -rf /var/lib/apt/lists/*
