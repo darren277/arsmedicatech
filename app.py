@@ -16,6 +16,10 @@ from werkzeug.wrappers.response import Response as BaseResponse
 
 from lib.dummy_data import DUMMY_CONVERSATIONS
 from lib.event_handlers import register_event_handlers
+from lib.routes.administration import (get_administrators_route,
+                                       get_clinics_route,
+                                       get_organizations_route,
+                                       get_patients_route, get_providers_route)
 from lib.routes.appointments import (cancel_appointment_route,
                                      confirm_appointment_route,
                                      create_appointment_route,
@@ -72,6 +76,7 @@ from lib.services.lab_results import (LabResultsService,
                                       serum_proteins)
 from lib.services.notifications import publish_event_with_buffer
 from lib.services.redis_client import get_redis_connection
+from lib.services.user_service import UserNotAffiliatedError, UserService
 from settings import (CLIENT_ID, COGNITO_DOMAIN, DEBUG, FLASK_SECRET_KEY, HOST,
                       PORT, REDIRECT_URI, SENTRY_DSN, logger)
 
@@ -827,14 +832,6 @@ def call_optimal() -> Tuple[Response, int]:
     return call_optimal_route()
 
 # Organizations endpoints
-@app.route('/api/organizations', methods=['GET'])
-def get_organizations() -> Tuple[Response, int]:
-    """
-    Get a list of organizations.
-    :return: Response object with organizations data.
-    """
-    return get_organizations_route()
-
 @app.route('/api/organizations/<org_id>', methods=['GET'])
 def get_organization(org_id: str) -> Union[Tuple[Response, int], werkzeug.wrappers.response.Response]:
     """
@@ -1083,5 +1080,73 @@ app.register_blueprint(uploads_bp)
 from asgiref.wsgi import WsgiToAsgi
 
 asgi_app = WsgiToAsgi(app)
+
+@app.route('/api/admin/organizations', methods=['GET'])
+def get_organizations() -> Tuple[Response, int]:
+    """
+    Get a list of organizations.
+    :return: Response object with organizations data.
+    """
+    return get_organizations_route()
+
+@app.route('/api/admin/my_organization', methods=['GET'])
+def get_my_organization() -> Tuple[Response, int]:
+    """
+    Get the organization of the current user.
+    :return: Response object with organization data.
+    """
+    current_user = session.get('user_id')
+    if not current_user:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    user_service = UserService()
+    try:
+        org_d = user_service.get_organization_id(current_user)
+        if not org_d:
+            return jsonify({"error": "Organization not found"}), 404
+        return jsonify(dict(org_id=org_d)), 200
+    except UserNotAffiliatedError as e:
+        logger.error(f"User {current_user} is not affiliated with an organization: {e}")
+        return jsonify({"error": str(e)}), 403
+    except Exception as e:
+        logger.error(f"Error getting organization for user {current_user}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/clinics/<org_id>', methods=['GET'])
+def get_clinics(org_id: str) -> Tuple[Response, int]:
+    """
+    Get a list of clinics.
+    :param org_id: The ID of the organization to retrieve clinics for.
+    :return: Response object with clinics data.
+    """
+    return get_clinics_route(org_id)
+
+@app.route('/api/admin/patients/<org_id>', methods=['GET'])
+def get_patients(org_id: str) -> Tuple[Response, int]:
+    """
+    Get a list of patients.
+    :param org_id: The ID of the organization to retrieve patients for.
+    :return: Response object with patients data.
+    """
+    return get_patients_route(org_id)
+
+@app.route('/api/admin/providers/<org_id>', methods=['GET'])
+def get_providers(org_id: str) -> Tuple[Response, int]:
+    """
+    Get a list of providers.
+    :param org_id: The ID of the organization to retrieve providers for.
+    :return: Response object with providers data.
+    """
+    return get_providers_route(org_id)
+
+@app.route('/api/admin/administrators/<org_id>', methods=['GET'])
+def get_administrators(org_id: str) -> Tuple[Response, int]:
+    """
+    Get a list of administrators.
+    :param org_id: The ID of the organization to retrieve administrators for.
+    :return: Response object with administrators data.
+    """
+    return get_administrators_route(org_id)
+
 
 if __name__ == '__main__': app.run(port=PORT, debug=DEBUG, host=HOST)

@@ -37,6 +37,7 @@ import { useEffect } from 'react';
 import VideoRoom from './components/VideoRoom';
 import { API_URL } from './env_vars';
 import { usePluginRoutes } from './hooks/usePluginRoutes';
+import Administration from './pages/Administration';
 import FileUpload from './pages/FileUpload';
 import Organization from './pages/Organization';
 import RoleDescriptions from './pages/RoleDescriptions';
@@ -189,6 +190,8 @@ const baseRoutes: PluginRoute[] = [
   { path: 'notes', element: <UserNotesPage /> },
 
   { path: 'about/roles', element: <RoleDescriptions /> },
+
+  { path: 'admin', element: <Administration /> },
 ];
 
 function App() {

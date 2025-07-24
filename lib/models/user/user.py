@@ -31,7 +31,8 @@ class User:
             clinic_address: Optional[str] = None,
             phone: Optional[str] = None,
             max_organizations: int = 1,
-            user_organizations: int = 0
+            user_organizations: int = 0,
+            organization_id: Optional[str] = None
     ) -> None:
         """
         Initialize a User object
@@ -51,6 +52,7 @@ class User:
         :param phone: User's phone number
         :param max_organizations: Maximum number of organizations this user can create (default: 1)
         :param user_organizations: Current number of organizations created by this user (default: 0)
+        :param organization_id: ID of the organization this user belongs to (if applicable)
         """
         self.username = username
         self.email = email
@@ -66,6 +68,7 @@ class User:
         self.phone = phone or ""
         self.max_organizations = max_organizations
         self.user_organizations = user_organizations
+        self.organization_id = organization_id
         
         # Hash password if provided
         self.password_hash: Optional[str] = None
@@ -136,7 +139,8 @@ class User:
             'clinic_address': self.clinic_address,
             'phone': self.phone,
             'max_organizations': self.max_organizations,
-            'user_organizations': self.user_organizations
+            'user_organizations': self.user_organizations,
+            'organization_id': self.organization_id
         }
     
     @classmethod
@@ -166,7 +170,8 @@ class User:
             clinic_address=data.get('clinic_address'),
             phone=data.get('phone'),
             max_organizations=data.get('max_organizations', 1),
-            user_organizations=data.get('user_organizations', 0)
+            user_organizations=data.get('user_organizations', 0),
+            organization_id=data.get('organization_id')
         )
         # Set password hash if it exists in the data
         if 'password_hash' in data:
@@ -250,7 +255,7 @@ class User:
         :param role: User role to validate
         :return: Tuple (is_valid: bool, error_message: str)
         """
-        valid_roles = ['patient', 'provider', 'admin']
+        valid_roles = ['patient', 'provider', 'admin', 'administrator', 'superadmin']
         if role not in valid_roles:
             return False, f"Role must be one of: {', '.join(valid_roles)}"
         return True, ""
