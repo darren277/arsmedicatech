@@ -39,7 +39,8 @@ class UserSession:
         """
         if not user_id or not username:
             raise ValueError("user_id and username cannot be empty")
-        if role not in ['patient', 'provider', 'admin']:
+        if role not in ['patient', 'provider', 'admin', 'administrator', 'superadmin']:
+            print(f"Invalid role: {role}. Defaulting to 'patient'.")
             raise ValueError("Role must be one of: patient, provider, admin")
 
         self.user_id = user_id

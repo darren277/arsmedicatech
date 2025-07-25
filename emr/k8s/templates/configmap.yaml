@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oscar-config
+  namespace: {{ .Values.namespace }}
+data:
+  oscar.properties: |
+    # OSCAR EMR Configuration
+    # Database Configuration
+    db_host={{ .Values.oscar.env.dbHost }}
+    db_port={{ .Values.oscar.env.dbPort }}
+    db_name={{ .Values.oscar.env.dbName }}
+    db_user={{ .Values.oscar.env.dbUser }}
+    
+    # Application Settings
+    oscar_application_title=OSCAR EMR
+    oscar_application_version=1.0.0
+    
+    # Security Settings
+    oscar_encryption_key=your-encryption-key-here
+    
+    # Logging Configuration
+    log_level=INFO
+    log_file=/usr/local/tomcat/logs/oscar.log
+    
+    # Document Storage
+    document_dir=/var/lib/OscarDocument
+    
+    # Timezone
+    timezone={{ .Values.oscar.env.timezone }}

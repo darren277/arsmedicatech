@@ -529,4 +529,29 @@ export const userNotesAPI = {
     apiService.getAPI(`/user-notes?search=${encodeURIComponent(query)}`),
 };
 
+// Admin API operations
+export const adminAPI = {
+  // Get organization id for user
+  getOrganizationId: () => apiService.getAPI('/admin/my_organization'),
+
+  // Get all organizations
+  getOrganizations: () => apiService.getAPI('/admin/organizations'),
+
+  // Get all clinics
+  getClinics: (organizationId: string) =>
+    apiService.getAPI(`/admin/clinics/${organizationId}`),
+
+  // Get all patients
+  getPatients: (organizationId: string) =>
+    apiService.getAPI(`/admin/patients/${organizationId}`),
+
+  // Get all providers
+  getProviders: (organizationId: string) =>
+    apiService.getAPI(`/admin/providers/${organizationId}`),
+
+  // Get all administrators
+  getAdministrators: (organizationId: string) =>
+    apiService.getAPI(`/admin/administrators/${organizationId}`),
+};
+
 export default apiService;

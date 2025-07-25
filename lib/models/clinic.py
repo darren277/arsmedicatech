@@ -2,12 +2,42 @@
 This module defines a Clinic class and provides functions to interact with a SurrealDB database.
 """
 import json
-from typing import Any, Dict, List
-
-from surrealdb import Surreal  # type: ignore
+from typing import Any, Dict, List, TypedDict
 
 from lib.db.surreal import AsyncDbController
 from settings import logger
+
+
+class GeoJSONPoint(TypedDict):
+    """
+    A TypedDict for GeoJSON Point objects, defining the expected structure.
+    This is useful for type checking and IDE support.
+    """
+    type: str
+    coordinates: List[float]
+
+class Address(TypedDict):
+    """
+    A TypedDict for Address objects, defining the expected structure.
+    This is useful for type checking and IDE support.
+    """
+    street: str
+    city: str
+    state: str
+    zip: str
+    country: str
+
+class ClinicType(TypedDict):
+    """
+    A TypedDict for Clinic objects, defining the expected structure.
+    This is useful for type checking and IDE support.
+    """
+    name: str
+    address: Address
+    location: GeoJSONPoint
+    longitude: float
+    latitude: float
+    organization_id: str
 
 
 class Clinic:
@@ -23,7 +53,8 @@ class Clinic:
             zip_code: str,
             country: str,
             longitude: float,
-            latitude: float
+            latitude: float,
+            organization_id: str = ""
     ) -> None:
         """
         Initializes a Clinic object.
@@ -46,8 +77,33 @@ class Clinic:
         self.country = country
         self.longitude = longitude
         self.latitude = latitude
+        self.organization_id = organization_id
 
-    def to_geojson_point(self) -> Dict[str, Any]:
+    @staticmethod
+    def from_db(data: dict[str, Any]) -> 'Clinic':
+        """
+        Creates a Clinic object from a dictionary representation typically retrieved from the database.
+
+        Args:
+            data (Dict[str, Any]): A dictionary containing clinic attributes.
+
+        Returns:
+            Clinic: An instance of the Clinic class.
+        """
+        return Clinic(
+            name=data.get('name', ''),
+            street=data.get('address', {}).get('street', ''),
+            city=data.get('address', {}).get('city', ''),
+            state=data.get('address', {}).get('state', ''),
+            zip_code=data.get('address', {}).get('zip', ''),
+            country=data.get('address', {}).get('country', ''),
+            longitude=data.get('location', {}).get('coordinates', [0, 0])[0],
+            latitude=data.get('location', {}).get('coordinates', [0, 0])[1],
+            organization_id=data.get('organization_id', '')
+        )
+
+
+    def to_geojson_point(self) -> GeoJSONPoint:
         """
         Converts the clinic's location to a GeoJSON Point dictionary.
         Note: GeoJSON specifies longitude, then latitude.
@@ -57,6 +113,27 @@ class Clinic:
         return {
             "type": "Point",
             "coordinates": [self.longitude, self.latitude]
+        }
+
+    def to_dict(self) -> ClinicType:
+        """
+        Converts the Clinic object to a dictionary representation.
+
+        :return: A dictionary containing the clinic's attributes.
+        """
+        return {
+            "name": self.name,
+            "address": {
+                "street": self.street,
+                "city": self.city,
+                "state": self.state,
+                "zip": self.zip_code,
+                "country": self.country
+            },
+            "location": self.to_geojson_point(),
+            "longitude": self.longitude,
+            "latitude": self.latitude,
+            "organization_id": self.organization_id
         }
 
     def __repr__(self) -> str:

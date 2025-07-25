@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oscar-web
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: oscar-web
+spec:
+  replicas: {{ .Values.oscar.replicas }}
+  selector:
+    matchLabels:
+      app: oscar-web
+  template:
+    metadata:
+      labels:
+        app: oscar-web
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "{{ .Values.oscar.ports.web }}"
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      securityContext:
+        runAsUser: {{ .Values.security.runAsUser }}
+        runAsGroup: {{ .Values.security.runAsGroup }}
+        fsGroup: {{ .Values.security.fsGroup }}
+      containers:
+        - name: oscar
+          image: {{ .Values.oscar.image.repository }}:{{ .Values.oscar.image.tag }}
+          imagePullPolicy: {{ .Values.oscar.image.pullPolicy }}
+          env:
+            - name: DB_HOST
+              value: {{ .Values.oscar.env.dbHost }}
+            - name: DB_PORT
+              value: "{{ .Values.oscar.env.dbPort }}"
+            - name: DB_NAME
+              value: {{ .Values.oscar.env.dbName }}
+            - name: DB_USER
+              value: {{ .Values.oscar.env.dbUser }}
+            - name: DB_PASSWORD
+              value: {{ .Values.oscar.env.dbPassword }}
+            - name: TZ
+              value: {{ .Values.oscar.env.timezone }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.oscar.tomcat.port }}
+            - name: https
+              containerPort: {{ .Values.oscar.tomcat.httpsPort }}
+          volumeMounts:
+            - name: oscar-documents
+              mountPath: /var/lib/OscarDocument
+            - name: oscar-logs
+              mountPath: /usr/local/tomcat/logs
+          resources:
+            {{- toYaml .Values.oscar.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /oscar/
+              port: {{ .Values.oscar.tomcat.port }}
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /oscar/
+              port: {{ .Values.oscar.tomcat.port }}
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: oscar-documents
+          persistentVolumeClaim:
+            claimName: oscar-documents-pvc
+        - name: oscar-logs
+          persistentVolumeClaim:
+            claimName: oscar-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oscar-web
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: oscar-web
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.oscar.ports.web }}
+      targetPort: {{ .Values.oscar.tomcat.port }}
+    - name: https
+      port: {{ .Values.oscar.ports.https }}
+      targetPort: {{ .Values.oscar.tomcat.httpsPort }}
+  selector:
+    app: oscar-web
