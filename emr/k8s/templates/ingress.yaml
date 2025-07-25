@@ -10,7 +10,7 @@ spec:
   tls:
     - hosts:
         - {{ .Values.ingress.hosts.emr.host | quote }}
-      secretName: {{ .secretName }}
+      secretName: {{ .Values.ingress.tlsSecret }}
   rules:
     - host: {{ .Values.ingress.hosts.emr.host | quote }}
       http:
@@ -21,4 +21,4 @@ spec:
               service:
                 name: oscar-web
                 port:
-                  number: 80
+                  number: {{ .Values.ingress.hosts.emr.port }}
