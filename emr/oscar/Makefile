@@ -10,8 +10,10 @@ auth:
 	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(DOCKER_REGISTRY)
 
 
+OSCAR_BUILD_ARGS=--build-arg DB_HOST=$(DB_HOST) --build-arg DB_NAME=$(DB_NAME) --build-arg DB_USER=$(DB_USER) --build-arg DB_PASSWORD=$(DB_PASSWORD)
+
 oscar-docker:
-	docker build -t $(DOCKER_REGISTRY)/$(OSCAR_EMR_IMAGE):$(OSCAR_EMR_VERSION) -f ./Dockerfile .
+	docker build -t $(DOCKER_REGISTRY)/$(OSCAR_EMR_IMAGE):$(OSCAR_EMR_VERSION) $(OSCAR_BUILD_ARGS) -f ./Dockerfile .
 	docker push $(DOCKER_REGISTRY)/$(OSCAR_EMR_IMAGE):$(OSCAR_EMR_VERSION)
 	kubectl rollout restart deployment $(OSCAR_EMR_DEPLOYMENT) --namespace=$(NAMESPACE)
 
