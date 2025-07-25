@@ -46,7 +46,7 @@ def test_user_settings():
     
     try:
         from models.user_settings import UserSettings
-        
+
         # Test settings creation
         settings = UserSettings(user_id="test-user-123")
         print("✅ UserSettings model created")

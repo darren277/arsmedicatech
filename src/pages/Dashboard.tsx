@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import BarChart from '../components/BarChart';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
@@ -205,8 +205,35 @@ interface UserData {
 const Dashboard = () => {
   const { user, isAuthenticated, setUser, isLoading: userLoading } = useUser();
   const [showLogin, setShowLogin] = useState(true);
-  const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
+  const {
+    isPopupOpen,
+    showSignupPopup,
+    hideSignupPopup: originalHideSignupPopup,
+  } = useSignupPopup();
   const [usersExist, setUsersExist] = useState<boolean | null>(null);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Custom hideSignupPopup that also clears auth query parameter
+  const hideSignupPopup = () => {
+    originalHideSignupPopup();
+    // Clear auth query parameter
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete('auth');
+    window.history.replaceState(null, '', `?${newSearchParams.toString()}`);
+  };
+
+  // Check for auth query parameter and automatically show the appropriate form
+  useEffect(() => {
+    const authParam = searchParams.get('auth');
+    if (authParam === 'login' && !isAuthenticated) {
+      setShowLogin(true);
+      showSignupPopup();
+    } else if (authParam === 'register' && !isAuthenticated) {
+      setShowLogin(false);
+      showSignupPopup();
+    }
+  }, [searchParams, isAuthenticated, showSignupPopup]);
 
   // Debug logging
   logger.debug('Dashboard render - user:', user);
@@ -273,6 +300,11 @@ const Dashboard = () => {
     // Close the popup after successful registration
     hideSignupPopup();
     logger.debug('Signup popup closed after registration');
+
+    // Redirect admin to organization creation page
+    if (userForContext.role === 'admin') {
+      navigate('/organization');
+    }
   };
 
   const handleLogout = async () => {

@@ -21,6 +21,7 @@ class Clinic:
             city: str,
             state: str,
             zip_code: str,
+            country: str,
             longitude: float,
             latitude: float
     ) -> None:
@@ -33,6 +34,7 @@ class Clinic:
             city (str): The city.
             state (str): The state or province.
             zip_code (str): The postal or ZIP code.
+            country (str): The country.
             longitude (float): The longitude of the clinic's location.
             latitude (float): The latitude of the clinic's location.
         """
@@ -41,6 +43,7 @@ class Clinic:
         self.city = city
         self.state = state
         self.zip_code = zip_code
+        self.country = country
         self.longitude = longitude
         self.latitude = latitude
 
@@ -60,7 +63,7 @@ class Clinic:
         """
         Provides a string representation of the Clinic object.
         """
-        return (f"Clinic(name='{self.name}', address='{self.street}, {self.city}, {self.state} {self.zip_code}', location=({self.longitude}, {self.latitude}))")
+        return (f"Clinic(name='{self.name}', address='{self.street}, {self.city}, {self.state} {self.zip_code}, {self.country}', location=({self.longitude}, {self.latitude}))")
 
 def generate_surrealql_create_query(clinic: Clinic, table_name: str = "clinic") -> str:
     """
@@ -80,7 +83,8 @@ def generate_surrealql_create_query(clinic: Clinic, table_name: str = "clinic") 
             "street": clinic.street,
             "city": clinic.city,
             "state": clinic.state,
-            "zip": clinic.zip_code
+            "zip": clinic.zip_code,
+            "country": clinic.country
         },
         "location": clinic.to_geojson_point()
     }
@@ -108,6 +112,7 @@ if __name__ == '__main__':
     logger.debug("DEFINE FIELD address.city ON clinic TYPE string;")
     logger.debug("DEFINE FIELD address.state ON clinic TYPE string;")
     logger.debug("DEFINE FIELD address.zip ON clinic TYPE string;")
+    logger.debug("DEFINE FIELD address.country ON clinic TYPE string;")
     logger.debug("DEFINE FIELD location ON clinic TYPE geometry (point);")
     logger.debug("-" * 30)
 
@@ -119,6 +124,7 @@ if __name__ == '__main__':
         city="Metropolis",
         state="CA",
         zip_code="90210",
+        country="USA",
         longitude=-118.40,
         latitude=34.07
     )
@@ -129,6 +135,7 @@ if __name__ == '__main__':
         city="Metropolis",
         state="CA",
         zip_code="90212",
+        country="USA",
         longitude=-118.42,
         latitude=34.09
     )
@@ -139,6 +146,7 @@ if __name__ == '__main__':
         city="Bayview",
         state="CA",
         zip_code="90215",
+        country="USA",
         longitude=-118.49,
         latitude=34.01
     )
@@ -253,7 +261,8 @@ async def update_clinic(clinic_id: str, clinic: Clinic) -> bool:
             street: '{clinic.street}',
             city: '{clinic.city}',
             state: '{clinic.state}',
-            zip: '{clinic.zip_code}'
+            zip: '{clinic.zip_code}',
+            country: '{clinic.country}'
         }},
         location = {json.dumps(clinic.to_geojson_point())}
     ;
@@ -317,6 +326,7 @@ def test() -> None:
             city="Test City",
             state="TS",
             zip_code="12345",
+            country="USA",
             longitude=lon,
             latitude=lat
         )

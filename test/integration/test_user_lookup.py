@@ -3,13 +3,14 @@
 Test script to verify user lookup by ID
 """
 
-import sys
 import os
+import sys
 
 # Add the parent directory to the path so we can import from lib
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from lib.services.user_service import UserService
+
 
 def test_user_lookup():
     """Test user lookup by ID"""

@@ -42,7 +42,7 @@ class TestEncryption(unittest.TestCase):
     def test_api_key_validation(self):
         """Test API key validation"""
         from models.user_settings import UserSettings
-        
+
         # Valid API key
         valid_key = "sk-test123456789012345678901234567890123456789012345678901234567890"
         valid, msg = UserSettings.validate_openai_api_key(valid_key)

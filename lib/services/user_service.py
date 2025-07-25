@@ -655,3 +655,76 @@ class UserService:
         except Exception as e:
             logger.error(f"Error checking API key: {e}")
             return False
+    
+    def update_optimal_api_key(self, user_id: str, api_key: str) -> tuple[bool, str]:
+        """
+        Update user's Optimal API key
+
+        :param user_id: ID of the user whose API key to update
+        :param api_key: New Optimal API key to set for the user
+        :return: (success, message)
+        """
+        try:
+            # Allow empty string to remove API key
+            if api_key == "":
+                # Get or create settings
+                settings = self.get_user_settings(user_id)
+                if not settings:
+                    settings = UserSettings(user_id=user_id)
+                
+                # Clear API key
+                settings.set_optimal_api_key("")
+                
+                # Save settings
+                return self.save_user_settings(user_id, settings)
+            
+            # Validate API key if not empty
+            valid, msg = UserSettings.validate_optimal_api_key(api_key)
+            if not valid:
+                return False, msg
+            
+            # Get or create settings
+            settings = self.get_user_settings(user_id)
+            if not settings:
+                settings = UserSettings(user_id=user_id)
+            
+            # Update API key
+            settings.set_optimal_api_key(api_key)
+            
+            # Save settings
+            return self.save_user_settings(user_id, settings)
+            
+        except Exception as e:
+            return False, f"Error updating Optimal API key: {str(e)}"
+    
+    def get_optimal_api_key(self, user_id: str) -> str:
+        """
+        Get user's decrypted Optimal API key
+
+        :param user_id: ID of the user whose API key to retrieve
+        :return: Optimal API key if found, empty string otherwise
+        """
+        try:
+            settings = self.get_user_settings(user_id)
+            if settings:
+                return settings.get_optimal_api_key()
+            return ""
+        except Exception as e:
+            logger.error(f"Error getting Optimal API key: {e}")
+            return ""
+    
+    def has_optimal_api_key(self, user_id: str) -> bool:
+        """
+        Check if user has a valid Optimal API key
+
+        :param user_id: ID of the user to check
+        :return: True if user has a valid Optimal API key, False otherwise
+        """
+        try:
+            settings = self.get_user_settings(user_id)
+            if settings:
+                return settings.has_optimal_api_key()
+            return False
+        except Exception as e:
+            logger.error(f"Error checking Optimal API key: {e}")
+            return False

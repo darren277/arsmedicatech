@@ -2,14 +2,15 @@
 LLM Agent Endpoint
 """
 import asyncio
-from typing import Any, Dict, Optional, Tuple, cast
+from typing import Any, Dict, Optional, Tuple
 
-from flask import Response, g, jsonify, request, session
+from flask import jsonify, request, session, Response
 
 from lib.data_types import UserID
 from lib.llm.agent import LLMAgent, LLMModel
 from lib.services.llm_chat_service import LLMChatService
 from lib.services.openai_security import get_openai_security_service
+from lib.services.auth_decorators import get_current_user
 from settings import MCP_URL, logger
 
 
@@ -20,19 +21,14 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
     """
     logger.debug('[DEBUG] /api/llm_chat called')
     logger.debug('[DEBUG] Request headers: %s', str(dict(request.headers)))
-    current_user_id: Optional[str] = None
-    
-    if hasattr(g, 'user') and g.user:
-        current_user_id = g.user.user_id
-    elif hasattr(request, 'session') and 'user_id' in request.session: # type: ignore[attr-defined]
-        user_id: Optional[str] = cast(Optional[str], request.session.get("user_id")) # type: ignore[attr-defined]
-        if not user_id:
-            logger.debug('[DEBUG] No user_id in session')
-            return jsonify({"error": "Not authenticated"}), 401
-        current_user_id = str(user_id)
-    else:
+    # Get current user from auth decorator
+    current_user = get_current_user()
+    if not current_user:
         logger.debug('[DEBUG] Not authenticated in /api/llm_chat')
         return jsonify({"error": "Not authenticated"}), 401
+    
+    current_user_id = current_user.user_id
+    logger.debug('[DEBUG] User authenticated: %s', current_user_id)
 
     llm_chat_service = LLMChatService()
     llm_chat_service.connect()
@@ -76,9 +72,6 @@ def llm_agent_endpoint_route() -> Tuple[Response, int]:
             logger.debug('response', type(response), response)
 
             # Log API usage
-            if current_user_id is None:
-                logger.error("current_user_id is None when logging API usage")
-                return jsonify({"error": "User ID is missing"}), 400
             security_service.log_api_usage(str(current_user_id), str(LLMModel.GPT_4_1_NANO))
 
             # Add assistant response to persistent chat

@@ -1,13 +1,20 @@
 """"""
-import requests
-from settings import OPTIMAL_URL, OPTIMAL_KEY
+import os
+import sys
 
-from settings import logger
+import requests
+
+# Add the project root to the Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from settings import TEST_OPTIMAL_KEY, OPTIMAL_URL, logger
 
 
 def test_optimal_service():
-    from lib.opt.hypertension import build_hypertension_payload, create_food_data_pd
     import numpy as np
+
+    from lib.opt.hypertension import (build_hypertension_payload,
+                                      create_food_data_pd)
 
     food_data = create_food_data_pd()
 
@@ -22,7 +29,7 @@ def test_optimal_service():
     assert resp_without_api_key.status_code == 403
 
     headers = {
-        'x-api-key': OPTIMAL_KEY
+        'x-api-key': TEST_OPTIMAL_KEY
     }
 
     resp = requests.post(
@@ -56,14 +63,14 @@ def test_optimal_service():
 
 
 def test_optimal():
-    from lib.services.optimal import OptimalService
     from lib.opt.hypertension import main
+    from lib.services.optimal import OptimalService
 
     hypertension_schema = main()
 
     service = OptimalService(
         url=OPTIMAL_URL,
-        api_key=OPTIMAL_KEY,
+        api_key=TEST_OPTIMAL_KEY,
         schema=hypertension_schema
     )
 

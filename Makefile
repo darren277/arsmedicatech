@@ -120,3 +120,81 @@ test-e2e-report:
 
 test-e2e-install:
 	npm run test:e2e:install
+
+
+# S3
+
+# Create S3 bucket for PDFs...
+s3-create:
+	aws s3api create-bucket --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(S3_BUCKET) | true
+	aws s3api put-public-access-block --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(S3_BUCKET) --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true | true
+	aws s3api put-bucket-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(S3_BUCKET) --policy file://config/s3_iam_bucket_policy.json | true
+
+
+s3-iam:
+	aws iam create-user --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-s3-writer | true
+	aws iam put-user-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-s3-writer --policy-name FlaskS3WritePolicy --policy-document file://config/flask_s3_write_policy.json | true
+	aws iam create-access-key --user-name flask-s3-writer
+
+textract-iam:
+	aws iam create-user --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-textract-user | true
+	aws iam put-user-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name flask-textract-user --policy-name TextractReadPolicy --policy-document file://config/textract_read_write_policy.json | true
+	aws iam create-access-key --user-name flask-textract-user
+
+
+# Celery
+CELERY_IMAGE=celery-worker
+CELERY_VERSION=1.0.0
+
+
+celery-docker:
+	docker build -t $(CELERY_IMAGE):$(CELERY_VERSION) -f Dockerfile.celery .
+
+celery-run:
+	docker run -d --name celery-worker -e CELERY_BROKER_URL=redis://$(REDIS_HOST):$(REDIS_PORT)/1 -e SENTRY_DSN=$(SENTRY_DSN) -e CELERY_RESULT_BACKEND=redis://$(REDIS_HOST):$(REDIS_PORT)/1 $(CELERY_IMAGE):$(CELERY_VERSION)
+
+
+# LiveKit
+ENV_VARS=LIVEKIT_API_KEY=$(LIVEKIT_API_KEY) LIVEKIT_API_SECRET=$(LIVEKIT_API_SECRET) LIVEKIT_S3_ACCESS_KEY=$(LIVEKIT_S3_ACCESS_KEY) LIVEKIT_S3_SECRET_KEY=$(LIVEKIT_S3_SECRET_KEY) LIVEKIT_S3_REGION=$(LIVEKIT_S3_REGION) LIVEKIT_S3_BUCKET=$(LIVEKIT_S3_BUCKET)
+
+livekit-local:
+	@echo "Starting LiveKit server locally..."
+	$(ENV_VARS) envsubst < micro/livekit/egress.template.yaml > micro/livekit/egress.yaml
+	$(ENV_VARS) envsubst < micro/livekit/livekit.template.yaml > micro/livekit/livekit.yaml
+	cd micro/livekit && PWD=$$(pwd) docker compose build egress
+	cd micro/livekit && PWD=$$(pwd) docker compose build api
+	cd micro/livekit && PWD=$$(pwd) docker compose --env-file .env up -d
+
+# Create S3 bucket for LiveKit recordings...
+livekit-s3-iam:
+	aws iam create-user --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name livekit-s3-writer | true
+	aws iam put-user-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --user-name livekit-s3-writer --policy-name LiveKitS3WritePolicy --policy-document file://config/livekit_s3_write_policy.json | true
+	aws iam create-access-key --user-name livekit-s3-writer
+
+livekit-s3-create:
+	aws s3api create-bucket --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(LIVEKIT_S3_BUCKET) | true
+	aws s3api put-public-access-block --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(LIVEKIT_S3_BUCKET) --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true | true
+	aws s3api put-bucket-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(LIVEKIT_S3_BUCKET) --policy file://config/livekit_s3_bucket_policy.json | true
+
+
+livekit-docker-create:
+	aws ecr create-repository --repository-name $(LIVEKIT_API_IMAGE) --region us-east-1 || true
+	aws ecr create-repository --repository-name $(LIVEKIT_EGRESS_IMAGE) --region us-east-1 || true
+
+livekit-docker:
+	docker build --build-arg LIVEKIT_API_KEY=$(LIVEKIT_API_KEY) --build-arg LIVEKIT_API_SECRET=$(LIVEKIT_API_SECRET) --build-arg LIVEKIT_S3_ACCESS_KEY=$(LIVEKIT_S3_ACCESS_KEY) --build-arg LIVEKIT_S3_SECRET_KEY=$(LIVEKIT_S3_SECRET_KEY) --build-arg LIVEKIT_S3_REGION=$(LIVEKIT_S3_REGION) --build-arg LIVEKIT_S3_BUCKET=$(LIVEKIT_S3_BUCKET) -t $(DOCKER_REGISTRY)/$(LIVEKIT_API_IMAGE):$(LIVEKIT_API_VERSION) -f micro/livekit/Dockerfile.api ./micro/livekit
+	docker push $(DOCKER_REGISTRY)/$(LIVEKIT_API_IMAGE):$(LIVEKIT_API_VERSION)
+	kubectl rollout restart deployment $(LIVEKIT_API_DEPLOYMENT) --namespace=$(NAMESPACE)
+
+livekit-egress-docker:
+	docker build -t $(DOCKER_REGISTRY)/$(LIVEKIT_EGRESS_IMAGE):$(LIVEKIT_EGRESS_VERSION) -f micro/livekit/Dockerfile.egress ./micro/livekit
+	docker push $(DOCKER_REGISTRY)/$(LIVEKIT_EGRESS_IMAGE):$(LIVEKIT_EGRESS_VERSION)
+	kubectl rollout restart deployment $(LIVEKIT_EGRESS_DEPLOYMENT) --namespace=$(NAMESPACE)
+
+livekit-egress-debug:
+	kubectl delete pod debug-egress -n arsmedicatech --ignore-not-found
+	kubectl patch serviceaccount default -n arsmedicatech -p '{"imagePullSecrets":[{"name":"ecr-secret"}]}'
+	kubectl run debug-egress -n arsmedicatech --rm -it --image=$(DOCKER_REGISTRY)/$(LIVEKIT_EGRESS_IMAGE):$(LIVEKIT_EGRESS_VERSION) --restart=Never --command -- sleep 3600
+
+livekit-egress-debug-access:
+	kubectl exec -it -n arsmedicatech debug-egress -- sh

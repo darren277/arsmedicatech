@@ -15,6 +15,8 @@ export interface User {
   first_name?: string;
   last_name?: string;
   role: string;
+  max_organizations?: number;
+  user_organizations?: number;
 }
 
 interface UserContextType {
