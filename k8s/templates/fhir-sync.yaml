@@ -40,7 +40,7 @@ kind: Service
 metadata:
   name: fhir-sync
 spec:
-  selector: { app: oscar-sync }
+  selector: { app: fhir-sync }
   ports:
   - name: grpc
     protocol: TCP
