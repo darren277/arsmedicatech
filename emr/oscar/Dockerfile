@@ -58,11 +58,21 @@ RUN echo "billregion=BC" >> "$OSCAR_PROPS"
 
 COPY ./conf/context.xml /usr/local/tomcat/conf/context.xml
 
+
+RUN mkdir -p /usr/local/tomcat/conf/Catalina/localhost
+RUN chown -R 1000:1000 /usr/local/tomcat/conf
+
+# install `ping`
+RUN apt-get update && apt-get install -y iputils-ping && rm -rf /var/lib/apt/lists/*
+
 # Copy entrypoint script into container
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Expose Tomcat HTTP on 8080 (and optionally 8443 for HTTPS if you want to self-sign)
+EXPOSE 80
+EXPOSE 443
+
 EXPOSE 8080
 EXPOSE 8201
 EXPOSE 8443
