@@ -13,7 +13,7 @@ for i in $(seq 1 $RETRIES); do
         echo "[$i/$RETRIES] ✅ DNS resolved, checking MySQL ..."
         if mysqladmin ping -h "$HOST" -u oscar -poscarpw --silent; then
             echo "✅ MySQL is up. Proceeding with migrations..."
-            exec ./run-migrations.sh  # Replace with your actual script
+            exec ./run-migrations.sh
         else
             echo "[$i/$RETRIES] ❌ MySQL not ready yet, sleeping 5s"
         fi
