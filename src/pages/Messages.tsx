@@ -70,6 +70,7 @@ const Messages = () => {
 
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   // Error modal state
   const [errorModal, setErrorModal] = useState({
@@ -300,11 +301,14 @@ const Messages = () => {
       return;
     }
 
-    // Check if this is an AI conversation or user-to-user conversation
-    if (selectedConversation?.isAI) {
-      // Use LLM chat for AI conversations
-      if (!newMessage.trim()) return;
-      try {
+    if (!newMessage.trim()) return;
+
+    setIsSendingMessage(true);
+
+    try {
+      // Check if this is an AI conversation or user-to-user conversation
+      if (selectedConversation?.isAI) {
+        // Use LLM chat for AI conversations
         const assistantId =
           selectedConversation.participantId || 'ai-assistant';
         // Send message to LLM endpoint
@@ -312,13 +316,17 @@ const Messages = () => {
         // Fetch updated LLM chat history for this assistant
         const response = await apiService.getLLMChatHistory(assistantId);
         setSelectedMessages(response.messages || []);
-        setNewMessage('');
-      } catch (error) {
-        console.error('Error sending LLM message:', error);
+      } else {
+        // Use regular chat for user-to-user conversations
+        await handleSendUserMessage();
       }
-    } else {
-      // Use regular chat for user-to-user conversations
-      handleSendUserMessage();
+
+      // Clear the input after successful send
+      setNewMessage('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setIsSendingMessage(false);
     }
   };
 
@@ -326,7 +334,6 @@ const Messages = () => {
     if (!newMessage.trim() || !selectedConversation) return;
 
     const messageText = newMessage;
-    setNewMessage(''); // Clear input immediately
 
     logger.debug(
       '[DEBUG] Sending user message to conversation:',
@@ -529,6 +536,12 @@ const Messages = () => {
                       </div>
                     </div>
                   )}
+                  {isSendingMessage && (
+                    <div className="message-sending-indicator">
+                      <div className="loading-spinner"></div>
+                      <span>Sending message...</span>
+                    </div>
+                  )}
                 </div>
                 <div className="message-input-container">
                   <input
@@ -537,17 +550,17 @@ const Messages = () => {
                     value={newMessage}
                     onChange={e => setNewMessage(e.target.value)}
                     onKeyPress={e => {
-                      if (e.key === 'Enter' && !isLoading) {
+                      if (e.key === 'Enter' && !isSendingMessage) {
                         handleSendMessage();
                       }
                     }}
-                    disabled={isLoading}
+                    disabled={isSendingMessage}
                   />
                   <button
                     onClick={handleSendMessage}
-                    disabled={isLoading || !newMessage.trim()}
+                    disabled={isSendingMessage || !newMessage.trim()}
                   >
-                    {isLoading ? 'Sending...' : 'Send'}
+                    {isSendingMessage ? 'Sending...' : 'Send'}
                   </button>
                 </div>
               </>
