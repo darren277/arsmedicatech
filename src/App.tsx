@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Joyride from 'react-joyride';
 import { Outlet } from 'react-router-dom';
 import './App.css';
@@ -81,7 +81,8 @@ function Home() {
   }>({
     isOpen: false,
     error: 'Something went wrong',
-    description: 'An unknown error has occurred. Please return to the home screen. The error has been logged and is being investigated.',
+    description:
+      'An unknown error has occurred. Please return to the home screen. The error has been logged and is being investigated.',
   });
 
   // Get notification context
@@ -100,11 +101,13 @@ function Home() {
       const urlParams = new URLSearchParams(window.location.search);
       const error = urlParams.get('error');
       const errorDescription = urlParams.get('error_description');
-      
+      const suggestedAction = urlParams.get('suggested_action');
+
       if (error) {
         logger.warn('Auth callback error detected:', {
           error,
           errorDescription,
+          suggestedAction,
         });
 
         // Handle specific Cognito errors
@@ -112,19 +115,43 @@ function Home() {
           error === 'invalid_request' &&
           errorDescription?.includes('email')
         ) {
-          setErrorModal(createErrorModalState(
-            'Email Already Exists',
-            'This email address is already registered. Please try signing in instead.',
-            'login'
-          ));
+          setErrorModal(
+            createErrorModalState(
+              'Email Already Exists',
+              'This email address is already registered. Please try signing in instead.',
+              'login'
+            )
+          );
+        } else if (error === 'access_denied') {
+          setErrorModal(
+            createErrorModalState(
+              'Access Denied',
+              errorDescription || 'Access was denied. Please try again.',
+              'home'
+            )
+          );
+        } else if (
+          error === 'server_error' ||
+          error === 'temporarily_unavailable'
+        ) {
+          setErrorModal(
+            createErrorModalState(
+              'Service Unavailable',
+              errorDescription ||
+                'Authentication service is temporarily unavailable. Please try again later.',
+              'home'
+            )
+          );
         } else {
-          setErrorModal(createErrorModalState(
-            'Authentication Error',
-            errorDescription || error,
-            'home'
-          ));
+          setErrorModal(
+            createErrorModalState(
+              'Authentication Error',
+              errorDescription || error,
+              suggestedAction || 'home'
+            )
+          );
         }
-        
+
         // Clean up the URL
         const newUrl = window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
@@ -147,7 +174,7 @@ function Home() {
         suggested_action={errorModal.suggested_action}
         onClose={handleCloseErrorModal}
       />
-      
+
       <Sidebar />
       <div className="main-container">
         <Topbar

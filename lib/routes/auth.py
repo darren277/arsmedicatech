@@ -50,17 +50,26 @@ def cognito_login_route() -> Union[Tuple[Response, int], BaseResponse]:
         if error == 'invalid_request' and 'email' in decoded_description.lower():
             # This is likely the "email cannot be updated" error
             logger.info("User attempted to sign up with existing email in Cognito")
-            return jsonify({
-                'error': 'Email Already Exists',
-                'description': 'This email address is already registered. Please try signing in instead.',
-                'suggested_action': 'login'
-            }), 409  # Conflict status code
+            # Redirect to frontend with error parameters
+            error_url = f"{APP_URL}?error=invalid_request&error_description={parse.quote('Email already exists. Please try signing in instead.')}&suggested_action=login"
+            return redirect(error_url)
         
-        return jsonify({
-            'error': 'Authentication Error',
-            'description': decoded_description,
-            'suggested_action': 'home'
-        }), 400
+        # Handle other common Cognito errors
+        if error == 'access_denied':
+            error_url = f"{APP_URL}?error=access_denied&error_description={parse.quote('Access was denied. Please try again.')}&suggested_action=home"
+            return redirect(error_url)
+        
+        if error == 'server_error':
+            error_url = f"{APP_URL}?error=server_error&error_description={parse.quote('Authentication service is temporarily unavailable. Please try again later.')}&suggested_action=home"
+            return redirect(error_url)
+        
+        if error == 'temporarily_unavailable':
+            error_url = f"{APP_URL}?error=temporarily_unavailable&error_description={parse.quote('Authentication service is temporarily unavailable. Please try again later.')}&suggested_action=home"
+            return redirect(error_url)
+        
+        # Default error handling
+        error_url = f"{APP_URL}?error={error}&error_description={parse.quote(decoded_description)}&suggested_action=home"
+        return redirect(error_url)
 
     code = request.args.get('code')
 

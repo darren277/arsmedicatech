@@ -77,8 +77,9 @@ from lib.services.lab_results import (LabResultsService,
 from lib.services.notifications import publish_event_with_buffer
 from lib.services.redis_client import get_redis_connection
 from lib.services.user_service import UserNotAffiliatedError, UserService
-from settings import (CLIENT_ID, COGNITO_DOMAIN, DEBUG, FLASK_SECRET_KEY, HOST,
-                      PORT, REDIRECT_URI, SENTRY_DSN, logger)
+from settings import (APP_URL, CLIENT_ID, COGNITO_DOMAIN, DEBUG,
+                      FLASK_SECRET_KEY, HOST, PORT, REDIRECT_URI, SENTRY_DSN,
+                      logger)
 
 #from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -966,6 +967,20 @@ def cognito_callback() -> Union[Tuple[Response, int], BaseResponse]:
     :return: Response object with login status.
     """
     return cognito_login_route()
+
+@app.route('/test/auth-error')
+def test_auth_error():
+    """
+    Test route to simulate OAuth callback errors for testing the ErrorModal component.
+    """
+    error = request.args.get('error', 'invalid_request')
+    error_description = request.args.get('error_description', 'Email already exists')
+    suggested_action = request.args.get('suggested_action', 'login')
+    
+    # Redirect to frontend with error parameters (simulating the OAuth callback error flow)
+    from urllib import parse
+    error_url = f"{APP_URL}?error={error}&error_description={parse.quote(error_description)}&suggested_action={suggested_action}"
+    return redirect(error_url)
 
 @app.route('/auth/logout', methods=['GET'])
 def auth_logout() -> BaseResponse:
