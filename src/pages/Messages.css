@@ -1,8 +1,8 @@
 .messages-container {
   display: flex;
   height: calc(
-    100vh - 60px
-  ); /* If you have a topbar of 60px, adjust as needed */
+    100vh - 60px - 60px
+  ); /* Account for topbar (60px) + main content padding (30px top + 30px bottom = 60px) */
   overflow: hidden; /* Prevent the page from scrolling horizontally */
 }
 
@@ -232,7 +232,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 60px - 60px);
   background-color: #f8f9fa;
 }
 
