@@ -950,13 +950,28 @@ def delete_note(note_id: str) -> Tuple[Response, int]:
 @app.route('/auth/login/cognito')
 def login_cognito():
     role = request.args.get('role', 'patient')
+    intent = request.args.get('intent', 'signin')
+    
+    # Validate and set default role if empty or invalid
+    if not role or role.strip() == '':
+        role = 'patient'
+        logger.info("Invalid role: . Defaulting to 'patient'.")
+    
+    # Validate role is one of the allowed values
+    valid_roles = ['patient', 'provider', 'admin']
+    if role not in valid_roles:
+        role = 'patient'
+        logger.info(f"Invalid role: {role}. Defaulting to 'patient'.")
+    
+    # Pass both role and intent in the state parameter
+    state = f"{role}:{intent}"
     cognito_url = (
         f"https://{COGNITO_DOMAIN}/oauth2/authorize"
         f"?response_type=code"
         f"&client_id={CLIENT_ID}"
         f"&redirect_uri={REDIRECT_URI}"  # e.g., https://demo.arsmedicatech.com/auth/cognito
         f"&scope=openid+email+profile"
-        f"&state={role}"
+        f"&state={state}"
     )
     return redirect(cognito_url)
 
@@ -976,10 +991,11 @@ def test_auth_error():
     error = request.args.get('error', 'invalid_request')
     error_description = request.args.get('error_description', 'Email already exists')
     suggested_action = request.args.get('suggested_action', 'login')
+    intent = request.args.get('intent', 'signup')  # Add intent parameter
     
     # Redirect to frontend with error parameters (simulating the OAuth callback error flow)
     from urllib import parse
-    error_url = f"{APP_URL}?error={error}&error_description={parse.quote(error_description)}&suggested_action={suggested_action}"
+    error_url = f"{APP_URL}?error={error}&error_description={parse.quote(error_description)}&suggested_action={suggested_action}&intent={intent}"
     return redirect(error_url)
 
 @app.route('/auth/logout', methods=['GET'])

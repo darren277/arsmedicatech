@@ -237,9 +237,28 @@ class AuthService {
     };
   }
 
-  getFederatedSignInUrl(role: string): string {
-    // Returns the backend URL to initiate Cognito OAuth with the selected role
-    return `${API_URL}/auth/login/cognito?role=${encodeURIComponent(role)}`;
+  async checkUserExists(email: string): Promise<boolean> {
+    try {
+      const response = await fetch(
+        `${API_URL}/api/users/exist?email=${encodeURIComponent(email)}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        return data.users_exist || false;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error checking if user exists:', error);
+      return false;
+    }
+  }
+
+  getFederatedSignInUrl(
+    role: string,
+    intent: 'signin' | 'signup' = 'signin'
+  ): string {
+    // Returns the backend URL to initiate Cognito OAuth with the selected role and intent
+    return `${API_URL}/auth/login/cognito?role=${encodeURIComponent(role)}&intent=${intent}`;
   }
 
   async handleCognitoCallback(): Promise<{

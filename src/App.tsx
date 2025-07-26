@@ -102,12 +102,47 @@ function Home() {
       const error = urlParams.get('error');
       const errorDescription = urlParams.get('error_description');
       const suggestedAction = urlParams.get('suggested_action');
+      const intent = urlParams.get('intent');
+
+      // Handle successful authentication
+      const authSuccess = urlParams.get('auth_success');
+      if (authSuccess === 'true') {
+        const token = urlParams.get('token');
+        const userId = urlParams.get('user_id');
+        const username = urlParams.get('username');
+        const role = urlParams.get('role');
+
+        if (token && userId && username && role) {
+          // Store authentication data
+          localStorage.setItem('auth_token', token);
+          localStorage.setItem(
+            'user',
+            JSON.stringify({
+              id: userId,
+              username: username,
+              role: role,
+              email: '', // Will be filled by getCurrentUser call
+              first_name: '',
+              last_name: '',
+            })
+          );
+
+          // Clean up the URL
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+
+          // Refresh the page to update authentication state
+          window.location.reload();
+          return;
+        }
+      }
 
       if (error) {
         logger.warn('Auth callback error detected:', {
           error,
           errorDescription,
           suggestedAction,
+          intent,
         });
 
         // Handle specific Cognito errors
@@ -115,11 +150,20 @@ function Home() {
           error === 'invalid_request' &&
           errorDescription?.includes('email')
         ) {
+          const title =
+            intent === 'signup'
+              ? 'Email Already Exists'
+              : 'Traditional Account Detected';
+          const description =
+            intent === 'signup'
+              ? 'This email address is already registered. Please try signing in instead.'
+              : 'This email is associated with a traditional account. Please sign in with your username and password instead.';
+
           setErrorModal(
             createErrorModalState(
-              'Email Already Exists',
-              'This email address is already registered. Please try signing in instead.',
-              'login'
+              title,
+              description,
+              intent === 'signup' ? 'login' : 'home'
             )
           );
         } else if (error === 'access_denied') {
