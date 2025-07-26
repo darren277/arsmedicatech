@@ -51,12 +51,16 @@ def cognito_login_route() -> Union[Tuple[Response, int], BaseResponse]:
             # This is likely the "email cannot be updated" error
             logger.info("User attempted to sign up with existing email in Cognito")
             return jsonify({
-                'error': 'Email already exists',
+                'error': 'Email Already Exists',
                 'description': 'This email address is already registered. Please try signing in instead.',
                 'suggested_action': 'login'
             }), 409  # Conflict status code
         
-        return jsonify({'error': error, 'description': decoded_description}), 400
+        return jsonify({
+            'error': 'Authentication Error',
+            'description': decoded_description,
+            'suggested_action': 'home'
+        }), 400
 
     code = request.args.get('code')
 
