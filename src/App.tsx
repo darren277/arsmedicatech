@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Joyride from 'react-joyride';
 import { Outlet } from 'react-router-dom';
 import './App.css';
 import PatientForm from './components/PatientForm';
 import { tourSteps } from './onboarding/tourSteps';
+import Dashboard from './pages/Dashboard';
 import { EncounterDetail } from './pages/EncounterDetail';
 import { EncounterFormPage } from './pages/EncounterForm';
 import LabResults from './pages/LabResults';
@@ -20,7 +21,6 @@ import {
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 
-import Dashboard from './pages/Dashboard';
 import Messages from './pages/Messages';
 import Schedule from './pages/Schedule';
 
@@ -33,7 +33,6 @@ import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
-import { useEffect } from 'react';
 import VideoRoom from './components/VideoRoom';
 import { API_URL } from './env_vars';
 import { usePluginRoutes } from './hooks/usePluginRoutes';
@@ -73,6 +72,8 @@ function Home() {
   // And during e2e testing, it should always be disabled.
   //const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_TOUR === 'true';
   const [runTour, setRunTour] = useState(!isTestMode);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [suggestedAction, setSuggestedAction] = useState<string | null>(null);
 
   // Get notification context
   const {
@@ -84,8 +85,78 @@ function Home() {
     clearAllNotifications,
   } = useNotificationContext();
 
+  // Handle OAuth callback errors
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
+
+      if (error) {
+        logger.warn('Auth callback error detected:', {
+          error,
+          errorDescription,
+        });
+
+        // Handle specific Cognito errors
+        if (
+          error === 'invalid_request' &&
+          errorDescription?.includes('email')
+        ) {
+          setAuthError(
+            'This email address is already registered. Please try signing in instead.'
+          );
+          setSuggestedAction('login');
+        } else {
+          setAuthError(errorDescription || error);
+        }
+
+        // Clean up the URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    };
+
+    handleAuthCallback();
+  }, []);
+
+  const handleErrorDismiss = () => {
+    setAuthError(null);
+    setSuggestedAction(null);
+  };
+
+  const handleSwitchToLogin = () => {
+    setAuthError(null);
+    setSuggestedAction(null);
+    // Redirect to login
+    window.location.href = '/?auth=login';
+  };
+
   return (
     <div className="App app-container">
+      {authError && (
+        <div className="auth-error-overlay">
+          <div className="auth-error-modal">
+            <h3>Authentication Error</h3>
+            <p>{authError}</p>
+            {suggestedAction === 'login' && (
+              <button
+                onClick={handleSwitchToLogin}
+                className="auth-error-button"
+              >
+                Go to Login
+              </button>
+            )}
+            <button
+              onClick={handleErrorDismiss}
+              className="auth-error-button secondary"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       <Sidebar />
       <div className="main-container">
         <Topbar

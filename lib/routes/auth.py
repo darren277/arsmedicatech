@@ -45,6 +45,17 @@ def cognito_login_route() -> Union[Tuple[Response, int], BaseResponse]:
     if error:
         decoded_description = parse.unquote(error_description or '')
         logger.warning("Cognito auth error: %s - %s", error, decoded_description)
+        
+        # Handle specific Cognito errors
+        if error == 'invalid_request' and 'email' in decoded_description.lower():
+            # This is likely the "email cannot be updated" error
+            logger.info("User attempted to sign up with existing email in Cognito")
+            return jsonify({
+                'error': 'Email already exists',
+                'description': 'This email address is already registered. Please try signing in instead.',
+                'suggested_action': 'login'
+            }), 409  # Conflict status code
+        
         return jsonify({'error': error, 'description': decoded_description}), 400
 
     code = request.args.get('code')
@@ -121,16 +132,20 @@ def cognito_login_route() -> Union[Tuple[Response, int], BaseResponse]:
                         password=random_password,
                         first_name="",
                         last_name="",
-                        role=role_from_query
+                        role=role_from_query,
+                        is_federated=True  # Mark as federated user
                     )
                     if not success or not user or not getattr(user, "id", None):
                         logger.error(f"Failed to create user from federated login: {message}")
                         return jsonify({'error': 'Failed to create user', 'message': message}), 500
                 else:
+                    # User exists in our database - this is fine for federated login
+                    logger.info(f"Existing user logged in via federated identity: {email}")
                     # Optionally update user info if changed
                     updates: Dict[str, Any] = {}
                     if updates and user.id is not None:
                         user_service.update_user(str(user.id), updates)
+                
                 # Store user info in session (mimic other routes)
                 session['user_id'] = user.id
                 session['auth_token'] = tokens['id_token']

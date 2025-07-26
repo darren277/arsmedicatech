@@ -241,6 +241,47 @@ class AuthService {
     // Returns the backend URL to initiate Cognito OAuth with the selected role
     return `${API_URL}/auth/login/cognito?role=${encodeURIComponent(role)}`;
   }
+
+  async handleCognitoCallback(): Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+    suggestedAction?: string;
+  }> {
+    try {
+      // Get the current URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
+
+      if (error) {
+        // Handle specific Cognito errors
+        if (
+          error === 'invalid_request' &&
+          errorDescription?.includes('email')
+        ) {
+          return {
+            success: false,
+            error: 'Email already exists',
+            suggestedAction: 'login',
+          };
+        }
+
+        return {
+          success: false,
+          error: errorDescription || error,
+        };
+      }
+
+      // If no error, the callback was successful
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Failed to process authentication callback',
+      };
+    }
+  }
 }
 
 // Create a singleton instance
