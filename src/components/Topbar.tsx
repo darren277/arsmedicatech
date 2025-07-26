@@ -25,6 +25,7 @@ export default function Topbar(props: Props) {
     try {
       await authService.logout();
       setUser(null);
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
     }
