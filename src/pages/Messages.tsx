@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import ErrorModal from '../components/ErrorModal';
 import NewConversationModal from '../components/NewConversationModal';
 import { useNotificationContext } from '../components/NotificationContext';
 import NotificationTest from '../components/NotificationTest';
@@ -70,6 +71,14 @@ const Messages = () => {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Error modal state
+  const [errorModal, setErrorModal] = useState({
+    isOpen: false,
+    error: '',
+    description: '',
+    suggested_action: '' as string | undefined,
+  });
+
   // Check authentication status
   useEffect(() => {
     const checkAuth = () => {
@@ -79,6 +88,19 @@ const Messages = () => {
     };
     checkAuth();
   }, []);
+
+  const handleShowError = (errorState: {
+    isOpen: boolean;
+    error: string;
+    description: string;
+    suggested_action: string | undefined;
+  }) => {
+    setErrorModal(errorState);
+  };
+
+  const handleCloseErrorModal = () => {
+    setErrorModal(prev => ({ ...prev, isOpen: false }));
+  };
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
   const { isModalOpen, showModal, hideModal } = useNewConversationModal();
   const [selectedMessages, setSelectedMessages] = useState<
@@ -547,6 +569,14 @@ const Messages = () => {
         onClose={hideModal}
         onStartChatbot={handleStartChatbot}
         onStartUserChat={handleStartUserChat}
+        onShowError={handleShowError}
+      />
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        error={errorModal.error}
+        description={errorModal.description}
+        suggested_action={errorModal.suggested_action}
+        onClose={handleCloseErrorModal}
       />
     </>
   );
