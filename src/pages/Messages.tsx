@@ -1,16 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import ErrorModal from '../components/ErrorModal';
 import NewConversationModal from '../components/NewConversationModal';
 import { useNotificationContext } from '../components/NotificationContext';
 import NotificationTest from '../components/NotificationTest';
 import SignupPopup from '../components/SignupPopup';
-import { Conversation, useChat } from '../hooks/useChat';
+import { useChat } from '../hooks/useChat';
 import useEvents from '../hooks/useEvents';
 import { useNewConversationModal } from '../hooks/useNewConversationModal';
 import { useSignupPopup } from '../hooks/useSignupPopup';
 import apiService from '../services/api';
 import authService from '../services/auth';
 import logger from '../services/logging';
+import { Conversation } from '../types';
 import './Messages.css';
 
 const DUMMY_CONVERSATIONS: Conversation[] = [
@@ -125,7 +126,6 @@ const Messages = () => {
   const {
     conversations,
     setConversations,
-    selectedConversation,
     selectedConversationId,
     handleSelectConversation,
     newMessage,
@@ -134,6 +134,11 @@ const Messages = () => {
     createNewConversation,
     isLoading,
   } = useChat(false); // Default to regular chat, will be overridden per conversation
+
+  // Memoize selectedConversation to prevent unnecessary re-renders
+  const selectedConversation = useMemo(() => {
+    return conversations.find(conv => conv.id === selectedConversationId);
+  }, [conversations, selectedConversationId]);
 
   // Handle real-time notifications
   const handleNewMessage = useCallback(
@@ -178,11 +183,27 @@ const Messages = () => {
               const response = await apiService.getConversationMessages(
                 selectedConversationId.toString()
               );
-              setSelectedMessages(
-                (response.messages || []).map((msg: any) => ({
+              const fetchedMessages = (response.messages || []).map(
+                (msg: any) => ({
                   sender: msg.sender,
                   text: msg.text,
-                }))
+                })
+              );
+
+              // Update both selectedMessages and conversations state
+              setSelectedMessages(fetchedMessages);
+
+              // Update the conversation in the conversations state with the fetched messages
+              setConversations(prevConversations =>
+                prevConversations.map(conv => {
+                  if (conv.id === selectedConversationId) {
+                    return {
+                      ...conv,
+                      messages: fetchedMessages,
+                    };
+                  }
+                  return conv;
+                })
               );
             } catch (error) {
               console.error('Error refreshing messages:', error);
@@ -241,6 +262,8 @@ const Messages = () => {
 
   // Fetch messages when a conversation is selected
   useEffect(() => {
+    let isMounted = true;
+
     const fetchMessages = async () => {
       if (!selectedConversationId || !selectedConversation) return;
 
@@ -252,7 +275,9 @@ const Messages = () => {
 
       if (isDummyConversation) {
         // For dummy conversations, use the pre-loaded messages
-        setSelectedMessages(selectedConversation.messages);
+        if (isMounted) {
+          setSelectedMessages(selectedConversation.messages);
+        }
         return;
       }
 
@@ -262,10 +287,30 @@ const Messages = () => {
           const assistantId =
             selectedConversation.participantId || 'ai-assistant';
           const response = await apiService.getLLMChatHistory(assistantId);
-          setSelectedMessages(response.messages || []);
+          const fetchedMessages = response.messages || [];
+
+          if (isMounted) {
+            // Update both selectedMessages and conversations state
+            setSelectedMessages(fetchedMessages);
+
+            // Update the conversation in the conversations state with the fetched messages
+            setConversations(prevConversations =>
+              prevConversations.map(conv => {
+                if (conv.id === selectedConversationId) {
+                  return {
+                    ...conv,
+                    messages: fetchedMessages,
+                  };
+                }
+                return conv;
+              })
+            );
+          }
         } catch (error) {
           console.error('Error fetching LLM messages:', error);
-          setSelectedMessages([]);
+          if (isMounted) {
+            setSelectedMessages([]);
+          }
         }
         return;
       }
@@ -277,23 +322,49 @@ const Messages = () => {
             selectedConversationId.toString()
           );
           // The backend returns { messages: [...] }
-          setSelectedMessages(
-            (response.messages || []).map((msg: any) => ({
-              sender: msg.sender,
-              text: msg.text,
-            }))
-          );
+          const fetchedMessages = (response.messages || []).map((msg: any) => ({
+            sender: msg.sender,
+            text: msg.text,
+          }));
+
+          if (isMounted) {
+            // Update both selectedMessages and conversations state
+            setSelectedMessages(fetchedMessages);
+
+            // Update the conversation in the conversations state with the fetched messages
+            setConversations(prevConversations =>
+              prevConversations.map(conv => {
+                if (conv.id === selectedConversationId) {
+                  return {
+                    ...conv,
+                    messages: fetchedMessages,
+                  };
+                }
+                return conv;
+              })
+            );
+          }
         } catch (error) {
           console.error('Error fetching messages:', error);
-          setSelectedMessages([]);
+          if (isMounted) {
+            setSelectedMessages([]);
+          }
         }
       } else {
         // For other cases, set empty messages
-        setSelectedMessages([]);
+        if (isMounted) {
+          setSelectedMessages([]);
+        }
       }
     };
+
     fetchMessages();
-  }, [selectedConversationId, selectedConversation]);
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedConversationId]); // Only depend on selectedConversationId to prevent circular dependencies
 
   const handleSendMessage = async () => {
     if (!isAuthenticated) {
@@ -315,7 +386,23 @@ const Messages = () => {
         await apiService.sendLLMMessage(assistantId, newMessage);
         // Fetch updated LLM chat history for this assistant
         const response = await apiService.getLLMChatHistory(assistantId);
-        setSelectedMessages(response.messages || []);
+        const fetchedMessages = response.messages || [];
+
+        // Update both selectedMessages and conversations state
+        setSelectedMessages(fetchedMessages);
+
+        // Update the conversation in the conversations state with the fetched messages
+        setConversations(prevConversations =>
+          prevConversations.map(conv => {
+            if (conv.id === selectedConversationId) {
+              return {
+                ...conv,
+                messages: fetchedMessages,
+              };
+            }
+            return conv;
+          })
+        );
       } else {
         // Use regular chat for user-to-user conversations
         await handleSendUserMessage();

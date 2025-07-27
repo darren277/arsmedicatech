@@ -66,19 +66,64 @@ function useChat(isLLM = false) {
 
   // Fetch conversations from the server
   useEffect(() => {
+    let isMounted = true;
+
     const fetchConversations = async () => {
       try {
-        let data;
+        let data: any;
+        let aiConversations: any[] = [];
+
         if (isLLM) {
           data = await apiService.getLLMChatHistory('ai-assistant');
         } else {
-          data = await apiService.getUserConversations();
+          // Fetch both user conversations and AI conversations
+          const [userConversations, llmChats] = await Promise.all([
+            apiService.getUserConversations(),
+            apiService.getLLMChatHistory('ai-assistant'),
+          ]);
+
+          data = userConversations;
+
+          // Transform LLM chats into conversation format
+          if (llmChats && llmChats.messages && llmChats.messages.length > 0) {
+            aiConversations = [
+              {
+                id: 'ai-assistant',
+                name: 'AI Assistant',
+                lastMessage:
+                  llmChats.messages[llmChats.messages.length - 1]?.text ||
+                  'No messages yet',
+                avatar: 'https://ui-avatars.com/api/?name=AI&background=random',
+                messages: llmChats.messages || [],
+                isAI: true,
+                participantId: 'ai-assistant',
+              },
+            ];
+          } else {
+            // Always include AI Assistant conversation, even if no messages
+            aiConversations = [
+              {
+                id: 'ai-assistant',
+                name: 'AI Assistant',
+                lastMessage: 'No messages yet',
+                avatar: 'https://ui-avatars.com/api/?name=AI&background=random',
+                messages: [],
+                isAI: true,
+                participantId: 'ai-assistant',
+              },
+            ];
+          }
         }
+
+        if (!isMounted) return;
+
         logger.debug('Fetched conversations:', data);
+        logger.debug('Fetched AI conversations:', aiConversations);
 
         // Transform the data to match the frontend format
+        let transformedData: any[] = [];
         if (data && Array.isArray(data)) {
-          const transformedData = data.map((conv: any) => ({
+          transformedData = data.map((conv: any) => ({
             id: conv.id,
             name: conv.name || 'Unknown User',
             lastMessage: conv.lastMessage || 'No messages yet',
@@ -88,25 +133,61 @@ function useChat(isLLM = false) {
             messages: conv.messages || [],
             isAI: conv.isAI || false,
           }));
-          setConversations(transformedData);
-          if (transformedData.length > 0 && !selectedConversationId) {
-            setSelectedConversationId(transformedData[0].id);
+        }
+
+        // Combine user conversations with AI conversations
+        const allConversations = [...aiConversations, ...transformedData];
+
+        if (!isMounted) return;
+
+        // Preserve existing messages when updating conversations
+        setConversations(prevConversations => {
+          const updatedConversations = allConversations.map((newConv: any) => {
+            // Find existing conversation with the same ID
+            const existingConv = prevConversations.find(
+              prev => prev.id === newConv.id
+            );
+            if (
+              existingConv &&
+              existingConv.messages &&
+              existingConv.messages.length > 0
+            ) {
+              // Preserve existing messages
+              return {
+                ...newConv,
+                messages: existingConv.messages,
+              };
+            }
+            return newConv;
+          });
+          return updatedConversations;
+        });
+
+        // Only set selected conversation if none is currently selected
+        setSelectedConversationId(currentId => {
+          if (!currentId && allConversations.length > 0) {
+            return allConversations[0].id;
           }
-        } else {
+          return currentId;
+        });
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+        if (isMounted) {
+          // Fallback to empty array if fetch fails
           setConversations([]);
           setSelectedConversationId(null);
         }
-      } catch (error) {
-        console.error('Error fetching conversations:', error);
-        // Fallback to empty array if fetch fails
-        setConversations([]);
-        setSelectedConversationId(null);
       }
     };
 
     fetchConversations();
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMounted = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLLM]);
+  }, [isLLM]); // Only depend on isLLM to prevent infinite loops
 
   const selectedConversation = conversations.find(
     conv => conv.id === selectedConversationId
@@ -238,4 +319,4 @@ function useChat(isLLM = false) {
   };
 }
 
-export { useChat, type Conversation };
+export { useChat };
