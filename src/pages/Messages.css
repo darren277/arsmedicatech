@@ -153,6 +153,7 @@
 
 .message-text {
   white-space: pre-line;
+  text-align: left;
 }
 
 .message-input-container {
