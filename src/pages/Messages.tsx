@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import ErrorModal from '../components/ErrorModal';
 import NewConversationModal from '../components/NewConversationModal';
 import { useNotificationContext } from '../components/NotificationContext';
@@ -43,7 +44,7 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
       { sender: 'John Doe', text: 'Should I continue at the same dose?' },
       {
         sender: 'Me',
-        text: 'Yes, please stay on the same dose until our next check-up.',
+        text: 'Yes, please stay on the same dose until our next check-up.\n\n**Important:** Please note the following:\n\n1. Take with food\n2. Avoid grapefruit juice\n3. Monitor for side effects\n\n> If you experience any issues, contact us immediately.\n\nYou can also check our [medication guide](https://example.com/guide) for more details.',
       },
       { sender: 'John Doe', text: 'Alright, thank you so much!' },
     ],
@@ -619,7 +620,9 @@ const Messages = () => {
                       className={msg.sender === 'Me' ? 'message me' : 'message'}
                     >
                       <div className="message-sender">{msg.sender}</div>
-                      <div className="message-text">{msg.text}</div>
+                      <div className="message-text">
+                        <ReactMarkdown>{msg.text}</ReactMarkdown>
+                      </div>
                     </div>
                   ))}
                   {isLoading && (

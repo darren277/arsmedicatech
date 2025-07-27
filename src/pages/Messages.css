@@ -156,6 +156,86 @@
   text-align: left;
 }
 
+/* Markdown styling for message content */
+.message-text h1,
+.message-text h2,
+.message-text h3,
+.message-text h4,
+.message-text h5,
+.message-text h6 {
+  margin: 10px 0 5px 0;
+  font-weight: 600;
+}
+
+.message-text h1 {
+  font-size: 1.5em;
+}
+.message-text h2 {
+  font-size: 1.3em;
+}
+.message-text h3 {
+  font-size: 1.1em;
+}
+
+.message-text p {
+  margin: 5px 0;
+}
+
+.message-text ul,
+.message-text ol {
+  margin: 5px 0;
+  padding-left: 20px;
+}
+
+.message-text li {
+  margin: 2px 0;
+}
+
+.message-text code {
+  background-color: #f4f4f4;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.message-text pre {
+  background-color: #f4f4f4;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin: 5px 0;
+}
+
+.message-text pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.message-text blockquote {
+  border-left: 3px solid #ddd;
+  margin: 5px 0;
+  padding-left: 10px;
+  color: #666;
+}
+
+.message-text a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.message-text a:hover {
+  text-decoration: underline;
+}
+
+.message-text strong {
+  font-weight: 600;
+}
+
+.message-text em {
+  font-style: italic;
+}
+
 .message-input-container {
   display: flex;
   padding: 10px;
