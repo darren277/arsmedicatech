@@ -66,6 +66,11 @@ const DUMMY_CONVERSATIONS: Conversation[] = [
   },
 ];
 
+function truncateLastMsg(lastMessage: string, maxLength = 30): string {
+  if (lastMessage.length <= maxLength) return lastMessage;
+  return lastMessage.slice(0, maxLength) + '...';
+}
+
 const Messages = () => {
   logger.debug('Messages component rendering');
 
@@ -583,7 +588,9 @@ const Messages = () => {
                     <img className="avatar" src={conv.avatar} alt={conv.name} />
                     <div className="conversation-info">
                       <p className="conversation-name">{conv.name}</p>
-                      <p className="conversation-last">{conv.lastMessage}</p>
+                      <p className="conversation-last">
+                        {truncateLastMsg(conv.lastMessage)}
+                      </p>
                     </div>
                   </li>
                 ))
