@@ -147,6 +147,8 @@
 .message-sender {
   font-weight: 600;
   margin-bottom: 5px;
+  margin-right: 10px;
+  padding-right: 10px;
 }
 
 .message-text {
