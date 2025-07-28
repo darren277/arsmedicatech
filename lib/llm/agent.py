@@ -3,7 +3,8 @@ LLM Agent Module
 """
 import enum
 import json
-from typing import Any, Callable, Dict, List, Optional, cast
+from typing import (Any, Callable, Collection, Dict, List, Optional, Sequence,
+                    Union, cast)
 
 from openai import OpenAI
 from openai.types.beta.threads.runs import ToolCall
@@ -100,7 +101,7 @@ class LLMAgent:
         self.tool_definitions: List[ToolDefinition] = []
         self.tool_func_dict: Dict[str, Callable[..., Any]] = {}
 
-        self.message_history = self.fetch_history()
+        self.message_history: List[Dict[str, Union[str, Sequence[Collection[str]]]]] = self.fetch_history()
 
         if self.custom_llm_endpoint:
             # TODO...
@@ -123,7 +124,7 @@ class LLMAgent:
         self.tool_definitions.append(tool_def)
         self.tool_func_dict[tool_name] = tool
 
-    def fetch_history(self) -> List[Dict[str, str]]:
+    def fetch_history(self) -> List[Dict[str, Union[str, Sequence[Collection[str]]]]]:
         """
         Fetch history from database.
         This method should be overridden to fetch conversation history from a database or other storage.
@@ -181,7 +182,8 @@ class LLMAgent:
         # Restore message history
         message_history = data.get('message_history', [{"role": "system", "content": "You are a helpful assistant."}])
         if isinstance(message_history, list):
-            agent.message_history = cast(List[Dict[str, str]], message_history)
+            # Cast to the more flexible type that matches fetch_history return type
+            agent.message_history = cast(List[Dict[str, Union[str, Sequence[Collection[str]]]]], message_history)
         else:
             agent.message_history = [{"role": "system", "content": "You are a helpful assistant."}]
         
@@ -250,26 +252,31 @@ class LLMAgent:
         # Convert message_history to ChatCompletionMessageParam format
         from openai.types.chat import ChatCompletionMessageParam
 
-        def to_message_param(msg: Dict[str, str]) -> ChatCompletionMessageParam:
+        def to_message_param(msg: Dict[str, Union[str, Sequence[Collection[str]]]]) -> ChatCompletionMessageParam:
             role = msg.get("role")
             content = msg.get("content")
+            # Handle content that might be a complex type
+            if isinstance(content, str):
+                content_str = content
+            else:
+                content_str = str(content) if content else ""
             if role == "system":
-                return cast(ChatCompletionMessageParam, {"role": "system", "content": content})
+                return cast(ChatCompletionMessageParam, {"role": "system", "content": content_str})
             elif role == "user":
-                return cast(ChatCompletionMessageParam, {"role": "user", "content": content})
+                return cast(ChatCompletionMessageParam, {"role": "user", "content": content_str})
             elif role == "assistant":
                 # Handle assistant messages with tool calls
                 if "tool_calls" in msg:
                     return cast(ChatCompletionMessageParam, {
                         "role": "assistant", 
-                        "content": content,
+                        "content": content_str,
                         "tool_calls": msg["tool_calls"]
                     })
                 else:
-                    return cast(ChatCompletionMessageParam, {"role": "assistant", "content": content})
+                    return cast(ChatCompletionMessageParam, {"role": "assistant", "content": content_str})
             elif role == "function":
                 # Convert function role to tool role for API compatibility
-                return cast(ChatCompletionMessageParam, {"role": "tool", "content": content, "tool_call_id": msg.get("tool_call_id", "")})
+                return cast(ChatCompletionMessageParam, {"role": "tool", "content": content_str, "tool_call_id": msg.get("tool_call_id", "")})
             else:
                 raise ValueError(f"Unknown role: {role}")
 
@@ -356,5 +363,5 @@ class LLMAgent:
         
         # Add tool responses to history
         for result in tool_results:
-            self.message_history.append(result)
+            self.message_history.append(cast(Dict[str, Union[str, Sequence[Collection[str]]]], result))
 
