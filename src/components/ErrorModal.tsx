@@ -37,7 +37,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({
 
   const handleSuggestedAction = () => {
     onClose();
-    
+
     switch (suggested_action) {
       case 'login':
         showSignupPopup();
@@ -73,32 +73,29 @@ const ErrorModal: React.FC<ErrorModalProps> = ({
       <div className="error-modal">
         <div className="error-modal-header">
           <h3 className="error-modal-title">{error}</h3>
-          <button 
-            className="error-modal-close" 
+          <button
+            className="error-modal-close"
             onClick={onClose}
             aria-label="Close error modal"
           >
             ×
           </button>
         </div>
-        
+
         <div className="error-modal-body">
           <p className="error-modal-description">{description}</p>
         </div>
-        
+
         <div className="error-modal-footer">
           {suggested_action && (
-            <button 
+            <button
               onClick={handleSuggestedAction}
               className="error-modal-action-button"
             >
               {getActionButtonText()}
             </button>
           )}
-          <button 
-            onClick={onClose}
-            className="error-modal-dismiss-button"
-          >
+          <button onClick={onClose} className="error-modal-dismiss-button">
             Dismiss
           </button>
         </div>
