@@ -231,7 +231,7 @@ class LLMAgent:
         Complete a prompt using the LLM, processing any tool calls if necessary.
         :param prompt: The user prompt to send to the LLM. If None, uses the existing message history.
         :param kwargs: Additional parameters for the LLM completion (e.g., temperature, max_tokens).
-        :return: Dict containing the LLM's response.
+        :return: Dict containing the LLM's response and tool usage information.
         """
         if prompt:
             self.message_history.append({"role": "user", "content": prompt})
@@ -293,16 +293,23 @@ class LLMAgent:
         logger.debug("Top choice:", top_choice)
 
         if tool_calls:
+            # Track tool usage
+            used_tools = [tool_call.function.name for tool_call in tool_calls]
             await self.process_tool_calls(tool_calls, top_choice.content or "")
 
             # Recurse to handle tool calls
-            return await self.complete(None, **kwargs)
+            result = await self.complete(None, **kwargs)
+            # Merge tool usage from recursive call
+            if 'used_tools' in result:
+                used_tools.extend(result['used_tools'])
+            result['used_tools'] = used_tools
+            return result
         else:
             # Add assistant response to message history
             content = top_choice.content or ""
             self.message_history.append({"role": "assistant", "content": content})
 
-        return {"response": top_choice.content or ""}
+        return {"response": top_choice.content or "", "used_tools": []}
 
     async def process_tool_calls(self, tool_calls: List[ChatCompletionMessageToolCall], assistant_content: str = "") -> None:
         """
