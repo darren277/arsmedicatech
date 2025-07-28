@@ -17,6 +17,7 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <div className="logo-container">ArsMedicaTech</div>
+      <div className="release-info">Version 0.0.1 (alpha)</div>
       <nav>
         <ul>
           {/* Add the `active` class to the active route... */}

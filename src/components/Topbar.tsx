@@ -70,6 +70,7 @@ export default function Topbar(props: Props) {
             )}
           </div>
         </div>
+        <div className="release-info">Version 0.0.1 (alpha)</div>
       </header>
       <SignupPopup isOpen={isPopupOpen} onClose={hideSignupPopup} />
     </>
