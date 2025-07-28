@@ -430,6 +430,13 @@ const Messages = () => {
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);
+
+      // Show user-friendly error message
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to send message';
+      alert(`Error: ${errorMessage}`);
+
+      // Don't clear the message input so user can try again
     } finally {
       setIsSendingMessage(false);
     }
