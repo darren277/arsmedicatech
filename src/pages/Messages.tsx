@@ -5,6 +5,7 @@ import NewConversationModal from '../components/NewConversationModal';
 import { useNotificationContext } from '../components/NotificationContext';
 import NotificationTest from '../components/NotificationTest';
 import SignupPopup from '../components/SignupPopup';
+import ToolUsageModal from '../components/ToolUsageModal';
 import { useChat } from '../hooks/useChat';
 import useEvents from '../hooks/useEvents';
 import { useNewConversationModal } from '../hooks/useNewConversationModal';
@@ -78,6 +79,10 @@ const Messages = () => {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [toolUsageModal, setToolUsageModal] = useState({
+    isOpen: false,
+    usedTools: [] as string[],
+  });
 
   // Error modal state
   const [errorModal, setErrorModal] = useState({
@@ -296,8 +301,15 @@ const Messages = () => {
           const fetchedMessages = response.messages || [];
 
           if (isMounted) {
+            // Process messages to include tool usage information
+            const processedMessages = fetchedMessages.map((msg: any) => ({
+              sender: msg.sender,
+              text: msg.text,
+              usedTools: msg.usedTools || [],
+            }));
+
             // Update both selectedMessages and conversations state
-            setSelectedMessages(fetchedMessages);
+            setSelectedMessages(processedMessages);
 
             // Update the conversation in the conversations state with the fetched messages
             setConversations(prevConversations =>
@@ -305,7 +317,7 @@ const Messages = () => {
                 if (conv.id === selectedConversationId) {
                   return {
                     ...conv,
-                    messages: fetchedMessages,
+                    messages: processedMessages,
                   };
                 }
                 return conv;
@@ -406,8 +418,15 @@ const Messages = () => {
         const fetchedMessages = response.messages || [];
         logger.debug('Fetched LLM messages:', fetchedMessages);
 
+        // Process messages to include tool usage information
+        const processedMessages = fetchedMessages.map((msg: any) => ({
+          sender: msg.sender,
+          text: msg.text,
+          usedTools: msg.usedTools || [],
+        }));
+
         // Update both selectedMessages and conversations state
-        setSelectedMessages(fetchedMessages);
+        setSelectedMessages(processedMessages);
 
         // Update the conversation in the conversations state with the fetched messages
         setConversations(prevConversations =>
@@ -415,7 +434,7 @@ const Messages = () => {
             if (conv.id === selectedConversationId) {
               return {
                 ...conv,
-                messages: fetchedMessages,
+                messages: processedMessages,
               };
             }
             return conv;
@@ -638,7 +657,25 @@ const Messages = () => {
                       key={index}
                       className={msg.sender === 'Me' ? 'message me' : 'message'}
                     >
-                      <div className="message-sender">{msg.sender}</div>
+                      <div className="message-sender">
+                        {msg.sender}
+                        {msg.sender === 'AI Assistant' &&
+                          msg.usedTools &&
+                          msg.usedTools.length > 0 && (
+                            <button
+                              className="tool-debug-button"
+                              onClick={() =>
+                                setToolUsageModal({
+                                  isOpen: true,
+                                  usedTools: msg.usedTools || [],
+                                })
+                              }
+                              title="View tools used"
+                            >
+                              🔧
+                            </button>
+                          )}
+                      </div>
                       <div className="message-text">
                         <ReactMarkdown>{msg.text}</ReactMarkdown>
                       </div>
@@ -706,6 +743,11 @@ const Messages = () => {
         description={errorModal.description}
         suggested_action={errorModal.suggested_action}
         onClose={handleCloseErrorModal}
+      />
+      <ToolUsageModal
+        isOpen={toolUsageModal.isOpen}
+        usedTools={toolUsageModal.usedTools}
+        onClose={() => setToolUsageModal({ isOpen: false, usedTools: [] })}
       />
     </>
   );
