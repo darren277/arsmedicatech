@@ -59,14 +59,16 @@ async def process_tool_call(
         logger.debug(f"Function: {function_name} -> {val.__name__}") # [DEBUG] Function: rag -> _call
 
     tool_function = tool_dict[function_name]
-    if function_name in tools_with_keys:
+    # Check if this is an MCP tool by checking if it's a wrapped function from fetch_mcp_tool_defs
+    # MCP tools are wrapped and always require session_id parameter
+    if function_name in tools_with_keys or hasattr(tool_function, '__name__') and tool_function.__name__ == '_call':
         tool_result = await tool_function(session_id=session_id, **arguments)
     else:
         tool_result = await tool_function(**arguments)
 
     result = json.dumps(tool_result)
 
-    return {"role": "function", "name": function_name, "content": result}
+    return {"role": "function", "name": function_name, "content": result, "tool_call_id": tool_call.id}
 
 class LLMAgent:
     """
@@ -256,9 +258,18 @@ class LLMAgent:
             elif role == "user":
                 return cast(ChatCompletionMessageParam, {"role": "user", "content": content})
             elif role == "assistant":
-                return cast(ChatCompletionMessageParam, {"role": "assistant", "content": content})
+                # Handle assistant messages with tool calls
+                if "tool_calls" in msg:
+                    return cast(ChatCompletionMessageParam, {
+                        "role": "assistant", 
+                        "content": content,
+                        "tool_calls": msg["tool_calls"]
+                    })
+                else:
+                    return cast(ChatCompletionMessageParam, {"role": "assistant", "content": content})
             elif role == "function":
-                return cast(ChatCompletionMessageParam, {"role": "tool", "content": content, "name": msg.get("name", "")})
+                # Convert function role to tool role for API compatibility
+                return cast(ChatCompletionMessageParam, {"role": "tool", "content": content, "tool_call_id": msg.get("tool_call_id", "")})
             else:
                 raise ValueError(f"Unknown role: {role}")
 
@@ -282,7 +293,7 @@ class LLMAgent:
         logger.debug("Top choice:", top_choice)
 
         if tool_calls:
-            await self.process_tool_calls(tool_calls)
+            await self.process_tool_calls(tool_calls, top_choice.content or "")
 
             # Recurse to handle tool calls
             return await self.complete(None, **kwargs)
@@ -293,10 +304,11 @@ class LLMAgent:
 
         return {"response": top_choice.content or ""}
 
-    async def process_tool_calls(self, tool_calls: List[ChatCompletionMessageToolCall]) -> None:
+    async def process_tool_calls(self, tool_calls: List[ChatCompletionMessageToolCall], assistant_content: str = "") -> None:
         """
         Process a list of tool calls by executing the corresponding functions.
         :param tool_calls: List of ToolCall objects to process.
+        :param assistant_content: Content of the assistant message that made the tool calls.
         :return: None
         """
         if not self.api_key:
@@ -310,9 +322,32 @@ class LLMAgent:
         if not api_key: 
             raise ValueError("API key is required for LLM access.")
 
+        # Process all tool calls and collect their results
+        tool_results = []
         for tool_call in tool_calls:
             # Cast ChatCompletionMessageToolCall to ToolCall for compatibility
             tool_call_cast = cast(ToolCall, tool_call)
             result = await process_tool_call(tool_call_cast, self.tool_func_dict, session_id=api_key)
+            tool_results.append(result)
+        
+        # Add assistant message with tool calls to history
+        assistant_message = {
+            "role": "assistant", 
+            "content": assistant_content,
+            "tool_calls": [
+                {
+                    "id": tool_call.id,
+                    "type": "function",
+                    "function": {
+                        "name": tool_call.function.name,
+                        "arguments": tool_call.function.arguments
+                    }
+                } for tool_call in tool_calls
+            ]
+        }
+        self.message_history.append(assistant_message)
+        
+        # Add tool responses to history
+        for result in tool_results:
             self.message_history.append(result)
 
