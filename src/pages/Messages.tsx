@@ -388,11 +388,23 @@ const Messages = () => {
         // Use LLM chat for AI conversations
         const assistantId =
           selectedConversation.participantId || 'ai-assistant';
+
+        logger.debug('Sending LLM message:', {
+          assistantId,
+          prompt: newMessage,
+        });
+
         // Send message to LLM endpoint
-        await apiService.sendLLMMessage(assistantId, newMessage);
+        const sendResponse = await apiService.sendLLMMessage(
+          assistantId,
+          newMessage
+        );
+        logger.debug('LLM send response:', sendResponse);
+
         // Fetch updated LLM chat history for this assistant
         const response = await apiService.getLLMChatHistory(assistantId);
         const fetchedMessages = response.messages || [];
+        logger.debug('Fetched LLM messages:', fetchedMessages);
 
         // Update both selectedMessages and conversations state
         setSelectedMessages(fetchedMessages);
