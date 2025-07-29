@@ -1,0 +1,140 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for Cognito User Pool with Google Identity Provider'
+
+Parameters:
+  AppName:
+    Type: String
+    Default: arsmedicatech
+    Description: The name of your application
+
+  GoogleClientId:
+    Type: String
+    Description: Google OAuth Client ID
+    NoEcho: false
+
+  GoogleClientSecret:
+    Type: String
+    Description: Google OAuth Client Secret
+    NoEcho: true
+
+  AppCallbackURL:
+    Type: String
+    Default: 'https://demo.arsmedicatech.com/callback'
+    Description: The full callback URL for your deployed application after a successful sign-in.
+
+  AppLogoutURL:
+    Type: String
+    Default: 'https://demo.arsmedicatech.com/'
+    Description: The full URL where users are redirected after signing out.
+
+Resources:
+  # Cognito User Pool
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${AppName}-UserPool
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: picture
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+      UsernameAttributes:
+        - email
+      MfaConfiguration: 'OFF'
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+
+  # Cognito User Pool Domain
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub ${AppName}-${AWS::AccountId}-domain
+      UserPoolId: !Ref UserPool
+
+  # Cognito Identity Provider (Google)
+  UserPoolIdentityProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      UserPoolId: !Ref UserPool
+      ProviderName: Google
+      ProviderType: Google
+      ProviderDetails:
+        client_id: !Ref GoogleClientId
+        client_secret: !Ref GoogleClientSecret
+        authorize_scopes: 'email profile openid'
+      AttributeMapping:
+        email: email
+        name: name
+        picture: picture
+
+  # Cognito App Client
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn: UserPoolIdentityProvider
+    Properties:
+      ClientName: !Sub ${AppName}-app-client
+      UserPoolId: !Ref UserPool
+      CallbackURLs:
+        - !Ref AppCallbackURL
+      LogoutURLs:
+        - !Ref AppLogoutURL
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+      SupportedIdentityProviders:
+        - Google
+      GenerateSecret: true
+      PreventUserExistenceErrors: ENABLED
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+
+Outputs:
+  UserPoolId:
+    Description: The ID of the Cognito User Pool
+    Value: !Ref UserPool
+    Export:
+      Name: !Sub ${AWS::StackName}-UserPoolId
+
+  UserPoolClientId:
+    Description: The ID of the Cognito User Pool Client
+    Value: !Ref UserPoolClient
+    Export:
+      Name: !Sub ${AWS::StackName}-UserPoolClientId
+
+  UserPoolClientSecret:
+    Description: 'The client secret (retrieve using AWS CLI command: aws cognito-idp describe-user-pool-client)'
+    Value: 'Retrieve using AWS CLI'
+    Export:
+      Name: !Sub ${AWS::StackName}-UserPoolClientSecret
+
+  CognitoDomain:
+    Description: The Cognito Domain
+    Value: !Sub ${AppName}-${AWS::AccountId}-domain.auth.${AWS::Region}.amazoncognito.com
+    Export:
+      Name: !Sub ${AWS::StackName}-CognitoDomain

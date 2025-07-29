@@ -7,7 +7,7 @@ class ApiService {
   apiURL: string;
 
   constructor() {
-    this.baseURL = API_URL;
+    this.baseURL = API_URL ?? '';
     this.apiURL = API_URL + '/api';
   }
 
@@ -44,7 +44,17 @@ class ApiService {
     logger.debug('API request - Headers:', config.headers);
 
     try {
-      const response = await fetch(url, config);
+      // Add timeout for requests (30 seconds for LLM requests, 10 seconds for others)
+      const timeout = endpoint.includes('/llm_chat') ? 30000 : 10000;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
       logger.debug('API request - Response status:', response.status);
 
       const data = await response.json();
@@ -63,6 +73,9 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timed out. Please try again.');
+      }
       throw error;
     }
   }
@@ -258,6 +271,17 @@ class ApiService {
     return this.getAPI('/lab_results');
   }
 
+  // Extract entities from encounter notes
+  async extractEntitiesFromNotes(
+    noteText: any,
+    noteType: string
+  ): Promise<any> {
+    return this.postAPI('/encounters/extract-entities', {
+      note_text: noteText,
+      note_type: noteType,
+    });
+  }
+
   // Optimal Service API
   async callOptimal(tableData: any): Promise<any> {
     return this.postAPI('/optimal', { tableData });
@@ -316,6 +340,13 @@ export const encounterAPI = {
   // Search encounters
   search: (query: string) =>
     apiService.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`),
+
+  // Extract entities from encounter notes
+  extractEntitiesFromNotes: (noteText: any, noteType: string) =>
+    apiService.postAPI('/encounters/extract-entities', {
+      note_text: noteText,
+      note_type: noteType,
+    }),
 };
 
 // Organization API operations
@@ -487,5 +518,53 @@ class VideoAPI {
 const videoAPI = new VideoAPI();
 
 export { videoAPI };
+
+// User Notes API operations
+export const userNotesAPI = {
+  // Get all user notes
+  getAll: () => apiService.getAPI('/user-notes'),
+
+  // Get a specific user note by ID
+  getById: (id: string) => apiService.getAPI(`/user-notes/${id}`),
+
+  // Create a new user note
+  create: (noteData: any) => apiService.postAPI('/user-notes', noteData),
+
+  // Update an existing user note
+  update: (id: string, noteData: any) =>
+    apiService.putAPI(`/user-notes/${id}`, noteData),
+
+  // Delete a user note
+  delete: (id: string) => apiService.deleteAPI(`/user-notes/${id}`),
+
+  // Search user notes
+  search: (query: string) =>
+    apiService.getAPI(`/user-notes?search=${encodeURIComponent(query)}`),
+};
+
+// Admin API operations
+export const adminAPI = {
+  // Get organization id for user
+  getOrganizationId: () => apiService.getAPI('/admin/my_organization'),
+
+  // Get all organizations
+  getOrganizations: () => apiService.getAPI('/admin/organizations'),
+
+  // Get all clinics
+  getClinics: (organizationId: string) =>
+    apiService.getAPI(`/admin/clinics/${organizationId}`),
+
+  // Get all patients
+  getPatients: (organizationId: string) =>
+    apiService.getAPI(`/admin/patients/${organizationId}`),
+
+  // Get all providers
+  getProviders: (organizationId: string) =>
+    apiService.getAPI(`/admin/providers/${organizationId}`),
+
+  // Get all administrators
+  getAdministrators: (organizationId: string) =>
+    apiService.getAPI(`/admin/administrators/${organizationId}`),
+};
 
 export default apiService;

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import authService from '../services/auth';
 import logger from '../services/logging';
+import GoogleAuthButton from './GoogleAuthButton';
 import './LoginForm.css';
 
 const LoginForm = ({
@@ -15,6 +16,7 @@ const LoginForm = ({
   const [formData, setFormData] = useState({
     username: '',
     password: '',
+    role: 'patient',
   });
   interface Errors {
     username?: string;
@@ -24,7 +26,9 @@ const LoginForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -95,6 +99,11 @@ const LoginForm = ({
     }
   };
 
+  const handleGoogleSignin = () => {
+    const url = authService.getFederatedSignInUrl('patient', 'signin');
+    window.location.assign(url);
+  };
+
   return (
     <div className="login-container">
       <div className="login-form">
@@ -127,7 +136,6 @@ const LoginForm = ({
               <span className="error-message">{errors.username}</span>
             )}
           </div>
-
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -144,8 +152,15 @@ const LoginForm = ({
               <span className="error-message">{errors.password}</span>
             )}
           </div>
-
-          <button type="submit" className="login-button" disabled={isLoading}>
+          <GoogleAuthButton onClick={handleGoogleSignin}>
+            Sign in with Google
+          </GoogleAuthButton>
+          <button
+            type="submit"
+            className="login-button"
+            disabled={isLoading}
+            data-testid="login-submit"
+          >
             {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>

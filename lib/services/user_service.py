@@ -1,13 +1,21 @@
 """
 User Service for managing user accounts, authentication, and settings.
 """
+import uuid
 from typing import Any, Dict, List, Optional
 
 from lib.db.surreal import DbController
-from lib.models.user import User, UserSession
-from lib.models.user_settings import UserSettings
+from lib.models.user.user import User
+from lib.models.user.user_session import UserSession
+from lib.models.user.user_settings import UserSettings
 from settings import logger
 
+
+class UserNotAffiliatedError(Exception):
+    """
+    Exception raised when a user is not affiliated with an organization.
+    """
+    pass
 
 class UserService:
     """
@@ -53,6 +61,68 @@ class UserService:
         :return: None
         """
         self.db.close()
+
+    def get_organization_id(self, user_id: str) -> str:
+        """
+        Get organization ID for a user
+        :param user_id: ID of the user
+        :return: Organization ID as a string
+        """
+        self.db.connect()
+        result = self.db.query(
+            "SELECT organization_id FROM User WHERE id = $user_id",
+            {"user_id": user_id}
+        )
+        if result and len(result) > 0:
+            organization_id = result[0].get('organization_id')
+            if organization_id:
+                return organization_id
+            raise UserNotAffiliatedError(f"Organization ID not found for user {user_id}")
+        raise ValueError("User not found or has no organization ID")
+
+    def create_session(
+            self,
+            user_id: str,
+            username: str,
+            role: str,
+            session_token: str,
+            created_at: Optional[str] = None,
+            expires_at: Optional[str] = None
+    ) -> UserSession:
+        """
+        Create a new user session [for federated login]
+
+        :param user_id: ID of the user for whom to create the session
+        :param username: Username of the user for whom to create the session
+        :param role: Role of the user (patient, provider, admin)
+        :param session_token: Authentication token for the session
+        :param created_at: Creation timestamp (ISO format, optional)
+        :param expires_at: Expiration timestamp (ISO format, optional)
+
+        :return: UserSession object
+        """
+        user_session = UserSession(
+            user_id=user_id,
+            username=username,
+            role=role,
+            created_at=created_at,
+            expires_at=expires_at,
+            session_token=session_token
+        )
+
+        self.connect()
+
+        session_data = user_session.to_dict()
+        session_id = str(uuid.uuid4()).replace('-', '')
+        record_id = f"Session:{session_id}"
+
+        self.db.query(
+            f"CREATE {record_id} SET user_id = $user_id, username = $username, role = $role, "
+            f"created_at = $created_at, expires_at = $expires_at, session_token = $session_token;",
+            session_data
+        )
+
+        return user_session
     
     def create_user(
             self,
@@ -61,7 +131,8 @@ class UserService:
             password: str,
             first_name: Optional[str] = None,
             last_name: Optional[str] = None,
-            role: str = "patient"
+            role: str = "patient",
+            is_federated: bool = False
     ) -> tuple[bool, str, Optional[User]]:
         """
         Create a new user account
@@ -72,6 +143,7 @@ class UserService:
         :param first_name: First name of the user (optional)
         :param last_name: Last name of the user (optional)
         :param role: Role of the user (default is "patient")
+        :param is_federated: Whether the user is created via federated login (default is False)
         
         :return: (success, message, user_object)
         """
@@ -85,9 +157,10 @@ class UserService:
             if not valid:
                 return False, msg, None
             
-            valid, msg = User.validate_password(password)
-            if not valid:
-                return False, msg, None
+            if not is_federated:
+                valid, msg = User.validate_password(password)
+                if not valid:
+                    return False, msg, None
             
             # Check if username already exists
             existing_user = self.get_user_by_username(username)
@@ -131,7 +204,8 @@ class UserService:
                 # If the user is a patient, create a corresponding Patient record
                 if user.role == "patient" and user.id:
                     try:
-                        from lib.models.patient import create_patient
+                        from lib.models.patient.patient_crud import \
+                            create_patient
                         user_id = str(user.id)
                         if ':' in user_id:
                             patient_id = user_id.split(':', 1)[1]
@@ -206,14 +280,14 @@ class UserService:
             # Store session in database
             try:
                 self.db.create('Session', session.to_dict())
-                logger.debug(f"Session stored in database: {session.token[:10]}...")
+                logger.debug(f"Session stored in database: {session.session_token[:10]}...")
                 
                 # Also keep in memory for faster access
-                self.active_sessions[session.token] = session
+                self.active_sessions[session.session_token] = session
             except Exception as e:
                 logger.debug(f"Error storing session in database: {e}")
                 # Fallback to memory-only storage
-                self.active_sessions[session.token] = session
+                self.active_sessions[session.session_token] = session
             
             return True, "Authentication successful", session
             
@@ -317,7 +391,7 @@ class UserService:
         # If not in memory, check database
         try:
             result = self.db.query(
-                "SELECT * FROM Session WHERE token = $session_token",
+                "SELECT * FROM Session WHERE session_token = $session_token",
                 {"session_token": token}
             )
             
@@ -353,7 +427,7 @@ class UserService:
         # Remove from database
         try:
             result = self.db.query(
-                "SELECT * FROM Session WHERE token = $session_token",
+                "SELECT * FROM Session WHERE session_token = $session_token",
                 {"session_token": token}
             )
             

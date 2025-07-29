@@ -7,6 +7,10 @@ import * as Sentry from '@sentry/react';
 
 import { SENTRY_DSN } from './env_vars';
 
+if (!SENTRY_DSN) {
+  throw new Error('SENTRY_DSN environment variable is not set');
+}
+
 Sentry.init({
   dsn: SENTRY_DSN,
   // Setting this option to true will send default PII data to Sentry.

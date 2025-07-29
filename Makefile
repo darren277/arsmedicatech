@@ -56,8 +56,9 @@ docker-flask:
 	docker push $(DOCKER_REGISTRY)/$(FLASK_IMAGE):$(FLASK_VERSION)
 	kubectl rollout restart deployment $(FLASK_DEPLOYMENT) --namespace=$(NAMESPACE)
 
+REACT_BUILD_ARGS=--build-arg PORT=$(REACT_PORT) --build-arg API_URL=$(API_URL) --build-arg SENTRY_DSN=$(SENTRY_DSN)
 docker-react:
-	docker build --build-arg PORT=$(REACT_PORT) --build-arg API_URL=$(API_URL) -t $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION) -f Dockerfile.react .
+	docker build $(REACT_BUILD_ARGS) -t $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION) -f Dockerfile.react .
 	docker push $(DOCKER_REGISTRY)/$(REACT_IMAGE):$(REACT_VERSION)
 	kubectl rollout restart deployment $(REACT_DEPLOYMENT) --namespace=$(NAMESPACE)
 
@@ -74,11 +75,12 @@ k8s-encryption-key:
 	@python3 -c "import secrets, string; print('ENCRYPTION_KEY=' + ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32)))"
 	kubectl create secret generic encryption-key --from-literal=ENCRYPTION_KEY=your_generated_key_here --namespace=$(NAMESPACE) || true
 
-SECRETS=--set surrealdb.secret.user=$(SURREALDB_USER) --set surrealdb.secret.pass=$(SURREALDB_PASS) --set migration-openai.apiKey=$(MIGRATION_OPENAI_API_KEY)
+SECRETS=--set surrealdb.secret.user=$(SURREALDB_USER) --set surrealdb.secret.pass=$(SURREALDB_PASS) --set migration-openai.apiKey=$(MIGRATION_OPENAI_API_KEY) --set cognito-secret.userPoolClientSecret=$(USER_POOL_CLIENT_SECRET)
 
 k8s-create-secrets:
 	kubectl create secret generic surreal-secret --from-literal=user=$(SURREALDB_USER) --from-literal=pass=$(SURREALDB_PASS) --namespace=$(NAMESPACE) || true
 	kubectl create secret generic migration-openai-secret --from-literal=apiKey=$(MIGRATION_OPENAI_API_KEY) --namespace=$(NAMESPACE) || true
+	kubectl create secret generic cognito-secret --from-literal=userPoolClientSecret=$(USER_POOL_CLIENT_SECRET) --namespace=$(NAMESPACE) || true
 
 k8s-deploy: k8s-create-secrets
 	kubectl create namespace $(NAMESPACE) || true
@@ -154,6 +156,9 @@ celery-run:
 	docker run -d --name celery-worker -e CELERY_BROKER_URL=redis://$(REDIS_HOST):$(REDIS_PORT)/1 -e SENTRY_DSN=$(SENTRY_DSN) -e CELERY_RESULT_BACKEND=redis://$(REDIS_HOST):$(REDIS_PORT)/1 $(CELERY_IMAGE):$(CELERY_VERSION)
 
 
+
+# Microservices
+
 # LiveKit
 ENV_VARS=LIVEKIT_API_KEY=$(LIVEKIT_API_KEY) LIVEKIT_API_SECRET=$(LIVEKIT_API_SECRET) LIVEKIT_S3_ACCESS_KEY=$(LIVEKIT_S3_ACCESS_KEY) LIVEKIT_S3_SECRET_KEY=$(LIVEKIT_S3_SECRET_KEY) LIVEKIT_S3_REGION=$(LIVEKIT_S3_REGION) LIVEKIT_S3_BUCKET=$(LIVEKIT_S3_BUCKET)
 
@@ -198,3 +203,140 @@ livekit-egress-debug:
 
 livekit-egress-debug-access:
 	kubectl exec -it -n arsmedicatech debug-egress -- sh
+
+
+
+# NER
+ner-docker-create:
+	aws ecr create-repository --repository-name $(NER_API_IMAGE) --region us-east-1 || true
+
+ner-docker:
+	docker build -t $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION) -f micro/ner/Dockerfile ./micro/ner
+	docker push $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION)
+	kubectl rollout restart deployment $(NER_API_DEPLOYMENT) --namespace=$(NAMESPACE)
+
+ner-run:
+	docker run -d -p 8000:8000 --name extractor $(DOCKER_REGISTRY)/$(NER_API_IMAGE):$(NER_API_VERSION)
+
+
+NER_URL=http://localhost:8000/
+NER_URL=https://demo.arsmedicatech.com/ner/
+ner-test:
+	curl -X POST $(NER_URL)extract -H "Content-Type: application/json" -d '{"text":"Patient presents with Type 2 diabetes mellitus and essential hypertension."}'
+
+
+
+
+
+
+# Google Cloud credentials
+
+# First, run `gcloud auth login` to authenticate via browser.
+
+# Had to do some of the initial configuration for the project and consent screen manually on the GCP console.
+# See README.
+
+.PHONY: gcloud-init
+gcloud-init:
+	gcloud config set project $(GCP_PROJECT_ID)
+	gcloud services enable iap.googleapis.com
+	gcloud auth application-default set-quota-project $(GCP_PROJECT_ID)
+	gcloud alpha iap oauth-brands create --application_title="$(APP_NAME)" --support_email="$(SUPPORT_EMAIL)"
+	gcloud services enable iam.googleapis.com
+	gcloud services enable cloudresourcemanager.googleapis.com
+	gcloud services enable oauth2.googleapis.com
+
+.PHONY: gcloud-client
+gcloud-client:
+	gcloud alpha iam oauth-clients create --display_name="$(APP_NAME)" --redirect_uris="$(CALLBACK_URL)"
+
+.PHONY: gcloud-credentials
+gcloud-credentials:
+	gcloud alpha iam oauth-clients list
+
+
+
+# Makefile for AWS Cognito deployment on Windows
+# Requires: AWS CLI, Make for Windows (GnuWin32, or via Git Bash, or WSL)
+
+# Output file
+CONFIG_FILE = config.py
+
+# Default target
+.PHONY: deploy-cognito
+deploy-cognito: deploy-cognito-stack get-cognito-outputs create-cognito-config
+
+# Deploy CloudFormation stack
+.PHONY: deploy-cognito-stack
+deploy-cognito-stack:
+	@echo "Deploying CloudFormation stack..."
+	aws cloudformation deploy \
+		--template-file $(TEMPLATE_FILE) \
+		--stack-name $(STACK_NAME) \
+		--parameter-overrides \
+			AppName=$(APP_NAME) \
+			GoogleClientId=$(GOOGLE_CLIENT_ID) \
+			GoogleClientSecret=$(GOOGLE_CLIENT_SECRET) \
+			CallbackURL=$(CALLBACK_URL) \
+		--capabilities CAPABILITY_IAM \
+		--region $(AWS_REGION) \
+		--profile $(AWS_PROFILE)
+
+# Get stack outputs
+.PHONY: get-cognito-outputs
+get-cognito-outputs:
+	@echo "Getting CloudFormation stack outputs..."
+	$(eval USER_POOL_ID := $(shell aws cloudformation describe-stacks --stack-name $(STACK_NAME) --query "Stacks[0].Outputs[?ExportName=='$(STACK_NAME)-UserPoolId'].OutputValue" --output text --region $(AWS_REGION) --profile $(AWS_PROFILE)))
+	$(eval USER_POOL_CLIENT_ID := $(shell aws cloudformation describe-stacks --stack-name $(STACK_NAME) --query "Stacks[0].Outputs[?ExportName=='$(STACK_NAME)-UserPoolClientId'].OutputValue" --output text --region $(AWS_REGION) --profile $(AWS_PROFILE)))
+	$(eval COGNITO_DOMAIN := $(shell aws cloudformation describe-stacks --stack-name $(STACK_NAME) --query "Stacks[0].Outputs[?ExportName=='$(STACK_NAME)-CognitoDomain'].OutputValue" --output text --region $(AWS_REGION) --profile $(AWS_PROFILE)))
+
+	@echo "Getting User Pool Client Secret..."
+	$(eval USER_POOL_CLIENT_SECRET := $(shell aws cognito-idp describe-user-pool-client --user-pool-id $(USER_POOL_ID) --client-id $(USER_POOL_CLIENT_ID) --query "UserPoolClient.ClientSecret" --output text --region $(AWS_REGION) --profile $(AWS_PROFILE)))
+
+	@echo "----------------------------------------"
+	@echo "Cognito Configuration:"
+	@echo "----------------------------------------"
+	@echo "USER_POOL_ID=$(USER_POOL_ID)"
+	@echo "USER_POOL_CLIENT_ID=$(USER_POOL_CLIENT_ID)"
+	@echo "USER_POOL_CLIENT_SECRET=$(USER_POOL_CLIENT_SECRET)"
+	@echo "COGNITO_DOMAIN=$(COGNITO_DOMAIN)"
+	@echo "----------------------------------------"
+
+# Create configuration file
+.PHONY: create-cognito-config
+create-cognito-config:
+	@echo "Generating config file for Flask app..."
+	@echo "# AWS Cognito Configuration" > $(CONFIG_FILE)
+	@echo "AWS_REGION = '$(AWS_REGION)'" >> $(CONFIG_FILE)
+	@echo "COGNITO_DOMAIN = '$(COGNITO_DOMAIN)'" >> $(CONFIG_FILE)
+	@echo "USER_POOL_ID = '$(USER_POOL_ID)'" >> $(CONFIG_FILE)
+	@echo "CLIENT_ID = '$(USER_POOL_CLIENT_ID)'" >> $(CONFIG_FILE)
+	@echo "CLIENT_SECRET = '$(USER_POOL_CLIENT_SECRET)'" >> $(CONFIG_FILE)
+	@echo "REDIRECT_URI = '$(CALLBACK_URL)'" >> $(CONFIG_FILE)
+	@echo "Configuration file ($(CONFIG_FILE)) created successfully!"
+
+# Delete the CloudFormation stack
+.PHONY: clean-cognito
+clean-cognito:
+	@echo "Deleting CloudFormation stack..."
+	aws cloudformation delete-stack --stack-name $(STACK_NAME) --region $(AWS_REGION) --profile $(AWS_PROFILE)
+	@echo "Waiting for stack deletion to complete..."
+	aws cloudformation wait stack-delete-complete --stack-name $(STACK_NAME) --region $(AWS_REGION) --profile $(AWS_PROFILE)
+	@echo "Stack deleted successfully!"
+	@if exist $(CONFIG_FILE) del $(CONFIG_FILE)
+
+# Show help
+.PHONY: cognito-help
+cognito-help:
+	@echo "Available targets:"
+	@echo "  deploy        - Deploy stack and create config file"
+	@echo "  deploy-stack  - Deploy the CloudFormation stack"
+	@echo "  get-outputs   - Get and display stack outputs"
+	@echo "  create-config - Create Flask config file"
+	@echo "  clean         - Delete the CloudFormation stack"
+	@echo "  help          - Show this help message"
+	@echo ""
+	@echo "Before running, edit the Makefile to set your:"
+	@echo "- AWS region"
+	@echo "- Google OAuth credentials"
+	@echo "- App name and callback URL"

@@ -1,10 +1,10 @@
 """
-User and UserSession Models
+User Model.
 """
 import hashlib
 import re
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from settings import logger
@@ -31,7 +31,8 @@ class User:
             clinic_address: Optional[str] = None,
             phone: Optional[str] = None,
             max_organizations: int = 1,
-            user_organizations: int = 0
+            user_organizations: int = 0,
+            organization_id: Optional[str] = None
     ) -> None:
         """
         Initialize a User object
@@ -51,6 +52,7 @@ class User:
         :param phone: User's phone number
         :param max_organizations: Maximum number of organizations this user can create (default: 1)
         :param user_organizations: Current number of organizations created by this user (default: 0)
+        :param organization_id: ID of the organization this user belongs to (if applicable)
         """
         self.username = username
         self.email = email
@@ -66,6 +68,7 @@ class User:
         self.phone = phone or ""
         self.max_organizations = max_organizations
         self.user_organizations = user_organizations
+        self.organization_id = organization_id
         
         # Hash password if provided
         self.password_hash: Optional[str] = None
@@ -136,7 +139,8 @@ class User:
             'clinic_address': self.clinic_address,
             'phone': self.phone,
             'max_organizations': self.max_organizations,
-            'user_organizations': self.user_organizations
+            'user_organizations': self.user_organizations,
+            'organization_id': self.organization_id
         }
     
     @classmethod
@@ -166,7 +170,8 @@ class User:
             clinic_address=data.get('clinic_address'),
             phone=data.get('phone'),
             max_organizations=data.get('max_organizations', 1),
-            user_organizations=data.get('user_organizations', 0)
+            user_organizations=data.get('user_organizations', 0),
+            organization_id=data.get('organization_id')
         )
         # Set password hash if it exists in the data
         if 'password_hash' in data:
@@ -250,7 +255,7 @@ class User:
         :param role: User role to validate
         :return: Tuple (is_valid: bool, error_message: str)
         """
-        valid_roles = ['patient', 'provider', 'admin']
+        valid_roles = ['patient', 'provider', 'admin', 'administrator', 'superadmin']
         if role not in valid_roles:
             return False, f"Role must be one of: {', '.join(valid_roles)}"
         return True, ""
@@ -338,111 +343,3 @@ class User:
         if not self.can_create_organization():
             raise ValueError(f"User has reached their organization limit of {self.max_organizations}")
         self.user_organizations += 1
-
-
-class UserSession:
-    """
-    Manages user sessions and authentication tokens
-    """
-    
-    def __init__(
-            self,
-            user_id: str,
-            username: str,
-            role: str,
-            created_at: Optional[str] = None,
-            expires_at: Optional[str] = None
-    ) -> None:
-        """
-        Initialize a UserSession object
-        :param user_id: Unique user ID
-        :param username: User's username
-        :param role: User's role (patient, provider, admin)
-        :param created_at: Creation timestamp (ISO format)
-        :param expires_at: Expiration timestamp (ISO format, defaults to 24 hours from now)
-        :raises ValueError: If user_id or username is empty
-        :raises ValueError: If role is not one of the valid roles
-        :raises ValueError: If created_at or expires_at is not in ISO format
-        :raises ValueError: If expires_at is before created_at
-        :raises ValueError: If token generation fails
-        :return: None
-        """
-        if not user_id or not username:
-            raise ValueError("user_id and username cannot be empty")
-        if role not in ['patient', 'provider', 'admin']:
-            raise ValueError("Role must be one of: patient, provider, admin")
-
-        self.user_id = user_id
-        self.username = username
-        self.role = role
-
-        if created_at:
-            try:
-                datetime.fromisoformat(created_at)
-            except ValueError:
-                raise ValueError("created_at must be in ISO format")
-
-        if expires_at:
-            try:
-                expires = datetime.fromisoformat(expires_at)
-                if expires < datetime.fromisoformat(created_at or datetime.now(timezone.utc).isoformat()):
-                    raise ValueError("expires_at must be after created_at")
-            except ValueError:
-                raise ValueError("expires_at must be in ISO format")
-        else:
-            expires_at = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
-
-        self.created_at = created_at or datetime.now(timezone.utc).isoformat()
-        self.expires_at = expires_at or (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
-
-        try:
-            self.token = secrets.token_urlsafe(32)
-        except Exception as e:
-            raise ValueError(f"Failed to generate token: {e}")
-    
-    def is_expired(self) -> bool:
-        """
-        Check if session has expired
-
-        :return: True if session is expired, False otherwise
-        """
-        try:
-            expires = datetime.fromisoformat(self.expires_at)
-            return datetime.now(timezone.utc) > expires
-        except (ValueError, TypeError):
-            return True
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert session to dictionary
-
-        :return: Dictionary representation of the session
-        """
-        return {
-            'user_id': self.user_id,
-            'username': self.username,
-            'role': self.role,
-            'created_at': self.created_at,
-            'expires_at': self.expires_at,
-            'token': self.token
-        }
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'UserSession':
-        """
-        Create session from dictionary
-
-        :param data: Dictionary containing session data
-        :return: UserSession object
-        """
-        session = cls(
-            user_id=str(data.get('user_id', '')),
-            username=str(data.get('username', '')),
-            role=str(data.get('role', 'patient')),
-            created_at=data.get('created_at'),
-            expires_at=data.get('expires_at')
-        )
-        # Set the token from the data if it exists
-        if 'token' in data:
-            session.token = data['token']
-        return session

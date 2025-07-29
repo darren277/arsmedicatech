@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Joyride from 'react-joyride';
 import { Outlet } from 'react-router-dom';
 import './App.css';
+import ErrorModal, { createErrorModalState } from './components/ErrorModal';
 import PatientForm from './components/PatientForm';
 import { tourSteps } from './onboarding/tourSteps';
+import Dashboard from './pages/Dashboard';
 import { EncounterDetail } from './pages/EncounterDetail';
 import { EncounterFormPage } from './pages/EncounterForm';
 import LabResults from './pages/LabResults';
 import OptimalTableDemo from './pages/OptimalTableDemo';
 import { PatientDetail } from './pages/PatientDetail';
 import { Patients } from './pages/Patients';
+import UserNotesPage from './pages/UserNotesPage';
 
 import {
   HealthMetricTracker,
@@ -19,7 +22,6 @@ import {
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 
-import Dashboard from './pages/Dashboard';
 import Messages from './pages/Messages';
 import Schedule from './pages/Schedule';
 
@@ -32,12 +34,13 @@ import PatientIntakeForm from './components/PatientIntakeForm';
 import Settings from './components/Settings';
 import { UserProvider } from './components/UserContext';
 
-import { useEffect } from 'react';
 import VideoRoom from './components/VideoRoom';
 import { API_URL } from './env_vars';
 import { usePluginRoutes } from './hooks/usePluginRoutes';
+import Administration from './pages/Administration';
 import FileUpload from './pages/FileUpload';
 import Organization from './pages/Organization';
+import RoleDescriptions from './pages/RoleDescriptions';
 import UploadDetails from './pages/UploadDetails';
 import { pluginAPI } from './services/api';
 import logger from './services/logging';
@@ -70,6 +73,17 @@ function Home() {
   // And during e2e testing, it should always be disabled.
   //const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_TOUR === 'true';
   const [runTour, setRunTour] = useState(!isTestMode);
+  const [errorModal, setErrorModal] = useState<{
+    isOpen: boolean;
+    error: string;
+    description: string;
+    suggested_action?: string;
+  }>({
+    isOpen: false,
+    error: 'Something went wrong',
+    description:
+      'An unknown error has occurred. Please return to the home screen. The error has been logged and is being investigated.',
+  });
 
   // Get notification context
   const {
@@ -81,8 +95,130 @@ function Home() {
     clearAllNotifications,
   } = useNotificationContext();
 
+  // Handle OAuth callback errors
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
+      const suggestedAction = urlParams.get('suggested_action');
+      const intent = urlParams.get('intent');
+
+      // Handle successful authentication
+      const authSuccess = urlParams.get('auth_success');
+      if (authSuccess === 'true') {
+        const token = urlParams.get('token');
+        const userId = urlParams.get('user_id');
+        const username = urlParams.get('username');
+        const role = urlParams.get('role');
+
+        if (token && userId && username && role) {
+          // Store authentication data
+          localStorage.setItem('auth_token', token);
+          localStorage.setItem(
+            'user',
+            JSON.stringify({
+              id: userId,
+              username: username,
+              role: role,
+              email: '', // Will be filled by getCurrentUser call
+              first_name: '',
+              last_name: '',
+            })
+          );
+
+          // Clean up the URL
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+
+          // Refresh the page to update authentication state
+          window.location.reload();
+          return;
+        }
+      }
+
+      if (error) {
+        logger.warn('Auth callback error detected:', {
+          error,
+          errorDescription,
+          suggestedAction,
+          intent,
+        });
+
+        // Handle specific Cognito errors
+        if (
+          error === 'invalid_request' &&
+          errorDescription?.includes('email')
+        ) {
+          const title =
+            intent === 'signup'
+              ? 'Email Already Exists'
+              : 'Traditional Account Detected';
+          const description =
+            intent === 'signup'
+              ? 'This email address is already registered. Please try signing in instead.'
+              : 'This email is associated with a traditional account. Please sign in with your username and password instead.';
+
+          setErrorModal(
+            createErrorModalState(
+              title,
+              description,
+              intent === 'signup' ? 'login' : 'home'
+            )
+          );
+        } else if (error === 'access_denied') {
+          setErrorModal(
+            createErrorModalState(
+              'Access Denied',
+              errorDescription || 'Access was denied. Please try again.',
+              'home'
+            )
+          );
+        } else if (
+          error === 'server_error' ||
+          error === 'temporarily_unavailable'
+        ) {
+          setErrorModal(
+            createErrorModalState(
+              'Service Unavailable',
+              errorDescription ||
+                'Authentication service is temporarily unavailable. Please try again later.',
+              'home'
+            )
+          );
+        } else {
+          setErrorModal(
+            createErrorModalState(
+              'Authentication Error',
+              errorDescription || error,
+              suggestedAction || 'home'
+            )
+          );
+        }
+
+        // Clean up the URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    };
+
+    handleAuthCallback();
+  }, []);
+
+  const handleCloseErrorModal = () => {
+    setErrorModal(prev => ({ ...prev, isOpen: false }));
+  };
+
   return (
     <div className="App app-container">
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        error={errorModal.error}
+        description={errorModal.description}
+        suggested_action={errorModal.suggested_action}
+        onClose={handleCloseErrorModal}
+      />
+
       <Sidebar />
       <div className="main-container">
         <Topbar
@@ -157,8 +293,11 @@ const baseRoutes: PluginRoute[] = [
   { path: 'patients/new', element: <PatientForm /> },
   { path: 'patients/:patientId', element: <PatientDetail /> },
   { path: 'patients/:patientId/edit', element: <PatientForm /> },
+  {
+    path: 'patients/:patientId/encounters/new',
+    element: <EncounterFormPage />,
+  },
   { path: 'encounters/:encounterId', element: <EncounterDetail /> },
-  { path: 'encounters/new', element: <EncounterFormPage /> },
   { path: 'encounters/:encounterId/edit', element: <EncounterFormPage /> },
   { path: 'intake/:patientId', element: <PatientIntakeForm /> },
   { path: 'schedule', element: <Schedule /> },
@@ -180,6 +319,12 @@ const baseRoutes: PluginRoute[] = [
   { path: 'uploads/:uploadId', element: <UploadDetails /> },
 
   { path: 'video/:roomId', element: <VideoRoom /> },
+
+  { path: 'notes', element: <UserNotesPage /> },
+
+  { path: 'about/roles', element: <RoleDescriptions /> },
+
+  { path: 'admin', element: <Administration /> },
 ];
 
 function App() {

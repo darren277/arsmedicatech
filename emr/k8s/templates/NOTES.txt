@@ -1,0 +1,41 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+{{- if .Values.ingress.enabled }}
+The OSCAR EMR application is accessible at:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else }}
+The OSCAR EMR application is accessible via:
+  kubectl port-forward -n {{ .Values.namespace }} svc/oscar-web 8080:80
+  Then visit: http://localhost:8080
+{{- end }}
+
+Database Information:
+  Host: oscar-db.{{ .Values.namespace }}.svc.cluster.local
+  Port: 3306
+  Database: {{ .Values.database.credentials.database }}
+  User: {{ .Values.database.credentials.user }}
+
+Important Notes:
+1. The database password is stored in a Kubernetes secret named 'oscar-db-secret'
+2. OSCAR documents are stored in persistent volumes
+3. Logs are available in the oscar-logs-pvc persistent volume
+4. The application uses SSL/TLS when ingress is enabled
+5. Horizontal Pod Autoscaler is configured to scale based on CPU and memory usage
+
+To access the database directly:
+  kubectl exec -it -n {{ .Values.namespace }} deployment/oscar-web -- mysql -h oscar-db -u {{ .Values.database.credentials.user }} -p{{ .Values.database.credentials.password }} {{ .Values.database.credentials.database }}
+
+To view logs:
+  kubectl logs -n {{ .Values.namespace }} -l app=oscar-web
+
+To check the status of all components:
+  kubectl get all -n {{ .Values.namespace }} 

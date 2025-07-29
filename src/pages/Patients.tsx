@@ -6,7 +6,7 @@ import { PatientFormModal } from '../components/PatientFormModal';
 import { PatientTable } from '../components/PatientTable';
 import SearchBox from '../components/SearchBox';
 import { usePatientSearch } from '../hooks/usePatientSearch';
-import { encounterAPI, patientAPI } from '../services/api';
+import apiService, { encounterAPI, patientAPI } from '../services/api';
 import logger from '../services/logging';
 import { EncounterType, PatientType } from '../types';
 
@@ -229,6 +229,30 @@ export function Patients() {
     }
   };
 
+  const handleCreateTestData = async () => {
+    try {
+      setIsLoading(true);
+      await apiService.testSurrealDB();
+      // Reload data after creating test data
+      loadPatients();
+      if (activeTab === 'encounters') {
+        if (selectedPatient?.demographic_no) {
+          loadPatientEncounters(selectedPatient.demographic_no);
+        } else {
+          loadAllEncounters();
+        }
+      }
+      alert('Test data created successfully!');
+    } catch (error) {
+      console.error('Error creating test data:', error);
+      alert(
+        'Failed to create test data. Please check the console for details.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Determine which data to show based on search results
   const getDisplayData = () => {
     if (query.trim().length >= 2 && searchResults.length > 0) {
@@ -314,42 +338,54 @@ export function Patients() {
 
         {/* Action Buttons */}
         <div className="flex justify-between items-center mb-6">
-          {activeTab === 'patients' && !isShowingSearchResults && (
-            <button
-              onClick={() => {
-                setSelectedPatient(null);
-                setShowPatientForm(true);
-              }}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-            >
-              Add New Patient
-            </button>
-          )}
-
-          {activeTab === 'encounters' && !isShowingSearchResults && (
-            <div className="flex gap-2">
+          <div className="flex gap-2">
+            {activeTab === 'patients' && !isShowingSearchResults && (
               <button
-                onClick={handleNewEncounter}
-                className={`px-4 py-2 rounded-md ${
-                  selectedPatient
-                    ? 'bg-green-500 text-white hover:bg-green-600'
-                    : 'bg-yellow-500 text-white hover:bg-yellow-600'
-                }`}
+                onClick={() => {
+                  setSelectedPatient(null);
+                  setShowPatientForm(true);
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
               >
-                {selectedPatient
-                  ? 'Add New Encounter'
-                  : 'Select Patient to Create Encounter'}
+                Add New Patient
               </button>
-              {selectedPatient && (
+            )}
+
+            {activeTab === 'encounters' && !isShowingSearchResults && (
+              <>
                 <button
-                  onClick={clearPatientSelection}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                  onClick={handleNewEncounter}
+                  className={`px-4 py-2 rounded-md ${
+                    selectedPatient
+                      ? 'bg-green-500 text-white hover:bg-green-600'
+                      : 'bg-yellow-500 text-white hover:bg-yellow-600'
+                  }`}
                 >
-                  View All Encounters
+                  {selectedPatient
+                    ? 'Add New Encounter'
+                    : 'Select Patient to Create Encounter'}
                 </button>
-              )}
-            </div>
-          )}
+                {selectedPatient && (
+                  <button
+                    onClick={clearPatientSelection}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                  >
+                    View All Encounters
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Test Data Button - only show if no data exists */}
+            {!isLoading && patients.length === 0 && (
+              <button
+                onClick={handleCreateTestData}
+                className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
+              >
+                Create Test Data
+              </button>
+            )}
+          </div>
 
           {isShowingSearchResults && (
             <div className="text-sm text-gray-600">

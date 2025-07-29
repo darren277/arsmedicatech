@@ -23,6 +23,8 @@ stuff/
 
 k8s/values.yaml
 
+emr/k8s/values.yaml
+
 dist/
 
 coverage/
@@ -38,3 +40,6 @@ typings/
 
 micro/livekit/egress.yaml
 micro/livekit/livekit.yaml
+
+config/*.apps.googleusercontent.com.json
+config.py
