@@ -124,7 +124,7 @@ body {
   padding: 20px;
 }
 
-.doctor-avatar {
+.corner-user-avatar {
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -132,13 +132,13 @@ body {
   margin: 0 auto 15px;
 }
 
-.doctor-info h4 {
+.corner-user-info h4 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-.doctor-info p {
+.corner-user-info p {
   margin: 5px 0 0;
   color: #8a92a6;
   font-size: 0.9rem;

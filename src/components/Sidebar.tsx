@@ -182,10 +182,13 @@ const Sidebar = () => {
       </nav>
       {!isCollapsed && (
         <div className="sidebar-footer">
-          <div className="doctor-avatar"></div>
-          <div className="doctor-info">
-            <h4>Hello Dr. Carvolth</h4>
-            <p>You have 4 remaining appointments scheduled today</p>
+          <div className="corner-user-avatar"></div>
+          <div className="corner-user-info">
+            <h4>Hello {user?.username}</h4>
+            <p>
+              You have {user?.appointments || 0} remaining appointments
+              scheduled today
+            </p>
           </div>
         </div>
       )}

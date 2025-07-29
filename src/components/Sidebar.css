@@ -137,20 +137,20 @@ nav a.active {
   background-color: #f0f0f0;
 }
 
-.doctor-avatar {
-  width: 40px;
-  height: 40px;
+.corner-user-avatar {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background-color: #007bff;
   margin-bottom: 10px;
 }
 
-.doctor-info h4 {
+.corner-user-info h4 {
   margin: 0 0 5px 0;
   font-size: 0.9rem;
 }
 
-.doctor-info p {
+.corner-user-info p {
   margin: 0;
   font-size: 0.8rem;
   color: #888;
