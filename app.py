@@ -1030,6 +1030,12 @@ def login_cognito():
         role = 'patient'
         logger.info(f"Invalid role: {role}. Defaulting to 'patient'.")
     
+    # Validate and set default intent if empty or invalid
+    valid_intents = ['signin', 'signup', 'reset']
+    if intent not in valid_intents:
+        intent = 'signin'
+        logger.info(f"Invalid intent: {intent}. Defaulting to 'signin'.")
+    
     # Pass both role and intent in the state parameter
     state = f"{role}:{intent}"
     cognito_url = (
