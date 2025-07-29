@@ -6,6 +6,7 @@ import { useNotificationContext } from '../components/NotificationContext';
 import NotificationTest from '../components/NotificationTest';
 import SignupPopup from '../components/SignupPopup';
 import ToolUsageModal from '../components/ToolUsageModal';
+import { DEBUG } from '../env_vars';
 import { useChat } from '../hooks/useChat';
 import useEvents from '../hooks/useEvents';
 import { useNewConversationModal } from '../hooks/useNewConversationModal';
@@ -674,7 +675,7 @@ const Messages = () => {
       )}
 
       {/* SSE Notification Test Component */}
-      <NotificationTest />
+      {DEBUG && <NotificationTest />}
 
       <SignupPopup isOpen={isPopupOpen} onClose={hideSignupPopup} />
       <NewConversationModal
