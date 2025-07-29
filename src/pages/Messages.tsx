@@ -91,6 +91,8 @@ const Messages = () => {
     setNewMessage,
     handleSend,
     createNewConversation,
+    clearConversations,
+    addTestConversation,
     isLoading,
   } = useChat(false); // Default to regular chat, will be overridden per conversation
 
@@ -283,6 +285,18 @@ const Messages = () => {
 
       // Only fetch from database for real conversations (string IDs)
       if (typeof selectedConversationId === 'string') {
+        // Check if this conversation has messages already loaded (like test conversations)
+        if (
+          selectedConversation.messages &&
+          selectedConversation.messages.length > 0
+        ) {
+          // Use the messages that are already in the conversation object
+          if (isMounted) {
+            setSelectedMessages(selectedConversation.messages);
+          }
+          return;
+        }
+
         try {
           const response = await apiService.getConversationMessages(
             selectedConversationId.toString()
@@ -552,13 +566,40 @@ const Messages = () => {
           <div className="conversations-list">
             <div className="conversation-list-header">
               <h3 className="conversation-list-title">Conversations</h3>
-              <button
-                className="new-conversation-button"
-                onClick={handleNewConversation}
-                title="Start new conversation"
-              >
-                <span className="button-icon">+</span>
-              </button>
+              <div className="conversation-header-buttons">
+                <button
+                  className="new-conversation-button"
+                  onClick={handleNewConversation}
+                  title="Start new conversation"
+                >
+                  <span className="button-icon">+</span>
+                </button>
+                {DEBUG && (
+                  <>
+                    <button
+                      className="debug-button"
+                      onClick={clearConversations}
+                      style={{ marginLeft: '10px', fontSize: '12px' }}
+                      title="Clear all conversations (debug)"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      className="debug-button"
+                      onClick={addTestConversation}
+                      style={{
+                        marginLeft: '5px',
+                        fontSize: '12px',
+                        backgroundColor: '#28a745',
+                        borderColor: '#28a745',
+                      }}
+                      title="Add test conversation (debug)"
+                    >
+                      Test
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
             <ul>
               {conversations.length > 0 ? (

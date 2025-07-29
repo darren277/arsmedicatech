@@ -8,7 +8,9 @@ function useChat(isLLM = false) {
   const getInitialConversations = (): Conversation[] => {
     try {
       const stored = localStorage.getItem('chat-conversations');
-      return stored ? JSON.parse(stored) : [];
+      const conversations = stored ? JSON.parse(stored) : [];
+      logger.debug('Loaded conversations from localStorage:', conversations);
+      return conversations;
     } catch (error) {
       console.error('Error loading conversations from localStorage:', error);
       return [];
@@ -22,13 +24,30 @@ function useChat(isLLM = false) {
   const getInitialSelectedId = (): number | string | null => {
     try {
       const stored = localStorage.getItem('chat-selected-conversation');
-      return stored ? JSON.parse(stored) : conversations[0]?.id || null;
+      if (stored) {
+        const selectedId = JSON.parse(stored);
+        logger.debug(
+          'Loaded selected conversation ID from localStorage:',
+          selectedId
+        );
+        return selectedId;
+      }
+      // If no selected conversation stored, try to get the first conversation from localStorage
+      const conversationsStored = localStorage.getItem('chat-conversations');
+      if (conversationsStored) {
+        const conversations = JSON.parse(conversationsStored);
+        const firstId = conversations[0]?.id || null;
+        logger.debug('Using first conversation ID as selected:', firstId);
+        return firstId;
+      }
+      logger.debug('No conversations found in localStorage');
+      return null;
     } catch (error) {
       console.error(
         'Error loading selected conversation from localStorage:',
         error
       );
-      return conversations[0]?.id || null;
+      return null;
     }
   };
 
@@ -37,6 +56,12 @@ function useChat(isLLM = false) {
   >(getInitialSelectedId);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Debug: Log current conversations state
+  useEffect(() => {
+    logger.debug('Current conversations state:', conversations);
+    logger.debug('Current selected conversation ID:', selectedConversationId);
+  }, [conversations, selectedConversationId]);
 
   // Save conversations to localStorage whenever they change
   const saveConversationsToStorage = (conversations: Conversation[]) => {
@@ -111,26 +136,47 @@ function useChat(isLLM = false) {
 
         // Preserve existing messages when updating conversations
         setConversations(prevConversations => {
-          const updatedConversations = allConversations.map((newConv: any) => {
-            // Find existing conversation with the same ID
-            const existingConv = prevConversations.find(
+          logger.debug(
+            'Previous conversations from localStorage:',
+            prevConversations
+          );
+          logger.debug('New conversations from server:', allConversations);
+
+          // If we have conversations in localStorage but server returned empty, keep the localStorage ones
+          if (prevConversations.length > 0 && allConversations.length === 0) {
+            logger.debug('Keeping existing conversations from localStorage');
+            return prevConversations;
+          }
+
+          // Merge server conversations with localStorage conversations
+          const mergedConversations = [...prevConversations];
+
+          allConversations.forEach((newConv: any) => {
+            const existingIndex = mergedConversations.findIndex(
               prev => prev.id === newConv.id
             );
-            if (
-              existingConv &&
-              existingConv.messages &&
-              existingConv.messages.length > 0
-            ) {
-              // Preserve existing messages
-              return {
+
+            if (existingIndex >= 0) {
+              // Update existing conversation but preserve messages if they exist
+              const existingConv = mergedConversations[existingIndex];
+              mergedConversations[existingIndex] = {
                 ...newConv,
-                messages: existingConv.messages,
+                messages:
+                  existingConv.messages && existingConv.messages.length > 0
+                    ? existingConv.messages
+                    : newConv.messages,
               };
+              logger.debug('Updated existing conversation:', newConv.id);
+            } else {
+              // Add new conversation from server
+              mergedConversations.push(newConv);
+              logger.debug('Added new conversation from server:', newConv.id);
             }
-            return newConv;
           });
-          saveConversationsToStorage(updatedConversations);
-          return updatedConversations;
+
+          logger.debug('Final merged conversations:', mergedConversations);
+          saveConversationsToStorage(mergedConversations);
+          return mergedConversations;
         });
 
         // Only set selected conversation if none is currently selected
@@ -291,6 +337,40 @@ function useChat(isLLM = false) {
     }
   };
 
+  // Debug function to clear localStorage (for testing)
+  const clearConversations = () => {
+    localStorage.removeItem('chat-conversations');
+    localStorage.removeItem('chat-selected-conversation');
+    setConversations([]);
+    setSelectedConversationId(null);
+    logger.debug('Cleared all conversations from localStorage');
+  };
+
+  // Debug function to add a test conversation (for testing)
+  const addTestConversation = () => {
+    const testConversation: Conversation = {
+      id: 'test-conversation-' + Date.now(),
+      name: 'Test Conversation',
+      lastMessage: 'This is a test conversation',
+      avatar: 'https://ui-avatars.com/api/?name=Test&background=random',
+      messages: [
+        { sender: 'Test User', text: 'Hello, this is a test message' },
+        { sender: 'Me', text: 'Hi there! This is a test response' },
+      ],
+      isAI: false,
+    };
+
+    setConversations(prev => {
+      const updated = [testConversation, ...prev];
+      saveConversationsToStorage(updated);
+      return updated;
+    });
+
+    saveSelectedConversationToStorage(testConversation.id);
+    setSelectedConversationId(testConversation.id);
+    logger.debug('Added test conversation:', testConversation);
+  };
+
   return {
     conversations,
     setConversations,
@@ -301,6 +381,8 @@ function useChat(isLLM = false) {
     handleSelectConversation,
     handleSend,
     createNewConversation,
+    clearConversations, // Export for debugging
+    addTestConversation, // Export for debugging
     isLoading,
   };
 }
