@@ -16,9 +16,11 @@ spec:
           ports: [ { containerPort: 80 } ]
           env:
             - name: API_URL
-              value: "{{ .Values.react.apiUrl | default .Values.flask.serviceUrl }}"
+              value: "{{ .Values.react.apiUrl }}"
             - name: NODE_ENV
               value: "{{ .Values.react.nodeEnv }}"
+            - name: SENTRY_DSN
+              value: "{{ .Values.sentry.dsn }}"
 ---
 apiVersion: v1
 kind: Service

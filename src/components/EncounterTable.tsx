@@ -39,21 +39,42 @@ export function EncounterTable({
         header: 'Notes',
         cell: (ctx: any) => {
           const value = ctx.getValue();
-          if (typeof value === 'object' && value !== null) {
-            // Handle SOAP notes object
+          const row = ctx.row.original;
+          const noteType = row.note_type;
+
+          // Check if it's SOAP notes based on note_type field or object structure
+          if (
+            noteType === 'soap' ||
+            (typeof value === 'object' &&
+              value !== null &&
+              'subjective' in value &&
+              'objective' in value &&
+              'assessment' in value &&
+              'plan' in value)
+          ) {
+            // Helper function to format text with preserved newlines
+            const formatText = (text: string) => {
+              if (!text) return '-';
+              // Replace escaped newlines with actual newlines and truncate for table view
+              const formatted = text.replace(/\\n/g, '\n');
+              return formatted.length > 50
+                ? `${formatted.substring(0, 50)}...`
+                : formatted;
+            };
+
             return (
               <div className="text-xs">
                 <div>
-                  <strong>S:</strong> {value.subjective || '-'}
+                  <strong>S:</strong> {formatText(value.subjective || '')}
                 </div>
                 <div>
-                  <strong>O:</strong> {value.objective || '-'}
+                  <strong>O:</strong> {formatText(value.objective || '')}
                 </div>
                 <div>
-                  <strong>A:</strong> {value.assessment || '-'}
+                  <strong>A:</strong> {formatText(value.assessment || '')}
                 </div>
                 <div>
-                  <strong>P:</strong> {value.plan || '-'}
+                  <strong>P:</strong> {formatText(value.plan || '')}
                 </div>
               </div>
             );

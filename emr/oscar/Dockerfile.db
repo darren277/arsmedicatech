@@ -1,5 +1,7 @@
 FROM mariadb:10.6
 
+ARG PORT=3306
+
 COPY my.cnf /etc/mysql/conf.d/my.cnf
 
 RUN chmod 644 /etc/mysql/conf.d/my.cnf
@@ -15,4 +17,4 @@ COPY migrations/patch19.sql /patch19.sql
 COPY migrations/oscarinit_bc.sql /oscarinit_bc.sql
 COPY migrations/oscardata_bc.sql /oscardata_bc.sql
 
-EXPOSE 3316
+EXPOSE $PORT

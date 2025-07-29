@@ -24,6 +24,12 @@ spec:
               service:
                 name: flask-api
                 port: { number: 80 }
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: flask-api
+                port: { number: 80 }
           - path: /
             pathType: Prefix
             backend:
@@ -58,3 +64,10 @@ spec:
                 name: livekit
                 port:
                   number: 7880
+          - path: /ner
+            pathType: Prefix
+            backend:
+              service:
+                name: micro-ner
+                port:
+                  number: 80

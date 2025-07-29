@@ -531,3 +531,19 @@ flowchart LR
     C -. UDP ICE .-> D2 -.-> LK3
     C -. TURN relay .-> D4 -.-> LK4
 ```
+
+## Authentication
+
+### GCP
+
+#### Manual Steps (for personal accounts):
+
+1. Go to the [Google Cloud Console Credentials page](https://console.cloud.google.com/apis/credentials).
+2. Select your project.
+3. If prompted, configure the OAuth consent screen.
+* Choose "External" if you want users outside your Google account.
+* Fill in the required fields (app name, support email, etc.).
+4. Create OAuth 2.0 Client ID credentials:
+* Application type: Web application
+* Authorized redirect URIs: (e.g., https://yourdomain.com/callback)
+* Save and copy the Client ID and Client Secret.

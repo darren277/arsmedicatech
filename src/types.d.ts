@@ -15,7 +15,7 @@ export interface Conversation {
   name: string;
   lastMessage: string;
   avatar: string;
-  messages: { sender: string; text: string }[];
+  messages: { sender: string; text: string; usedTools?: string[] }[];
   participantId?: string;
   isAI?: boolean;
 }
@@ -24,7 +24,8 @@ export interface EncounterType {
   note_id?: string;
   date_created?: string;
   provider_id?: string;
-  note_text?: string;
+  note_text?: string | SOAPNotesType;
+  note_type?: 'soap' | 'text';
   diagnostic_codes?: string[];
   status?: string;
   patient?: PatientType;
@@ -37,6 +38,23 @@ export interface SOAPNotesType {
   objective?: string;
   assessment?: string;
   plan?: string;
+}
+
+export interface EntityType {
+  text: string;
+  label: string;
+  start_char: number;
+  end_char: number;
+  cui?: string;
+  icd10cm?: string;
+  icd10cm_name?: string;
+}
+
+export interface ICDAutoCoderResult {
+  entities: EntityType[];
+  normalized_entities: EntityType[];
+  icd_codes: EntityType[];
+  cached?: boolean;
 }
 
 export interface LabResult {
