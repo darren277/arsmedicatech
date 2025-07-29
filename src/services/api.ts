@@ -1,4 +1,4 @@
-import { API_URL } from '../env_vars';
+import { API_URL, LIVE_KIT_TOKEN_URL } from '../env_vars';
 import authService from './auth';
 import logger from './logging';
 
@@ -7,7 +7,7 @@ class ApiService {
   apiURL: string;
 
   constructor() {
-    this.baseURL = API_URL;
+    this.baseURL = API_URL ?? '';
     this.apiURL = API_URL + '/api';
   }
 
@@ -87,9 +87,19 @@ class ApiService {
 
   // POST request with API prefix
   async postAPI(endpoint: string, data: any): Promise<any> {
+    // If data is FormData, do not stringify and do not set Content-Type
+    const isFormData =
+      typeof FormData !== 'undefined' && data instanceof FormData;
+    let headers = this.getHeaders();
+    if (isFormData) {
+      // Remove Content-Type so browser sets it with boundary
+      const { ['Content-Type']: _, ...rest } = headers;
+      headers = rest;
+    }
     return this.request('/api' + endpoint, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
+      headers,
     });
   }
 
@@ -117,6 +127,14 @@ class ApiService {
   // DELETE request with API prefix
   async deleteAPI(endpoint: string): Promise<any> {
     return this.request('/api' + endpoint, { method: 'DELETE' });
+  }
+
+  // DELETE request with API prefix and body
+  async deleteAPIWithBody(endpoint: string, data: any): Promise<any> {
+    return this.request('/api' + endpoint, {
+      method: 'DELETE',
+      body: JSON.stringify(data),
+    });
   }
 
   // Patient-related API calls
@@ -234,6 +252,27 @@ class ApiService {
   async testSurrealDB(): Promise<any> {
     return this.getAPI('/test_surrealdb');
   }
+
+  // Lab Results API
+  async getLabResults(): Promise<any> {
+    return this.getAPI('/lab_results');
+  }
+
+  // Extract entities from encounter notes
+  async extractEntitiesFromNotes(
+    noteText: any,
+    noteType: string
+  ): Promise<any> {
+    return this.postAPI('/encounters/extract-entities', {
+      note_text: noteText,
+      note_type: noteType,
+    });
+  }
+
+  // Optimal Service API
+  async callOptimal(tableData: any): Promise<any> {
+    return this.postAPI('/optimal', { tableData });
+  }
 }
 
 // Create a singleton instance
@@ -288,6 +327,231 @@ export const encounterAPI = {
   // Search encounters
   search: (query: string) =>
     apiService.getAPI(`/encounters/search?q=${encodeURIComponent(query)}`),
+
+  // Extract entities from encounter notes
+  extractEntitiesFromNotes: (noteText: any, noteType: string) =>
+    apiService.postAPI('/encounters/extract-entities', {
+      note_text: noteText,
+      note_type: noteType,
+    }),
+};
+
+// Organization API operations
+export const organizationAPI = {
+  // Get all organizations
+  getAll: () => apiService.getAPI('/organizations'),
+
+  // Get a specific organization by ID
+  getById: (id: string) => apiService.getAPI(`/organizations/${id}`),
+
+  // Create a new organization
+  create: (orgData: any) => apiService.postAPI('/organizations', orgData),
+
+  // Update an organization
+  update: (id: string, orgData: any) =>
+    apiService.putAPI(`/organizations/${id}`, orgData),
+
+  // Get all clinics for an organization
+  getClinics: (orgId: string) =>
+    apiService.getAPI(`/organizations/${orgId}/clinics`),
+
+  // Add a clinic to an organization
+  addClinic: (orgId: string, clinicId: string) =>
+    apiService.postAPI(`/organizations/${orgId}/clinics`, {
+      clinic_id: clinicId,
+    }),
+
+  // Remove a clinic from an organization
+  removeClinic: (orgId: string, clinicId: string) =>
+    apiService.deleteAPIWithBody(`/organizations/${orgId}/clinics`, {
+      clinic_id: clinicId,
+    }),
+};
+
+// Metrics API operations
+export const metricsAPI = {
+  // Get all metrics
+  getAll: () => apiService.getAPI('/metrics'),
+
+  // Get all metrics for a user
+  getAllForUser: (userId: string) =>
+    apiService.getAPI(`/metrics/users/${userId}`),
+
+  // Get a specific metric by ID
+  getById: (id: string) => apiService.getAPI(`/metrics/${id}`),
+
+  // Create a new metric
+  create: (metricData: any) => apiService.postAPI('/metrics', metricData),
+
+  // Update a metric
+  update: (id: string, metricData: any) =>
+    apiService.putAPI(`/metrics/${id}`, metricData),
+
+  // Delete a metric
+  delete: (id: string) => apiService.deleteAPI(`/metrics/${id}`),
+
+  // Get metrics for a user on a specific date
+  getForUserByDate: (userId: string, date: string) =>
+    apiService.getAPI(`/metrics/user/${userId}/date/${date}`),
+
+  // Upsert (create or update) metrics for a user on a specific date
+  upsertForUserByDate: (userId: string, date: string, metrics: any[]) =>
+    apiService.postAPI(`/metrics/user/${userId}/date/${date}`, { metrics }),
+};
+
+// File upload API operations
+export const fileUploadAPI = {
+  // Get all uploads
+  getAll: () => apiService.getAPI('/uploads'),
+  // Get a specific upload by ID
+  getById: (id: string) => apiService.getAPI(`/uploads/${id}`),
+
+  // Create a new upload
+  create: (uploadData: any) => apiService.postAPI('/uploads', uploadData),
+
+  // Update an upload
+  update: (id: string, uploadData: any) =>
+    apiService.putAPI(`/uploads/${id}`, uploadData),
+
+  // Delete an upload
+  delete: (id: string) => apiService.deleteAPI(`/uploads/${id}`),
+};
+
+// Plugin API operations
+export const pluginAPI = {
+  // Get all plugins
+  getAll: () => apiService.getAPI('/plugins'),
+};
+
+// Video API operations
+class VideoAPI {
+  baseURL: string;
+
+  constructor() {
+    this.baseURL = LIVE_KIT_TOKEN_URL;
+  }
+
+  async request(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const url = `${this.baseURL}${endpoint}`;
+    const config = {
+      headers: this.getHeaders(),
+      credentials: 'include' as RequestCredentials,
+      ...options,
+    };
+
+    logger.debug('Video API request - URL:', url);
+    logger.debug('Video API request - Method:', options.method || 'GET');
+    logger.debug('Video API request - Headers:', config.headers);
+
+    try {
+      const headers = await this.getHeaders();
+      const configWithHeaders = {
+        ...config,
+        headers,
+      };
+      const response = await fetch(url, configWithHeaders);
+      logger.debug('Video API request - Response status:', response.status);
+      const data = await response.json();
+      logger.debug('Video API request - Response data:', data);
+      return data;
+    } catch (error) {
+      console.error('Video API request failed:', error);
+      throw error;
+    }
+  }
+
+  async getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+    };
+  }
+
+  async post(endpoint: string, data: any, signal?: AbortSignal): Promise<any> {
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      signal,
+    });
+  }
+
+  // Get a video token
+  async getToken(room: string, identity: string, signal?: AbortSignal) {
+    logger.debug('getToken', JSON.stringify({ room, identity }));
+    const token = await this.post('/livekit/token', { room, identity }, signal);
+    logger.debug('token', token);
+    if (!token) {
+      throw new Error('Failed to retrieve token');
+    }
+    return token;
+  }
+
+  async startRecording(room: string) {
+    logger.debug('startRecording', { room });
+    const response = await this.post('/livekit/start-recording', { room });
+    logger.debug('startRecording response', response);
+    return response;
+  }
+
+  async stopRecording(egressId: string) {
+    logger.debug('stopRecording', { egressId });
+    const response = await this.post('/livekit/stop-recording', {
+      egress_id: egressId,
+    });
+    logger.debug('stopRecording response', response);
+    return response;
+  }
+}
+
+const videoAPI = new VideoAPI();
+
+export { videoAPI };
+
+// User Notes API operations
+export const userNotesAPI = {
+  // Get all user notes
+  getAll: () => apiService.getAPI('/user-notes'),
+
+  // Get a specific user note by ID
+  getById: (id: string) => apiService.getAPI(`/user-notes/${id}`),
+
+  // Create a new user note
+  create: (noteData: any) => apiService.postAPI('/user-notes', noteData),
+
+  // Update an existing user note
+  update: (id: string, noteData: any) =>
+    apiService.putAPI(`/user-notes/${id}`, noteData),
+
+  // Delete a user note
+  delete: (id: string) => apiService.deleteAPI(`/user-notes/${id}`),
+
+  // Search user notes
+  search: (query: string) =>
+    apiService.getAPI(`/user-notes?search=${encodeURIComponent(query)}`),
+};
+
+// Admin API operations
+export const adminAPI = {
+  // Get organization id for user
+  getOrganizationId: () => apiService.getAPI('/admin/my_organization'),
+
+  // Get all organizations
+  getOrganizations: () => apiService.getAPI('/admin/organizations'),
+
+  // Get all clinics
+  getClinics: (organizationId: string) =>
+    apiService.getAPI(`/admin/clinics/${organizationId}`),
+
+  // Get all patients
+  getPatients: (organizationId: string) =>
+    apiService.getAPI(`/admin/patients/${organizationId}`),
+
+  // Get all providers
+  getProviders: (organizationId: string) =>
+    apiService.getAPI(`/admin/providers/${organizationId}`),
+
+  // Get all administrators
+  getAdministrators: (organizationId: string) =>
+    apiService.getAPI(`/admin/administrators/${organizationId}`),
 };
 
 export default apiService;

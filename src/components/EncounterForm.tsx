@@ -51,14 +51,24 @@ export function EncounterForm({
         },
       });
 
-      // Check if note_text is a SOAP object
+      // Check if note_text is a SOAP object or if note_type indicates SOAP notes
       if (
-        typeof encounter.note_text === 'object' &&
-        encounter.note_text !== null
+        (typeof encounter.note_text === 'object' &&
+          encounter.note_text !== null) ||
+        encounter.note_type === 'soap'
       ) {
+        const soapNotes =
+          typeof encounter.note_text === 'object'
+            ? encounter.note_text
+            : {
+                subjective: '',
+                objective: '',
+                assessment: '',
+                plan: '',
+              };
         setFormData(prev => ({
           ...prev,
-          soap_notes: encounter.note_text as SOAPNotesType,
+          soap_notes: soapNotes as SOAPNotesType,
         }));
       }
     } else {

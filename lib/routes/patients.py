@@ -1,18 +1,24 @@
 """
-Routes for patient and encounter management in a healthcare application.
+Patient routes for managing patient data and encounters.
 """
-from typing import Tuple
+import json
+from typing import Any, Dict, List, Tuple, Union
 
 from flask import Response, jsonify, request
 
 from lib.data_types import PatientID
-from lib.models.patient import (create_encounter, create_patient,
-                                delete_encounter, delete_patient,
-                                get_all_encounters, get_all_patients,
-                                get_encounter_by_id, get_encounters_by_patient,
-                                get_patient_by_id, search_encounter_history,
-                                search_patient_history, update_encounter,
-                                update_patient)
+from lib.db.surreal import DbController
+from lib.models.patient.main import (create_encounter, create_patient,
+                                     delete_encounter, delete_patient,
+                                     get_all_encounters, get_all_patients,
+                                     get_encounter_by_id,
+                                     get_encounters_by_patient,
+                                     get_patient_by_id,
+                                     search_encounter_history,
+                                     search_patient_history, serialize_patient,
+                                     update_encounter, update_patient)
+from lib.services.auth_decorators import get_current_user
+from lib.services.icd_autocoder_service import ICDAutoCoderService
 from settings import logger
 
 
@@ -82,6 +88,7 @@ def patient_endpoint_route(patient_id: PatientID) -> Tuple[Response, int]:
         patient = get_patient_by_id(patient_id)
         logger.debug(f"Patient result: {patient}")
         if patient:
+            patient = serialize_patient(patient)
             return jsonify(patient), 200
         else:
             return jsonify({"error": "Patient not found"}), 404
@@ -252,3 +259,86 @@ def delete_encounter_route(encounter_id: str) -> Tuple[Response, int]:
             return jsonify({"error": "Encounter not found or delete failed"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+def extract_entities_from_notes_route() -> Tuple[Response, int]:
+    """
+    Extract entities and ICD codes from encounter notes using the ICD autocoder service.
+    
+    This endpoint processes the note_text from an encounter to extract medical entities,
+    normalize them using UMLS, and match them to ICD-10-CM codes.
+    
+    Expected request body:
+    {
+        "note_text": "string or SOAP notes object",
+        "note_type": "soap" or "text"
+    }
+    
+    Returns:
+    {
+        "entities": [...],
+        "normalized_entities": [...],
+        "icd_codes": [...]
+    }
+    """
+    try:
+        data = request.get_json()
+        if not data or 'note_text' not in data:
+            return jsonify({"error": "note_text is required"}), 400
+        
+        note_text = data.get('note_text')
+        note_type = data.get('note_type', 'text')
+        
+        # Convert SOAP notes to plain text if needed
+        if note_type == 'soap' and isinstance(note_text, dict):
+            # Extract text from SOAP notes
+            soap_sections = []
+            if note_text.get('subjective'):
+                soap_sections.append(f"Subjective: {note_text['subjective']}")
+            if note_text.get('objective'):
+                soap_sections.append(f"Objective: {note_text['objective']}")
+            if note_text.get('assessment'):
+                soap_sections.append(f"Assessment: {note_text['assessment']}")
+            if note_text.get('plan'):
+                soap_sections.append(f"Plan: {note_text['plan']}")
+            
+            # Join all sections with newlines
+            text_to_process = '\n\n'.join(soap_sections)
+        else:
+            # Use plain text as is
+            text_to_process = str(note_text) if note_text else ""
+        
+        if not text_to_process.strip():
+            return jsonify({"error": "No text content to process"}), 400
+        
+        # Process the text with ICD autocoder service
+        autocoder = ICDAutoCoderService(text_to_process)
+        result = autocoder.main()
+        
+        logger.debug(f"ICD autocoder result: {result}")
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        logger.error(f"Error in extract_entities_from_notes_route: {e}")
+        return jsonify({"error": f"Failed to process notes: {str(e)}"}), 500
+
+
+def get_cache_stats_route() -> Tuple[Response, int]:
+    """
+    Get entity cache statistics.
+    
+    Returns:
+    {
+        "total_cached_entities": 123,
+        "cache_enabled": true
+    }
+    """
+    try:
+        from lib.services.cache_service import EntityCacheService
+        db = DbController()
+        stats = EntityCacheService.get_cache_stats(db)
+        return jsonify(stats), 200
+    except Exception as e:
+        logger.error(f"Error getting cache stats: {e}")
+        return jsonify({"error": f"Failed to get cache stats: {str(e)}"}), 500

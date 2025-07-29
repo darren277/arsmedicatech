@@ -40,7 +40,7 @@ if not ENCRYPTION_KEY:
 print("ENCRYPTION_KEY:", "SET" if ENCRYPTION_KEY else "NOT SET")
 
 PORT = os.environ.get('PORT', 5000)
-DEBUG = os.environ.get('DEBUG', True)
+DEBUG = True if os.environ.get('DEBUG', 'true').lower() in ('true', '1', 't') else False
 HOST = os.environ.get('HOST', '0.0.0.0')
 
 print("PORT:", PORT)
@@ -58,14 +58,57 @@ BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:3123/api')
 #MCP_URL = "http://localhost:9000/mcp"
 MCP_URL = os.environ.get('MCP_URL', "http://mcp-server/mcp/")
 
-OPTIMAL_KEY = os.environ.get('OPTIMAL_KEY', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+TEST_OPTIMAL_KEY = os.environ.get('OPTIMAL_KEY', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 OPTIMAL_URL = os.environ.get('OPTIMAL_URL', 'https://optimal.apphosting.services/optimize')
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
+
+NOTIFICATIONS_CHANNEL = 0
+UPLOADS_CHANNEL = 1
 
 SENTRY_DSN = os.environ.get('SENTRY_DSN', None)
 if not SENTRY_DSN:
     logger.error("SENTRY_DSN is not set. Sentry will not be initialized.")
     raise ValueError("SENTRY_DSN must be set in settings.py or environment variable")
 
+DEMO_ADMIN_USERNAME = os.environ.get('DEMO_ADMIN_USERNAME', 'admin')
+DEMO_ADMIN_PASSWORD = os.environ.get('DEMO_ADMIN_PASSWORD', 'admin')
+
+BUCKET_NAME = os.environ.get('S3_BUCKET', 'my-bucket')
+
+S3_AWS_ACCESS_KEY_ID = os.environ.get('S3_AWS_ACCESS_KEY_ID', 'your-access-key-id')
+S3_AWS_SECRET_ACCESS_KEY = os.environ.get('S3_SECRET_ACCESS_KEY', 'your-secret-access-key')
+
+TEXTRACT_AWS_ACCESS_KEY_ID = os.environ.get('TEXTRACT_AWS_ACCESS_KEY_ID', 'your-access-key-id')
+TEXTRACT_AWS_SECRET_ACCESS_KEY = os.environ.get('TEXTRACT_AWS_SECRET_ACCESS_KEY', 'your-secret-access-key')
+
+UMLS_API_KEY = os.environ.get('UMLS_API_KEY', 'your-umls-api-key')
+
+
+# AWS Cognito Configuration
+AWS_REGION = os.environ.get('AWS_REGION', 'us-east-1')
+COGNITO_DOMAIN = os.environ.get('COGNITO_DOMAIN', 'your-domain')
+USER_POOL_ID = os.environ.get('USER_POOL_ID', 'your-user-pool-id')
+CLIENT_ID = os.environ.get('USER_POOL_CLIENT_ID', 'your-app-client-id')
+CLIENT_SECRET = os.environ.get('USER_POOL_CLIENT_SECRET', 'your-app-client-secret')
+
+
+REDIRECT_URI = f'http://localhost:{PORT}/auth/callback' if DEBUG else 'https://demo.arsmedicatech.com/auth/callback'
+COGNITO_LOGIN_URL = f'https://{COGNITO_DOMAIN}/oauth2/authorize?client_id={CLIENT_ID}&response_type=code&scope=openid+email+profile&redirect_uri={REDIRECT_URI}&identity_provider=Google'
+
+LOGOUT_URI = f"http://localhost:{PORT}/" if DEBUG else "https://demo.arsmedicatech.com/"
+
+
+REACT_PORT = os.environ.get('REACT_PORT', 3000)
+APP_URL = f'http://localhost:{REACT_PORT}/' if DEBUG else 'https://demo.arsmedicatech.com/'
+
+
+print("COGNITO DOMAIN:", COGNITO_DOMAIN)
+print("USER POOL ID:", USER_POOL_ID)
+print("CLIENT ID:", CLIENT_ID)
+
+print("REDIRECT URI:", REDIRECT_URI)
+print("COGNITO LOGIN URL:", COGNITO_LOGIN_URL)
+
+print("APP URL:", APP_URL)

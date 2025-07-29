@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Tuple
 
 from flask import Response, jsonify, request, session
 
-from lib.models.user import User
+from lib.models.user.user import User
 from lib.services.auth_decorators import get_current_user, get_current_user_id
 from lib.services.openai_security import get_openai_security_service
 from lib.services.user_service import UserService
@@ -396,14 +396,14 @@ def login_route() -> Tuple[Response, int]:
             assert user_session is not None, "User session should not be None on successful authentication"
 
             # Store token and user_id in session
-            session['auth_token'] = user_session.token
+            session['auth_token'] = user_session.session_token
             session['user_id'] = user_session.user_id
-            logger.debug(f"Stored session token: {user_session.token[:10]}...")
+            logger.debug(f"Stored session token: {user_session.session_token[:10]}...")
             logger.debug(f"Stored session user_id: {user_session.user_id}")
 
             return jsonify({
                 "message": message,
-                "token": user_session.token,
+                "token": user_session.session_token,
                 "user": {
                     "id": user_session.user_id,
                     "username": user_session.username,
@@ -558,12 +558,13 @@ def get_user_settings() -> Tuple[Response, int]:
             if not settings:
                 return jsonify({"error": "Failed to load settings"}), 500
 
-            # Return settings without exposing the API key
+            # Return settings without exposing the API keys
             return jsonify({
                 "success": True,
                 "settings": {
                     "user_id": settings.user_id,
                     "has_openai_api_key": settings.has_openai_api_key(),
+                    "has_optimal_api_key": settings.has_optimal_api_key(),
                     "created_at": settings.created_at,
                     "updated_at": settings.updated_at
                 }
@@ -614,7 +615,7 @@ def update_user_settings() -> Tuple[Response, int]:
             # Handle OpenAI API key update
             if 'openai_api_key' in data:
                 api_key = data['openai_api_key']
-                logger.debug(f"Updating API key for user {user_id}")
+                logger.debug(f"Updating OpenAI API key for user {user_id}")
                 logger.debug(f"API key length: {len(api_key) if api_key else 0}")
                 logger.debug(f"API key starts with sk-: {api_key.startswith('sk-') if api_key else False}")
                 
@@ -625,6 +626,23 @@ def update_user_settings() -> Tuple[Response, int]:
                     return jsonify({
                         "success": True,
                         "message": "OpenAI API key updated successfully"
+                    }), 200
+                else:
+                    return jsonify({"error": message}), 400
+
+            # Handle Optimal API key update
+            if 'optimal_api_key' in data:
+                api_key = data['optimal_api_key']
+                logger.debug(f"Updating Optimal API key for user {user_id}")
+                logger.debug(f"API key length: {len(api_key) if api_key else 0}")
+                
+                success, message = user_service.update_optimal_api_key(user_id, api_key)
+                logger.debug(f"Update result: success={success}, message={message}")
+
+                if success:
+                    return jsonify({
+                        "success": True,
+                        "message": "Optimal API key updated successfully"
                     }), 200
                 else:
                     return jsonify({"error": message}), 400

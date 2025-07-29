@@ -16,7 +16,7 @@ def test_db_save():
     try:
         from db.surreal import DbController
         from services.encryption import get_encryption_service
-        
+
         # Initialize
         db = DbController()
         db.connect()

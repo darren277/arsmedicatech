@@ -6,7 +6,7 @@ from typing import Any, Dict
 from lib.db.surreal import DbController
 from lib.migrations.demo_utils import (EncounterFactory, PatientFactory,
                                        select_n_random_rows_from_csv)
-from lib.models.patient import store_encounter, store_patient
+from lib.models.patient.main import store_encounter, store_patient
 from settings import logger
 
 

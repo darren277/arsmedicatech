@@ -1,4 +1,21 @@
 {{- define "surrealdb.sharedEnv" }}
+- name: COGNITO_DOMAIN
+  value: "{{ .Values.auth.cognito.cognitoDomain }}"
+- name: USER_POOL_ID
+  value: "{{ .Values.auth.cognito.userPoolId }}"
+- name: USER_POOL_CLIENT_ID
+  value: "{{ .Values.auth.cognito.userPoolClientId }}"
+- name: USER_POOL_CLIENT_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: cognito-secret
+      key: userPoolClientSecret
+- name: DEBUG
+  value: "false"
+- name: PYTHONPATH
+  value: "/app"
+- name: S3_BUCKET
+  value: "{{ .Values.s3Bucket }}"
 - name: REDIS_HOST
   value: "{{ .Values.redis.host }}"
 - name: REDIS_PORT

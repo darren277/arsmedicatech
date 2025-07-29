@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import authService from '../services/auth';
 import './LoginForm.css';
+import RoleSelect from './RoleSelect';
 import { useUser } from './UserContext';
 
 const RegisterForm = ({
@@ -285,25 +286,11 @@ const RegisterForm = ({
             )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="role">Account Type *</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className={errors.role ? 'error' : ''}
-              disabled={isLoading}
-            >
-              <option value="">Select account type</option>
-              <option value="admin">Administrator</option>
-              <option value="provider">Healthcare Provider</option>
-              <option value="patient">Patient</option>
-            </select>
-            {errors.role && (
-              <span className="error-message">{errors.role}</span>
-            )}
-          </div>
+          <RoleSelect
+            value={formData.role}
+            onChange={e => handleChange(e)}
+            disabled={isLoading}
+          />
 
           <button type="submit" className="login-button" disabled={isLoading}>
             {isLoading ? 'Creating Account...' : 'Create Account'}

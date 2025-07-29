@@ -1,8 +1,10 @@
 """Test Redis connectivity and SSE functionality"""
 import json
 import time
-from lib.services.redis_client import get_redis_connection
+
 from lib.services.notifications import publish_event, publish_event_with_buffer
+from lib.services.redis_client import get_redis_connection
+
 
 def test_redis_connection():
     """Test basic Redis connection"""

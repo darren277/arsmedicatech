@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import BarChart from '../components/BarChart';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
@@ -212,6 +212,7 @@ const Dashboard = () => {
   } = useSignupPopup();
   const [usersExist, setUsersExist] = useState<boolean | null>(null);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Custom hideSignupPopup that also clears auth query parameter
   const hideSignupPopup = () => {
@@ -299,6 +300,11 @@ const Dashboard = () => {
     // Close the popup after successful registration
     hideSignupPopup();
     logger.debug('Signup popup closed after registration');
+
+    // Redirect admin to organization creation page
+    if (userForContext.role === 'admin') {
+      navigate('/organization');
+    }
   };
 
   const handleLogout = async () => {

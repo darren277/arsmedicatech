@@ -15,6 +15,8 @@ export interface User {
   first_name?: string;
   last_name?: string;
   role: string;
+  max_organizations?: number;
+  user_organizations?: number;
 }
 
 interface UserContextType {
@@ -39,12 +41,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (authService.isAuthenticated()) {
-        const currentUser = await authService.getCurrentUser();
-        if (currentUser) {
-          setUser(currentUser);
-          setIsAuthenticated(true);
-        }
+      const currentUser = await authService.getCurrentUser();
+      console.debug('getCurrentUser result:', currentUser);
+      if (currentUser) {
+        setUser(currentUser);
+        setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
       }
       setIsLoading(false);
     };

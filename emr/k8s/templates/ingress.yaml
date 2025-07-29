@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oscar-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.hosts.emr.host | quote }}
+      secretName: {{ .Values.ingress.tlsSecret }}
+  rules:
+    - host: {{ .Values.ingress.hosts.emr.host | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.hosts.emr.path }}
+            pathType: {{ .Values.ingress.hosts.emr.pathType }}
+            backend:
+              service:
+                name: oscar-web
+                port:
+                  number: {{ .Values.ingress.hosts.emr.port }}

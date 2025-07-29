@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: oscar-db-migrations
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: oscar-web
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      restartPolicy: Never
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.nodeName }}
+      containers:
+        - name: oscar-db
+          image: "{{ .Values.migrations.image.repository }}:{{ .Values.migrations.image.tag }}"
+          command: ["/bin/sh", "./entrypoint.sh"]

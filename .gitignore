@@ -23,6 +23,8 @@ stuff/
 
 k8s/values.yaml
 
+emr/k8s/values.yaml
+
 dist/
 
 coverage/
@@ -35,3 +37,9 @@ playwright/.cache/
 docs/_build
 
 typings/
+
+micro/livekit/egress.yaml
+micro/livekit/livekit.yaml
+
+config/*.apps.googleusercontent.com.json
+config.py

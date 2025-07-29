@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: oscar-db
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: oscar-db
+spec:
+  serviceName: oscar-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oscar-db
+  template:
+    metadata:
+      labels:
+        app: oscar-db
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      securityContext:
+        runAsUser: {{ .Values.security.runAsUser }}
+        runAsGroup: {{ .Values.security.runAsGroup }}
+        fsGroup: {{ .Values.security.fsGroup }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: doks.digitalocean.com/node-pool
+                    operator: In
+                    values:
+                      - {{ .Values.nodePool }}
+      containers:
+        - name: mariadb
+          image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+          imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oscar-db-secret
+                  key: root-password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: oscar-db-secret
+                  key: database
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: oscar-db-secret
+                  key: user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oscar-db-secret
+                  key: password
+            - name: TZ
+              value: {{ .Values.oscar.env.timezone }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+          volumeMounts:
+            - name: oscar-db-data
+              mountPath: /var/lib/mysql
+          resources:
+            {{- toYaml .Values.database.resources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -u
+                - root
+                - -p{{ .Values.database.credentials.rootPassword }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -u
+                - root
+                - -p{{ .Values.database.credentials.rootPassword }}
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            timeoutSeconds: 1
+  volumeClaimTemplates:
+    - metadata:
+        name: oscar-db-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.database.storage.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.database.storage.size }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oscar-db
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: oscar-db
+spec:
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: 3306
+  selector:
+    app: oscar-db
+  clusterIP: None
