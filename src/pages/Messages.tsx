@@ -65,7 +65,7 @@ const Messages = () => {
   const { isPopupOpen, showSignupPopup, hideSignupPopup } = useSignupPopup();
   const { isModalOpen, showModal, hideModal } = useNewConversationModal();
   const [selectedMessages, setSelectedMessages] = useState<
-    { sender: string; text: string }[]
+    { sender: string; text: string; usedTools?: string[] }[]
   >([]);
 
   logger.debug('Messages: isAuthenticated:', isAuthenticated);

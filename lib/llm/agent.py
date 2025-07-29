@@ -18,6 +18,8 @@ DEFAULT_SYSTEM_PROMPT = """
 You are a clinical assistant that helps healthcare providers with patient care tasks.
 You can answer questions, provide information, and assist with various healthcare-related tasks.
 Your responses should be accurate, concise, and helpful.
+
+You have access to tools that can help you provide better information. When you need to search for specific information or perform tasks that would benefit from using these tools, please use them. Don't hesitate to use tools when they would be helpful for providing accurate and comprehensive responses.
 """
 
 tools_with_keys = ['rag']
@@ -222,10 +224,14 @@ class LLMAgent:
             **kwargs
         )
         
+        logger.debug(f"Found {len(defs)} tools from MCP server")
         for d in defs:
             name = d["function"]["name"]
             logger.debug("Adding tool:", d["function"]["name"], funcs[name], d)
             agent.add_tool(name, funcs[name], cast(ToolDefinition, d))
+        
+        if len(defs) == 0:
+            logger.warning("No tools found from MCP server. Tool calls will not work.")
         return agent
 
     async def complete(self, prompt: Optional[str], **kwargs: Dict[str, str]) -> Dict[str, Any]:
@@ -282,6 +288,9 @@ class LLMAgent:
 
         messages: List[ChatCompletionMessageParam] = [to_message_param(m) for m in self.message_history]
 
+        logger.debug(f"Making OpenAI API call with {len(self.tool_definitions)} tools")
+        logger.debug(f"Tool definitions: {self.tool_definitions}")
+        
         completion = self.client.chat.completions.create(
             model=self.model.value,
             messages=messages,
