@@ -4,12 +4,60 @@ import logger from '../services/logging';
 import { Conversation } from '../types';
 
 function useChat(isLLM = false) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  // Initialize conversations from localStorage if available
+  const getInitialConversations = (): Conversation[] => {
+    try {
+      const stored = localStorage.getItem('chat-conversations');
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error('Error loading conversations from localStorage:', error);
+      return [];
+    }
+  };
+
+  const [conversations, setConversations] = useState<Conversation[]>(
+    getInitialConversations
+  );
+  // Initialize selected conversation ID from localStorage if available
+  const getInitialSelectedId = (): number | string | null => {
+    try {
+      const stored = localStorage.getItem('chat-selected-conversation');
+      return stored ? JSON.parse(stored) : conversations[0]?.id || null;
+    } catch (error) {
+      console.error(
+        'Error loading selected conversation from localStorage:',
+        error
+      );
+      return conversations[0]?.id || null;
+    }
+  };
+
   const [selectedConversationId, setSelectedConversationId] = useState<
     number | string | null
-  >(conversations[0]?.id || null);
+  >(getInitialSelectedId);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Save conversations to localStorage whenever they change
+  const saveConversationsToStorage = (conversations: Conversation[]) => {
+    try {
+      localStorage.setItem('chat-conversations', JSON.stringify(conversations));
+    } catch (error) {
+      console.error('Error saving conversations to localStorage:', error);
+    }
+  };
+
+  // Save selected conversation ID to localStorage
+  const saveSelectedConversationToStorage = (id: number | string | null) => {
+    try {
+      localStorage.setItem('chat-selected-conversation', JSON.stringify(id));
+    } catch (error) {
+      console.error(
+        'Error saving selected conversation to localStorage:',
+        error
+      );
+    }
+  };
 
   // Fetch conversations from the server
   useEffect(() => {
@@ -81,21 +129,26 @@ function useChat(isLLM = false) {
             }
             return newConv;
           });
+          saveConversationsToStorage(updatedConversations);
           return updatedConversations;
         });
 
         // Only set selected conversation if none is currently selected
         setSelectedConversationId(currentId => {
-          if (!currentId && allConversations.length > 0) {
-            return allConversations[0].id;
-          }
-          return currentId;
+          const newId =
+            !currentId && allConversations.length > 0
+              ? allConversations[0].id
+              : currentId;
+          saveSelectedConversationToStorage(newId);
+          return newId;
         });
       } catch (error) {
         console.error('Error fetching conversations:', error);
         if (isMounted) {
           // Fallback to empty array if fetch fails
+          saveConversationsToStorage([]);
           setConversations([]);
+          saveSelectedConversationToStorage(null);
           setSelectedConversationId(null);
         }
       }
@@ -115,6 +168,7 @@ function useChat(isLLM = false) {
   );
 
   const handleSelectConversation = (id: number | string | null): void => {
+    saveSelectedConversationToStorage(id);
     setSelectedConversationId(id);
     setNewMessage('');
   };
@@ -146,7 +200,12 @@ function useChat(isLLM = false) {
       isAI: isAI,
     };
 
-    setConversations(prev => [newConversation, ...prev]);
+    setConversations(prev => {
+      const updatedConversations = [newConversation, ...prev];
+      saveConversationsToStorage(updatedConversations);
+      return updatedConversations;
+    });
+    saveSelectedConversationToStorage(newConversation.id);
     setSelectedConversationId(newConversation.id);
     setNewMessage('');
   };
@@ -190,6 +249,7 @@ function useChat(isLLM = false) {
           return conv;
         });
 
+        saveConversationsToStorage(updatedConversations);
         setConversations(updatedConversations);
       } else {
         // For regular chat, add the message locally and send to server using apiService
@@ -204,6 +264,7 @@ function useChat(isLLM = false) {
           return conv;
         });
 
+        saveConversationsToStorage(updatedConversations);
         setConversations(updatedConversations);
 
         // Save to server
@@ -222,6 +283,7 @@ function useChat(isLLM = false) {
         }
         return conv;
       });
+      saveConversationsToStorage(updatedConversations);
       setConversations(updatedConversations);
     } finally {
       setIsLoading(false);
