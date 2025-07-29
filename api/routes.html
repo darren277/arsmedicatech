@@ -651,7 +651,7 @@ If the conversation does not exist or the user is not a participant, it returns 
 </section>
 <section id="module-routes.patients">
 <span id="routes-patients-module"></span><h2>routes.patients module<a class="headerlink" href="#module-routes.patients" title="Link to this heading">¶</a></h2>
-<p>Routes for patient and encounter management in a healthcare application.</p>
+<p>Patient routes for managing patient data and encounters.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="routes.patients.create_encounter_route">
 <span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">create_encounter_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patient_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.create_encounter_route" title="Link to this definition">¶</a></dt>
@@ -687,6 +687,34 @@ If the conversation does not exist or the user is not a participant, it returns 
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.extract_entities_from_notes_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">extract_entities_from_notes_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.extract_entities_from_notes_route" title="Link to this definition">¶</a></dt>
+<dd><p>Extract entities and ICD codes from encounter notes using the ICD autocoder service.</p>
+<p>This endpoint processes the note_text from an encounter to extract medical entities,
+normalize them using UMLS, and match them to ICD-10-CM codes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+</dl>
+<p>Expected request body:
+{</p>
+<blockquote>
+<div><p>“note_text”: “string or SOAP notes object”,
+“note_type”: “soap” or “text”</p>
+</div></blockquote>
+<p>}</p>
+<p>Returns:
+{</p>
+<blockquote>
+<div><p>“entities”: […],
+“normalized_entities”: […],
+“icd_codes”: […]</p>
+</div></blockquote>
+<p>}</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="routes.patients.get_all_encounters_route">
 <span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">get_all_encounters_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.get_all_encounters_route" title="Link to this definition">¶</a></dt>
 <dd><p>API endpoint to get all encounters</p>
@@ -698,6 +726,24 @@ If the conversation does not exist or the user is not a participant, it returns 
 <dd class="field-even"><p>JSON response with all encounters or error message.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="routes.patients.get_cache_stats_route">
+<span class="sig-prename descclassname"><span class="pre">routes.patients.</span></span><span class="sig-name descname"><span class="pre">get_cache_stats_route</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#routes.patients.get_cache_stats_route" title="Link to this definition">¶</a></dt>
+<dd><p>Get entity cache statistics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+</dl>
+<p>Returns:
+{</p>
+<blockquote>
+<div><p>“total_cached_entities”: 123,
+“cache_enabled”: true</p>
+</div></blockquote>
+<p>}</p>
 </dd></dl>
 
 <dl class="py function">

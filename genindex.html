@@ -57,6 +57,7 @@
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  | <a href="#Y"><strong>Y</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
  
 </div>
 <h2 id="A">A</h2>
@@ -76,11 +77,11 @@
       </ul></li>
       <li><a href="api/models.html#models.conversation.Conversation.add_participant">add_participant() (models.conversation.Conversation method)</a>
 </li>
-      <li><a href="api/models.html#models.patient.add_some_placeholder_encounters">add_some_placeholder_encounters() (in module models.patient)</a>
-</li>
-      <li><a href="api/models.html#models.patient.add_some_placeholder_patients">add_some_placeholder_patients() (in module models.patient)</a>
-</li>
       <li><a href="api/llm.html#llm.agent.LLMAgent.add_tool">add_tool() (llm.agent.LLMAgent method)</a>
+</li>
+      <li><a href="api/models.html#models.clinic.Address">Address (class in models.clinic)</a>
+</li>
+      <li><a href="api/models.html#models.clinic.ClinicType.address">address (models.clinic.ClinicType attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -132,8 +133,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/models.html#models.appointment.Appointment.can_be_cancelled">can_be_cancelled() (models.appointment.Appointment method)</a>
 </li>
-      <li><a href="api/models.html#models.user.User.can_create_organization">can_create_organization() (models.user.User method)</a>
-</li>
       <li><a href="api/services.html#services.scheduling.SchedulingService.cancel_appointment">cancel_appointment() (services.scheduling.SchedulingService method)</a>
 </li>
       <li><a href="api/routes.html#routes.appointments.cancel_appointment_route">cancel_appointment_route() (in module routes.appointments)</a>
@@ -152,11 +151,15 @@
 </li>
       <li><a href="api/routes.html#routes.users.check_users_exist_route">check_users_exist_route() (in module routes.users)</a>
 </li>
+      <li><a href="api/models.html#models.clinic.Address.city">city (models.clinic.Address attribute)</a>
+</li>
       <li><a href="api/types.html#types.ClassMethodDescriptorType">ClassMethodDescriptorType (in module types)</a>
 </li>
       <li><a href="api/models.html#models.clinic.Clinic">Clinic (class in models.clinic)</a>
 </li>
       <li><a href="api/services.html#services.apis.ClinicalTrials">ClinicalTrials (class in services.apis)</a>
+</li>
+      <li><a href="api/models.html#models.clinic.ClinicType">ClinicType (class in models.clinic)</a>
 </li>
       <li><a href="api/db.html#db.surreal.AsyncDbController.close">close() (db.surreal.AsyncDbController method)</a>
 
@@ -214,6 +217,8 @@
 </li>
       <li><a href="api/services.html#services.conversation_service.ConversationService">ConversationService (class in services.conversation_service)</a>
 </li>
+      <li><a href="api/models.html#models.clinic.GeoJSONPoint.coordinates">coordinates (models.clinic.GeoJSONPoint attribute)</a>
+</li>
       <li><a href="api/types.html#types.coroutine">coroutine() (in module types)</a>
 </li>
       <li><a href="api/types.html#types.CoroutineType">CoroutineType (in module types)</a>
@@ -224,6 +229,8 @@
         <li><a href="api/db.html#db.surreal_graph.GraphController.count_connections">(db.surreal_graph.GraphController method)</a>
 </li>
       </ul></li>
+      <li><a href="api/models.html#models.clinic.Address.country">country (models.clinic.Address attribute)</a>
+</li>
       <li><a href="api/db.html#db.surreal.AsyncDbController.create">create() (db.surreal.AsyncDbController method)</a>
 
       <ul>
@@ -246,8 +253,6 @@
 </li>
       <li><a href="api/services.html#services.user_service.UserService.create_default_admin">create_default_admin() (services.user_service.UserService method)</a>
 </li>
-      <li><a href="api/models.html#models.patient.create_encounter">create_encounter() (in module models.patient)</a>
-</li>
       <li><a href="api/routes.html#routes.patients.create_encounter_route">create_encounter_route() (in module routes.patients)</a>
 </li>
       <li><a href="api/opt.html#opt.hypertension.create_food_data_pd">create_food_data_pd() (in module opt.hypertension)</a>
@@ -258,9 +263,7 @@
 </li>
       <li><a href="api/migrations.html#migrations.demo.create_n_patients">create_n_patients() (in module migrations.demo)</a>
 </li>
-      <li><a href="api/models.html#models.patient.create_patient">create_patient() (in module models.patient)</a>
-</li>
-      <li><a href="api/models.html#models.patient.create_schema">create_schema() (in module models.patient)</a>
+      <li><a href="api/services.html#services.user_service.UserService.create_session">create_session() (services.user_service.UserService method)</a>
 </li>
       <li><a href="api/services.html#services.user_service.UserService.create_user">create_user() (services.user_service.UserService method)</a>
 </li>
@@ -320,10 +323,10 @@
 </li>
       <li><a href="api/logger.html#logger.Logger.debug">debug() (logger.Logger method)</a>
 </li>
-      <li><a href="api/routes.html#routes.testing.debug_session_route">debug_session_route() (in module routes.testing)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/routes.html#routes.testing.debug_session_route">debug_session_route() (in module routes.testing)</a>
+</li>
       <li><a href="api/services.html#services.encryption.EncryptionService.decrypt">decrypt() (services.encryption.EncryptionService method)</a>
 </li>
       <li><a href="api/services.html#services.encryption.EncryptionService.decrypt_api_key">decrypt_api_key() (services.encryption.EncryptionService method)</a>
@@ -344,11 +347,7 @@
 </li>
       <li><a href="api/services.html#services.conversation_service.ConversationService.delete_conversation">delete_conversation() (services.conversation_service.ConversationService method)</a>
 </li>
-      <li><a href="api/models.html#models.patient.delete_encounter">delete_encounter() (in module models.patient)</a>
-</li>
       <li><a href="api/routes.html#routes.patients.delete_encounter_route">delete_encounter_route() (in module routes.patients)</a>
-</li>
-      <li><a href="api/models.html#models.patient.delete_patient">delete_patient() (in module models.patient)</a>
 </li>
       <li><a href="api/types.html#types.DynamicClassAttribute.deleter">deleter() (types.DynamicClassAttribute method)</a>
 </li>
@@ -378,17 +377,13 @@
       <li><a href="api/models.html#models.appointment.AppointmentType.EMERGENCY">EMERGENCY (models.appointment.AppointmentType attribute)</a>
 </li>
       <li><a href="api/migrations.html#migrations.demo_utils.Encounter">Encounter (class in migrations.demo_utils)</a>
-
-      <ul>
-        <li><a href="api/models.html#models.patient.Encounter">(class in models.patient)</a>
 </li>
-      </ul></li>
       <li><a href="api/migrations.html#migrations.demo_utils.EncounterFactory">EncounterFactory (class in migrations.demo_utils)</a>
+</li>
+      <li><a href="api/migrations.html#migrations.demo_utils.EncounterFactory.Meta">EncounterFactory.Meta (class in migrations.demo_utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/migrations.html#migrations.demo_utils.EncounterFactory.Meta">EncounterFactory.Meta (class in migrations.demo_utils)</a>
-</li>
       <li><a href="api/services.html#services.encryption.EncryptionService.encrypt">encrypt() (services.encryption.EncryptionService method)</a>
 </li>
       <li><a href="api/services.html#services.encryption.EncryptionService.encrypt_api_key">encrypt_api_key() (services.encryption.EncryptionService method)</a>
@@ -400,6 +395,8 @@
       <li><a href="api/services.html#services.apis.NCBI.esearch">esearch() (services.apis.NCBI method)</a>
 </li>
       <li><a href="api/services.html#services.apis.NCBI.esummary">esummary() (services.apis.NCBI method)</a>
+</li>
+      <li><a href="api/routes.html#routes.patients.extract_entities_from_notes_route">extract_entities_from_notes_route() (in module routes.patients)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -431,13 +428,15 @@
 </li>
       <li><a href="api/models.html#models.appointment.AppointmentType.FOLLOW_UP">FOLLOW_UP (models.appointment.AppointmentType attribute)</a>
 </li>
-      <li><a href="api/logger.html#logger.CustomFormatter.format">format() (logger.CustomFormatter method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/logger.html#logger.CustomFormatter.format">format() (logger.CustomFormatter method)</a>
+</li>
       <li><a href="api/logger.html#logger.CustomFormatter.FORMATS">FORMATS (logger.CustomFormatter attribute)</a>
 </li>
       <li><a href="api/types.html#types.FrameType">FrameType (in module types)</a>
+</li>
+      <li><a href="api/models.html#models.clinic.Clinic.from_db">from_db() (models.clinic.Clinic static method)</a>
 </li>
       <li><a href="api/llm.html#llm.agent.LLMAgent.from_dict">from_dict() (llm.agent.LLMAgent class method)</a>
 
@@ -449,14 +448,6 @@
         <li><a href="api/models.html#models.conversation.Message.from_dict">(models.conversation.Message class method)</a>
 </li>
         <li><a href="api/models.html#models.llm_chat.LLMChat.from_dict">(models.llm_chat.LLMChat class method)</a>
-</li>
-        <li><a href="api/models.html#models.patient.SOAPNotes.from_dict">(models.patient.SOAPNotes class method)</a>
-</li>
-        <li><a href="api/models.html#models.user.User.from_dict">(models.user.User class method)</a>
-</li>
-        <li><a href="api/models.html#models.user.UserSession.from_dict">(models.user.UserSession class method)</a>
-</li>
-        <li><a href="api/models.html#models.user_settings.UserSettings.from_dict">(models.user_settings.UserSettings class method)</a>
 </li>
       </ul></li>
       <li><a href="api/llm.html#llm.agent.LLMAgent.from_mcp">from_mcp() (llm.agent.LLMAgent class method)</a>
@@ -477,15 +468,13 @@
 </li>
       <li><a href="api/types.html#types.GenericAlias">GenericAlias (class in types)</a>
 </li>
+      <li><a href="api/models.html#models.clinic.GeoJSONPoint">GeoJSONPoint (class in models.clinic)</a>
+</li>
       <li><a href="api/services.html#services.scheduling.SchedulingService.get_all_appointments">get_all_appointments() (services.scheduling.SchedulingService method)</a>
 </li>
       <li><a href="api/models.html#models.clinic.get_all_clinics">get_all_clinics() (in module models.clinic)</a>
 </li>
-      <li><a href="api/models.html#models.patient.get_all_encounters">get_all_encounters() (in module models.patient)</a>
-</li>
       <li><a href="api/routes.html#routes.patients.get_all_encounters_route">get_all_encounters_route() (in module routes.patients)</a>
-</li>
-      <li><a href="api/models.html#models.patient.get_all_patients">get_all_patients() (in module models.patient)</a>
 </li>
       <li><a href="api/services.html#services.user_service.UserService.get_all_users">get_all_users() (services.user_service.UserService method)</a>
 </li>
@@ -513,6 +502,8 @@
 </li>
       <li><a href="api/routes.html#routes.appointments.get_available_slots_route">get_available_slots_route() (in module routes.appointments)</a>
 </li>
+      <li><a href="api/routes.html#routes.patients.get_cache_stats_route">get_cache_stats_route() (in module routes.patients)</a>
+</li>
       <li><a href="api/models.html#models.clinic.get_clinic_by_id">get_clinic_by_id() (in module models.clinic)</a>
 </li>
       <li><a href="api/db.html#db.vec.Vec.get_context">get_context() (db.vec.Vec method)</a>
@@ -525,51 +516,41 @@
 </li>
       <li><a href="api/routes.html#routes.chat.get_conversation_messages_route">get_conversation_messages_route() (in module routes.chat)</a>
 </li>
+      <li><a href="api/services.html#services.auth_decorators.get_current_api_key">get_current_api_key() (in module services.auth_decorators)</a>
+</li>
+      <li><a href="api/services.html#services.auth_decorators.get_current_api_key_permissions">get_current_api_key_permissions() (in module services.auth_decorators)</a>
+</li>
       <li><a href="api/services.html#services.auth_decorators.get_current_user">get_current_user() (in module services.auth_decorators)</a>
 </li>
       <li><a href="api/services.html#services.auth_decorators.get_current_user_id">get_current_user_id() (in module services.auth_decorators)</a>
 </li>
       <li><a href="api/routes.html#routes.users.get_current_user_info_route">get_current_user_info_route() (in module routes.users)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/services.html#services.auth_decorators.get_current_user_role">get_current_user_role() (in module services.auth_decorators)</a>
 </li>
       <li><a href="api/models.html#models.appointment.Appointment.get_datetime">get_datetime() (models.appointment.Appointment method)</a>
 </li>
       <li><a href="api/models.html#models.appointment.Appointment.get_duration_minutes">get_duration_minutes() (models.appointment.Appointment method)</a>
 </li>
-      <li><a href="api/models.html#models.patient.get_encounter_by_id">get_encounter_by_id() (in module models.patient)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/routes.html#routes.patients.get_encounter_by_id_route">get_encounter_by_id_route() (in module routes.patients)</a>
-</li>
-      <li><a href="api/models.html#models.patient.get_encounters_by_patient">get_encounters_by_patient() (in module models.patient)</a>
 </li>
       <li><a href="api/routes.html#routes.patients.get_encounters_by_patient_route">get_encounters_by_patient_route() (in module routes.patients)</a>
 </li>
       <li><a href="api/services.html#services.encryption.get_encryption_service">get_encryption_service() (in module services.encryption)</a>
 </li>
-      <li><a href="api/models.html#models.user.User.get_full_name">get_full_name() (models.user.User method)</a>
-</li>
       <li><a href="api/services.html#services.llm_chat_service.LLMChatService.get_llm_chat">get_llm_chat() (services.llm_chat_service.LLMChatService method)</a>
 </li>
       <li><a href="api/services.html#services.llm_chat_service.LLMChatService.get_llm_chats_for_user">get_llm_chats_for_user() (services.llm_chat_service.LLMChatService method)</a>
 </li>
-      <li><a href="api/models.html#models.user_settings.UserSettings.get_openai_api_key">get_openai_api_key() (models.user_settings.UserSettings method)</a>
-
-      <ul>
-        <li><a href="api/services.html#services.user_service.UserService.get_openai_api_key">(services.user_service.UserService method)</a>
+      <li><a href="api/services.html#services.user_service.UserService.get_openai_api_key">get_openai_api_key() (services.user_service.UserService method)</a>
 </li>
-      </ul></li>
       <li><a href="api/services.html#services.openai_security.get_openai_security_service">get_openai_security_service() (in module services.openai_security)</a>
 </li>
-      <li><a href="api/models.html#models.user_settings.UserSettings.get_optimal_api_key">get_optimal_api_key() (models.user_settings.UserSettings method)</a>
-
-      <ul>
-        <li><a href="api/services.html#services.user_service.UserService.get_optimal_api_key">(services.user_service.UserService method)</a>
+      <li><a href="api/services.html#services.user_service.UserService.get_optimal_api_key">get_optimal_api_key() (services.user_service.UserService method)</a>
 </li>
-      </ul></li>
-      <li><a href="api/models.html#models.patient.get_patient_by_id">get_patient_by_id() (in module models.patient)</a>
+      <li><a href="api/services.html#services.user_service.UserService.get_organization_id">get_organization_id() (services.user_service.UserService method)</a>
 </li>
       <li><a href="api/services.html#services.redis_client.get_redis_connection">get_redis_connection() (in module services.redis_client)</a>
 </li>
@@ -579,8 +560,6 @@
         <li><a href="api/db.html#db.surreal_graph.GraphController.get_relations">(db.surreal_graph.GraphController method)</a>
 </li>
       </ul></li>
-      <li><a href="api/models.html#models.user.User.get_remaining_organization_slots">get_remaining_organization_slots() (models.user.User method)</a>
-</li>
       <li><a href="api/services.html#services.openai_security.OpenAISecurityService.get_usage_stats">get_usage_stats() (services.openai_security.OpenAISecurityService method)</a>
 </li>
       <li><a href="api/services.html#services.openai_security.OpenAISecurityService.get_user_api_key_with_validation">get_user_api_key_with_validation() (services.openai_security.OpenAISecurityService method)</a>
@@ -625,24 +604,12 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/models.html#models.user_settings.UserSettings.has_openai_api_key">has_openai_api_key() (models.user_settings.UserSettings method)</a>
-
-      <ul>
-        <li><a href="api/services.html#services.user_service.UserService.has_openai_api_key">(services.user_service.UserService method)</a>
+      <li><a href="api/services.html#services.user_service.UserService.has_openai_api_key">has_openai_api_key() (services.user_service.UserService method)</a>
 </li>
-      </ul></li>
-      <li><a href="api/models.html#models.user_settings.UserSettings.has_optimal_api_key">has_optimal_api_key() (models.user_settings.UserSettings method)</a>
-
-      <ul>
-        <li><a href="api/services.html#services.user_service.UserService.has_optimal_api_key">(services.user_service.UserService method)</a>
+      <li><a href="api/services.html#services.user_service.UserService.has_optimal_api_key">has_optimal_api_key() (services.user_service.UserService method)</a>
 </li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/models.html#models.user.User.has_role">has_role() (models.user.User method)</a>
-</li>
-      <li><a href="api/models.html#models.user.User.hash_password">hash_password() (models.user.User static method)</a>
-</li>
       <li><a href="api/services.html#services.optimal.OptimalService.headers">headers (services.optimal.OptimalService property)</a>
 </li>
       <li><a href="api/llm.mcp.html#llm.mcp.mcp_init.health_check">health_check() (in module llm.mcp.mcp_init)</a>
@@ -657,8 +624,6 @@
 </li>
       <li><a href="api/models.html#models.icd.import_icd_codes">import_icd_codes() (in module models.icd)</a>
 </li>
-      <li><a href="api/models.html#models.user.User.increment_organization_count">increment_organization_count() (models.user.User method)</a>
-</li>
       <li><a href="api/logger.html#logger.Logger.info">info() (logger.Logger method)</a>
 </li>
       <li><a href="api/db.html#db.vec.Vec.init">init() (db.vec.Vec method)</a>
@@ -667,25 +632,17 @@
 </li>
       <li><a href="api/db.html#db.vec.Vec.insert">insert() (db.vec.Vec method)</a>
 </li>
-      <li><a href="api/models.html#models.user.User.is_admin">is_admin() (models.user.User method)</a>
-</li>
-      <li><a href="api/models.html#models.appointment.Appointment.is_cancelled">is_cancelled() (models.appointment.Appointment method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/models.html#models.appointment.Appointment.is_cancelled">is_cancelled() (models.appointment.Appointment method)</a>
+</li>
       <li><a href="api/models.html#models.appointment.Appointment.is_completed">is_completed() (models.appointment.Appointment method)</a>
 </li>
       <li><a href="api/models.html#models.appointment.Appointment.is_confirmed">is_confirmed() (models.appointment.Appointment method)</a>
 </li>
-      <li><a href="api/models.html#models.user.UserSession.is_expired">is_expired() (models.user.UserSession method)</a>
-</li>
       <li><a href="api/models.html#models.appointment.Appointment.is_in_past">is_in_past() (models.appointment.Appointment method)</a>
 </li>
       <li><a href="api/models.html#models.conversation.Conversation.is_participant">is_participant() (models.conversation.Conversation method)</a>
-</li>
-      <li><a href="api/models.html#models.user.User.is_patient">is_patient() (models.user.User method)</a>
-</li>
-      <li><a href="api/models.html#models.user.User.is_provider">is_provider() (models.user.User method)</a>
 </li>
       <li><a href="api/models.html#models.appointment.Appointment.is_this_week">is_this_week() (models.appointment.Appointment method)</a>
 </li>
@@ -708,6 +665,8 @@
       <li><a href="api/types.html#types.LambdaType">LambdaType (in module types)</a>
 </li>
       <li><a href="api/migrations.html#migrations.demo_utils.PatientFactory.last_name">last_name (migrations.demo_utils.PatientFactory attribute)</a>
+</li>
+      <li><a href="api/models.html#models.clinic.ClinicType.latitude">latitude (models.clinic.ClinicType attribute)</a>
 </li>
       <li>
     llm
@@ -766,7 +725,11 @@
       <li><a href="api/migrations.html#migrations.demo_utils.load_csv">load_csv() (in module migrations.demo_utils)</a>
 </li>
       <li><a href="api/migrations.html#migrations.demo_utils.PatientFactory.location">location (migrations.demo_utils.PatientFactory attribute)</a>
+
+      <ul>
+        <li><a href="api/models.html#models.clinic.ClinicType.location">(models.clinic.ClinicType attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/services.html#services.openai_security.OpenAISecurityService.log_api_usage">log_api_usage() (services.openai_security.OpenAISecurityService method)</a>
 </li>
       <li><a href="api/logger.html#logger.CustomFormatter.log_format">log_format (logger.CustomFormatter attribute)</a>
@@ -785,6 +748,8 @@
       <li><a href="api/services.html#services.user_service.UserService.logout">logout() (services.user_service.UserService method)</a>
 </li>
       <li><a href="api/routes.html#routes.users.logout_route">logout_route() (in module routes.users)</a>
+</li>
+      <li><a href="api/models.html#models.clinic.ClinicType.longitude">longitude (models.clinic.ClinicType attribute)</a>
 </li>
       <li><a href="api/models.html#models.icd.lookup_icd_code">lookup_icd_code() (in module models.icd)</a>
 </li>
@@ -914,13 +879,6 @@
 </li>
       </ul></li>
       <li>
-    models.user_settings
-
-      <ul>
-        <li><a href="api/models.html#module-models.user_settings">module</a>
-</li>
-      </ul></li>
-      <li>
     module
 
       <ul>
@@ -973,8 +931,6 @@
         <li><a href="api/models.html#module-models.patient">models.patient</a>
 </li>
         <li><a href="api/models.html#module-models.user">models.user</a>
-</li>
-        <li><a href="api/models.html#module-models.user_settings">models.user_settings</a>
 </li>
         <li><a href="api/opt.html#module-opt">opt</a>
 </li>
@@ -1031,6 +987,8 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/models.html#models.clinic.ClinicType.name">name (models.clinic.ClinicType attribute)</a>
+</li>
       <li><a href="api/services.html#services.apis.NCBI">NCBI (class in services.apis)</a>
 </li>
       <li><a href="api/types.html#types.new_class">new_class() (in module types)</a>
@@ -1079,6 +1037,8 @@
 </li>
       <li><a href="api/services.html#services.auth_decorators.optional_auth">optional_auth() (in module services.auth_decorators)</a>
 </li>
+      <li><a href="api/models.html#models.clinic.ClinicType.organization_id">organization_id (models.clinic.ClinicType attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1086,8 +1046,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/routes.html#routes.patients.patch_intake_route">patch_intake_route() (in module routes.patients)</a>
-</li>
-      <li><a href="api/models.html#models.patient.Patient">Patient (class in models.patient)</a>
 </li>
       <li><a href="api/routes.html#routes.patients.patient_endpoint_route">patient_endpoint_route() (in module routes.patients)</a>
 </li>
@@ -1155,6 +1113,12 @@
 </li>
       <li><a href="api/services.html#services.auth_decorators.require_admin">require_admin() (in module services.auth_decorators)</a>
 </li>
+      <li><a href="api/services.html#services.auth_decorators.require_api_key">require_api_key() (in module services.auth_decorators)</a>
+</li>
+      <li><a href="api/services.html#services.auth_decorators.require_api_permission">require_api_permission() (in module services.auth_decorators)</a>
+</li>
+      <li><a href="api/services.html#services.auth_decorators.require_api_permissions">require_api_permissions() (in module services.auth_decorators)</a>
+</li>
       <li><a href="api/services.html#services.auth_decorators.require_auth">require_auth() (in module services.auth_decorators)</a>
 </li>
       <li><a href="api/services.html#services.auth_decorators.require_patient">require_patient() (in module services.auth_decorators)</a>
@@ -1165,12 +1129,12 @@
 </li>
       <li><a href="api/logger.html#logger.CustomFormatter.reset">reset (logger.CustomFormatter attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/llm.html#llm.agent.LLMAgent.reset_conversation">reset_conversation() (llm.agent.LLMAgent method)</a>
 </li>
       <li><a href="api/types.html#types.resolve_bases">resolve_bases() (in module types)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     routes
 
@@ -1237,24 +1201,14 @@
       <li><a href="api/services.html#services.scheduling.SchedulingService">SchedulingService (class in services.scheduling)</a>
 </li>
       <li><a href="api/models.html#models.appointment.Appointment.schema">schema() (models.appointment.Appointment method)</a>
-
-      <ul>
-        <li><a href="api/models.html#models.patient.Encounter.schema">(models.patient.Encounter method)</a>
 </li>
-        <li><a href="api/models.html#models.patient.Patient.schema">(models.patient.Patient method)</a>
-</li>
-      </ul></li>
       <li><a href="api/db.html#db.surreal.DbController.search">search() (db.surreal.DbController method)</a>
 </li>
       <li><a href="api/models.html#models.clinic.search_clinics_by_location">search_clinics_by_location() (in module models.clinic)</a>
 </li>
-      <li><a href="api/models.html#models.patient.search_encounter_history">search_encounter_history() (in module models.patient)</a>
-</li>
       <li><a href="api/routes.html#routes.patients.search_encounters_route">search_encounters_route() (in module routes.patients)</a>
 </li>
       <li><a href="api/models.html#models.icd.search_icd_by_description">search_icd_by_description() (in module models.icd)</a>
-</li>
-      <li><a href="api/models.html#models.patient.search_patient_history">search_patient_history() (in module models.patient)</a>
 </li>
       <li><a href="api/routes.html#routes.patients.search_patients_route">search_patients_route() (in module routes.patients)</a>
 </li>
@@ -1286,12 +1240,6 @@
 </li>
       <li><a href="api/routes.html#routes.chat.send_message_route">send_message_route() (in module routes.chat)</a>
 </li>
-      <li><a href="api/models.html#models.patient.SOAPNotes.serialize">serialize() (models.patient.SOAPNotes method)</a>
-</li>
-      <li><a href="api/models.html#models.patient.serialize_encounter">serialize_encounter() (in module models.patient)</a>
-</li>
-      <li><a href="api/models.html#models.patient.serialize_patient">serialize_patient() (in module models.patient)</a>
-</li>
       <li>
     services
 
@@ -1313,8 +1261,6 @@
         <li><a href="api/services.html#module-services.auth_decorators">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     services.conversation_service
 
@@ -1322,6 +1268,8 @@
         <li><a href="api/services.html#module-services.conversation_service">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     services.encryption
 
@@ -1378,10 +1326,6 @@
         <li><a href="api/services.html#module-services.user_service">module</a>
 </li>
       </ul></li>
-      <li><a href="api/models.html#models.user_settings.UserSettings.set_openai_api_key">set_openai_api_key() (models.user_settings.UserSettings method)</a>
-</li>
-      <li><a href="api/models.html#models.user_settings.UserSettings.set_optimal_api_key">set_optimal_api_key() (models.user_settings.UserSettings method)</a>
-</li>
       <li><a href="api/types.html#types.DynamicClassAttribute.setter">setter() (types.DynamicClassAttribute method)</a>
 </li>
       <li><a href="api/routes.html#routes.users.settings_route">settings_route() (in module routes.users)</a>
@@ -1400,15 +1344,13 @@
       </ul></li>
       <li><a href="api/types.html#types.SimpleNamespace">SimpleNamespace (class in types)</a>
 </li>
-      <li><a href="api/models.html#models.patient.SOAPNotes">SOAPNotes (class in models.patient)</a>
-</li>
       <li><a href="api/models.html#models.appointment.AppointmentType.SPECIALIST">SPECIALIST (models.appointment.AppointmentType attribute)</a>
 </li>
-      <li><a href="api/models.html#models.patient.store_encounter">store_encounter() (in module models.patient)</a>
+      <li><a href="api/models.html#models.clinic.Address.state">state (models.clinic.Address attribute)</a>
 </li>
       <li><a href="api/services.html#services.notifications.store_event">store_event() (in module services.notifications)</a>
 </li>
-      <li><a href="api/models.html#models.patient.store_patient">store_patient() (in module models.patient)</a>
+      <li><a href="api/models.html#models.clinic.Address.street">street (models.clinic.Address attribute)</a>
 </li>
       <li><a href="api/db.html#db.surreal.SurrealWrapper">SurrealWrapper (class in db.surreal)</a>
 </li>
@@ -1429,17 +1371,13 @@
       <ul>
         <li><a href="api/models.html#models.appointment.Appointment.to_dict">(models.appointment.Appointment method)</a>
 </li>
+        <li><a href="api/models.html#models.clinic.Clinic.to_dict">(models.clinic.Clinic method)</a>
+</li>
         <li><a href="api/models.html#models.conversation.Conversation.to_dict">(models.conversation.Conversation method)</a>
 </li>
         <li><a href="api/models.html#models.conversation.Message.to_dict">(models.conversation.Message method)</a>
 </li>
         <li><a href="api/models.html#models.llm_chat.LLMChat.to_dict">(models.llm_chat.LLMChat method)</a>
-</li>
-        <li><a href="api/models.html#models.user.User.to_dict">(models.user.User method)</a>
-</li>
-        <li><a href="api/models.html#models.user.UserSession.to_dict">(models.user.UserSession method)</a>
-</li>
-        <li><a href="api/models.html#models.user_settings.UserSettings.to_dict">(models.user_settings.UserSettings method)</a>
 </li>
         <li><a href="api/services.html#services.optimal.OptimalMetadata.to_dict">(services.optimal.OptimalMetadata method)</a>
 </li>
@@ -1451,6 +1389,8 @@
       <li><a href="api/models.html#models.clinic.Clinic.to_geojson_point">to_geojson_point() (models.clinic.Clinic method)</a>
 </li>
       <li><a href="api/types.html#types.TracebackType">TracebackType (in module types)</a>
+</li>
+      <li><a href="api/models.html#models.clinic.GeoJSONPoint.type">type (models.clinic.GeoJSONPoint attribute)</a>
 </li>
       <li>
     types
@@ -1483,17 +1423,13 @@
 </li>
       <li><a href="api/models.html#models.clinic.update_clinic">update_clinic() (in module models.clinic)</a>
 </li>
-      <li><a href="api/models.html#models.patient.update_encounter">update_encounter() (in module models.patient)</a>
-</li>
       <li><a href="api/routes.html#routes.patients.update_encounter_route">update_encounter_route() (in module routes.patients)</a>
-</li>
-      <li><a href="api/services.html#services.user_service.UserService.update_openai_api_key">update_openai_api_key() (services.user_service.UserService method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/services.html#services.user_service.UserService.update_optimal_api_key">update_optimal_api_key() (services.user_service.UserService method)</a>
+      <li><a href="api/services.html#services.user_service.UserService.update_openai_api_key">update_openai_api_key() (services.user_service.UserService method)</a>
 </li>
-      <li><a href="api/models.html#models.patient.update_patient">update_patient() (in module models.patient)</a>
+      <li><a href="api/services.html#services.user_service.UserService.update_optimal_api_key">update_optimal_api_key() (services.user_service.UserService method)</a>
 </li>
       <li><a href="api/services.html#services.user_service.UserService.update_user">update_user() (services.user_service.UserService method)</a>
 </li>
@@ -1507,13 +1443,9 @@
         <li><a href="api/db.html#db.surreal.SurrealWrapper.use">(db.surreal.SurrealWrapper method)</a>
 </li>
       </ul></li>
-      <li><a href="api/models.html#models.user.User">User (class in models.user)</a>
+      <li><a href="api/services.html#services.user_service.UserNotAffiliatedError">UserNotAffiliatedError</a>
 </li>
       <li><a href="api/services.html#services.user_service.UserService">UserService (class in services.user_service)</a>
-</li>
-      <li><a href="api/models.html#models.user.UserSession">UserSession (class in models.user)</a>
-</li>
-      <li><a href="api/models.html#models.user_settings.UserSettings">UserSettings (class in models.user_settings)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1525,27 +1457,11 @@
 </li>
       <li><a href="api/services.html#services.openai_security.OpenAISecurityService.validate_api_key">validate_api_key() (services.openai_security.OpenAISecurityService method)</a>
 </li>
-      <li><a href="api/models.html#models.user.User.validate_email">validate_email() (models.user.User static method)</a>
-</li>
-      <li><a href="api/models.html#models.user_settings.UserSettings.validate_openai_api_key">validate_openai_api_key() (models.user_settings.UserSettings static method)</a>
-</li>
-      <li><a href="api/models.html#models.user_settings.UserSettings.validate_optimal_api_key">validate_optimal_api_key() (models.user_settings.UserSettings static method)</a>
-</li>
-      <li><a href="api/models.html#models.user.User.validate_password">validate_password() (models.user.User static method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/models.html#models.user.User.validate_phone">validate_phone() (models.user.User static method)</a>
-</li>
-      <li><a href="api/models.html#models.user.User.validate_role">validate_role() (models.user.User static method)</a>
-</li>
       <li><a href="api/services.html#services.user_service.UserService.validate_session">validate_session() (services.user_service.UserService method)</a>
 </li>
-      <li><a href="api/models.html#models.user.User.validate_username">validate_username() (models.user.User static method)</a>
-</li>
       <li><a href="api/db.html#db.vec.Vec">Vec (class in db.vec)</a>
-</li>
-      <li><a href="api/models.html#models.user.User.verify_password">verify_password() (models.user.User method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1568,6 +1484,14 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/logger.html#logger.CustomFormatter.yellow">yellow (logger.CustomFormatter attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/models.html#models.clinic.Address.zip">zip (models.clinic.Address attribute)</a>
 </li>
   </ul></td>
 </tr></table>

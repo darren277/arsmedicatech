@@ -281,8 +281,32 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="models.html#module-models.clinic">models.clinic module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.Address"><code class="docutils literal notranslate"><span class="pre">Address</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.Address.city"><code class="docutils literal notranslate"><span class="pre">Address.city</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.Address.country"><code class="docutils literal notranslate"><span class="pre">Address.country</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.Address.state"><code class="docutils literal notranslate"><span class="pre">Address.state</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.Address.street"><code class="docutils literal notranslate"><span class="pre">Address.street</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.Address.zip"><code class="docutils literal notranslate"><span class="pre">Address.zip</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.Clinic"><code class="docutils literal notranslate"><span class="pre">Clinic</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.Clinic.from_db"><code class="docutils literal notranslate"><span class="pre">Clinic.from_db()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.Clinic.to_dict"><code class="docutils literal notranslate"><span class="pre">Clinic.to_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.Clinic.to_geojson_point"><code class="docutils literal notranslate"><span class="pre">Clinic.to_geojson_point()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.ClinicType"><code class="docutils literal notranslate"><span class="pre">ClinicType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.ClinicType.address"><code class="docutils literal notranslate"><span class="pre">ClinicType.address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.ClinicType.latitude"><code class="docutils literal notranslate"><span class="pre">ClinicType.latitude</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.ClinicType.location"><code class="docutils literal notranslate"><span class="pre">ClinicType.location</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.ClinicType.longitude"><code class="docutils literal notranslate"><span class="pre">ClinicType.longitude</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.ClinicType.name"><code class="docutils literal notranslate"><span class="pre">ClinicType.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.ClinicType.organization_id"><code class="docutils literal notranslate"><span class="pre">ClinicType.organization_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.GeoJSONPoint"><code class="docutils literal notranslate"><span class="pre">GeoJSONPoint</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.GeoJSONPoint.coordinates"><code class="docutils literal notranslate"><span class="pre">GeoJSONPoint.coordinates</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="models.html#models.clinic.GeoJSONPoint.type"><code class="docutils literal notranslate"><span class="pre">GeoJSONPoint.type</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="models.html#models.clinic.create_clinic"><code class="docutils literal notranslate"><span class="pre">create_clinic()</span></code></a></li>
@@ -329,87 +353,9 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.patient">models.patient module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.Encounter"><code class="docutils literal notranslate"><span class="pre">Encounter</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.patient.Encounter.schema"><code class="docutils literal notranslate"><span class="pre">Encounter.schema()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.Patient"><code class="docutils literal notranslate"><span class="pre">Patient</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.patient.Patient.schema"><code class="docutils literal notranslate"><span class="pre">Patient.schema()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.SOAPNotes"><code class="docutils literal notranslate"><span class="pre">SOAPNotes</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.patient.SOAPNotes.from_dict"><code class="docutils literal notranslate"><span class="pre">SOAPNotes.from_dict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.patient.SOAPNotes.serialize"><code class="docutils literal notranslate"><span class="pre">SOAPNotes.serialize()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.add_some_placeholder_encounters"><code class="docutils literal notranslate"><span class="pre">add_some_placeholder_encounters()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.add_some_placeholder_patients"><code class="docutils literal notranslate"><span class="pre">add_some_placeholder_patients()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.create_encounter"><code class="docutils literal notranslate"><span class="pre">create_encounter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.create_patient"><code class="docutils literal notranslate"><span class="pre">create_patient()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.create_schema"><code class="docutils literal notranslate"><span class="pre">create_schema()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.delete_encounter"><code class="docutils literal notranslate"><span class="pre">delete_encounter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.delete_patient"><code class="docutils literal notranslate"><span class="pre">delete_patient()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_all_encounters"><code class="docutils literal notranslate"><span class="pre">get_all_encounters()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_all_patients"><code class="docutils literal notranslate"><span class="pre">get_all_patients()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_encounter_by_id"><code class="docutils literal notranslate"><span class="pre">get_encounter_by_id()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_encounters_by_patient"><code class="docutils literal notranslate"><span class="pre">get_encounters_by_patient()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.get_patient_by_id"><code class="docutils literal notranslate"><span class="pre">get_patient_by_id()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.search_encounter_history"><code class="docutils literal notranslate"><span class="pre">search_encounter_history()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.search_patient_history"><code class="docutils literal notranslate"><span class="pre">search_patient_history()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.serialize_encounter"><code class="docutils literal notranslate"><span class="pre">serialize_encounter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.serialize_patient"><code class="docutils literal notranslate"><span class="pre">serialize_patient()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.store_encounter"><code class="docutils literal notranslate"><span class="pre">store_encounter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.store_patient"><code class="docutils literal notranslate"><span class="pre">store_patient()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.update_encounter"><code class="docutils literal notranslate"><span class="pre">update_encounter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.patient.update_patient"><code class="docutils literal notranslate"><span class="pre">update_patient()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.user">models.user module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.user.User"><code class="docutils literal notranslate"><span class="pre">User</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.can_create_organization"><code class="docutils literal notranslate"><span class="pre">User.can_create_organization()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.from_dict"><code class="docutils literal notranslate"><span class="pre">User.from_dict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.get_full_name"><code class="docutils literal notranslate"><span class="pre">User.get_full_name()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.get_remaining_organization_slots"><code class="docutils literal notranslate"><span class="pre">User.get_remaining_organization_slots()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.has_role"><code class="docutils literal notranslate"><span class="pre">User.has_role()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.hash_password"><code class="docutils literal notranslate"><span class="pre">User.hash_password()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.increment_organization_count"><code class="docutils literal notranslate"><span class="pre">User.increment_organization_count()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.is_admin"><code class="docutils literal notranslate"><span class="pre">User.is_admin()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.is_patient"><code class="docutils literal notranslate"><span class="pre">User.is_patient()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.is_provider"><code class="docutils literal notranslate"><span class="pre">User.is_provider()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.to_dict"><code class="docutils literal notranslate"><span class="pre">User.to_dict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_email"><code class="docutils literal notranslate"><span class="pre">User.validate_email()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_password"><code class="docutils literal notranslate"><span class="pre">User.validate_password()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_phone"><code class="docutils literal notranslate"><span class="pre">User.validate_phone()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_role"><code class="docutils literal notranslate"><span class="pre">User.validate_role()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.validate_username"><code class="docutils literal notranslate"><span class="pre">User.validate_username()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.User.verify_password"><code class="docutils literal notranslate"><span class="pre">User.verify_password()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.user.UserSession"><code class="docutils literal notranslate"><span class="pre">UserSession</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.UserSession.from_dict"><code class="docutils literal notranslate"><span class="pre">UserSession.from_dict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.UserSession.is_expired"><code class="docutils literal notranslate"><span class="pre">UserSession.is_expired()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user.UserSession.to_dict"><code class="docutils literal notranslate"><span class="pre">UserSession.to_dict()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.user_settings">models.user_settings module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.user_settings.UserSettings"><code class="docutils literal notranslate"><span class="pre">UserSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.from_dict"><code class="docutils literal notranslate"><span class="pre">UserSettings.from_dict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.get_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.get_openai_api_key()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.get_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.get_optimal_api_key()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.has_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.has_openai_api_key()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.has_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.has_optimal_api_key()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.set_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.set_openai_api_key()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.set_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.set_optimal_api_key()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.to_dict"><code class="docutils literal notranslate"><span class="pre">UserSettings.to_dict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.validate_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.validate_openai_api_key()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="models.html#models.user_settings.UserSettings.validate_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserSettings.validate_optimal_api_key()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.patient">models.patient module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#module-models.user">models.user module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#models-user-settings-module">models.user_settings module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models.html#module-models">Module contents</a></li>
 </ul>
 </li>
@@ -452,7 +398,9 @@
 <li class="toctree-l2"><a class="reference internal" href="routes.html#module-routes.patients">routes.patients module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.create_encounter_route"><code class="docutils literal notranslate"><span class="pre">create_encounter_route()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.delete_encounter_route"><code class="docutils literal notranslate"><span class="pre">delete_encounter_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.extract_entities_from_notes_route"><code class="docutils literal notranslate"><span class="pre">extract_entities_from_notes_route()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.get_all_encounters_route"><code class="docutils literal notranslate"><span class="pre">get_all_encounters_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.get_cache_stats_route"><code class="docutils literal notranslate"><span class="pre">get_cache_stats_route()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.get_encounter_by_id_route"><code class="docutils literal notranslate"><span class="pre">get_encounter_by_id_route()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.get_encounters_by_patient_route"><code class="docutils literal notranslate"><span class="pre">get_encounters_by_patient_route()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="routes.html#routes.patients.patch_intake_route"><code class="docutils literal notranslate"><span class="pre">patch_intake_route()</span></code></a></li>
@@ -518,11 +466,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="services.html#module-services.auth_decorators">services.auth_decorators module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.get_current_api_key"><code class="docutils literal notranslate"><span class="pre">get_current_api_key()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.get_current_api_key_permissions"><code class="docutils literal notranslate"><span class="pre">get_current_api_key_permissions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.get_current_user"><code class="docutils literal notranslate"><span class="pre">get_current_user()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.get_current_user_id"><code class="docutils literal notranslate"><span class="pre">get_current_user_id()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.get_current_user_role"><code class="docutils literal notranslate"><span class="pre">get_current_user_role()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.optional_auth"><code class="docutils literal notranslate"><span class="pre">optional_auth()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_admin"><code class="docutils literal notranslate"><span class="pre">require_admin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_api_key"><code class="docutils literal notranslate"><span class="pre">require_api_key()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_api_permission"><code class="docutils literal notranslate"><span class="pre">require_api_permission()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_api_permissions"><code class="docutils literal notranslate"><span class="pre">require_api_permissions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_auth"><code class="docutils literal notranslate"><span class="pre">require_auth()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_patient"><code class="docutils literal notranslate"><span class="pre">require_patient()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="services.html#services.auth_decorators.require_provider"><code class="docutils literal notranslate"><span class="pre">require_provider()</span></code></a></li>
@@ -627,6 +580,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="services.html#module-services.user_service">services.user_service module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#services.user_service.UserNotAffiliatedError"><code class="docutils literal notranslate"><span class="pre">UserNotAffiliatedError</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="services.html#services.user_service.UserService"><code class="docutils literal notranslate"><span class="pre">UserService</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.activate_user"><code class="docutils literal notranslate"><span class="pre">UserService.activate_user()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.authenticate_user"><code class="docutils literal notranslate"><span class="pre">UserService.authenticate_user()</span></code></a></li>
@@ -634,11 +588,13 @@
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.close"><code class="docutils literal notranslate"><span class="pre">UserService.close()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.connect"><code class="docutils literal notranslate"><span class="pre">UserService.connect()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.create_default_admin"><code class="docutils literal notranslate"><span class="pre">UserService.create_default_admin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.create_session"><code class="docutils literal notranslate"><span class="pre">UserService.create_session()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.create_user"><code class="docutils literal notranslate"><span class="pre">UserService.create_user()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.deactivate_user"><code class="docutils literal notranslate"><span class="pre">UserService.deactivate_user()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_all_users"><code class="docutils literal notranslate"><span class="pre">UserService.get_all_users()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_openai_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.get_openai_api_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_optimal_api_key"><code class="docutils literal notranslate"><span class="pre">UserService.get_optimal_api_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_organization_id"><code class="docutils literal notranslate"><span class="pre">UserService.get_organization_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_by_email"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_by_email()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_by_id"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_by_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="services.html#services.user_service.UserService.get_user_by_username"><code class="docutils literal notranslate"><span class="pre">UserService.get_user_by_username()</span></code></a></li>
