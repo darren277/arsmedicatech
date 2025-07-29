@@ -34,6 +34,9 @@ from lib.routes.chat import (create_conversation_route,
                              get_conversation_messages_route,
                              get_user_conversations_route, send_message_route)
 from lib.routes.llm_agent import llm_agent_endpoint_route
+from lib.routes.api_keys import (create_api_key_route, deactivate_api_key_route,
+                                 delete_api_key_route, get_api_key_usage_route,
+                                 list_api_keys_route)
 from lib.routes.metrics import metrics_bp
 from lib.routes.optimal import call_optimal_route
 from lib.routes.organizations import get_organizations_route
@@ -62,6 +65,8 @@ from lib.routes.users import (activate_user_route, change_password_route,
                               logout_route, register_route, search_users_route,
                               settings_route, setup_default_admin_route,
                               update_user_profile_route)
+from lib.services.auth_decorators import (optional_auth, require_admin, require_api_key,
+                                          require_api_permission, require_auth)
 from lib.routes.webhooks import (create_webhook_subscription_route,
                                  delete_webhook_subscription_route,
                                  get_webhook_events_route,
@@ -510,6 +515,8 @@ def search_patients() -> Tuple[Response, int]:
 # Encounter endpoints
 @app.route('/api/encounters', methods=['GET'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:read')
 def get_all_encounters() -> Tuple[Response, int]:
     """
     Get all encounters in the system.
@@ -519,6 +526,8 @@ def get_all_encounters() -> Tuple[Response, int]:
 
 @app.route('/api/encounters/search', methods=['GET'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:read')
 def search_encounters() -> Tuple[Response, int]:
     """
     Search for encounters in the system.
@@ -528,6 +537,8 @@ def search_encounters() -> Tuple[Response, int]:
 
 @app.route('/api/patients/<patient_id>/encounters', methods=['GET'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:read')
 def get_patient_encounters(patient_id: str) -> Tuple[Response, int]:
     """
     Get all encounters for a specific patient.
@@ -538,6 +549,8 @@ def get_patient_encounters(patient_id: str) -> Tuple[Response, int]:
 
 @app.route('/api/encounters/<encounter_id>', methods=['GET'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:read')
 def get_encounter(encounter_id: str) -> Tuple[Response, int]:
     """
     Get a specific encounter by its ID.
@@ -548,6 +561,8 @@ def get_encounter(encounter_id: str) -> Tuple[Response, int]:
 
 @app.route('/api/patients/<patient_id>/encounters', methods=['POST'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:write')
 def create_patient_encounter(patient_id: str) -> Tuple[Response, int]:
     """
     Create a new encounter for a specific patient.
@@ -558,6 +573,8 @@ def create_patient_encounter(patient_id: str) -> Tuple[Response, int]:
 
 @app.route('/api/encounters/<encounter_id>', methods=['PUT'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:write')
 def update_encounter(encounter_id: str) -> Tuple[Response, int]:
     """
     Update an existing encounter by its ID.
@@ -568,6 +585,8 @@ def update_encounter(encounter_id: str) -> Tuple[Response, int]:
 
 @app.route('/api/encounters/<encounter_id>', methods=['DELETE'])
 @require_auth
+@require_api_key
+@require_api_permission('encounters:write')
 def delete_encounter(encounter_id: str) -> Tuple[Response, int]:
     """
     Delete an existing encounter by its ID.
@@ -576,6 +595,54 @@ def delete_encounter(encounter_id: str) -> Tuple[Response, int]:
     """
     return delete_encounter_route(encounter_id)
 
+# API Key Management endpoints
+@app.route('/api/keys', methods=['GET'])
+@require_auth
+def list_api_keys() -> Tuple[Response, int]:
+    """
+    List all API keys for the authenticated user.
+    :return: Response object with API keys list.
+    """
+    return list_api_keys_route()
+
+@app.route('/api/keys', methods=['POST'])
+@require_auth
+def create_api_key() -> Tuple[Response, int]:
+    """
+    Create a new API key for the authenticated user.
+    :return: Response object with API key creation status.
+    """
+    return create_api_key_route()
+
+@app.route('/api/keys/<key_id>', methods=['DELETE'])
+@require_auth
+def delete_api_key(key_id: str) -> Tuple[Response, int]:
+    """
+    Delete an API key.
+    :param key_id: The ID of the API key to delete.
+    :return: Response object with deletion status.
+    """
+    return delete_api_key_route(key_id)
+
+@app.route('/api/keys/<key_id>/deactivate', methods=['POST'])
+@require_auth
+def deactivate_api_key(key_id: str) -> Tuple[Response, int]:
+    """
+    Deactivate an API key (soft delete).
+    :param key_id: The ID of the API key to deactivate.
+    :return: Response object with deactivation status.
+    """
+    return deactivate_api_key_route(key_id)
+
+@app.route('/api/keys/<key_id>/usage', methods=['GET'])
+@require_auth
+def get_api_key_usage(key_id: str) -> Tuple[Response, int]:
+    """
+    Get usage statistics for an API key.
+    :param key_id: The ID of the API key.
+    :return: Response object with usage statistics.
+    """
+    return get_api_key_usage_route(key_id)
 
 @app.route('/api/encounters/extract-entities', methods=['POST'])
 @require_auth
