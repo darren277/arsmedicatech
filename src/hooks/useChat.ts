@@ -31,35 +31,9 @@ function useChat(isLLM = false) {
 
           data = userConversations;
 
-          // Transform LLM chats into conversation format
-          if (llmChats && llmChats.messages && llmChats.messages.length > 0) {
-            aiConversations = [
-              {
-                id: 'ai-assistant',
-                name: 'AI Assistant',
-                lastMessage:
-                  llmChats.messages[llmChats.messages.length - 1]?.text ||
-                  'No messages yet',
-                avatar: 'https://ui-avatars.com/api/?name=AI&background=random',
-                messages: llmChats.messages || [],
-                isAI: true,
-                participantId: 'ai-assistant',
-              },
-            ];
-          } else {
-            // Always include AI Assistant conversation, even if no messages
-            aiConversations = [
-              {
-                id: 'ai-assistant',
-                name: 'AI Assistant',
-                lastMessage: 'No messages yet',
-                avatar: 'https://ui-avatars.com/api/?name=AI&background=random',
-                messages: [],
-                isAI: true,
-                participantId: 'ai-assistant',
-              },
-            ];
-          }
+          // For multiple AI conversations, we don't automatically create one
+          // Users will create new AI conversations as needed
+          aiConversations = [];
         }
 
         if (!isMounted) return;
@@ -156,9 +130,9 @@ function useChat(isLLM = false) {
       participantId
     );
 
-    // For database conversation IDs, we need to use the full ID string
-    // For AI conversations, we use a timestamp
-    const conversationId = isAI ? Date.now() : participantId;
+    // For AI conversations, generate a unique ID using timestamp
+    // For user conversations, use the participantId
+    const conversationId = isAI ? `ai-assistant-${Date.now()}` : participantId;
 
     logger.debug('Using conversation ID:', conversationId);
 
@@ -185,8 +159,11 @@ function useChat(isLLM = false) {
     try {
       if (isLLM) {
         // For LLM chat, send the message to the LLM endpoint using apiService
+        // Use the selected conversation ID for AI conversations
+        const conversationId =
+          selectedConversationId?.toString() || 'ai-assistant';
         const llmResponse = await apiService.sendLLMMessage(
-          'ai-assistant',
+          conversationId,
           newMessage
         );
         logger.debug('LLM Response:', llmResponse);

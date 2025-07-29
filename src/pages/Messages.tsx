@@ -460,9 +460,9 @@ const Messages = () => {
   };
 
   const handleStartChatbot = () => {
-    // Create AI Assistant conversation
+    // Create AI Assistant conversation with unique ID
     createNewConversation(
-      'ai-assistant',
+      `ai-assistant-${Date.now()}`,
       'AI Assistant',
       'https://ui-avatars.com/api/?name=AI&background=random',
       true
