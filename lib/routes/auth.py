@@ -86,7 +86,17 @@ def cognito_login_route() -> Union[Tuple[Response, int], BaseResponse]:
             return redirect(error_url)
         
         # Default error handling
-        error_url = f"{APP_URL}?error={error}&error_description={parse.quote(decoded_description)}&suggested_action=home"
+        # Whitelist of allowed error types
+        allowed_errors = {'invalid_request', 'access_denied', 'server_error', 'temporarily_unavailable'}
+        if error not in allowed_errors:
+            logger.warning("Unrecognized error type: %s", error)
+            error = 'unknown_error'
+            decoded_description = 'An unknown error occurred.'
+        
+        # Sanitize error_description
+        sanitized_description = parse.quote(decoded_description)
+        
+        error_url = f"{APP_URL}?error={error}&error_description={sanitized_description}&suggested_action=home"
         return redirect(error_url)
 
     code = request.args.get('code')
