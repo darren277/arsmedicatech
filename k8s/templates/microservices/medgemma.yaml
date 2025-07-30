@@ -1,0 +1,73 @@
+{{- if .Values.micro.medgemma.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}
+  template:
+    metadata:
+      labels:
+        app: medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}
+    spec:
+      nodeSelector:
+        nvidia.com/gpu.product: {{ .Values.micro.medgemma.gpuProduct | default "A100"}}
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: medgemma
+          image: "{{ .Values.micro.medgemma.repository }}:{{ .Values.micro.medgemma.image.tag }}"
+          imagePullPolicy: "{{ .Values.micro.medgemma.image.pullPolicy }}"
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+              memory: "16Gi"
+              cpu: "2"
+          env:
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: huggingface-token
+                  key: token
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}-service
+spec:
+  selector:
+    app: medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}
+  minReplicas: 1
+  maxReplicas: {{ .Values.micro.medgemma.maxReplicas | default 1 }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+{{- end }}
