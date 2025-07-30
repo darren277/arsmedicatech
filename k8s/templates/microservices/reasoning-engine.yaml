@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reasoning-engine
+  labels:
+    app: reasoning-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reasoning-engine
+  template:
+    metadata:
+      labels:
+        app: reasoning-engine
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: reasoning-engine
+          image: "{{ .Values.micro.reasoningEngine.image.repository }}:{{ .Values.micro.reasoningEngine.image.tag }}"
+          imagePullPolicy: "{{ .Values.micro.reasoningEngine.image.pullPolicy }}"
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /reasoning/term/C3 # replace with real health check if needed
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /reasoning/term/C3
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reasoning-engine
+spec:
+  selector:
+    app: reasoning-engine
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
