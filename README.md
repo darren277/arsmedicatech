@@ -111,7 +111,7 @@ ArsMedicaTech is released under the **GNU Affero General Public License v3 (AGPL
 ⚖️  Any party that deploys a modified version as a network service **must publicly release its source code under the same license**.  
 This server-side copyleft keeps improvements transparent while ensuring patients retain freedom and auditability.
 
-> *Short version*: Use it, improve it, even run it commercially - but if you host or sell a modified edition you **must** give the community those changes.
+> *Short version*: Use it, improve it - but if you host or sell a modified edition you **must** give the community those changes.
 
 ---
 
