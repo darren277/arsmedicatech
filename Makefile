@@ -245,6 +245,15 @@ ontologies-s3-create:
 	aws s3api put-bucket-policy --profile $(AWS_PROFILE) --region $(AWS_REGION) --bucket $(ONTOLOGIES_S3_BUCKET) --policy file://config/ontologies_s3_bucket_policy.json | true
 
 
+# MedGemma
+medgemma-docker-create:
+	aws ecr create-repository --repository-name $(MEDGEMMA_IMAGE) --region us-east-1 || true
+
+medgemma-docker:
+	docker build -t $(DOCKER_REGISTRY)/$(MEDGEMMA_IMAGE):$(MEDGEMMA_VERSION) -f Dockerfile.medgemma .
+	docker push $(DOCKER_REGISTRY)/$(MEDGEMMA_IMAGE):$(MEDGEMMA_VERSION)
+	kubectl rollout restart deployment $(MEDGEMMA_DEPLOYMENT) --namespace=$(NAMESPACE)
+
 
 
 # Google Cloud credentials
