@@ -42,6 +42,23 @@ spec:
                 secretKeyRef:
                   name: huggingface-token
                   key: token
+          command:
+            [ "python3" ]
+          args:
+            [
+              "-m",
+              "vllm.entrypoints.openai.api_server",
+              "--model", "{{ .Values.micro.medgemma.model }}",
+              "--quantization", "awq",
+              "--port", "8000"
+            ]
+          volumeMounts:
+            - name: model-cache
+              mountPath: /models
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: medgemma-model-cache
       tolerations:
         - key: "nvidia.com/gpu"
           operator: "Exists"
