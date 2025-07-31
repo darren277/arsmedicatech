@@ -78,3 +78,10 @@ spec:
                 name: reasoning-engine
                 port:
                   number: 80
+          - path: /bayesian
+            pathType: Prefix
+            backend:
+              service:
+                name: micro-bayesian
+                port:
+                  number: 80
