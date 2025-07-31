@@ -255,6 +255,12 @@ medgemma-docker:
 	kubectl rollout restart deployment $(MEDGEMMA_DEPLOYMENT) --namespace=$(NAMESPACE)
 
 
+runpod:
+	kubectl create ns kube-system || true
+	kubectl create secret generic runpod-api-secret -n kube-system --from-literal=RUNPOD_API_KEY=$(RUNPOD_API_KEY)
+	helm install runpod-kubelet oci://ghcr.io/bsvogler/helm/runpod-kubelet --namespace kube-system --set runpod.existingSecret=runpod-api-secret --set runpod.maxGpuPrice=$(MAX_GPU_PRICE)
+
+
 
 # Google Cloud credentials
 
