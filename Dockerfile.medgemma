@@ -12,7 +12,7 @@ RUN pip install --upgrade pip
 RUN pip install "vllm[triton]"  # includes transformer engine
 
 # Optional: Install HF accelerate for local testing
-RUN pip install accelerate
+#RUN pip install accelerate
 
 # Set up cache and model
 ENV HF_HOME=/models/huggingface
@@ -21,7 +21,7 @@ ENV VLLM_CACHE_DIR=/models/vllm
 RUN mkdir -p $HF_HOME $VLLM_CACHE_DIR
 
 # Optional: pre-download weights
-RUN python3 -c "from transformers import AutoTokenizer, AutoModelForCausalLM; AutoModelForCausalLM.from_pretrained('$MODEL_NAME', trust_remote_code=True)"
+#RUN python3 -c "from transformers import AutoTokenizer, AutoModelForCausalLM; AutoModelForCausalLM.from_pretrained('$MODEL_NAME', trust_remote_code=True)"
 
 # Expose inference port
 EXPOSE 8000
