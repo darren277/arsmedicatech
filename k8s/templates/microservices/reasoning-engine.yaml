@@ -33,15 +33,15 @@ spec:
               value: "{{ .Values.micro.reasoningEngine.s3Bucket }}"
           readinessProbe:
             httpGet:
-              path: /reasoning/term/C3 # replace with real health check if needed
+              path: /healthz
               port: 8080
-            initialDelaySeconds: 5
+            initialDelaySeconds: 30
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /reasoning/term/C3
+              path: /healthz
               port: 8080
-            initialDelaySeconds: 15
+            initialDelaySeconds: 30
             periodSeconds: 20
 ---
 apiVersion: v1
