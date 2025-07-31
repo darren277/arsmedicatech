@@ -29,6 +29,14 @@ spec:
               memory: "16Gi"
               cpu: "2"
           env:
+            - name: MODEL_NAME
+              value: google/medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}
+            - name: TRANSFORMERS_CACHE
+              value: /models/huggingface
+            - name: HF_HOME
+              value: /models/huggingface
+            - name: VLLM_CACHE_DIR
+              value: /models/vllm
             - name: HF_TOKEN
               valueFrom:
                 secretKeyRef:
