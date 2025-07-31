@@ -95,4 +95,16 @@ spec:
         target:
           type: Utilization
           averageUtilization: 60
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: medgemma-model-cache
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: do-block-storage
 {{- end }}
