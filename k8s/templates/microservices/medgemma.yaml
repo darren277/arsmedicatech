@@ -3,6 +3,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}
+  annotations:
+    runpod.io/gpu-product: "{{ .Values.micro.medgemma.gpuMemory }}" # e.g. 24 (GB (L4/RTX))
+    runpod.io/max-gpu-price: "{{ .Values.micro.medgemma.maxGpuPrice }}"          # $/hr
+    runpod.io/datacenter-ids: "{{ .Values.micro.medgemma.location }}" # e.g. us-east-1
 spec:
   replicas: 1
   selector:
@@ -14,7 +18,7 @@ spec:
         app: medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}
     spec:
       nodeSelector:
-        nvidia.com/gpu.product: {{ .Values.micro.medgemma.gpuProduct | default "A100"}}
+        type: virtual-kubelet
       imagePullSecrets:
         - name: ecr-secret
       containers:
@@ -24,10 +28,10 @@ spec:
           ports:
             - containerPort: 8000
           resources:
+            requests:
+              nvidia.com/gpu: "1"
             limits:
-              nvidia.com/gpu: 1
-              memory: "16Gi"
-              cpu: "2"
+              nvidia.com/gpu: "1"
           env:
             - name: MODEL_NAME
               value: google/medgemma-{{ .Values.micro.medgemma.modelSize | default "4b" }}
@@ -60,8 +64,9 @@ spec:
           persistentVolumeClaim:
             claimName: medgemma-model-cache
       tolerations:
-        - key: "nvidia.com/gpu"
-          operator: "Exists"
+        - key: "virtual-kubelet.io/provider"
+          operator: "Equal"
+          value: "runpod"
           effect: "NoSchedule"
 ---
 apiVersion: v1
