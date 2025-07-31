@@ -24,6 +24,13 @@ spec:
           imagePullPolicy: "{{ .Values.micro.reasoningEngine.image.pullPolicy }}"
           ports:
             - containerPort: 8080
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: "{{ .Values.micro.reasoningEngine.awsAccessKeyId }}"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "{{ .Values.micro.reasoningEngine.awsSecretAccessKey }}"
+            - name: AWS_ONTOLOGY_S3_BUCKET
+              value: "{{ .Values.micro.reasoningEngine.s3Bucket }}"
           readinessProbe:
             httpGet:
               path: /reasoning/term/C3 # replace with real health check if needed
