@@ -68,6 +68,10 @@ spec:
           operator: "Equal"
           value: "runpod"
           effect: "NoSchedule"
+        - key: "runpod-only"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
 ---
 apiVersion: v1
 kind: Service
